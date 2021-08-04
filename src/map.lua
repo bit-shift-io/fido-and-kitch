@@ -28,17 +28,36 @@ local function prequire(m)
 end
 
 function Map:createEntitiesFromObjectGroupLayers()
-    for _, layer in ipairs(self.map.layers) do
+    -- we basically take each object layer and replace
+    -- them with entities
+    -- so the layer order is the render order
+    for li, layer in ipairs(self.map.layers) do
 		if layer.type == "objectgroup" then
-			layer.visible = false
-            for _, object in ipairs(layer.objects) do
+            local objects = layer.objects
+            layer.entities = {}
+
+            self.map:convertToCustomLayer(li)
+
+	        function layer:update(dt) 
+                for _, entity in pairs(self.entities) do
+                    entity:update(dt)
+                end
+            end
+
+            function layer:draw() 
+                for _, entity in pairs(self.entities) do
+                    entity:draw()
+                end
+            end
+
+            for _, object in ipairs(objects) do
                 -- move to a util function with option to supress error
                 local ok, err = pcall(require, object.type) 
                 if not ok then
                     print(err)
                 else
                     local entity = err(object)
-                    entity.new("qwe") -- testing inheritance... why is the arg not being passed?
+                    table.insert(layer.entities, entity)
                 end
             end
 		end

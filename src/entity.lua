@@ -3,10 +3,12 @@
 local Entity   = {}
 Entity.__index = Entity
 
-function Entity:new(q)
-    self.object = q
-    print(q)
-    print("Entity created")
+function Entity:update(dt)
+    print("update")
+end
+
+function Entity:draw()
+    print('draw')
 end
 
 return Entity

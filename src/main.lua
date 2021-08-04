@@ -5,15 +5,10 @@ print(package.path)
 local newAnimation = require('animation')
 local newMap = require('map')
 
-platform = {}
+
 player = {}
 
 function love.load()
-	platform.width = love.graphics.getWidth()
-	platform.height = love.graphics.getHeight()
-
-	platform.x = 0
-	platform.y = platform.height / 2
 
 	player.x = love.graphics.getWidth() / 2
 	player.y = love.graphics.getHeight() / 2

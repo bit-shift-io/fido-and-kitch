@@ -16,3 +16,6 @@ mv Simple-Tiled-Implementation/sti ../
 
 cd ..
 rm -rf thirdparty
+
+
+git clone --depth 1 git@github.com:vrld/hump.git
