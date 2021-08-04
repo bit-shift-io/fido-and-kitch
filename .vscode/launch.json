@@ -19,6 +19,20 @@
             ],
         },
         {
+            "type": "lua-local",
+            "request": "launch",
+            "name": "Debug love-bone",
+            "program":
+            {
+                "command": "/Applications/love.app/Contents/MacOS/love"
+            },
+            "args": 
+            [
+                "${workspaceFolder}/thirdparty/love-bone",
+                "vsc_debug"
+            ],
+        },
+        {
             "name": "Debug Custom Lua Environment",
             "type": "lua-local",
             "request": "launch",

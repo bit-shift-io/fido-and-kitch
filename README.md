@@ -2,6 +2,13 @@
 
 Fido and Kitch is a puzzle platformer. It features local couch co-op with bite sized puzzles. Think Lurid Land made with Flutter and Flame.
 
+# Install
+
+To install simply run:
+
+    ./install.sh
+
+This will checkout any required dependencies
 
 # TO debbug in VSCode
 
