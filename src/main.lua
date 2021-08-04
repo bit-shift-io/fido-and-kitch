@@ -40,6 +40,8 @@ function love.load()
 	world = love.physics.newWorld(0, 0)
 
     map = newMap('assets/maps/sandbox.lua', world)
+    map:createEntitiesFromObjectGroupLayers()
+    
     print("load complete")
 end
 

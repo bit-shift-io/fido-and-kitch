@@ -19,6 +19,23 @@ local function newMap(path, world, debug)
     )
 end
 
+function Map:createEntitiesFromObjectGroupLayers()
+    for _, layer in ipairs(self.map.layers) do
+		if layer.type == "objectgroup" then
+			layer.visible = false
+
+            for _, object in ipairs(layer.objects) do
+                path = 'assets/' .. object.type .. '.lua'
+                info = love.filesystem.getInfo(path)
+                if info then
+                    entity = assert(love.filesystem.load(path))() -- setmetatable(assert(love.filesystem.load(path))(), Map)
+                    print('loaded entity')
+                end
+            end
+		end
+	end
+end
+
 function Map:update(dt)
     self.map:update(dt)
 end
