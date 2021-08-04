@@ -1,0 +1,90 @@
+component: Player
+entityList: [Entity, Players]
+name: Kitch
+debugMode: true
+children:
+    - component: Position
+      size: [32, 32]
+      debugMode: true
+      children:
+      - component: Switch
+        name: Animations
+        components:
+          - component: SpriteAnimation
+            name: Idle
+            images: cat/Idle (${i+1}).png
+            stepTime: 0.2
+            loop: true
+            frames: 10
+          - component: SpriteAnimation
+            name: Walk
+            images: cat/Walk (${i+1}).png
+            stepTime: 0.2
+            loop: true
+            frames: 10
+          - component: SpriteAnimation
+            name: Fall
+            images: cat/Fall (${i+1}).png
+            stepTime: 0.2
+            loop: true
+            frames: 8
+          - component: SpriteAnimation
+            name: Dead
+            images: cat/Dead (${i+1}).png
+            stepTime: 0.2
+            loop: false
+            frames: 10
+          - component: SpriteAnimation
+            name: TeleportFrom
+            images: cat/Dead (${i+1}).png
+            stepTime: 0.2
+            loop: false
+            frames: 10
+          - component: SpriteAnimation
+            name: TeleportTo
+            images: cat/Dead (${i+1}).png
+            stepTime: 0.2
+            loop: false
+            frames: 10
+            reversed: true
+          - component: SpriteAnimation
+            name: Use
+            images: cat/Fall (${i+1}).png
+            stepTime: 0.1
+            loop: false
+            frames: 8
+    - component: Inventory
+      name: Inventory
+    - component: PhysicsBody
+      name: PhysicsBody
+      bodyDef:
+        type: dynamic
+        fixedRotation: true
+      fixtureDefs:
+        - shape:
+            type: box
+            size: [10, 15]
+          restitution: 0.0
+          density: 1.0
+          friction: 0.0
+    - component: Area
+      name: UseSensor
+      shape:
+        type: box
+        size: [20, 20]
+states:
+  - name: Idle
+  - name: Walk
+    movementSpeed: 100
+  - name: Fall
+  - name: Dead
+  - name: Ladder
+    animationName: Walk
+    movementSpeed: 50
+  - name: Elevator
+    animationName: Walk
+  - name: Use
+    animationName: Use
+  - name: Teleport
+    fromAnimationName: TeleportFrom
+    toAnimationName: TeleportTo 

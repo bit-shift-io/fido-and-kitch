@@ -1,0 +1,9 @@
+objectGroups:
+  - name: Coins
+    componentFile: coin.yml
+  - name: Teleporters
+    componentFile: teleporter.yml
+  - name: Keys
+    componentFile: key.yml
+  - name: Cages
+    componentFile: cage.yml

@@ -1,0 +1,50 @@
+#
+# Cage
+#
+# A trap that needs to be activated
+#
+# substitutions:
+#   color - what colour variation to use
+#   requiredItem - what item is required to trigger the cage?
+#
+
+component: Entity
+entityList: [Entity, Usable]
+children:
+  - component: Position
+    debugMode: false
+    children:
+      - component: Switch
+        name: state
+        activeComponent: on
+        components:
+          - name: off
+            component: Sprite
+            image: cage.png
+            size: [40, 40]
+            srcPosition: [0, 0]
+            srcSize: [720, 360]
+          - name: on
+            component: Sprite
+            image: cage.png
+            size: [40, 40]
+            srcPosition: [0, 360]
+            srcSize: [720, 360]
+  - component: Script
+    name: toggle
+    script: >
+      var c = findFirstChild(entity, 'state')
+      setActiveComponent(c, state)
+      print('The cage has been set to state ' + state)
+      print('TODO: release the captive')
+  - component: Usable
+    requiredItem: key_${color}
+    children:
+      - component: Script
+        name: OnUse
+        script: >
+          print('player has used the cage')
+          var c = findFirstChild(entity, 'state')
+          setActiveComponent(c, 'off')
+          print('The cage has been set to state off')
+          print('TODO: release the captive')

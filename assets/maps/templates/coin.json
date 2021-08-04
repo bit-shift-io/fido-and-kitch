@@ -1,0 +1,19 @@
+{ "object":
+    {
+     "ellipse":true,
+     "height":0,
+     "id":7,
+     "name":"",
+     "properties":[
+            {
+             "name":"count",
+             "type":"int",
+             "value":3
+            }],
+     "rotation":0,
+     "type":"coin",
+     "visible":true,
+     "width":0
+    },
+ "type":"template"
+}
