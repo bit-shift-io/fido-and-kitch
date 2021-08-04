@@ -1,3 +1,5 @@
+local vector = require('vector')
+
 local Animation = {}
 
 local Animationmt = { __index = Animation }
@@ -13,12 +15,9 @@ local function newAnimation(frames, duration)
         frames        = cloneArray(frames),
         duration      = duration,
         currentTime   = 0,
-        x = 0,
-        y = 0,
-        sx = 1, -- scale
-        sy = 1,
-        ox = 0, -- offset
-        oy = 0
+        position = vector(0, 0),
+        scale = vector(1, 1),
+        offset = vector(0, 0),
       },
       Animationmt
     )
@@ -34,7 +33,7 @@ end
 function Animation:draw()
     local frameNum = math.floor(self.currentTime / self.duration * #self.frames) + 1
     local frame = self.frames[frameNum]
-    love.graphics.draw(frame, self.x, self.y, 0, self.sx, self.sy, self.ox, self.oy)
+    love.graphics.draw(frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 
 return newAnimation

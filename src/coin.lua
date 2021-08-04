@@ -1,5 +1,6 @@
 local Entity = require('entity')
 local newAnimation = require('animation')
+local vector = require('vector')
 
 -- can entity provide a wrapper function do do some leg work here?
 local Coin   = {}
@@ -13,10 +14,8 @@ local function newCoin(object)
         love.graphics.newImage('assets/images/cat/Idle (3).png')
     }
     a = newAnimation(frames, 1.0)
-    a.sx = 0.1
-    a.sy = 0.1
-    a.x = object.x
-    a.y = object.y
+    a.scale = vector(0.1, 0.1)
+    a.position = vector(object.x, object.y)
 
     return setmetatable({
         object = object,
