@@ -1,3 +1,5 @@
+package.path = package.path .. ';assets/?.lua'
+
 local sti = require("sti")
 
 local Map   = {}
@@ -19,17 +21,24 @@ local function newMap(path, world, debug)
     )
 end
 
+local function prequire(m) 
+    local ok, err = pcall(require, m) 
+    if not ok then return nil, err end
+    return err
+end
+
 function Map:createEntitiesFromObjectGroupLayers()
     for _, layer in ipairs(self.map.layers) do
 		if layer.type == "objectgroup" then
 			layer.visible = false
-
             for _, object in ipairs(layer.objects) do
-                path = 'assets/' .. object.type .. '.lua'
-                info = love.filesystem.getInfo(path)
-                if info then
-                    entity = assert(love.filesystem.load(path))() -- setmetatable(assert(love.filesystem.load(path))(), Map)
-                    print('loaded entity')
+                -- move to a util function with option to supress error
+                local ok, err = pcall(require, object.type) 
+                if not ok then
+                    print(err)
+                else
+                    local entity = err(object)
+                    entity.new("qwe") -- testing inheritance... why is the arg not being passed?
                 end
             end
 		end

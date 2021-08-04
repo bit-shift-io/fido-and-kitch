@@ -10,14 +10,15 @@ To install simply run:
 
 This will checkout any required dependencies
 
-# TO debbug in VSCode
+# To debug in VSCode
 
 get the "Local Lua Debugger" extension (tomblind.local-lua-debugger-vscode) extension.
-
 
 ## Map Editor
 
 https://www.mapeditor.org/
+
+Save the map as tmx but will need to be exported as .lua to be loaded
 
 ## Contribute
 
