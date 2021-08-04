@@ -1,6 +1,9 @@
 if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
 
+print(package.path)
+
 local newAnimation = require('animation')
+local newMap = require('map')
 
 platform = {}
 player = {}
@@ -32,10 +35,16 @@ function love.load()
         love.graphics.newImage('assets/images/cat/Idle (3).png')
     }
     a = newAnimation(frames, 1.0)
-    print("qwe")
+
+    -- Prepare physics world with horizontal and vertical gravity
+	world = love.physics.newWorld(0, 0)
+
+    map = newMap('assets/maps/sandbox.lua', world)
+    print("load complete")
 end
 
 function love.update(dt)
+    map:update(dt)
 	a:update(dt)
 
 	if love.keyboard.isDown('d') then
@@ -66,8 +75,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.rectangle('fill', platform.x, platform.y, platform.width, platform.height)
+    map:draw()
 
 	love.graphics.draw(player.img, player.x, player.y, 0, 0.1, 0.1, 0, 32)
 
