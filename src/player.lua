@@ -11,7 +11,7 @@ local function newPlayer(object)
         love.graphics.newImage('assets/images/cat/Idle (3).png')
     }
 
-    a = newAnimation(frames, 1.0)
+    a = newAnimation{frames=frames, duration=1.0}
     a.scale = vector(0.1, 0.1)
     a.position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 

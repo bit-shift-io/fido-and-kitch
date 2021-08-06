@@ -8,12 +8,7 @@ Coin.__index = Coin
 setmetatable(Coin, Entity)
 
 local function newCoin(object)
-    frames = {
-        love.graphics.newImage('assets/images/cat/Idle (1).png'),
-        love.graphics.newImage('assets/images/cat/Idle (2).png'),
-        love.graphics.newImage('assets/images/cat/Idle (3).png')
-    }
-    a = newAnimation(frames, 1.0)
+    a = newAnimation{image='assets/images/coins.png', textureSize=vector(20, 20), frames=8, duration=1.0, loop=true}
     a.scale = vector(0.1, 0.1)
     a.position = vector(object.x, object.y)
 

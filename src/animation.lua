@@ -10,10 +10,29 @@ local function cloneArray(arr)
     return result
 end
 
-local function newAnimation(frames, duration)
+local function newAnimation(props)
+    frames = props.frames
+    image = props.image
+
+    if type(frames) == 'number' then
+        image = love.graphics.newImage(image)
+        print('frmes is a number')
+
+        width = image:getWidth()
+
+        newFrames = {}
+        for i = 0, frames, 1 do
+            newFrames[i] = love.graphics.newQuad(0, 0, 32, 32, image:getDimensions())
+        end
+    end
+
+    if type(frames) == 'string' then
+        print('frmes is a string')
+    end
+
     return setmetatable({
         frames        = cloneArray(frames),
-        duration      = duration,
+        duration      = props.duration,
         currentTime   = 0,
         position = vector(0, 0),
         scale = vector(1, 1),
