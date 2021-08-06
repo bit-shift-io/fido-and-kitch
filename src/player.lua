@@ -1,3 +1,6 @@
+local newAnimation = require('animation')
+local vector = require('vector')
+
 local Player   = {}
 Player.__index = Player
 
@@ -10,16 +13,16 @@ local function newPlayer(object)
 
     a = newAnimation(frames, 1.0)
     a.scale = vector(0.1, 0.1)
-    a.position = vector(olove.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+    a.position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 
     return setmetatable({
         object = object,
         animation = a,
 
-        ground = a.position.y
-        speed = 200
-	    y_velocity = 0
-	    jump_height = -300
+        ground = a.position.y,
+        speed = 200,
+	    y_velocity = 0,
+	    jump_height = -300,
 	    gravity = -500
       },
       Player
@@ -31,9 +34,9 @@ function Player:update(dt)
 
     local position = self.animation.position
     if love.keyboard.isDown('d') then
-		if position.x < (love.graphics.getWidth() - player.img:getWidth()) then
+		--if position.x < (love.graphics.getWidth() - player.img:getWidth()) then
 			position.x = position.x + (self.speed * dt)
-		end
+		--end
 	elseif love.keyboard.isDown('a') then
 		if position.x > 0 then 
 			position.x = position.x - (self.speed * dt)
@@ -48,12 +51,12 @@ function Player:update(dt)
 
 	if self.y_velocity ~= 0 then
 		position.y = position.y + self.y_velocity * dt
-		player.y_velocity = self.y_velocity - self.gravity * dt
+		self.y_velocity = self.y_velocity - self.gravity * dt
 	end
 
-	if position.y > player.ground then
-		player.y_velocity = 0
-    	position.y = player.ground
+	if position.y > self.ground then
+		self.y_velocity = 0
+    	position.y = self.ground
 	end
 end
 

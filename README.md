@@ -24,19 +24,6 @@ Save the map as tmx but will need to be exported as .lua to be loaded
 
 Looking for things to do, look here: https://github.com/bit-shift-io/fido-and-kitch/projects
 
-## Architecture
-
-ECS without ECS. The goal of ECS is to improve performance by improving CPU cache hits by keeping components coherent within memory and operating on all
-components in a linear fashion.
-This type of architecture doesn't fit with the traditional hierachy of data, updating and rendering provided by most traditional engines (including flame).
-For this reason we use a hybrid approach:
-Pools of components to maintain coherancy and try to improve CPU caching. Updating is done based on component type, similar to ECS systems.
-We leave rendering in the hierachical way flame expects.
-
-Components are building blocks.
-Entities are root level items that are made up of components.
-Entities should interact with one another and each entity can interact with its own components, but no entity should know about another entities components.
-
 ## Assets
 
 Here are a list of assets we use in the game and their source of origin.
