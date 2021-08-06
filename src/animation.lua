@@ -11,35 +11,45 @@ local function cloneArray(arr)
 end
 
 local function newAnimation(props)
-    frames = props.frames
-    image = props.image
+    local frames = props.frames
+    local image = props.image
+    local draw = Animation.draw_image_frames
 
     if type(frames) == 'number' then
         image = love.graphics.newImage(image)
-        print('frmes is a number')
 
-        width = image:getWidth()
+        local width = image:getWidth()
+        local textureWidth = width / frames
 
-        newFrames = {}
-        for i = 0, frames, 1 do
-            newFrames[i] = love.graphics.newQuad(0, 0, 32, 32, image:getDimensions())
+        local newFrames = {}
+        for i = 1, frames, 1 do
+            local xs = (i - 1) * textureWidth
+            local h = image:getHeight()
+            newFrames[i] = love.graphics.newQuad(xs, 0, textureWidth, h, image:getDimensions())
         end
+
+        frames = newFrames
+        draw = Animation.draw_quad_frames
     end
 
     if type(frames) == 'string' then
         print('frmes is a string')
     end
 
-    return setmetatable({
+    t =  setmetatable({
         frames        = cloneArray(frames),
+        image         = image,
         duration      = props.duration,
         currentTime   = 0,
-        position = vector(0, 0),
-        scale = vector(1, 1),
-        offset = vector(0, 0),
+        frameNum      = 1,
+        position      = props.position or vector(0, 0),
+        scale         = vector(1, 1),
+        offset        = vector(0, 0),
+        draw          = draw
       },
       Animationmt
     )
+    return t
 end
 
 function Animation:update(dt)
@@ -47,12 +57,18 @@ function Animation:update(dt)
     while self.currentTime >= self.duration do
         self.currentTime = self.currentTime - self.duration
     end
+
+    self.frameNum = math.floor(self.currentTime / self.duration * #self.frames) + 1
 end
 
-function Animation:draw()
-    local frameNum = math.floor(self.currentTime / self.duration * #self.frames) + 1
-    local frame = self.frames[frameNum]
+function Animation:draw_image_frames()
+    local frame = self.frames[self.frameNum]
     love.graphics.draw(frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
+end
+
+function Animation:draw_quad_frames()
+    local frame = self.frames[self.frameNum]
+    love.graphics.draw(self.image, frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 
 return newAnimation
