@@ -1,32 +1,19 @@
-local newAnimation = require('animation')
-local vector = require('vector')
+local Animation = require('animation')
+local vector = require('hump.vector')
+local Class = require('hump.class')
 
-local Player   = {}
-Player.__index = Player
+local Player = Class{}
 
-local function newPlayer(object)
-    frames = {
-        love.graphics.newImage('assets/images/cat/Idle (1).png'),
-        love.graphics.newImage('assets/images/cat/Idle (2).png'),
-        love.graphics.newImage('assets/images/cat/Idle (3).png')
-    }
+function Player:init(object)
+	position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 
-    a = newAnimation{frames=frames, duration=1.0}
-    a.scale = vector(0.1, 0.1)
-    a.position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
-
-    return setmetatable({
-        object = object,
-        animation = a,
-
-        ground = a.position.y,
-        speed = 200,
-	    y_velocity = 0,
-	    jump_height = -300,
-	    gravity = -500
-      },
-      Player
-    )
+    self.animation = Animation{frames='assets/images/cat/Idle (${i}).png', frameCount=10, duration=1.0, scale=vector(0.1, 0.1), position=position}
+	self.object = object
+	self.ground = position.y
+	self.speed = 200
+	self.y_velocity = 0
+	self.jump_height = -300
+	self.gravity = -500
 end
 
 function Player:update(dt)
@@ -64,4 +51,4 @@ function Player:draw()
     self.animation:draw()
 end
 
-return newPlayer
+return Player

@@ -1,14 +1,18 @@
--- https://www.reddit.com/r/love2d/comments/6tjwqm/lua_separate_file_inheritance/
+local Class = require('hump.class')
 
-local Entity   = {}
-Entity.__index = Entity
+local Entity = Class{}
+
+-- TODO:
+-- a list of components - map?
+-- an update list and a draw list incase some components have one without the other, to eliminate if statements
+-- then child classes shouldnt need to have update or draw methods except in special cases
 
 function Entity:update(dt)
-    print("update")
+    print("entity.update")
 end
 
 function Entity:draw()
-    print('draw')
+    print('entity.draw')
 end
 
 return Entity

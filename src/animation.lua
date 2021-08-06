@@ -1,8 +1,7 @@
-local vector = require('vector')
+local vector = require('hump.vector')
+local Class = require('hump.class')
 
-local Animation = {}
-
-local Animationmt = { __index = Animation }
+local Animation = Class{}
 
 local function cloneArray(arr)
     local result = {}
@@ -10,10 +9,19 @@ local function cloneArray(arr)
     return result
 end
 
-local function newAnimation(props)
+function Animation:init(props)
     local frames = props.frames
     local image = props.image
     local draw = Animation.draw_image_frames
+
+    if type(frames) == 'table' then
+        print('table!')
+        local newFrames = {}
+        for i = 1, frames, 1 do
+            newFrames[i] = love.graphics.newImage(frames[i])
+        end
+        frames = newFrames
+    end
 
     if type(frames) == 'number' then
         image = love.graphics.newImage(image)
@@ -27,29 +35,30 @@ local function newAnimation(props)
             local h = image:getHeight()
             newFrames[i] = love.graphics.newQuad(xs, 0, textureWidth, h, image:getDimensions())
         end
-
         frames = newFrames
         draw = Animation.draw_quad_frames
     end
 
     if type(frames) == 'string' then
         print('frmes is a string')
+        local newFrames = {}
+        local frameCount = props.frameCount
+        for i = 1, frameCount, 1 do
+            local str = frames:gsub('${i}', tostring(i))
+            newFrames[i] = love.graphics.newImage(str)
+        end
+        frames = newFrames
     end
 
-    t =  setmetatable({
-        frames        = cloneArray(frames),
-        image         = image,
-        duration      = props.duration,
-        currentTime   = 0,
-        frameNum      = 1,
-        position      = props.position or vector(0, 0),
-        scale         = vector(1, 1),
-        offset        = vector(0, 0),
-        draw          = draw
-      },
-      Animationmt
-    )
-    return t
+    self.frames = cloneArray(frames)
+    self.image = image
+    self.duration = props.duration
+    self.currentTime   = 0
+    self.frameNum      = 1
+    self.position      = props.position or vector(0, 0)
+    self.scale         = props.scale or vector(1, 1)
+    self.offset        = props.offset or vector(0, 0)
+    self.draw          = draw
 end
 
 function Animation:update(dt)
@@ -71,4 +80,4 @@ function Animation:draw_quad_frames()
     love.graphics.draw(self.image, frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 
-return newAnimation
+return Animation

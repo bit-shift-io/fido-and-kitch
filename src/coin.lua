@@ -1,21 +1,12 @@
 local Entity = require('entity')
-local newAnimation = require('animation')
-local vector = require('vector')
+local Animation = require('animation')
+local vector = require('hump.vector')
+local Class = require('hump.class')
 
--- can entity provide a wrapper function do do some leg work here?
-local Coin   = {}
-Coin.__index = Coin
-setmetatable(Coin, Entity)
+local Coin = Class{}
 
-local function newCoin(object)
-    a = newAnimation{image='assets/images/coins.png', frames=8, duration=1.0, loop=true, position=vector(object.x, object.y)}
-
-    return setmetatable({
-        object = object,
-        animation = a
-      },
-      Coin
-    )
+function Coin:init(object)
+    self.animation = Animation{image='assets/images/coins.png', frames=8, duration=1.0, loop=true, position=vector(object.x, object.y)}
 end
 
 function Coin:update(dt)
@@ -26,4 +17,4 @@ function Coin:draw()
     self.animation:draw()
 end
 
-return newCoin
+return Coin

@@ -1,9 +1,8 @@
 if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
 
-package.path = package.path .. ';hump/?.lua'
 print(package.path)
 
-local newAnimation = require('animation')
+local Animation = require('animation')
 local newMap = require('map')
 local newPlayer = require('player')
 
