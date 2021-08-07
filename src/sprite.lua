@@ -12,7 +12,6 @@ function Sprite:init(props)
     local draw = Sprite.draw_image_frames
 
     if type(frames) == 'table' then
-        print('table!')
         local newFrames = {}
         for i = 1, frames, 1 do
             newFrames[i] = love.graphics.newImage(frames[i])
@@ -37,7 +36,6 @@ function Sprite:init(props)
     end
 
     if type(frames) == 'string' then
-        print('frmes is a string')
         local newFrames = {}
         local frameCount = props.frameCount
         for i = 1, frameCount, 1 do

@@ -27,6 +27,17 @@ local function prequire(m)
     return err
 end
 
+function Map:createStaticPhysicsBodyBoundary()
+    local width = self.map.width * self.map.tilewidth
+    local height = self.map.height * self.map.tileheight
+
+    local b = Collider{shape_type='Edge', shape_arguments={0, height, width, height}, body_type='static'}
+    b:addShape{shape_type='Edge', shape_arguments={0, 0, width, 0}}
+    b:addShape{shape_type='Edge', shape_arguments={0, 0, 0, height}}
+    b:addShape{shape_type='Edge', shape_arguments={width, 0, width, height}}
+    return b
+end
+
 function Map:createEntitiesFromObjectGroupLayers()
     -- we basically take each object layer and replace
     -- them with entities
