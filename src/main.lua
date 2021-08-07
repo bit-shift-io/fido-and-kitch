@@ -9,10 +9,13 @@ bf = require("breezefield")
 
 Entity = require('entity')
 Sprite = require('sprite')
+Collider = require('collider')
 
 -- local includes only accessible to this file
 local newMap = require('map')
 local Player = require('player')
+
+world = {} -- global for now so Collider componnent works easy TODO: clean up globals
 
 function love.load()
     print("load start")
@@ -26,6 +29,9 @@ function love.load()
     ground:setType("static")
 
     ball = bf.Collider.new(world, "Circle", 325, 325, 20)
+
+    --ball2 = Collider({world=world, collider_type='circle', shape_arguments={325, 325, 20}})
+    
     ball:setRestitution(0.8) -- any function of shape/body/fixture works
     block1 = bf.Collider.new(world, "Polygon", {150, 375, 250, 375,
 					       250, 425, 150, 425})
