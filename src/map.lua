@@ -5,12 +5,22 @@ local sti = require("sti")
 local Map   = {}
 Map.__index = Map
 
+function createStaticPhysicsBodies(layer)
+    print("createStaticPhysicsBodies TODO")
+    --local s = self
+end
+
 local function newMap(path, world, debug)
     map = sti(path, { "box2d" })
 
 	-- Prepare collision objects
     if world then
 	    map:box2d_init(world)
+    end
+
+    for li, layer in ipairs(map.layers) do
+        layer.createStaticPhysicsBodies = createStaticPhysicsBodies
+
     end
 
     return setmetatable({
@@ -20,6 +30,8 @@ local function newMap(path, world, debug)
       Map
     )
 end
+
+
 
 local function prequire(m) 
     local ok, err = pcall(require, m) 

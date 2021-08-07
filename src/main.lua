@@ -36,6 +36,11 @@ function love.load()
     map = newMap('assets/maps/sandbox.lua', world._world)
     map:createEntitiesFromObjectGroupLayers()
     map:createStaticPhysicsBodyBoundary()
+
+    local groundLayer = map.map.layers['ground']
+    if groundLayer then
+        groundLayer:createStaticPhysicsBodies()
+    end
     
     print("load complete")
 end
