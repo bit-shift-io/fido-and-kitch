@@ -1,7 +1,7 @@
 local vector = require('hump.vector')
 local Class = require('hump.class')
 
-local Animation = Class{}
+local Sprite = Class{}
 
 local function cloneArray(arr)
     local result = {}
@@ -9,10 +9,10 @@ local function cloneArray(arr)
     return result
 end
 
-function Animation:init(props)
+function Sprite:init(props)
     local frames = props.frames
     local image = props.image
-    local draw = Animation.draw_image_frames
+    local draw = Sprite.draw_image_frames
 
     if type(frames) == 'table' then
         print('table!')
@@ -36,7 +36,7 @@ function Animation:init(props)
             newFrames[i] = love.graphics.newQuad(xs, 0, textureWidth, h, image:getDimensions())
         end
         frames = newFrames
-        draw = Animation.draw_quad_frames
+        draw = Sprite.draw_quad_frames
     end
 
     if type(frames) == 'string' then
@@ -61,7 +61,7 @@ function Animation:init(props)
     self.draw          = draw
 end
 
-function Animation:update(dt)
+function Sprite:update(dt)
     self.currentTime = self.currentTime + dt
     while self.currentTime >= self.duration do
         self.currentTime = self.currentTime - self.duration
@@ -70,14 +70,14 @@ function Animation:update(dt)
     self.frameNum = math.floor(self.currentTime / self.duration * #self.frames) + 1
 end
 
-function Animation:draw_image_frames()
+function Sprite:draw_image_frames()
     local frame = self.frames[self.frameNum]
     love.graphics.draw(frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 
-function Animation:draw_quad_frames()
+function Sprite:draw_quad_frames()
     local frame = self.frames[self.frameNum]
     love.graphics.draw(self.image, frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 
-return Animation
+return Sprite

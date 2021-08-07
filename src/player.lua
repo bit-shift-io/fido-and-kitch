@@ -1,13 +1,16 @@
-local Animation = require('animation')
+local Entity = require('entity')
+local Sprite = require('sprite')
 local vector = require('hump.vector')
 local Class = require('hump.class')
 
-local Player = Class{}
+local Player = Class{__includes = Entity}
 
 function Player:init(object)
+	Entity.init(self)
+
 	position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 
-    self.animation = Animation{frames='assets/images/cat/Idle (${i}).png', frameCount=10, duration=1.0, scale=vector(0.1, 0.1), position=position}
+    self.sprite = self:addComponent(Sprite{frames='assets/images/cat/Idle (${i}).png', frameCount=10, duration=1.0, scale=vector(0.1, 0.1), position=position})
 	self.object = object
 	self.ground = position.y
 	self.speed = 200
@@ -17,9 +20,9 @@ function Player:init(object)
 end
 
 function Player:update(dt)
-    self.animation:update(dt)
+    Entity.update(self, dt)
 
-    local position = self.animation.position
+    local position = self.sprite.position
     if love.keyboard.isDown('d') then
 		--if position.x < (love.graphics.getWidth() - player.img:getWidth()) then
 			position.x = position.x + (self.speed * dt)
@@ -45,10 +48,6 @@ function Player:update(dt)
 		self.y_velocity = 0
     	position.y = self.ground
 	end
-end
-
-function Player:draw()
-    self.animation:draw()
 end
 
 return Player

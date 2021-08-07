@@ -1,20 +1,13 @@
 local Entity = require('entity')
-local Animation = require('animation')
+local Sprite = require('sprite')
 local vector = require('hump.vector')
 local Class = require('hump.class')
 
-local Coin = Class{}
+local Coin = Class{__includes = Entity}
 
 function Coin:init(object)
-    self.animation = Animation{image='assets/images/coins.png', frames=8, duration=1.0, loop=true, position=vector(object.x, object.y)}
-end
-
-function Coin:update(dt)
-    self.animation:update(dt)
-end
-
-function Coin:draw()
-    self.animation:draw()
+    Entity.init(self)
+    self:addComponent(Sprite{image='assets/images/coins.png', frames=8, duration=1.0, loop=true, position=vector(object.x, object.y)})
 end
 
 return Coin

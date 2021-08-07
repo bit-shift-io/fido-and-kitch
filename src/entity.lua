@@ -2,17 +2,29 @@ local Class = require('hump.class')
 
 local Entity = Class{}
 
--- TODO:
--- a list of components - map?
--- an update list and a draw list incase some components have one without the other, to eliminate if statements
--- then child classes shouldnt need to have update or draw methods except in special cases
+function Entity:init()
+    self.components = {}
+end
+
+function Entity:addComponent(component)
+    table.insert(self.components, component)
+    return component
+end
 
 function Entity:update(dt)
-    print("entity.update")
+    for _, component in pairs(self.components) do
+        if component.update ~= nil then
+            component:update(dt)
+        end
+    end
 end
 
 function Entity:draw()
-    print('entity.draw')
+    for _, component in pairs(self.components) do
+        if component.draw ~= nil then
+            component:draw()
+        end
+    end
 end
 
 return Entity

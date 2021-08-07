@@ -2,12 +2,11 @@ if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
 
 print(package.path)
 
-local Animation = require('animation')
 local newMap = require('map')
-local newPlayer = require('player')
+local Player = require('player')
 
 function love.load()
-	p = newPlayer()
+	p = Player()
 
     -- Prepare physics world with horizontal and vertical gravity
 	world = love.physics.newWorld(0, 0)
