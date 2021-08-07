@@ -1,8 +1,3 @@
-local Entity = require('entity')
-local Sprite = require('sprite')
-local vector = require('hump.vector')
-local Class = require('hump.class')
-
 local Player = Class{__includes = Entity}
 
 function Player:init(object)

@@ -1,6 +1,3 @@
-local vector = require('hump.vector')
-local Class = require('hump.class')
-
 local Sprite = Class{}
 
 local function cloneArray(arr)

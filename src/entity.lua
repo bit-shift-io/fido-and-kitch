@@ -1,5 +1,3 @@
-local Class = require('hump.class')
-
 local Entity = Class{}
 
 function Entity:init()

@@ -19,3 +19,4 @@ rm -rf thirdparty
 
 
 git clone --depth 1 git@github.com:vrld/hump.git
+git clone --depth 1 git@github.com:HDictus/breezefield.git
