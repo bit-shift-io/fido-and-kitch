@@ -1,9 +1,7 @@
 #!/bin/bash
 
-OS="$(uname -s)"
-if [ ${OS} = "Linux" ]
-then
-    love $PWD
-else
-    /Applications/love.app/Contents/MacOS/love $PWD
-fi
+# manuall setup a path on osx/windows so that love can be run from the commandline directly
+
+# run project
+love $PWD
+

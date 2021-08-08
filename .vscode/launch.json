@@ -10,7 +10,7 @@
             "name": "Debug LOVE",
             "program":
             {
-                "command": "/Applications/love.app/Contents/MacOS/love"
+                "command": "love"
             },
             "args": 
             [
@@ -24,7 +24,7 @@
             "name": "Debug love-bone",
             "program":
             {
-                "command": "/Applications/love.app/Contents/MacOS/love"
+                "command": "love"
             },
             "args": 
             [
