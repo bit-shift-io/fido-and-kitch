@@ -1,3 +1,9 @@
 #!/bin/bash
 
-/Applications/love.app/Contents/MacOS/love $PWD
+OS="$(uname -s)"
+if [ ${OS} = "Linux" ]
+then
+    love $PWD
+else
+    /Applications/love.app/Contents/MacOS/love $PWD
+fi

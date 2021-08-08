@@ -20,3 +20,13 @@ rm -rf thirdparty
 
 git clone --depth 1 git@github.com:vrld/hump.git
 git clone --depth 1 git@github.com:HDictus/breezefield.git
+
+
+# linux love engine
+OS="$(uname -s)"
+if [ ${OS} = "Linux" ]
+then
+    yay -S love --noconfirm --needed
+fi
+
+echo "Install complete"
