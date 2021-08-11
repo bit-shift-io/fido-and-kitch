@@ -12,7 +12,13 @@ This will checkout any required dependencies
 
 ## To debug in VSCode
 
-get the "Local Lua Debugger" extension (tomblind.local-lua-debugger-vscode) extension.
+Launch VSCode Quick Open (Ctrl+P), paste the following commands, and press enter.
+```
+    ext install tomblind.local-lua-debugger-vscode
+```
+```
+ext install sumneko.lua
+```
 
 ## Map Editor
 
