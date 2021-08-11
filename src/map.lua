@@ -22,7 +22,7 @@ local function createStaticPhysicsBodies(layer)
             local quadY = ((y - 1) * height + margin + (y - 1) * spacing) + offset_y
             local col = Collider{
                 shape_type='Rectangle', 
-                shape_arguments={quadX, quadY, height, height}, 
+                shape_arguments={quadX, quadY, width, height}, 
                 body_type='static'
             }
             table.insert(colliders, col)
