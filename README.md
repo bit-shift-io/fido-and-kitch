@@ -2,7 +2,7 @@
 
 Fido and Kitch is a puzzle platformer. It features local couch co-op with bite sized puzzles. Think Lurid Land made with Flutter and Flame.
 
-# Install
+## Install
 
 To install simply run:
 
@@ -10,7 +10,7 @@ To install simply run:
 
 This will checkout any required dependencies
 
-# To debug in VSCode
+## To debug in VSCode
 
 get the "Local Lua Debugger" extension (tomblind.local-lua-debugger-vscode) extension.
 
@@ -18,7 +18,8 @@ get the "Local Lua Debugger" extension (tomblind.local-lua-debugger-vscode) exte
 
 https://www.mapeditor.org/
 
-Save the map as tmx but will need to be exported as .lua to be loaded
+File > Preferences > check 'Embed tilesets'  
+Save the map as tmx but will need to be exported as .lua to be loaded.  
 
 ## Contribute
 

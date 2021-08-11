@@ -16,17 +16,24 @@ local function createStaticPhysicsBodies(layer)
 	local spacing = tileset.spacing
 
     local colliders = {}
-    for y, row in ipairs(layer.data) do
-        for x, tile in ipairs(row) do
-            local quadX = (x - 1) * tileW + margin + (x - 1) * spacing
-			local quadY = (y - 1) * tileH + margin + (y - 1) * spacing
-            local col = Collider{
-                shape_type='Rectangle', 
-                shape_arguments={quadX, quadY, tileW, tileH}, 
-                body_type='static'
-            }
-            table.insert(colliders, col)
+
+    for y, row in pairs(layer.data) do -- loop rows
+
+        for x, cell in pairs(row) do -- loop columns
+
+            if (cell) then 
+                local quadX = ((x - 1) * tileW + margin + (x - 1) * spacing) + tileW * 0.5
+                local quadY = ((y - 1) * tileH + margin + (y - 1) * spacing) + tileH * 0.5
+                local col = Collider{
+                    shape_type='Rectangle', 
+                    shape_arguments={quadX, quadY, tileW, tileH}, 
+                    body_type='static'
+                }
+                table.insert(colliders, col)
+            end
+
         end
+
     end
 
     return colliders
@@ -42,7 +49,10 @@ local function newMap(path, world, debug)
 
     for li, layer in ipairs(map.layers) do
         layer.map = map
-        layer.createStaticPhysicsBodies = createStaticPhysicsBodies
+        -- custom properties physics=true
+        if (layer.properties.physics) then
+            layer.createStaticPhysicsBodies = createStaticPhysicsBodies
+        end
     end
 
     return setmetatable({
