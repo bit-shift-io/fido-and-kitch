@@ -4,6 +4,10 @@ Fido and Kitch is a puzzle platformer. It features local couch co-op with bite s
 
 ## Install
 
+Add love to your path, on Mac edit .zshc and add: 
+
+    export PATH=$PATH:/Applications/love.app/Contents/MacOS/
+
 To install simply run:
 
     ./install.sh

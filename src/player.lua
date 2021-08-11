@@ -7,42 +7,34 @@ function Player:init(object)
 
     self.sprite = self:addComponent(Sprite{frames='res/images/cat/Idle (${i}).png', frameCount=10, duration=1.0, scale=vector(0.1, 0.1), position=position})
 	self.object = object
-	self.ground = position.y
-	self.speed = 200
-	self.y_velocity = 0
-	self.jump_height = -300
-	self.gravity = -500
+
+	-- TODO: make a rectangle
+    self.collider = self:addComponent(Collider{
+        shape_type='circle', 
+        shape_arguments={0, 0, 15}, 
+        postSolve=Player.contact, 
+        sprite=self.sprite, 
+        position=vector(325, 325)})
+	self.collider:setRestitution(0.8)
+end
+
+function Player:contact(other)
+    print('player has made contact with something!')
 end
 
 function Player:update(dt)
     Entity.update(self, dt)
 
-    local position = self.sprite.position
-    if love.keyboard.isDown('d') then
-		--if position.x < (love.graphics.getWidth() - player.img:getWidth()) then
-			position.x = position.x + (self.speed * dt)
-		--end
-	elseif love.keyboard.isDown('a') then
-		if position.x > 0 then 
-			position.x = position.x - (self.speed * dt)
-		end
-	end
-
-	if love.keyboard.isDown('space') then
-		if self.y_velocity == 0 then
-			self.y_velocity = self.jump_height
-		end
-	end
-
-	if self.y_velocity ~= 0 then
-		position.y = position.y + self.y_velocity * dt
-		self.y_velocity = self.y_velocity - self.gravity * dt
-	end
-
-	if position.y > self.ground then
-		self.y_velocity = 0
-    	position.y = self.ground
-	end
+	if love.keyboard.isDown("right") then
+        self.collider:applyForce(400, 0)
+    elseif love.keyboard.isDown("left") then
+        self.collider:applyForce(-400, 0)
+    elseif love.keyboard.isDown("up") then
+        self.collider:setPosition(vector(325, 325))
+        self.collider:setLinearVelocity(0, 0) 
+    elseif love.keyboard.isDown("down") then
+        self.collider:applyForce(0, 600)
+    end
 end
 
 return Player
