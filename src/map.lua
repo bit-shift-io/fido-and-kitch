@@ -6,26 +6,23 @@ local Map   = {}
 Map.__index = Map
 
 local function createStaticPhysicsBodies(layer)
-    local tileset = layer.map.tilesets[1] -- this is an assumption!
-
-    local imageW  = tileset.imagewidth
-	local imageH  = tileset.imageheight
-	local tileW   = tileset.tilewidth
-	local tileH   = tileset.tileheight
-	local margin  = tileset.margin
-	local spacing = tileset.spacing
-
     local colliders = {}
 
     for y, row in pairs(layer.data) do -- loop rows
 
         for x, cell in pairs(row) do -- loop columns
-
-            local quadX = ((x - 1) * tileW + margin + (x - 1) * spacing) + tileW * 0.5
-            local quadY = ((y - 1) * tileH + margin + (y - 1) * spacing) + tileH * 0.5
+            local tileset = layer.map.tilesets[cell.tileset]
+            local width   = cell.width
+            local height   = cell.height
+            local margin  = tileset.margin
+            local spacing = tileset.spacing
+            local offset_x = cell.offset.x + width * 0.5
+            local offset_y = cell.offset.y + height * 0.5
+            local quadX = ((x - 1) * width + margin + (x - 1) * spacing) + offset_x
+            local quadY = ((y - 1) * height + margin + (y - 1) * spacing) + offset_y
             local col = Collider{
                 shape_type='Rectangle', 
-                shape_arguments={quadX, quadY, tileW, tileH}, 
+                shape_arguments={quadX, quadY, height, height}, 
                 body_type='static'
             }
             table.insert(colliders, col)
