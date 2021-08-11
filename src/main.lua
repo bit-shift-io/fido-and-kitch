@@ -33,7 +33,7 @@ function love.load()
     --block1 = bf.Collider.new(world, "Polygon", {150, 375, 250, 375,
 	--				       250, 425, 150, 425})
 
-    map = newMap('assets/maps/sandbox.lua', world._world)
+    map = newMap('res/maps/sandbox.lua', world._world)
     map:createEntitiesFromObjectGroupLayers()
     map:createStaticPhysicsBodyBoundary()
 

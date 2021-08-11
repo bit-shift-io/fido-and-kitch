@@ -5,7 +5,7 @@ function Teleporter:init(object)
     local id = object.id
     local target = object.properties.target
     local sprite = self:addComponent(Sprite{
-        image='assets/images/teleporter_1.png',
+        image='res/images/teleporter_1.png',
         scale=vector(0.04, 0.04), 
         frames=1, 
         duration=1.0, 

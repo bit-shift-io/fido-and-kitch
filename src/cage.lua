@@ -4,7 +4,7 @@ function Cage:init(object)
     Entity.init(self)
     local color = object.properties.color
     local sprite = self:addComponent(Sprite{
-        image='assets/images/cage.png',
+        image='res/images/cage.png',
         scale=vector(0.1, 0.1), 
         frames=1, 
         duration=1.0, 

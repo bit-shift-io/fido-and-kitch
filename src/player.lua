@@ -5,7 +5,7 @@ function Player:init(object)
 
 	position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 
-    self.sprite = self:addComponent(Sprite{frames='assets/images/cat/Idle (${i}).png', frameCount=10, duration=1.0, scale=vector(0.1, 0.1), position=position})
+    self.sprite = self:addComponent(Sprite{frames='res/images/cat/Idle (${i}).png', frameCount=10, duration=1.0, scale=vector(0.1, 0.1), position=position})
 	self.object = object
 	self.ground = position.y
 	self.speed = 200

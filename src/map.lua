@@ -1,4 +1,4 @@
-package.path = package.path .. ';assets/?.lua'
+package.path = package.path .. ';res/?.lua'
 
 local sti = require("sti")
 

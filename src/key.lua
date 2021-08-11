@@ -4,7 +4,7 @@ function Key:init(object)
     Entity.init(self)
     local color = object.properties.color
     local sprite = self:addComponent(Sprite{
-        image=string.format('assets/images/key_%s.png', color), 
+        image=string.format('res/images/key_%s.png', color), 
         frames=1, 
         duration=1.0, 
         loop=false
