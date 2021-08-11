@@ -21,16 +21,14 @@ local function createStaticPhysicsBodies(layer)
 
         for x, cell in pairs(row) do -- loop columns
 
-            if (cell) then 
-                local quadX = ((x - 1) * tileW + margin + (x - 1) * spacing) + tileW * 0.5
-                local quadY = ((y - 1) * tileH + margin + (y - 1) * spacing) + tileH * 0.5
-                local col = Collider{
-                    shape_type='Rectangle', 
-                    shape_arguments={quadX, quadY, tileW, tileH}, 
-                    body_type='static'
-                }
-                table.insert(colliders, col)
-            end
+            local quadX = ((x - 1) * tileW + margin + (x - 1) * spacing) + tileW * 0.5
+            local quadY = ((y - 1) * tileH + margin + (y - 1) * spacing) + tileH * 0.5
+            local col = Collider{
+                shape_type='Rectangle', 
+                shape_arguments={quadX, quadY, tileW, tileH}, 
+                body_type='static'
+            }
+            table.insert(colliders, col)
 
         end
 
