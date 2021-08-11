@@ -5,7 +5,7 @@ local sti = require("sti")
 local Map   = {}
 Map.__index = Map
 
-function createStaticPhysicsBodies(layer)
+local function createStaticPhysicsBodies(layer)
     local tileset = layer.map.tilesets[1] -- this is an assumption!
 
     local imageW  = tileset.imagewidth
@@ -20,7 +20,11 @@ function createStaticPhysicsBodies(layer)
         for x, tile in ipairs(row) do
             local quadX = (x - 1) * tileW + margin + (x - 1) * spacing
 			local quadY = (y - 1) * tileH + margin + (y - 1) * spacing
-            local col = Collider{shape_type='Rectangle', shape_arguments={quadX, quadY, tileW, tileH}, body_type='static'}
+            local col = Collider{
+                shape_type='Rectangle', 
+                shape_arguments={quadX, quadY, tileW, tileH}, 
+                body_type='static'
+            }
             table.insert(colliders, col)
         end
     end

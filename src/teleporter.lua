@@ -12,8 +12,9 @@ function Teleporter:init(object)
         loop=false
     })
     local collider = self:addComponent(Collider{
-        shape_type='circle', 
-        shape_arguments={0, 0, 10}, 
+        shape_type='rectangle', 
+        shape_arguments={0, 0, 30, 30}, 
+        body_type='static',
         postSolve=Teleporter.contact, 
         sprite=sprite, 
         position=vector(object.x, object.y)

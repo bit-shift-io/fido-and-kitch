@@ -12,6 +12,7 @@ function Switch:init(object)
     local collider = self:addComponent(Collider{
         shape_type='rectangle', 
         shape_arguments={0, 0, 30, 30}, 
+        body_type='static',
         postSolve=Switch.contact, 
         sprite=sprite, 
         position=vector(object.x, object.y)

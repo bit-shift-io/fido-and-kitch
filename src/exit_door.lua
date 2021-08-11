@@ -12,6 +12,7 @@ function ExitDoor:init(object)
     local collider = self:addComponent(Collider{
         shape_type='rectangle', 
         shape_arguments={0, 0, 50, 50}, 
+        body_type='static',
         postSolve=ExitDoor.contact, 
         sprite=sprite, 
         position=vector(object.x, object.y)

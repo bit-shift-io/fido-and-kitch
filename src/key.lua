@@ -12,6 +12,7 @@ function Key:init(object)
     local collider = self:addComponent(Collider{
         shape_type='circle', 
         shape_arguments={0, 0, 10}, 
+        body_type='static',
         postSolve=Key.contact, 
         sprite=sprite, 
         position=vector(object.x + 16, object.y - 32)
