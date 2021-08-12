@@ -3,15 +3,17 @@ if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
 print(package.path)
 
 -- global includes to save having to include in other files!
-vector = require('hump.vector')
-Class = require('hump.class')
-bf = require("breezefield")
+
+Vector = require('lib.hump.vector')
+Class = require('lib.hump.class')
+bf = require('breezefield')
 
 Entity = require('entity')
 Sprite = require('sprite')
 Collider = require('collider')
 
 -- local includes only accessible to this file
+local profile = require('profile')
 local newMap = require('map')
 local Player = require('player')
 
@@ -19,41 +21,34 @@ local Player = require('player')
 world = {} -- global for now so Collider componnent works easy TODO: clean up globals
 
 function preSolve(a, b, coll)
-    print(a:getUserData())
-    print(b:getUserData())
+	print(a:getUserData())
+	print(b:getUserData())
 
 end
 
 function love.load()
-    print("load start")
+	profile.start()
+	print("load")
 
-    world = bf.newWorld(0, 90.81, true)
-    world:setCallbacks(beginContact, endContact, preSolve, postSolve)
+	world = bf.newWorld(0, 90.81, true)
+	world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
-    map = newMap('res/maps/sandbox.lua', world._world)
-
-    -- todo move to init
-    map:createEntitiesFromObjectGroupLayers()
-    map:createStaticPhysicsBodyBoundary()
-    -- todo gone
-    local groundLayer = map.map.layers['ground']
-    if groundLayer then
-        groundLayer:createStaticPhysicsBodies()
-    end
+	map = newMap('res/map/sandbox.lua', world._world)
 
 	p = Player()
-    
-    print("load complete")
+
+	profile.stop()
+	print(profile.report(10))
 end
 
 function love.update(dt)
-    map:update(dt)
-    world:update(dt)
+	map:update(dt)
+	world:update(dt)
 	p:update(dt)
 end
 
 function love.draw()
-    map:draw()
-    world:draw()
+	map:draw()
+	world:draw()
 	p:draw()
 end

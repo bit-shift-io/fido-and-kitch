@@ -20,7 +20,7 @@ return {
       spacing = 0,
       margin = 0,
       columns = 8,
-      image = "../images/generic_platformer_tiles.png",
+      image = "../img/generic_platformer_tiles.png",
       imagewidth = 256,
       imageheight = 576,
       transparentcolor = "#000000",
