@@ -19,7 +19,7 @@ function Player:init(object)
     self.collider = self:addComponent(Collider{
         shape_type='rectangle', 
         shape_arguments={0, 0, 30, 30}, 
-        postSolve=Player.contact, 
+        postSolve=self.contact, 
         sprite=self.sprite, 
         position=vector(325, 325)})
 	self.collider:setRestitution(0)
@@ -38,11 +38,14 @@ function Player:update(dt)
 
 	if love.keyboard.isDown("right") then
         self.collider:setPosition(vector(x + delta, y))
-    elseif love.keyboard.isDown("left") then
+    end
+    if love.keyboard.isDown("left") then
        self.collider:setPosition(vector(x - delta, y))
-    elseif love.keyboard.isDown("up") then
-        self.collider:setLinearVelocity(0, -100) 
-    elseif love.keyboard.isDown("down") then
+    end
+    if love.keyboard.isDown("up") then
+        self.collider:setLinearVelocity(0, -100)
+    end
+    if love.keyboard.isDown("down") then
         self.collider:setLinearVelocity(0, 100)
     end
 end

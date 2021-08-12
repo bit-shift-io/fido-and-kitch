@@ -15,12 +15,20 @@ Collider = require('collider')
 local newMap = require('map')
 local Player = require('player')
 
+-- TODO world needs own class with collision stuff
 world = {} -- global for now so Collider componnent works easy TODO: clean up globals
+
+function preSolve(a, b, coll)
+    print(a:getUserData())
+    print(b:getUserData())
+
+end
 
 function love.load()
     print("load start")
 
     world = bf.newWorld(0, 90.81, true)
+    world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
     map = newMap('res/maps/sandbox.lua', world._world)
 
