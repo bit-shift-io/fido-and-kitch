@@ -23,9 +23,11 @@ function love.load()
     world = bf.newWorld(0, 90.81, true)
 
     map = newMap('res/maps/sandbox.lua', world._world)
+
+    -- todo move to init
     map:createEntitiesFromObjectGroupLayers()
     map:createStaticPhysicsBodyBoundary()
-
+    -- todo gone
     local groundLayer = map.map.layers['ground']
     if groundLayer then
         groundLayer:createStaticPhysicsBodies()
