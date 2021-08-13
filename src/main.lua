@@ -2,6 +2,10 @@ if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
 
 print(package.path)
 
+-- includes
+require('lovedebug')
+
+
 -- global includes to save having to include in other files!
 
 Vector = require('lib.hump.vector')
@@ -13,6 +17,7 @@ Sprite = require('sprite')
 Collider = require('collider')
 
 -- local includes only accessible to this file
+
 local profile = require('profile')
 local newMap = require('map')
 local Player = require('player')
@@ -31,7 +36,7 @@ function love.load()
 	print("load")
 
 	world = bf.newWorld(0, 90.81, true)
-	world:setCallbacks(beginContact, endContact, preSolve, postSolve)
+	--world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
 	map = newMap('res/map/sandbox.lua', world._world)
 
@@ -52,3 +57,15 @@ function love.draw()
 	world:draw()
 	p:draw()
 end
+
+
+function love.keypressed(k)
+	if k == "escape" then love.event.push("quit") end
+end
+
+function love.textinput(t)
+	print(t)
+	--console_toggle(t)
+end
+
+

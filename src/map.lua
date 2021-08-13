@@ -94,6 +94,9 @@ local function newMap(path, world, debug)
 		map:box2d_init(world)
 	end
 
+	createEntitiesFromObjectGroupLayers(map)
+	createStaticPhysicsBodyBoundary(map)
+
 	for li, layer in ipairs(map.layers) do
 		layer.map = map
 		-- custom properties physics=true
@@ -101,9 +104,6 @@ local function newMap(path, world, debug)
 			createStaticPhysicsBodies(layer)
 		end
 	end
-
-	createEntitiesFromObjectGroupLayers(map)
-	createStaticPhysicsBodyBoundary(map)
 
 	return setmetatable({
 		map = map,
