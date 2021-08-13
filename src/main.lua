@@ -1,4 +1,8 @@
-if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
+if arg[#arg] == "vsc_debug" then 
+	require("lldebugger").start() 
+elseif arg[#arg] == "vsc_profile" then
+	profile = require('profile')
+end
 
 print(package.path)
 
@@ -10,7 +14,6 @@ print(package.path)
 
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
---bf = require('breezefield')
 World = require('world')
 Entity = require('entity')
 Sprite = require('sprite')
@@ -18,7 +21,7 @@ Collider = require('collider')
 
 -- local includes only accessible to this file
 
---local profile = require('profile') -- disables debug!
+
 local newMap = require('map')
 local Player = require('player')
 
@@ -27,8 +30,9 @@ local Player = require('player')
 
 
 function love.load()
-	--profile.start()
-	print("load")
+	if profile then
+		profile.start()
+	end
 
 	world = World:new(0, 90.81, true)
 
@@ -36,8 +40,11 @@ function love.load()
 
 	p = Player()
 
-	--profile.stop()
-	--print(profile.report(10))
+	if profile then
+		profile.stop()
+		print('love.load profile:')
+		print(profile.report(10))
+	end
 end
 
 function love.update(dt)

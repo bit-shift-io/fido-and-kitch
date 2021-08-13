@@ -7,7 +7,7 @@
         {
             "type": "lua-local",
             "request": "launch",
-            "name": "Debug LOVE",
+            "name": "Debug",
             "program":
             {
                 "command": "love"
@@ -21,25 +21,16 @@
         {
             "type": "lua-local",
             "request": "launch",
-            "name": "Debug love-bone",
+            "name": "Profile",
             "program":
             {
                 "command": "love"
             },
             "args": 
             [
-                "${workspaceFolder}/thirdparty/love-bone",
-                "vsc_debug"
+                "${workspaceFolder}",
+                "vsc_profile"
             ],
         },
-        {
-            "name": "Debug Custom Lua Environment",
-            "type": "lua-local",
-            "request": "launch",
-            "program": {
-                "command": "command"
-            },
-            "args": []
-        }
     ]
 }
