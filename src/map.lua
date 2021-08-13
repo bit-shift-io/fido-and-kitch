@@ -85,9 +85,33 @@ local function createEntitiesFromObjectGroupLayers(map)
 	end
 end
 
-
 function Map:new(path, world, debug)
+
+	-- https://stackoverflow.com/questions/68771724/lua-inheritance-on-existing-object
 	local map = sti(path, { "box2d" })
+
+	--local mmeta = getmetatable(map)
+
+	--Map.__index = mmeta
+	--Map2 = setmetatable(Map, mmeta)
+	--map.__index = Map
+	--map = setmetatable(map, Map)
+
+	--map.__includes = Map
+	--map = Class.new(map)
+
+	--local midx = map.__index
+	--local sidx = self.__index
+	--map.__index = self.__index
+	--map.__index.__index = midx
+
+	--setmetatable(self, map)
+	--setmetatable(map, Map)
+
+	--map._map = map
+	--set_funcs(w, w._world)
+
+	--utils.set_funcs(self, self._map)
 
 	-- Prepare collision objects
 	if world then
@@ -104,16 +128,24 @@ function Map:new(path, world, debug)
 			createStaticPhysicsBodies(layer)
 		end
 	end
-
+--[[
 	return setmetatable({
-		map = map,
+		--map = map,
 		debug = debug or false
 	  },
 	  Map
 	)
+	]]--
+	return map
 end
 
+--function Map:init(path, plugins, ox, oy)
+--	local p = self.path
+--	self.__index.init(self, path, plugins, ox, oy)
+--end
+
 function Map:update(dt)
+	print('YAY! we have done it!')
 	self.map:update(dt)
 end
 
