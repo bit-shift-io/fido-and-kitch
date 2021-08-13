@@ -36,10 +36,10 @@ function Player:update(dt)
 	local delta = self.speed * dt
 
 	if love.keyboard.isDown("right") then
-		self.collider:setPosition(Vector(x + delta, y))
+		self.collider:setPositionV(Vector(x + delta, y))
 	end
 	if love.keyboard.isDown("left") then
-	   self.collider:setPosition(Vector(x - delta, y))
+	   self.collider:setPositionV(Vector(x - delta, y))
 	end
 	if love.keyboard.isDown("up") then
 		self.collider:setLinearVelocity(0, -100)
