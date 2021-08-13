@@ -3,7 +3,7 @@ if arg[#arg] == "vsc_debug" then require("lldebugger").start() end
 print(package.path)
 
 -- includes
-require('lovedebug')
+--require('lovedebug')
 
 
 -- global includes to save having to include in other files!
@@ -18,32 +18,26 @@ Collider = require('collider')
 
 -- local includes only accessible to this file
 
-local profile = require('profile')
+--local profile = require('profile') -- disables debug!
 local newMap = require('map')
 local Player = require('player')
 
 -- TODO world needs own class with collision stuff
 world = {} -- global for now so Collider componnent works easy TODO: clean up globals
 
-function preSolve(a, b, coll)
-	print(a:getUserData())
-	print(b:getUserData())
-
-end
 
 function love.load()
-	profile.start()
+	--profile.start()
 	print("load")
 
 	world = bf.newWorld(0, 90.81, true)
-	--world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
 	map = newMap('res/map/sandbox.lua', world._world)
 
 	p = Player()
 
-	profile.stop()
-	print(profile.report(10))
+	--profile.stop()
+	--print(profile.report(10))
 end
 
 function love.update(dt)

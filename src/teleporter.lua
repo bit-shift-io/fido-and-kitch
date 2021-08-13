@@ -2,6 +2,7 @@ local Teleporter = Class{__includes = Entity}
 
 function Teleporter:init(object)
 	Entity.init(self)
+	self.name = 'teleporter'
 	local id = object.id
 	local target = object.properties.target
 	local sprite = self:addComponent(Sprite{

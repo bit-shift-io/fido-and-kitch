@@ -2,7 +2,7 @@ local Player = Class{__includes = Entity}
 
 function Player:init(object)
 	Entity.init(self)
-
+	self.name = 'player'
 	character = 'dog';
 	position = Vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
 

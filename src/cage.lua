@@ -2,6 +2,7 @@ local Cage = Class{__includes = Entity}
 
 function Cage:init(object)
 	Entity.init(self)
+	self.name = 'cage'
 	local color = object.properties.color
 	local sprite = self:addComponent(Sprite{
 		image='res/img/cage.png',

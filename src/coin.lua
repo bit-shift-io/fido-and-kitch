@@ -2,6 +2,7 @@ local Coin = Class{__includes = Entity}
 
 function Coin:init(object)
 	Entity.init(self)
+	self.name = 'coin'
 	local sprite = self:addComponent(Sprite{
 		image='res/img/coins.png', 
 		frames=8, 

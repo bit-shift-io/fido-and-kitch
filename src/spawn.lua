@@ -2,6 +2,7 @@ local Spawn = Class{__includes = Entity}
 
 function Spawn:init(object)
 	Entity.init(self)
+	self.name = 'spawn'
 	local sprite = self:addComponent(Sprite{
 		image='res/img/door.png',
 		scale=Vector(0.8, 0.8), 

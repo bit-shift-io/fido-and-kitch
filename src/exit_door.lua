@@ -2,6 +2,7 @@ local ExitDoor = Class{__includes = Entity}
 
 function ExitDoor:init(object)
 	Entity.init(self)
+	self.name = 'exit door'
 	local sprite = self:addComponent(Sprite{
 		image='res/img/door.png',
 		scale=Vector(0.8, 0.8), 

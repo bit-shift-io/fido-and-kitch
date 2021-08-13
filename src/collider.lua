@@ -6,13 +6,15 @@ local Collider = Class{__includes = bf.Collider}
 -- which we don't care about supplying, circle just needs a radius
 -- so this needs some tweaking
 function Collider:init(props)
+	self.name = 'collider'
+
 	if props.shape_arguments then
 		col = bf.Collider.new(props.world or world, props.shape_type, unpack(props.shape_arguments))
 	else
 		col = bf.Collider.new(props.world or world, props.shape_type or 'unknown')
 	end
-
-	Class.include(self, col) -- merge collider with this
+	col.name = 'bfcollider'
+	Class.include(self, col) -- merge collider with this, this does not work!
 
 	self.debug = props.debug or false
 	self.sprite = props.sprite
@@ -43,7 +45,7 @@ function Collider:init(props)
 		self:setType(props.body_type)
 	end
 	--self.collider._collider = self
-	--setmetatable(self.collider, Collider)
+	--setmetatable(self.collider, bf.Collider)
 end
 
 function Collider:addShape(props)

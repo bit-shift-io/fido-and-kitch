@@ -1,6 +1,7 @@
 local Entity = Class{}
 
 function Entity:init()
+	self.name = 'entity'
 	self.components = {}
 end
 
