@@ -10,8 +10,8 @@ print(package.path)
 
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
-bf = require('breezefield')
-
+--bf = require('breezefield')
+World = require('world')
 Entity = require('entity')
 Sprite = require('sprite')
 Collider = require('collider')
@@ -23,14 +23,14 @@ local newMap = require('map')
 local Player = require('player')
 
 -- TODO world needs own class with collision stuff
-world = {} -- global for now so Collider componnent works easy TODO: clean up globals
+--world = {} -- global for now so Collider componnent works easy TODO: clean up globals
 
 
 function love.load()
 	--profile.start()
 	print("load")
 
-	world = bf.newWorld(0, 90.81, true)
+	world = World:new(0, 90.81, true)
 
 	map = newMap('res/map/sandbox.lua', world._world)
 

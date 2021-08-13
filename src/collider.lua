@@ -1,6 +1,8 @@
 -- A physics body component
+-- a Collider object, wrapping shape, body, and fixtue
 
-local Collider = Class{__includes = bf.Collider}
+local Collider = Class{}
+--local set_funcs, lp, lg, COLLIDER_TYPES = unpack(require('utils'))
 
 -- TODO: shape arguments includes position as first 2 values in the case or a circle
 -- which we don't care about supplying, circle just needs a radius
@@ -9,11 +11,11 @@ function Collider:init(props)
 	self.name = 'collider'
 
 	if props.shape_arguments then
-		col = bf.Collider.new(props.world or world, props.shape_type, unpack(props.shape_arguments))
+		col = world:newCollider(props.shape_type, props.shape_arguments)
 	else
-		col = bf.Collider.new(props.world or world, props.shape_type or 'unknown')
+		--col = bf.Collider.new(props.world or world, props.shape_type or 'unknown')
 	end
-	col.name = 'bfcollider'
+	--col.name = 'bfcollider'
 	Class.include(self, col) -- merge collider with this, this does not work!
 
 	self.debug = props.debug or false
@@ -73,7 +75,8 @@ function Collider:update(dt)
 	end
 end
 
-function Collider:collider_draw(alpha)
+
+function Collider:draw(alpha)
 	if self.debug == false then
 		return
 	end
@@ -84,5 +87,6 @@ function Collider:collider_draw(alpha)
 	local radius = self.getRadius(self)
 	love.graphics.circle('fill', x, y, radius)
 end
+
 
 return Collider

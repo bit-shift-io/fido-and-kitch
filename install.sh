@@ -19,8 +19,7 @@ rm -rf thirdparty
 
 
 git clone --depth 1 git@github.com:vrld/hump.git
-git clone --depth 1 git@github.com:HDictus/breezefield.git
-
+mv hump ../lib/
 
 # linux love engine
 OS="$(uname -s)"
