@@ -11,12 +11,12 @@ function Collider:init(props)
 	self.name = 'collider'
 
 	if props.shape_arguments then
-		col = world:newCollider(props.shape_type, props.shape_arguments)
+		world:newCollider(props.shape_type, props.shape_arguments, self)
 	else
 		--col = bf.Collider.new(props.world or world, props.shape_type or 'unknown')
 	end
 	--col.name = 'bfcollider'
-	Class.include(self, col) -- merge collider with this, this does not work!
+	--Class.include(self, col) -- merge collider with this, this does not work!
 
 	self.debug = props.debug or false
 	self.sprite = props.sprite
@@ -40,7 +40,7 @@ function Collider:init(props)
 	self.draw = Collider.collider_draw
 
 	if (props.position) then
-		self:setPosition(props.position)
+		self:setPositionV(props.position)
 	end
 
 	if props.body_type then
@@ -59,19 +59,19 @@ function Collider:addShape(props)
 	fixture:setUserData(self)
 end
 
-function Collider:setPosition(pos)
+function Collider:setPositionV(pos)
 	self:setX(pos.x)
 	self:setY(pos.y)
 end
 
-function Collider:getPosition() 
+function Collider:getPositionV() 
 	return Vector(self:getX(), self:getY())
 end
 
 function Collider:update(dt)
 	-- move sprite to where the body is
 	if self.sprite then
-		self.sprite.position = self:getPosition()
+		self.sprite.position = self:getPositionV()
 	end
 end
 
