@@ -1,6 +1,6 @@
-if arg[#arg] == "vsc_debug" then 
+if arg[#arg] == "debug" then 
 	require("lldebugger").start() 
-elseif arg[#arg] == "vsc_profile" then
+elseif arg[#arg] == "profile" then
 	profile = require('profile')
 end
 

@@ -15,7 +15,7 @@
             "args": 
             [
                 "${workspaceFolder}",
-                "vsc_debug"
+                "debug"
             ],
         },
         {
@@ -29,7 +29,7 @@
             "args": 
             [
                 "${workspaceFolder}",
-                "vsc_profile"
+                "profile"
             ],
         },
     ]
