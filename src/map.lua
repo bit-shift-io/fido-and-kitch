@@ -1,6 +1,6 @@
 package.path = package.path .. ';res/?.lua'
 
-local sti = require('sti')
+local sti = require('lib/sti')
 
 local Map   = {}
 Map.__index = Map

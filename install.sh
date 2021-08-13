@@ -2,9 +2,8 @@
 
 rm -rf thirdparty
 rm -rf sti
-
-mkdir thirdparty
-cd thirdparty
+mkdir lib
+cd lib
 
 # unsed libs
 #git clone -b v2.3.1 --depth 1 git@github.com:kikito/anim8.git
@@ -12,14 +11,12 @@ cd thirdparty
 
 # build using v1.2.3.0
 git clone --depth 1 https://github.com/karai17/Simple-Tiled-Implementation
-mv Simple-Tiled-Implementation/sti ../
-
-cd ..
-rm -rf thirdparty
-
+mv Simple-Tiled-Implementation/sti ../lib/
+rm -rf Simple-Tiled-Implementation
 
 git clone --depth 1 git@github.com:vrld/hump.git
-mv hump ../lib/
+
+cd ..
 
 # linux love engine
 OS="$(uname -s)"
