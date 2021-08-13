@@ -10,7 +10,10 @@
 local World   = {}
 World.__index = World
 
-local set_funcs, lp, lg, COLLIDER_TYPES = unpack(require("utils"))
+local set_funcs = utils.set_funcs
+local lp = love.physics
+local lg = love.graphics
+local COLLIDER_TYPES = utils.COLLIDER_TYPES
 
 
 function World:new(...)

@@ -1,5 +1,8 @@
+local utils = {}
+
+
 -- function used for both
-local function set_funcs(mainobject, subobject)
+function utils.set_funcs(mainobject, subobject)
    -- this function assigns functions of a subobject to a primary object
    --[[
       mainobject: the table to which to assign the functions
@@ -17,7 +20,7 @@ local function set_funcs(mainobject, subobject)
    end
 end
 
-local COLLIDER_TYPES = {
+utils.COLLIDER_TYPES = {
    CIRCLE = "Circle",
    CIRC = "Circle",
    RECTANGLE = "Rectangle",
@@ -29,4 +32,4 @@ local COLLIDER_TYPES = {
 }
 
 
-return {set_funcs, love.physics, love.graphics, COLLIDER_TYPES}
+return utils --{set_funcs, love.physics, love.graphics, COLLIDER_TYPES}

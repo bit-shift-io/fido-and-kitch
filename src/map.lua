@@ -1,4 +1,4 @@
-package.path = package.path .. ';res/?.lua'
+package.path = package.path .. ';res/?.lua;src/entities/?.lua'
 
 local sti = require('lib/sti')
 
@@ -86,12 +86,12 @@ local function createEntitiesFromObjectGroupLayers(map)
 end
 
 
-local function newMap(path, world, debug)
+function Map:new(path, world, debug)
 	local map = sti(path, { "box2d" })
 
 	-- Prepare collision objects
 	if world then
-		map:box2d_init(world)
+		map:box2d_init(world._world)
 	end
 
 	createEntitiesFromObjectGroupLayers(map)
@@ -113,14 +113,6 @@ local function newMap(path, world, debug)
 	)
 end
 
-
-local function prequire(m) 
-	local ok, err = pcall(require, m) 
-	if not ok then return nil, err end
-	return err
-end
-
-
 function Map:update(dt)
 	self.map:update(dt)
 end
@@ -135,10 +127,4 @@ function Map:draw()
 	end
 end
 
-function love.keypressed(key)
-	if key == 'escape' then
-		love.event.push('quit')
-	end
-end
-
-return newMap
+return Map
