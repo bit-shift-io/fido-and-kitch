@@ -25,6 +25,7 @@ Map = require('map')
 -- local includes only accessible to this file
 
 
+local physics_draw = (arg[#arg] == "debug") and false
 
 local Player = require('player')
 
@@ -62,13 +63,14 @@ end
 function love.update(dt)
 	map:update(dt)
 	world:update(dt)
-	--p:update(dt)
 end
 
 function love.draw()
 	map:draw()
-	world:draw()
-	--p:draw()
+
+	if physics_draw then
+		world:draw()
+	end
 end
 
 

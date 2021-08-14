@@ -94,8 +94,8 @@ function World:draw()
       love.graphics.setColor(1, 1, 1, self.alpha or 1)
       c:draw(self.alpha)
       if self.draw_over then
-	 love.graphics.setColor(1, 1, 1, self.alpha or 1)
-	 --c:__draw__()
+         love.graphics.setColor(1, 1, 1, self.alpha or 1)
+         c:__draw__()
       end
    end
    love.graphics.setColor(color)
