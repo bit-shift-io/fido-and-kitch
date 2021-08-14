@@ -161,4 +161,24 @@ function World:newCollider(collider_type, shape_arguments, table_to_use)
    return o
 end
 
+
+function World:queryRectangleArea(x1, y1, x2, y2)
+   -- query a bounding-box aligned area for colliders
+   --[[
+      inputs:
+      x1, y1, x2, y2: floats, the x and y coordinates of two points
+      outputs:
+      colls: table, all colliders in bounding box
+   --]]
+
+   local colls = {}
+   local callback = function(fixture)
+      table.insert(colls, fixture:getUserData())
+      return true
+   end
+   self:queryBoundingBox(x1, y1, x2, y2, callback)
+   return colls
+end
+
+
 return World

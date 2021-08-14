@@ -18,7 +18,7 @@ function Player:init(object)
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
-		postSolve=self.contact, 
+		postSolve=self.contact,
 		sprite=self.sprite,
 		position=position,
 		entity=self,
@@ -32,10 +32,18 @@ function Player:contact(other)
 	--print('player has made contact with something!')
 end
 
+
 function Player:checkForUsables()
 	print('TODO:e pressed, check for usables!');
-	-- ideally, we want a physics body to turn on with a filter that can only collide with sensors
-	-- but for now, just loop through all the entities look for ones that have a Usable using utils.instanceOf
+	local shape = self.collider
+	-- todo: player world position 
+	local colls = world:queryRectangleArea(0,0,30,30)
+	for _, collider in ipairs(colls) do
+		if (collider.isSensor) then
+			-- todo: find the entity which the sensor belongs too
+			print('ping!')
+		end
+	end
 end
 
 function Player:update(dt)
