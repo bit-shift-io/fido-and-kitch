@@ -16,7 +16,7 @@ function Coin:init(object)
 		body_type='static',
 		postSolve=Coin.contact, 
 		sprite=sprite, 
-		position=Vector(object.x + 16, object.y - 32)})
+		position=Vector(object.x + 16, object.y - 16)})
 	
 end
 

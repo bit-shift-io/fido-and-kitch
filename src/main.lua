@@ -40,7 +40,17 @@ function love.load()
 	world = World:new(0, 90.81, true)
 	map = Map:new('res/map/sandbox.lua', world)
 
-	p = Player()
+	-- spawn players
+	for li, layer in ipairs(map.layers) do
+		if layer.type == "objectgroup" then
+			for _, object in ipairs(layer.objects) do
+				if object.type == 'spawn' then
+					local entity = Player(object)
+					table.insert(layer.entities, entity)
+				end
+			end
+		end
+	end
 
 	if profile then
 		profile.stop()
@@ -52,13 +62,13 @@ end
 function love.update(dt)
 	map:update(dt)
 	world:update(dt)
-	p:update(dt)
+	--p:update(dt)
 end
 
 function love.draw()
 	map:draw()
 	world:draw()
-	p:draw()
+	--p:draw()
 end
 
 

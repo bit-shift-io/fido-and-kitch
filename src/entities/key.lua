@@ -16,7 +16,7 @@ function Key:init(object)
 		body_type='static',
 		postSolve=Key.contact, 
 		sprite=sprite, 
-		position=Vector(object.x + 16, object.y - 32)
+		position=Vector(object.x + 16, object.y - 16)
 	})
 	
 end

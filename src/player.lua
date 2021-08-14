@@ -4,7 +4,7 @@ function Player:init(object)
 	Entity.init(self)
 	self.name = 'player'
 	character = 'dog';
-	position = Vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+	position = Vector(object.x + 16, object.y - 16)
 
 	self.sprite = self:addComponent(Sprite{
 		frames=string.format('res/img/%s/Idle (${i}).png', character),
@@ -15,13 +15,12 @@ function Player:init(object)
 	self.object = object
 	self.speed = 100;
 
-	-- TODO: make a rectangle
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
 		postSolve=self.contact, 
 		sprite=self.sprite, 
-		position=Vector(325, 325)})
+		position=position})
 	self.collider:setFixedRotation(true)
 end
 

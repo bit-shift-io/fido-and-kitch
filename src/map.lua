@@ -57,8 +57,6 @@ local function createEntitiesFromObjectGroupLayers(map)
 			local objects = layer.objects
 			layer.entities = {}
 
-			map:convertToCustomLayer(li)
-
 			function layer:update(dt) 
 				for _, entity in pairs(self.entities) do
 					entity:update(dt)
