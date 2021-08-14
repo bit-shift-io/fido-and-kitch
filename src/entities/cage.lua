@@ -15,7 +15,8 @@ function Cage:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
 		body_type='static',
-		postSolve=Cage.contact, 
+		enter=Cage.contact,
+		sensor=true,
 		sprite=sprite, 
 		position=Vector(object.x, object.y)
 	})

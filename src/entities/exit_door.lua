@@ -14,7 +14,8 @@ function ExitDoor:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 50, 50}, 
 		body_type='static',
-		postSolve=ExitDoor.contact, 
+		enter=ExitDoor.contact,
+		sensor=true,
 		sprite=sprite, 
 		position=Vector(object.x, object.y)
 	})

@@ -14,9 +14,10 @@ function Switch:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
 		body_type='static',
-		postSolve=Switch.contact, 
-		sprite=sprite, 
-		position=Vector(object.x, object.y)
+		enter=Switch.contact,
+		sprite=sprite,
+		position=Vector(object.x, object.y),
+		sensor=true,
 	})
 
 	self:addComponent(Usable{})
