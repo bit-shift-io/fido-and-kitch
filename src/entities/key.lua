@@ -23,7 +23,7 @@ function Key:init(object)
 	})
 	
 	self:addComponent(Pickup{
-		itemName=self.name,
+		itemName=string.format('key_%s', color),
 		collider=collider,
 		entity=self
 	})

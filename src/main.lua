@@ -21,6 +21,7 @@ Sprite = require('components.sprite')
 Collider = require('components.collider')
 Pickup = require('components.pickup')
 Inventory = require('components.inventory')
+Usable = require('components.usable')
 Map = require('map')
 Player = require('player')
 

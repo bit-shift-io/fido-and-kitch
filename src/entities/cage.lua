@@ -20,6 +20,9 @@ function Cage:init(object)
 		position=Vector(object.x, object.y)
 	})
 	
+	self:addComponent(Usable{
+		requiredItem=string.format('key_%s', color)
+	})
 end
 
 function Cage:contact(other)

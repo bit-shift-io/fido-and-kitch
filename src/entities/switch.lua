@@ -18,7 +18,8 @@ function Switch:init(object)
 		sprite=sprite, 
 		position=Vector(object.x, object.y)
 	})
-	
+
+	self:addComponent(Usable{})
 end
 
 function Switch:contact(other)
