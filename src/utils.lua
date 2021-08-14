@@ -32,4 +32,16 @@ utils.COLLIDER_TYPES = {
 }
 
 
+function utils.instanceOf(subject, super)
+	super = tostring(super)
+	local mt = getmetatable(subject)
+
+	while true do
+		if mt == nil then return false end
+		if tostring(mt) == super then return true end
+
+		mt = getmetatable(mt)
+	end	
+end
+
 return utils --{set_funcs, love.physics, love.graphics, COLLIDER_TYPES}

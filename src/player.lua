@@ -19,13 +19,17 @@ function Player:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
 		postSolve=self.contact, 
-		sprite=self.sprite, 
-		position=position})
-	self.collider:setFixedRotation(true)
+		sprite=self.sprite,
+		position=position,
+		entity=self,
+		fixedRotation=true
+	})
+
+	self.inventory = self:addComponent(Inventory{})
 end
 
 function Player:contact(other)
-	print('player has made contact with something!')
+	--print('player has made contact with something!')
 end
 
 function Player:update(dt)
@@ -46,6 +50,13 @@ function Player:update(dt)
 	if love.keyboard.isDown("down") then
 		self.collider:setLinearVelocity(0, 100)
 	end
+end
+
+function Player:pickup(pickup)
+	local entity = pickup.entity
+	print('player picked up a ' .. pickup.itemName)
+	self.inventory:addItems(pickup.itemName, pickup.itemCount)
+	entity:queue_destroy()
 end
 
 return Player

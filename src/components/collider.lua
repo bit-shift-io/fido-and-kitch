@@ -20,6 +20,15 @@ function Collider:init(props)
 
 	self.debug = props.debug or false
 	self.sprite = props.sprite
+	self.entity = props.entity
+
+	if props.fixedRotation then
+		self:setFixedRotation(true)
+	end
+
+	if props.sensor then 
+		self:setSensor(true) 
+	end
 
 	if props.postSolve then
 		self.postSolve = props.postSolve

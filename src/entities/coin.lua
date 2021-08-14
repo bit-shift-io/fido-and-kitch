@@ -14,14 +14,18 @@ function Coin:init(object)
 		shape_type='circle', 
 		shape_arguments={0, 0, 10}, 
 		body_type='static',
-		postSolve=Coin.contact, 
+		--enter=Coin.contact, 
 		sprite=sprite, 
-		position=Vector(object.x + 16, object.y - 16)})
-	
-end
+		position=Vector(object.x + 16, object.y - 16),
+		sensor=true,
+		entity=self
+	})
 
-function Coin:contact(other)
-	print('coin has made contact with something!')
+	self:addComponent(Pickup{
+		itemName=self.name,
+		collider=collider,
+		entity=self
+	})
 end
 
 return Coin

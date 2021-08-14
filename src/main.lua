@@ -19,15 +19,17 @@ World = require('world')
 Entity = require('entity')
 Sprite = require('components.sprite')
 Collider = require('components.collider')
+Pickup = require('components.pickup')
+Inventory = require('components.inventory')
 Map = require('map')
-
+Player = require('player')
 
 -- local includes only accessible to this file
 
 
-local physics_draw = (arg[#arg] == "debug") and false
+local physics_draw = (arg[#arg] == "debug") and true
 
-local Player = require('player')
+
 
 -- TODO world needs own class with collision stuff
 --world = {} -- global for now so Collider componnent works easy TODO: clean up globals

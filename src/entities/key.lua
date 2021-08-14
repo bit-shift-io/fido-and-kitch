@@ -10,19 +10,23 @@ function Key:init(object)
 		duration=1.0, 
 		loop=false
 	})
+
 	local collider = self:addComponent(Collider{
 		shape_type='circle', 
 		shape_arguments={0, 0, 10}, 
 		body_type='static',
 		postSolve=Key.contact, 
 		sprite=sprite, 
-		position=Vector(object.x + 16, object.y - 16)
+		position=Vector(object.x + 16, object.y - 16),
+		sensor=true,
+		entity=self
 	})
 	
-end
-
-function Key:contact(other)
-	print('Key has made contact with something!')
+	self:addComponent(Pickup{
+		itemName=self.name,
+		collider=collider,
+		entity=self
+	})
 end
 
 return Key

@@ -58,8 +58,21 @@ local function createEntitiesFromObjectGroupLayers(map)
 			layer.entities = {}
 
 			function layer:update(dt) 
-				for _, entity in pairs(self.entities) do
-					entity:update(dt)
+				remove_keys = {}
+				for i, entity in pairs(self.entities) do
+					if entity.remove_from_map_flag then
+						table.insert(remove_keys, i)
+					else
+						entity:update(dt)
+					end
+				end
+
+				for i, v in pairs(remove_keys) do
+					local entity = self.entities[v]
+					table.remove(self.entities, v)
+					if entity.destroy_flag then
+						entity:destroy()
+					end
 				end
 			end
 
