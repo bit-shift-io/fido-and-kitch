@@ -15,7 +15,7 @@ function Key:init(object)
 		shape_type='circle', 
 		shape_arguments={0, 0, 10}, 
 		body_type='static',
-		postSolve=Key.contact, 
+		postSolve=Func(Key.contact, self), 
 		sprite=sprite, 
 		position=Vector(object.x + 16, object.y - 16),
 		sensor=true,

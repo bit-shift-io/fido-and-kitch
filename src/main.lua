@@ -11,10 +11,12 @@ print(package.path)
 
 
 -- global includes to save having to include in other files!
-utils = require('utils')
-
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
+
+utils = require('utils')
+Func = require('func')
+
 World = require('world')
 Entity = require('entity')
 Sprite = require('components.sprite')

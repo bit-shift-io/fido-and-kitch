@@ -49,15 +49,29 @@ function Sprite:init(props)
 	self.frames = cloneArray(frames)
 	self.image = image
 	self.duration = props.duration
-	self.currentTime   = 0
-	self.frameNum      = 1
-	self.position      = props.position or Vector(0, 0)
-	self.scale         = props.scale or Vector(1, 1)
-	self.offset        = props.offset or Vector(0, 0)
-	self.draw          = draw
+	self.currentTime = 0
+	self.frameNum = 1
+	self.position = props.position or Vector(0, 0)
+	self.scale = props.scale or Vector(1, 1)
+	self.offset = props.offset or Vector(0, 0)
+
+	self.playing = true
+	if props.playing ~= nil then
+		self.playing = props.playing
+	end
+
+	self.draw = draw
+end
+
+function Sprite:setFrameNum(frameNum)
+	self.frameNum = frameNum
 end
 
 function Sprite:update(dt)
+	if self.playing == false then
+		return
+	end
+
 	self.currentTime = self.currentTime + dt
 	while self.currentTime >= self.duration do
 		self.currentTime = self.currentTime - self.duration

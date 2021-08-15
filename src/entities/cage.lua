@@ -22,12 +22,18 @@ function Cage:init(object)
 	})
 	
 	self:addComponent(Usable{
+		entity=self,
+		use=Func(self.use, self),
 		requiredItem=string.format('key_%s', color)
 	})
 end
 
 function Cage:contact(other)
 	print('Cage has made contact with something!')
+end
+
+function Cage:use(user)
+	print('Cage has been used')
 end
 
 return Cage

@@ -29,20 +29,34 @@ function Collider:init(props)
 		self:setSensor(true) 
 	end
 
-	if props.postSolve then
-		self.postSolve = props.postSolve
+
+	self.postSolveFunc = props.postSolve
+	self.preSolveFunc = props.preSolve
+	self.enterFunc = props.enter
+	self.exitFunc = props.exit
+
+	if self.postSolveFunc then
+		function self:postSolve(other)
+			self.postSolveFunc:call(other)
+		end
 	end
 
-	if props.preSolve then
-		self.preSolve = props.preSolve
+	if self.preSolveFunc then
+		function self:preSolve(other)
+			self.preSolveFunc:call(other)
+		end
 	end
 
-	if props.enter then
-		self.enter = props.enter
+	if self.enterFunc then
+		function self:enter(other)
+			self.enterFunc:call(other)
+		end
 	end
 
-	if props.exit then
-		self.exit = props.exit
+	if self.exitFunc then
+		function self:exit(other)
+			self.exitFunc:call(other)
+		end
 	end
 
 	self.draw = Collider.collider_draw

@@ -44,13 +44,13 @@ end
 
 
 -- flag this item for removal from the map layer entity list
-function Entity:queue_remove()
+function Entity:queueRemove()
 	self.remove_from_map_flag = true
 end
 
 
 -- flag this item for removal from the map layer entity list then call destroy whenn done
-function Entity:queue_destroy()
+function Entity:queueDestroy()
 	self.remove_from_map_flag = true
 	self.destroy_flag = true
 end
@@ -64,5 +64,14 @@ function Entity:destroy()
 	end
 end
 
+function Entity:getComponentByType(componentType)
+	for _, component in pairs(self.components) do
+		if utils.instanceOf(component, componentType) then
+			return component
+		end
+	end
+
+	return nil
+end
 
 return Entity

@@ -18,7 +18,7 @@ function Player:init(object)
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
-		postSolve=self.contact,
+		postSolve=Func(self.contact, self),
 		sprite=self.sprite,
 		position=position,
 		entity=self,
@@ -32,14 +32,20 @@ function Player:contact(other)
 	--print('player has made contact with something!')
 end
 
-
 function Player:checkForUsables()
 	local x = self.collider:getX()
 	local y = self.collider:getY()
 	local colls = world:queryRectangleArea(x-1,y-1,x+1,y+1)
 	for _, c in ipairs(colls) do
-		if (c.isSensor() and c.entity ~= self.collider and c.entity.usable) then
-			c.entity.usable:use()
+		local entity = c.entity
+		if entity then 
+			local usable = entity:getComponentByType(Usable)
+			if usable ~= nil then
+				print('found entity with usable', c.entity.name)
+				if usable:canUse(self) then
+					usable:use(self)
+				end
+			end
 		end
 	end
 end
@@ -75,7 +81,7 @@ function Player:pickup(pickup)
 	local entity = pickup.entity
 	print('player picked up a ' .. pickup.itemName)
 	self.inventory:addItems(pickup.itemName, pickup.itemCount)
-	entity:queue_destroy()
+	entity:queueDestroy()
 end
 
 return Player
