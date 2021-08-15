@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 15,
-  nextobjectid = 47,
+  nextobjectid = 48,
   properties = {},
   tilesets = {
     {
@@ -266,6 +266,23 @@ return {
           visible = true,
           properties = {
             ["target"] = { id = 43 }
+          }
+        },
+        {
+          id = 47,
+          name = "key",
+          type = "key",
+          shape = "rectangle",
+          x = 322.158,
+          y = 43.607,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["color"] = "red",
+            ["image"] = "../img/coins.png"
           }
         }
       }

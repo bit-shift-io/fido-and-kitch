@@ -53,7 +53,7 @@ function love.load()
 	map = Map:new('res/map/sandbox.lua', world)
 
 	-- spawn players
-	for li, layer in ipairs(map.layers) do
+	for li, layer in ipairs(map.map.layers) do -- todo: map.map changed with the new layout for some reason??
 		if layer.type == "objectgroup" then
 			for _, object in ipairs(layer.objects) do
 				if object.type == 'spawn' then

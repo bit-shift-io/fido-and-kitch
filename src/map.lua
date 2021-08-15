@@ -53,6 +53,7 @@ local function createEntitiesFromObjectGroupLayers(map)
 	-- them with entities
 	-- so the layer order is the render order
 	for li, layer in ipairs(map.layers) do
+		print(layer.type)
 		if layer.type == "objectgroup" then
 			local objects = layer.objects
 			layer.entities = {}
