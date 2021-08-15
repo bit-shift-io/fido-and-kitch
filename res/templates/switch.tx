@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
  <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
- <object name="key" type="key" gid="123" width="32" height="32">
+ <object name="S" type="switch" gid="123" width="32" height="32">
   <properties>
-   <property name="color" value="red"/>
-   <property name="image" type="file" value="../img/key_black.png"/>
+   <property name="target" type="object" value="43"/>
   </properties>
  </object>
 </template>

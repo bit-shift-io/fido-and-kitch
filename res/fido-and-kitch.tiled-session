@@ -1,0 +1,106 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "map/sandbox.tmx",
+    "expandedProjectPaths": [
+        "/home/bronson/Projects/fido-and-kitch/map",
+        "/home/bronson/Projects/fido-and-kitch",
+        "/home/bronson/Projects/fido-and-kitch/map/map",
+        "templates",
+        "map",
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "/home/bronson/Projects/fido-and-kitch/assets/generic_platformer_tiles.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "/home/bronson/Projects/fido-and-kitch/assets/maps/sandbox.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 406.66666666666663,
+                "y": 375.33333333333326
+            }
+        },
+        "/home/bronson/Projects/fido-and-kitch/generic_platformer_tiles.tsx": {
+            "scaleInDock": 1
+        },
+        "/home/bronson/Projects/fido-and-kitch/map/props.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "/home/bronson/Projects/fido-and-kitch/map/sandbox.tmx": {
+            "scale": 0.693203125,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 320.97374056125324,
+                "y": 320.9737405612532
+            }
+        },
+        "generic_platformer_tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "map/ll1.tmx": {
+            "scale": 0.7083767361111111,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 576.6705471478464,
+                "y": 352.2137123950738
+            }
+        },
+        "map/sandbox.tmx": {
+            "scale": 1.123671875,
+            "selectedLayer": 5,
+            "viewCenter": {
+                "x": 666.5646944309253,
+                "y": 501.0359452130987
+            }
+        },
+        "map/tiny.tmx": {
+            "scale": 22.4734375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 16.041159702426476,
+                "y": 16.041159702426476
+            }
+        },
+        "props.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tilesets/generic_platformer_tiles.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "/home/bronson/Projects/fido-and-kitch/res/map",
+    "last.externalTilesetPath": "/home/bronson/Projects/fido-and-kitch/res/tilesets",
+    "last.imagePath": "/home/bronson/Projects/fido-and-kitch/res/img",
+    "last.objectTemplatePath": "/home/bronson/Projects/fido-and-kitch/res/templates",
+    "map.lastUsedExportFilter": "Lua files (*.lua)",
+    "openFiles": [
+        "map/sandbox.tmx"
+    ],
+    "project": "fido-and-kitch.tiled-project",
+    "property.type": "file",
+    "recentFiles": [
+        "map/sandbox.tmx",
+        "tilesets/generic_platformer_tiles.tsx",
+        "generic_platformer_tiles.tsx",
+        "props.tsx",
+        "map/tiny.tmx",
+        "map/ll1.tmx",
+        "/home/bronson/Projects/fido-and-kitch/map/sandbox.tmx",
+        "/home/bronson/Projects/fido-and-kitch/map/props.tsx",
+        "/home/bronson/Projects/fido-and-kitch/assets/maps/sandbox.tmx",
+        "/home/bronson/Projects/fido-and-kitch/assets/generic_platformer_tiles.tsx"
+    ]
+}

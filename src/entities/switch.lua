@@ -3,22 +3,21 @@ local Switch = Class{__includes = Entity}
 function Switch:init(object)
 	Entity.init(self)
 	self.name = 'switch'
-	self.object = obbject
-
-	local position = Vector(object.x, object.y)
+	local position = Vector(object.x+16, object.y-16)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/switch.png',
-		scale=Vector(0.3, 0.3),
+		scale=Vector(0.2, 0.2),
 		frames=3,
 		position=position,
+		offset=Vector(70,80),
 		duration=1.0,
 		loop=false
 	})
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
-		shape_arguments={0, 0, 30, 30}, 
+		shape_arguments={0, 0, 32, 32}, 
 		body_type='static',
-		position=position,
+		position=Vector(object.x+16, object.y-16),
 		sensor=true,
 	})
 	self:addComponent(Usable{

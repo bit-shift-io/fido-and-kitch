@@ -8,7 +8,9 @@ function Key:init(object)
 		image=string.format('res/img/key_%s.png', color), 
 		frames=1, 
 		duration=1.0, 
-		loop=false
+		loop=false,
+		scale=Vector(0.8,0.8),
+		offset=Vector(12,12)
 	})
 
 	local collider = self:addComponent(Collider{

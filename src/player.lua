@@ -4,14 +4,15 @@ function Player:init(object)
 	Entity.init(self)
 	self.name = 'player'
 	character = 'dog';
-	position = Vector(object.x + 16, object.y - 16)
+	position = Vector(object.x + 14, object.y - 14)
 
 	self.sprite = self:addComponent(Sprite{
 		frames=string.format('res/img/%s/Idle (${i}).png', character),
 		frameCount=10, 
 		duration=1.0,
-		scale=Vector(0.1, 0.1), 
+		scale=Vector(0.1, 0.1),
 		position=position,
+		offset=Vector(280, 320),
 		playing=true
 	})
 	self.object = object
@@ -19,7 +20,7 @@ function Player:init(object)
 
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
-		shape_arguments={0, 0, 30, 30}, 
+		shape_arguments={0, 0, 28, 28}, 
 		postSolve=Func(self.contact, self),
 		sprite=self.sprite,
 		position=position,

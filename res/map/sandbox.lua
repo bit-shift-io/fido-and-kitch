@@ -8,8 +8,8 @@ return {
   height = 20,
   tilewidth = 32,
   tileheight = 32,
-  nextlayerid = 15,
-  nextobjectid = 48,
+  nextlayerid = 17,
+  nextobjectid = 64,
   properties = {},
   tilesets = {
     {
@@ -148,8 +148,8 @@ return {
       objects = {
         {
           id = 26,
-          name = "",
-          type = "teleporter",
+          name = "teleport",
+          type = "teleport",
           shape = "rectangle",
           x = 193.683,
           y = 511.321,
@@ -159,23 +159,8 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["target"] = { id = 28 }
-          }
-        },
-        {
-          id = 28,
-          name = "",
-          type = "teleporter",
-          shape = "rectangle",
-          x = 323.95,
-          y = 543.5,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          gid = 123,
-          visible = true,
-          properties = {
-            ["target"] = { id = 26 }
+            ["image"] = "../img/teleporter_1.png",
+            ["target"] = { id = 63 }
           }
         },
         {
@@ -183,22 +168,24 @@ return {
           name = "coin",
           type = "coin",
           shape = "rectangle",
-          x = 350.773,
-          y = 350.952,
+          x = 480,
+          y = 352,
           width = 32,
           height = 32,
           rotation = 0,
           gid = 123,
           visible = true,
-          properties = {}
+          properties = {
+            ["image"] = "../img/coins.png"
+          }
         },
         {
           id = 38,
           name = "spawn",
           type = "spawn",
           shape = "rectangle",
-          x = 91.1847,
-          y = 191.85,
+          x = 96,
+          y = 192,
           width = 32,
           height = 32,
           rotation = 0,
@@ -219,11 +206,43 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["color"] = "red"
+            ["color"] = "red",
+            ["image"] = "../img/cage.png"
           }
         },
         {
-          id = 42,
+          id = 43,
+          name = "exit",
+          type = "exit_door",
+          shape = "rectangle",
+          x = 416,
+          y = 192,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 44,
+          name = "switch",
+          type = "switch",
+          shape = "rectangle",
+          x = 288,
+          y = 192,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["image"] = "../img/switch.png",
+            ["target"] = { id = 43 }
+          }
+        },
+        {
+          id = 62,
           name = "key",
           type = "key",
           shape = "rectangle",
@@ -235,55 +254,173 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["color"] = "red"
+            ["color"] = "red",
+            ["image"] = "../img/key_black.png"
           }
         },
         {
-          id = 43,
-          name = "E",
-          type = "exit_door",
+          id = 63,
+          name = "teleport",
+          type = "teleport",
           shape = "rectangle",
           x = 384,
-          y = 192,
+          y = 544,
           width = 32,
           height = 32,
           rotation = 0,
           gid = 123,
+          visible = true,
+          properties = {
+            ["image"] = "../img/teleporter_1.png",
+            ["target"] = { id = 26 }
+          }
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 15,
+      name = "collision",
+      visible = false,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 53,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 96,
+          y = 192,
+          width = 384,
+          height = 32,
+          rotation = 0,
           visible = true,
           properties = {}
         },
         {
-          id = 44,
-          name = "S",
-          type = "switch",
+          id = 54,
+          name = "",
+          type = "",
           shape = "rectangle",
-          x = 296,
+          x = 32,
           y = 192,
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
           visible = true,
-          properties = {
-            ["target"] = { id = 43 }
-          }
+          properties = {}
         },
         {
-          id = 47,
-          name = "key",
-          type = "key",
+          id = 55,
+          name = "",
+          type = "",
           shape = "rectangle",
-          x = 322.158,
-          y = 43.607,
-          width = 32,
+          x = 448,
+          y = 256,
+          width = 192,
           height = 32,
           rotation = 0,
-          gid = 123,
           visible = true,
-          properties = {
-            ["color"] = "red",
-            ["image"] = "../img/coins.png"
-          }
+          properties = {}
+        },
+        {
+          id = 56,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 352,
+          y = 352,
+          width = 160,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 57,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 0,
+          y = 384,
+          width = 224,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 58,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 0,
+          y = 512,
+          width = 224,
+          height = 128,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 59,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 320,
+          y = 544,
+          width = 320,
+          height = 96,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 16,
+      name = "ladders",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 60,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 128,
+          y = 192,
+          width = 32,
+          height = 192,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 61,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 160,
+          y = 384,
+          width = 32,
+          height = 128,
+          rotation = 0,
+          visible = true,
+          properties = {}
         }
       }
     }
