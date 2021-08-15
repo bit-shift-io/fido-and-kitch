@@ -125,7 +125,6 @@ args:
    table_to_use (optional, table): table to generate as the collider
 ]]--
 function World:newCollider(collider_type, shape_arguments, table_to_use)
-      
    local o = table_to_use or {}
    setmetatable(o, Collider)
    -- note that you will need to set static vs dynamic later
@@ -147,10 +146,10 @@ function World:newCollider(collider_type, shape_arguments, table_to_use)
    end
 
    o.collider_type = collider_type
-   
+
    o.fixture = lp.newFixture(o.body, o.shape, 1)
    o.fixture:setUserData(o)
-   
+
    set_funcs(o, o.body)
    set_funcs(o, o.shape)
    set_funcs(o, o.fixture)

@@ -12,15 +12,14 @@ function Collider:init(props)
 
 	if props.shape_arguments then
 		world:newCollider(props.shape_type, props.shape_arguments, self)
-	else
-		--col = bf.Collider.new(props.world or world, props.shape_type or 'unknown')
 	end
 	--col.name = 'bfcollider'
 	--Class.include(self, col) -- merge collider with this, this does not work!
 
 	self.debug = props.debug or false
 	self.sprite = props.sprite
-	self.entity = props.entity
+	--u = self.fixture:getUserData()
+	--self.entity = 'test' -- done in entity
 
 	if props.fixedRotation then
 		self:setFixedRotation(true)
@@ -135,7 +134,8 @@ function Collider:draw_type()
 	   return self:getWorldPoints(self:getPoints())
 	end
  end
- 
+
+
  function Collider:collider_contacts()
 	local contacts = self:getContacts()
 	local colliders = {}
@@ -150,6 +150,11 @@ function Collider:draw_type()
 	   end
 	end
 	return colliders
+ end
+
+
+ function Collider:isSensor()
+	return self.fixture:isSensor()
  end
 
 return Collider

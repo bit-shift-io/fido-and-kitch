@@ -7,6 +7,7 @@ end
 
 function Entity:addComponent(component)
 	table.insert(self.components, component)
+	component.entity = self
 	return component
 end
 

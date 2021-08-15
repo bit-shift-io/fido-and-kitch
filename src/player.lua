@@ -34,14 +34,12 @@ end
 
 
 function Player:checkForUsables()
-	print('TODO:e pressed, check for usables!');
-	local shape = self.collider
-	-- todo: player world position 
-	local colls = world:queryRectangleArea(0,0,30,30)
-	for _, collider in ipairs(colls) do
-		if (collider.isSensor) then
-			-- todo: find the entity which the sensor belongs too
-			print('ping!')
+	local x = self.collider:getX()
+	local y = self.collider:getY()
+	local colls = world:queryRectangleArea(x-1,y-1,x+1,y+1)
+	for _, c in ipairs(colls) do
+		if (c.isSensor() and c.entity ~= self.collider) then
+			print('found usable ', c.entity.name)
 		end
 	end
 end
