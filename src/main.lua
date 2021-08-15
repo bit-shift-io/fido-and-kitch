@@ -41,6 +41,12 @@ function love.load()
 		profile.start()
 	end
 
+	-- files stored in game dir
+	function love.filesystem.isFused()
+		return true
+	end
+	print(love.filesystem.isFused())
+
 	world = World:new(0, 90.81, true)
 	map = Map:new('res/map/sandbox.lua', world)
 
@@ -81,10 +87,16 @@ function love.keypressed(k)
 	if k == "escape" then
 		love.event.push("quit")
 	end
+	if k == "f12" then
+		print('prnt')
+		love.filesystem.setIdentity("screenshot_example")
+		local cwd = love.filesystem.getWorkingDirectory() .. "/" .. os.time() .. ".png"
+		love.graphics.captureScreenshot(cwd)
+	end
 end
 
 function love.textinput(t)
-	--print(t)
+	print(t)
 	--console_toggle(t)
 end
 
