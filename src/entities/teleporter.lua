@@ -16,7 +16,7 @@ function Teleporter:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
 		body_type='static',
-		enter=Func(Teleporter.contact),
+		enter=Func(Teleporter.contact, self),
 		sensor=true,
 		sprite=sprite, 
 		position=Vector(object.x, object.y)
