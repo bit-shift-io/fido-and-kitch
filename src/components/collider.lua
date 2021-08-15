@@ -18,7 +18,14 @@ function Collider:init(props)
 
 	self.debug = props.debug or false
 	self.sprite = props.sprite
-	--u = self.fixture:getUserData()
+
+	if self.sprite then
+		function self:update(dt)
+			self.sprite.position = self:getPositionV()
+		end
+	end
+
+		--u = self.fixture:getUserData()
 	--self.entity = 'test' -- done in entity
 
 	if props.fixedRotation then
@@ -90,12 +97,7 @@ function Collider:getPositionV()
 	return Vector(self:getX(), self:getY())
 end
 
-function Collider:update(dt)
-	-- move sprite to where the body is
-	if self.sprite then
-		self.sprite.position = self:getPositionV()
-	end
-end
+
 
 --[[
 function Collider:draw(alpha)

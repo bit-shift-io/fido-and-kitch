@@ -9,9 +9,11 @@ function Player:init(object)
 	self.sprite = self:addComponent(Sprite{
 		frames=string.format('res/img/%s/Idle (${i}).png', character),
 		frameCount=10, 
-		duration=1.0, 
+		duration=1.0,
 		scale=Vector(0.1, 0.1), 
-		position=position})
+		position=position,
+		playing=true
+	})
 	self.object = object
 	self.speed = 100;
 

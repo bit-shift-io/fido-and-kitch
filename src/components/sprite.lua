@@ -55,7 +55,7 @@ function Sprite:init(props)
 	self.scale = props.scale or Vector(1, 1)
 	self.offset = props.offset or Vector(0, 0)
 
-	self.playing = true
+	self.playing = false
 	if props.playing ~= nil then
 		self.playing = props.playing
 	end

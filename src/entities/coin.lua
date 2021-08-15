@@ -7,14 +7,14 @@ function Coin:init(object)
 		image='res/img/coins.png', 
 		frames=8, 
 		duration=1.0, 
-		loop=true
+		loop=true,
+		playing=true
 	})
 	
 	local collider = self:addComponent(Collider{
 		shape_type='circle', 
 		shape_arguments={0, 0, 10}, 
 		body_type='static',
-		--enter=Coin.contact, 
 		sprite=sprite, 
 		position=Vector(object.x + 16, object.y - 16),
 		sensor=true,
