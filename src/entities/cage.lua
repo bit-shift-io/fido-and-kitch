@@ -15,7 +15,7 @@ function Cage:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 30, 30}, 
 		body_type='static',
-		enter=Cage.contact,
+		enter=Func(Cage.contact),
 		sensor=true,
 		sprite=sprite, 
 		position=Vector(object.x, object.y)
@@ -29,7 +29,6 @@ function Cage:init(object)
 end
 
 function Cage:contact(other)
-	print('Cage has made contact with something!')
 end
 
 function Cage:use(user)

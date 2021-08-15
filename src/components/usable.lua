@@ -15,6 +15,7 @@ function Usable:init(props)
     self.playerAnimationOnUse = props.playerAnimationOnUse
 end
 
+
 function Usable:canUse(user)
     if self.canUseFunc then
         return self.canUseFunc:call(user)
@@ -23,6 +24,7 @@ function Usable:canUse(user)
     -- TODO: check player has the required items in their inventory
     return true
 end
+
 
 function Usable:use(user)
     print('usable is beinng used')

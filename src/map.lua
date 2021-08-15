@@ -86,7 +86,7 @@ local function createEntitiesFromObjectGroupLayers(map)
 				-- move to a util function with option to supress error
 				local ok, err = pcall(require, object.type) 
 				if not ok then
-					print(err)
+					print('Entity Error: ' .. err)
 				else
 					local entity = err(object)
 					table.insert(layer.entities, entity)

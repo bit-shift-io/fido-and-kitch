@@ -7,17 +7,6 @@ function Entity:init()
 end
 
 
-function Entity:getComponents(component)
-	local result = {}
-	for _, c in pairs(self.components) do
-		if (c == component) then
-			table.insert(result, c)
-		end
-	end
-	return result
-end
-
-
 function Entity:addComponent(component)
 	table.insert(self.components, component)
 	component.entity = self

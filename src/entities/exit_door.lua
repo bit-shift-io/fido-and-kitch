@@ -14,7 +14,7 @@ function ExitDoor:init(object)
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 50, 50}, 
 		body_type='static',
-		enter=ExitDoor.contact,
+		enter=Func(ExitDoor.contact),
 		sensor=true,
 		sprite=sprite, 
 		position=Vector(object.x, object.y)
@@ -23,7 +23,6 @@ function ExitDoor:init(object)
 end
 
 function ExitDoor:contact(other)
-	print('ExitDoor has made contact with something!')
 end
 
 return ExitDoor

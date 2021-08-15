@@ -44,10 +44,10 @@ function love.load()
 	end
 
 	-- files stored in game dir
-	function love.filesystem.isFused()
-		return true
-	end
-	print(love.filesystem.isFused())
+	--function love.filesystem.isFused()
+	--	return true
+	--end
+	--print(love.filesystem.isFused())
 
 	world = World:new(0, 90.81, true)
 	map = Map:new('res/map/sandbox.lua', world)
@@ -98,7 +98,7 @@ function love.keypressed(k)
 end
 
 function love.textinput(t)
-	print(t)
+	--print(t)
 	--console_toggle(t)
 end
 
