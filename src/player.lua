@@ -39,10 +39,11 @@ function Player:checkForUsables()
 	local colls = world:queryRectangleArea(x-1,y-1,x+1,y+1)
 	for _, c in ipairs(colls) do
 		if (c.isSensor() and c.entity ~= self.collider) then
-			print('found usable ', c.entity.name)
+			c.entity.usable:use()
 		end
 	end
 end
+
 
 function Player:update(dt)
 	Entity.update(self, dt)

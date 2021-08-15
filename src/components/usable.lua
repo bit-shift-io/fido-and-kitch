@@ -11,4 +11,9 @@ function Usable:init(props)
     self.playerAnimationOnUse = props.playerAnimationOnUse
 end
 
+
+function Usable:use()
+    self.entity:use()
+end
+
 return Usable

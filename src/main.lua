@@ -84,7 +84,7 @@ function love.keypressed(k)
 end
 
 function love.textinput(t)
-	print(t)
+	--print(t)
 	--console_toggle(t)
 end
 
