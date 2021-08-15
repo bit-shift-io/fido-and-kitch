@@ -89,6 +89,7 @@ local function createEntitiesFromObjectGroupLayers(map)
 					print('Entity Error: ' .. err)
 				else
 					local entity = err(object)
+					entity.mapData = object -- store the map data in the entity
 					table.insert(layer.entities, entity)
 				end
 			end
