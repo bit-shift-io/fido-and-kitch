@@ -36,7 +36,7 @@ local physics_draw = (arg[#arg] == "debug") and true
 
 -- TODO world needs own class with collision stuff
 --world = {} -- global for now so Collider componnent works easy TODO: clean up globals
-
+-- map = {}
 
 function love.load()
 	if profile then

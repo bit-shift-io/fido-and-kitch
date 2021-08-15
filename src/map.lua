@@ -97,9 +97,12 @@ local function createEntitiesFromObjectGroupLayers(map)
 end
 
 function Map:new(path, world, debug)
+	_G.map = self
 
 	-- https://stackoverflow.com/questions/68771724/lua-inheritance-on-existing-object
 	local map = sti(path, { "box2d" })
+
+	self.map = map
 
 	--local mmeta = getmetatable(map)
 
@@ -147,7 +150,7 @@ function Map:new(path, world, debug)
 	  Map
 	)
 	]]--
-	return map
+	return self
 end
 
 --function Map:init(path, plugins, ox, oy)
@@ -168,6 +171,16 @@ function Map:draw()
 		love.graphics.setColor(1, 0, 0)
 		self.map:box2d_draw()
 	end
+end
+
+function Map:getObjectById(id)
+	for _, object in pairs(self.map.objects) do
+		if object.id == id then
+			return object
+		end
+	end
+
+	return nil
 end
 
 return Map

@@ -3,6 +3,7 @@ local Switch = Class{__includes = Entity}
 function Switch:init(object)
 	Entity.init(self)
 	self.name = 'switch'
+	self.object = obbject
 
 	local position = Vector(object.x, object.y)
 	self.sprite = self:addComponent(Sprite{
@@ -24,6 +25,8 @@ function Switch:init(object)
 		entity=self,
 		use=Func(self.use, self)
 	})
+
+	self.target = map:getObjectById(object.properties.target.id)
 end
 
 function Switch:use(user)
@@ -38,6 +41,11 @@ function Switch:use(user)
 		frameNum = 1
 	end
 	self.sprite:setFrameNum(frameNum)
+
+	if self.target then
+		-- todo: do something to the target
+		print('do something to target')
+	end
 end
 
 return Switch
