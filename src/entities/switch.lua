@@ -27,7 +27,6 @@ end
 
 
 function Switch:contact(other)
-	print('Switch has made contact with something!')
 end
 
 
@@ -38,5 +37,6 @@ function Switch:use()
 	print(s)
 	self.state = next_state
 end
+
 
 return Switch

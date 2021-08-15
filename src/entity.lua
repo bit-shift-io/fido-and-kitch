@@ -1,15 +1,29 @@
 local Entity = Class{}
 
+
 function Entity:init()
 	self.name = 'entity'
 	self.components = {}
 end
+
+
+function Entity:getComponents(component)
+	local result = {}
+	for _, c in pairs(self.components) do
+		if (c == component) then
+			table.insert(result, c)
+		end
+	end
+	return result
+end
+
 
 function Entity:addComponent(component)
 	table.insert(self.components, component)
 	component.entity = self
 	return component
 end
+
 
 function Entity:update(dt)
 	for _, component in pairs(self.components) do
@@ -19,6 +33,7 @@ function Entity:update(dt)
 	end
 end
 
+
 function Entity:draw()
 	for _, component in pairs(self.components) do
 		if component.draw ~= nil then
@@ -27,16 +42,19 @@ function Entity:draw()
 	end
 end
 
+
 -- flag this item for removal from the map layer entity list
 function Entity:queue_remove()
 	self.remove_from_map_flag = true
 end
+
 
 -- flag this item for removal from the map layer entity list then call destroy whenn done
 function Entity:queue_destroy()
 	self.remove_from_map_flag = true
 	self.destroy_flag = true
 end
+
 
 function Entity:destroy()
 	for _, component in pairs(self.components) do
@@ -45,5 +63,6 @@ function Entity:destroy()
 		end
 	end
 end
+
 
 return Entity

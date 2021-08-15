@@ -38,7 +38,7 @@ function Player:checkForUsables()
 	local y = self.collider:getY()
 	local colls = world:queryRectangleArea(x-1,y-1,x+1,y+1)
 	for _, c in ipairs(colls) do
-		if (c.isSensor() and c.entity ~= self.collider) then
+		if (c.isSensor() and c.entity ~= self.collider and c.entity.usable) then
 			c.entity.usable:use()
 		end
 	end
