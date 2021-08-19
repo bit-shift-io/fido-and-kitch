@@ -33,7 +33,7 @@ function Collider:init(props)
 	end
 
 	if props.sensor then 
-		self:setSensor(true) 
+		self:setSensor(true)
 	end
 
 

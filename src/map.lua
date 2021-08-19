@@ -5,31 +5,75 @@ local sti = require('lib/sti')
 local Map   = {}
 Map.__index = Map
 
+
+local function getColliderFromShape(obj)
+	if (obj.shape == 'rectangle') then
+		-- rectangle is 4 point clockwise from topleft
+		local rect = obj.rectangle
+		local x = rect[1].x
+		local y = rect[1].y
+		local width = rect[3].x - x
+		local height = rect[3].y - y
+		local center_x = x + width * 0.5
+		local center_y = y + height * 0.5
+		return Collider{
+			shape_type='Rectangle',
+			shape_arguments={center_x, center_y, width, height},
+		}
+	end
+end
+
+
+local function createLadderVolumes(layer)
+	local volumes = {}
+
+	if (layer.type == 'objectgroup' and layer.objects) then -- object layer
+		for i, obj in pairs(layer.objects) do -- loop rows
+			local col = getColliderFromShape(obj)
+			col:setType('static')
+			col:setSensor(true)
+			table.insert(volumes, col)
+		end
+	end -- object layer
+
+	return volumes
+end
+
+
 local function createStaticPhysicsBodies(layer)
 	local colliders = {}
 
-	for y, row in pairs(layer.data) do -- loop rows
-
-		for x, cell in pairs(row) do -- loop columns
-			local tileset = layer.map.tilesets[cell.tileset]
-			local width   = cell.width
-			local height   = cell.height
-			local margin  = tileset.margin
-			local spacing = tileset.spacing
-			local offset_x = cell.offset.x + width * 0.5
-			local offset_y = cell.offset.y + height * 0.5
-			local quadX = ((x - 1) * width + margin + (x - 1) * spacing) + offset_x
-			local quadY = ((y - 1) * height + margin + (y - 1) * spacing) + offset_y
-			local col = Collider{
-				shape_type='Rectangle', 
-				shape_arguments={quadX, quadY, width, height}, 
-				body_type='static'
-			}
+	if (layer.type == 'objectgroup' and layer.objects) then -- object layer
+		for i, obj in pairs(layer.objects) do -- loop rows
+			local col = getColliderFromShape(obj)
+			col:setType('static')
 			table.insert(colliders, col)
-
 		end
+	end -- object layer
 
-	end
+
+	if (layer.type == 'tilelayer' and layer.data) then -- tile layer
+		for y, row in pairs(layer.data) do -- loop rows
+			for x, cell in pairs(row) do -- loop columns
+				local tileset = layer.map.tilesets[cell.tileset]
+				local width   = cell.width
+				local height   = cell.height
+				local margin  = tileset.margin
+				local spacing = tileset.spacing
+				local offset_x = cell.offset.x + width * 0.5
+				local offset_y = cell.offset.y + height * 0.5
+				local quadX = ((x - 1) * width + margin + (x - 1) * spacing) + offset_x
+				local quadY = ((y - 1) * height + margin + (y - 1) * spacing) + offset_y
+				local col = Collider{
+					shape_type='Rectangle', 
+					shape_arguments={quadX, quadY, width, height}, 
+					body_type='static'
+				}
+				table.insert(colliders, col)
+			end
+		end
+	end -- tile layer
+
 
 	return colliders
 end
@@ -139,9 +183,13 @@ function Map:new(path, world, debug)
 
 	for li, layer in ipairs(map.layers) do
 		layer.map = map
-		-- custom properties physics=true
-		if (layer.properties.physics) then
+		if (layer.properties.collision) then -- custom properties collisions=true
+			print ('creating collisions')
 			createStaticPhysicsBodies(layer)
+		end
+		if (layer.properties.ladder) then -- custom properties ladders=true
+			print('creating ladders')
+			createLadderVolumes(layer)
 		end
 	end
 --[[
@@ -161,7 +209,6 @@ end
 --end
 
 function Map:update(dt)
-	print('YAY! we have done it!')
 	self.map:update(dt)
 end
 
