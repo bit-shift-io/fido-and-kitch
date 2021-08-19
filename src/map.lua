@@ -223,13 +223,15 @@ function Map:draw()
 end
 
 function Map:getObjectById(id)
-	for _, object in pairs(self.map.objects) do
-		if object.id == id then
-			return object
-		end
-	end
-
-	return nil
+	
+	--for _, object in pairs(self.map.objects) do
+	--	if object.id == id then
+	--		return object
+--		end
+--	end
+--
+--	return nil
+	return self.map.objects[id]
 end
 
 return Map

@@ -83,20 +83,41 @@ function Collider:addShape(props)
 	local collider_type = props.shape_type
 	local shape_arguments = props.shape_arguments
 	local shape = love.physics['new'..collider_type..'Shape'](unpack(shape_arguments))
-	
 	local fixture = love.physics.newFixture(self.body, shape, 1)
 	fixture:setUserData(self)
 end
+
 
 function Collider:setPositionV(pos)
 	self:setX(pos.x)
 	self:setY(pos.y)
 end
 
+
 function Collider:getPositionV() 
 	return Vector(self:getX(), self:getY())
 end
 
+
+function Collider:getBounds()
+	-- get AABB of all child shapes
+	-- can have multiple fixtures
+	-- TODO: assuming only 1 fiture for now!
+	local fixtures = self.getFixtures()
+	--for i, fixture in pairs(fixtures) do
+	local fixture = fixtures[1]
+	local topLeftX, topLeftY, bottomRightX, bottomRightY = fixture:getBoundingBox(1)
+		--print(shape)
+	--end
+	local bounds = {}
+	bounds.left = topLeftX
+	bounds.right = bottomRightX
+	bounds.top = topLeftY
+	bounds.bottom = bottomRightY
+	bounds.width = bounds.right - bounds.left
+	bounds.height = bounds.bottom - bounds.top
+	return bounds
+end
 
 
 --[[
