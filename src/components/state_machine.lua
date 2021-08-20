@@ -23,6 +23,13 @@ function StateMachine:addState(state)
     self.states[state.name] = state;
 end
 
+function StateMachine:tryTransition(name)
+    local s = self.states[name];
+    if (s:canTransition()) then
+        self:setState(name)
+    end
+end
+
 function StateMachine:setState(name)
     local prevState = self.currentState;
     local nextState = self.states[name];

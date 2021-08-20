@@ -59,6 +59,9 @@ end
 function WalkIdleState:update(dt)
     local player = self.entity
 
+	-- is user falling?
+    if player.fsm:tryTransition('FallState') then return end
+
 	local x = player.collider:getX()
 	local y = player.collider:getY()
 	local delta = player.speed * dt
@@ -69,16 +72,8 @@ function WalkIdleState:update(dt)
 		player:checkForUsables()
 	end
 
-	-- is user falling
-	local isFalling = false
-	local v_x, v_y = player.collider:getLinearVelocity()
-	if (v_y > 2) then
-		isFalling = true
-		player.fsm:setState('FallState')
-        return
-    end
-
 	-- reset horizontal velocity
+    local v_x, v_y = player.collider:getLinearVelocity()
 	player.collider:setLinearVelocity(0, v_y)
 
 
@@ -103,6 +98,15 @@ end
 local FallState = Class{}
 
 function FallState:init(props)
+end
+
+function FallState:canTransition()
+    local player = self.entity
+    local v_x, v_y = player.collider:getLinearVelocity()
+	if (v_y > 2) then
+        return true
+    end
+    return false
 end
 
 function FallState:enter()
