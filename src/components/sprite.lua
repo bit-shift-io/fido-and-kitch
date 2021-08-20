@@ -67,6 +67,14 @@ function Sprite:setFrameNum(frameNum)
 	self.frameNum = frameNum
 end
 
+function Sprite:setPositionV(pos)
+	self.position = pos
+end
+
+function Sprite:getPositionV()
+	return self.position
+end
+
 function Sprite:update(dt)
 	if self.playing == false then
 		return

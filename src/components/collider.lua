@@ -21,7 +21,7 @@ function Collider:init(props)
 
 	if self.sprite then
 		function self:update(dt)
-			self.sprite.position = self:getPositionV()
+			self.sprite:setPositionV(self:getPositionV())
 		end
 	end
 

@@ -179,5 +179,9 @@ function World:queryRectangleArea(x1, y1, x2, y2)
    return colls
 end
 
+function World:queryBounds(bounds)
+   return self:queryRectangleArea(bounds.left, bounds.top, bounds.right, bounds.bottom)
+end
+
 
 return World

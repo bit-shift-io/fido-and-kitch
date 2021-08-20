@@ -10,23 +10,61 @@ function Player:init(object)
 	local character = 'dog';
 	local position = Vector(object.x + 14, object.y - 14)
 
-	self.sprite = self:addComponent(Sprite{
-		frames=string.format('res/img/%s/Idle (${i}).png', character),
-		frameCount=10, 
-		duration=1.0,
-		scale=Vector(0.1, 0.1),
-		position=position,
-		offset=Vector(280, 320),
-		playing=true
+	-- use the statemachine as the animation state system
+	local animations = {
+		idle=Sprite{
+			frames=string.format('res/img/%s/Idle (${i}).png', character),
+			frameCount=10, 
+			duration=1.0,
+			scale=Vector(0.1, 0.1),
+			position=position,
+			offset=Vector(280, 320),
+			playing=true
+		},
+		fall=Sprite{
+			frames=string.format('res/img/%s/Fall (${i}).png', character),
+			frameCount=8, 
+			duration=1.0,
+			scale=Vector(0.1, 0.1),
+			position=position,
+			offset=Vector(280, 320),
+			playing=true
+		},
+		walk=Sprite{
+			frames=string.format('res/img/%s/Walk (${i}).png', character),
+			frameCount=10, 
+			duration=1.0,
+			scale=Vector(0.1, 0.1),
+			position=position,
+			offset=Vector(280, 320),
+			playing=true
+		},
+		climb=Sprite{
+			frames=string.format('res/img/%s/Jump (${i}).png', character),
+			frameCount=8,
+			duration=1.0,
+			scale=Vector(0.1, 0.1),
+			position=position,
+			offset=Vector(280, 320),
+			playing=true
+		}
+	}
+
+	self.animations = self:addComponent(StateMachine{
+		states=animations,
+		entity=self,
+		currentState='idle'
 	})
+
 	self.object = object
 	self.speed = 100;
+	self.climbSpeed = 100;
 
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
 		shape_arguments={0, 0, 20, 28}, 
 		postSolve=Func(self.contact, self),
-		sprite=self.sprite,
+		sprite=self.animations,
 		position=position,
 		entity=self,
 		fixedRotation=true
@@ -34,52 +72,16 @@ function Player:init(object)
 
 	self.inventory = self:addComponent(Inventory{})
 
-	--[[
-	-- https://github.com/kyleconroy/lua-state-machine
-	self.fsm = StateMachine.create({
-		player = self,
-		initial = 'idle',
-		events = {
-		  { name = 'doIdle',  from = {'ladder', 'fall', 'walk'},  to = 'idle' },
-		  { name = 'doFall', from = {'idle', 'walk'}, to = 'fall'  },
-		  { name = 'doWalk',  from = {'idle', 'fall'},    to = 'walk' },
-		  { name = 'doLadder',  from = {'idle', 'walk'},    to = 'ladder' },
-	  	},
-		callbacks = {
-			onidle = function(fsm, event, from, to, msg) 
-				print('idle! ')    
-			end,
-			onfall = function(fsm, event, from, to, msg) 
-				print('fall! ')    
-			end,
-			onwalk = function(fsm, event, from, to, msg) 
-				print('walk! ')    
-			end,
-			onenterladder = function(fsm, name, from, to)
-				print('ladder enter ') 
-				fsm.options.player.collider:setType('kinematic')
-				fsm.options.player.collider:setGravityScale(0)
-			end,
-			onleaveladder = function(fsm, name, from, to)
-				print('ladder exit ') 
-				fsm.options.player.collider:setType('dynamic')
-				fsm.options.player.collider:setGravityScale(1)
-			end
-		}
-	})
-	]]--
-
 	self.fsm = self:addComponent(StateMachine{
 		stateClasses=PlayerStates,
 		entity=self,
 		currentState='WalkIdleState'
 	})
-
-	-- other states: use, teleport
-
-	print('qwe')
 end
 
+function Player:setAnimation(name)
+	self.animations:setState(name)
+end
 
 function Player:contact(other)
 	--print('player has made contact with something!')
@@ -108,13 +110,15 @@ function Player:update(dt)
 	Entity.update(self, dt)
 end
 
-function Player:ladderBelow()
+function Player:queryLadder()
 	local bounds = self.collider:getBounds()
-	local x = self.collider:getX()
-	local cy = self.collider:getY()
-	local y = bounds.bottom + 10
 
-	local colls = world:queryRectangleArea(x-10,y-10,x+10,y+10)
+	-- make it narrower
+	bounds.left = bounds.left + 10
+	bounds.right = bounds.right - 10
+
+	bounds.bottom = bounds.bottom - 4 -- why is this number so high?
+	local colls = world:queryBounds(bounds)
 	for _, c in ipairs(colls) do
 		local entity = c.entity
 		if entity then 
@@ -123,10 +127,44 @@ function Player:ladderBelow()
 			end
 		end
 	end
-
 	return nil
 end
 
+function Player:queryLadderBelow()
+	local bounds = self.collider:getBounds()
+
+	-- make it narrower
+	bounds.left = bounds.left + 10
+	bounds.right = bounds.right - 10
+
+	bounds.top = bounds.bottom + 4 -- why is this number so high?
+	bounds.bottom = bounds.bottom + 5
+	local colls = world:queryBounds(bounds)
+	for _, c in ipairs(colls) do
+		local entity = c.entity
+		if entity then 
+			if entity.isLadder then -- should we have a ladder component?
+				return entity
+			end
+		end
+	end
+	return nil
+end
+
+function Player:queryOnGround()
+	local bounds = self.collider:getBounds()
+
+	bounds.top = bounds.bottom + 4 -- why is this number so high?
+	bounds.bottom = bounds.bottom + 5
+	local colls = world:queryBounds(bounds)
+	for _, c in ipairs(colls) do
+		local entity = c.entity
+		if entity == nil then 
+			return true
+		end
+	end
+	return false
+end
 
 function Player:pickup(pickup)
 	local entity = pickup.entity
