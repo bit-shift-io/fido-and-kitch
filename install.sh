@@ -16,6 +16,8 @@ rm -rf Simple-Tiled-Implementation
 
 git clone --depth 1 git@github.com:vrld/hump.git
 
+git clone --depth 1 git@github.com:kyleconroy/lua-state-machine.git
+
 cd ..
 
 # linux love engine

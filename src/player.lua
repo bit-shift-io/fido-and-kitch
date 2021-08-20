@@ -31,6 +31,41 @@ function Player:init(object)
 	})
 
 	self.inventory = self:addComponent(Inventory{})
+
+	-- https://github.com/kyleconroy/lua-state-machine
+	self.fsm = StateMachine.create({
+		player = self,
+		initial = 'idle',
+		events = {
+		  { name = 'doIdle',  from = {'ladder', 'fall', 'walk'},  to = 'idle' },
+		  { name = 'doFall', from = {'idle', 'walk'}, to = 'fall'  },
+		  { name = 'doWalk',  from = {'idle', 'fall'},    to = 'walk' },
+		  { name = 'doLadder',  from = {'idle', 'walk'},    to = 'ladder' },
+	  	},
+		callbacks = {
+			onidle = function(fsm, event, from, to, msg) 
+				print('idle! ')    
+			end,
+			onfall = function(fsm, event, from, to, msg) 
+				print('fall! ')    
+			end,
+			onwalk = function(fsm, event, from, to, msg) 
+				print('walk! ')    
+			end,
+			onenterladder = function(fsm, name, from, to)
+				print('ladder enter ') 
+				fsm.options.player.collider:setType('kinematic')
+			end,
+			onleaveladder = function(fsm, name, from, to)
+				print('ladder exit ') 
+				fsm.options.player.collider:setType('dynamic')
+			end
+		}
+	})
+
+	-- other states: use, teleport
+
+	print('qwe')
 end
 
 
@@ -75,6 +110,11 @@ function Player:update(dt)
 	local v_x, v_y = self.collider:getLinearVelocity()
 	if (v_y > 2) then
 		isFalling = true
+		self.fsm:doFall()
+	else
+		if (self.fsm.current == 'fall') then
+			self.fsm:doIdle()
+		end
 	end
 
 	-- reset horizontal velocity
@@ -85,13 +125,21 @@ function Player:update(dt)
 	end
 
 	-- movement
+	-- https://github.com/jlett/Platformer-Tutorial
+
+	local isWalking = false
+	
 	if love.keyboard.isDown("right") then
 		self.collider:setLinearVelocity(100, v_y)
+		isWalking = true
 	end
 
 	if love.keyboard.isDown("left") then
 		self.collider:setLinearVelocity(-100, v_y)
+		isWalking = true
 	end
+
+	local isUsingLadder = false
 
 	-- TODO: when the player is using the ladder, we somehow need to disable
 	-- collisions with tiles, we did this in the dart version by putting the player into 
@@ -100,15 +148,32 @@ function Player:update(dt)
 	-- if there are other physics objects on top of the ladder!
 	if (love.keyboard.isDown("up") and self.ladder ~= nil) then
 		self.collider:setLinearVelocity(0, -100)
+		isUsingLadder = true
 	end
 
 	if (love.keyboard.isDown("down")) then
 		local ladderBelow = self:ladderBelow()
 		if self.ladder ~= nil or ladderBelow ~= nil then
 			self.collider:setLinearVelocity(0, 100)
+			isUsingLadder = true
 		end
 	end
 
+	if (isUsingLadder) then
+		self.fsm:doLadder()
+	else
+		if (self.fsm.current == 'ladder' and self.ladder == nil) then
+			self.fsm:doIdle()
+		end
+	end
+
+	if (self.fsm.current ~= 'ladder') then
+		if (isWalking) then
+			self.fsm:doWalk()
+		else
+			self.fsm:doIdle()
+		end
+	end
 end
 
 function Player:ladderBelow()
@@ -121,7 +186,7 @@ function Player:ladderBelow()
 	for _, c in ipairs(colls) do
 		local entity = c.entity
 		if entity then 
-			if entity.ladder then -- should we have a ladder component?
+			if entity.isLadder then -- should we have a ladder component?
 				return entity
 			end
 		end

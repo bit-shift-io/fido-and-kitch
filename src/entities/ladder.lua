@@ -4,7 +4,7 @@ function Ladder:init(object)
 	Entity.init(self)
 	self.name = object.name
 	self.type = 'ladder'
-	self.ladder = true
+	self.isLadder = true
 	local position = Vector(object.x + object.width * 0.5, object.y + object.height *0.5)
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 

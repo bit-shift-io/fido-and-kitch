@@ -13,6 +13,7 @@ print(package.path)
 -- global includes to save having to include in other files!
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
+StateMachine = require('lib.lua-state-machine.statemachine')
 
 utils = require('utils')
 Func = require('func')
