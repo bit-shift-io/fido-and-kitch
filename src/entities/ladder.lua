@@ -4,6 +4,7 @@ function Ladder:init(object)
 	Entity.init(self)
 	self.name = object.name
 	self.type = 'ladder'
+	self.ladder = true
 	local position = Vector(object.x + object.width * 0.5, object.y + object.height *0.5)
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
@@ -13,17 +14,18 @@ function Ladder:init(object)
 		position=position,
 		enter=Func(self.enter, self),
 		exit=Func(self.exit, self)
+		entity=self
 	})
 end
 
-
 function Ladder:enter(user)
-	user.entity.onLadder = true
+	user.entity.ladder = self
 end
 
 function Ladder:exit(user)
-	user.entity.onLadder = false
+	if user.entity.ladder == self then
+		user.entity.ladder = null
+	end
 end
-
 
 return Ladder

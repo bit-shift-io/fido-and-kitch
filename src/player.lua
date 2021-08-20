@@ -4,7 +4,7 @@ function Player:init(object)
 	Entity.init(self)
 	self.name = 'player'
 	self.type = 'player'
-	self.onLadder = false
+	self.ladder = null
 	local character = 'dog';
 	local position = Vector(object.x + 14, object.y - 14)
 
@@ -93,14 +93,43 @@ function Player:update(dt)
 		self.collider:setLinearVelocity(-100, v_y)
 	end
 
-	if (love.keyboard.isDown("up") and self.onLadder) then
+	-- TODO: when the player is using the ladder, we somehow need to disable
+	-- collisions with tiles, we did this in the dart version by putting the player into 
+	-- 'kinematic' mode. OR we can disable the collision that a ladder tile
+	-- might be on, so player can move through it.... this second method won't work
+	-- if there are other physics objects on top of the ladder!
+	if (love.keyboard.isDown("up") and self.ladder ~= nil) then
 		self.collider:setLinearVelocity(0, -100)
 	end
 
-	if (love.keyboard.isDown("down") and self.onLadder) then
-		self.collider:setLinearVelocity(0, 100)
+	if (love.keyboard.isDown("down")) then
+		-- TODO: on press down check if ladder underneath us
+		local ladderBelow = self:ladderBelow()
+		if self.ladder ~= nil or ladderBelow ~= nil then
+			self.collider:setLinearVelocity(0, 100)
+		end
 	end
 
+end
+
+function Player:ladderBelow()
+	local bounds = self.collider:getBounds()
+	local x = self.collider:getX()
+	local cy = self.collider:getY()
+	local y = bounds.bottom + 10
+
+	-- TODO: this isn't detecting the sensors like the use does?!
+	local colls = world:queryRectangleArea(x-10,y-10,x+10,y+10)
+	for _, c in ipairs(colls) do
+		local entity = c.entity
+		if entity then 
+			if entity.ladder then -- should we have a ladder component?
+				return entity
+			end
+		end
+	end
+
+	return nil
 end
 
 
