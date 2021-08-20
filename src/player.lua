@@ -22,7 +22,7 @@ function Player:init(object)
 
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
-		shape_arguments={0, 0, 28, 28}, 
+		shape_arguments={0, 0, 20, 28}, 
 		postSolve=Func(self.contact, self),
 		sprite=self.sprite,
 		position=position,
@@ -103,7 +103,6 @@ function Player:update(dt)
 	end
 
 	if (love.keyboard.isDown("down")) then
-		-- TODO: on press down check if ladder underneath us
 		local ladderBelow = self:ladderBelow()
 		if self.ladder ~= nil or ladderBelow ~= nil then
 			self.collider:setLinearVelocity(0, 100)
@@ -118,7 +117,6 @@ function Player:ladderBelow()
 	local cy = self.collider:getY()
 	local y = bounds.bottom + 10
 
-	-- TODO: this isn't detecting the sensors like the use does?!
 	local colls = world:queryRectangleArea(x-10,y-10,x+10,y+10)
 	for _, c in ipairs(colls) do
 		local entity = c.entity

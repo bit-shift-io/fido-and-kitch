@@ -13,7 +13,7 @@ function Ladder:init(object)
 		sensor=true,
 		position=position,
 		enter=Func(self.enter, self),
-		exit=Func(self.exit, self)
+		exit=Func(self.exit, self),
 		entity=self
 	})
 end
