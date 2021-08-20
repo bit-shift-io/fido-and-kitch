@@ -1,3 +1,5 @@
+local PlayerStates = require('player_states')
+
 local Player = Class{__includes = Entity}
 
 function Player:init(object)
@@ -32,6 +34,7 @@ function Player:init(object)
 
 	self.inventory = self:addComponent(Inventory{})
 
+	--[[
 	-- https://github.com/kyleconroy/lua-state-machine
 	self.fsm = StateMachine.create({
 		player = self,
@@ -55,12 +58,21 @@ function Player:init(object)
 			onenterladder = function(fsm, name, from, to)
 				print('ladder enter ') 
 				fsm.options.player.collider:setType('kinematic')
+				fsm.options.player.collider:setGravityScale(0)
 			end,
 			onleaveladder = function(fsm, name, from, to)
 				print('ladder exit ') 
 				fsm.options.player.collider:setType('dynamic')
+				fsm.options.player.collider:setGravityScale(1)
 			end
 		}
+	})
+	]]--
+
+	self.fsm = self:addComponent(StateMachine{
+		stateClasses=PlayerStates,
+		entity=self,
+		currentState='WalkIdleState'
 	})
 
 	-- other states: use, teleport
@@ -92,88 +104,8 @@ function Player:checkForUsables()
 	end
 end
 
-
 function Player:update(dt)
 	Entity.update(self, dt)
-	local x = self.collider:getX()
-	local y = self.collider:getY()
-	local delta = self.speed * dt
-
-	local eDownLast = self.eDown
-	self.eDown = love.keyboard.isDown("e")
-	if self.eDown == true and eDownLast == false then
-		self:checkForUsables()
-	end
-
-	-- is user falling
-	local isFalling = false
-	local v_x, v_y = self.collider:getLinearVelocity()
-	if (v_y > 2) then
-		isFalling = true
-		self.fsm:doFall()
-	else
-		if (self.fsm.current == 'fall') then
-			self.fsm:doIdle()
-		end
-	end
-
-	-- reset horizontal velocity
-	self.collider:setLinearVelocity(0, v_y)
-
-	if isFalling then
-		return
-	end
-
-	-- movement
-	-- https://github.com/jlett/Platformer-Tutorial
-
-	local isWalking = false
-	
-	if love.keyboard.isDown("right") then
-		self.collider:setLinearVelocity(100, v_y)
-		isWalking = true
-	end
-
-	if love.keyboard.isDown("left") then
-		self.collider:setLinearVelocity(-100, v_y)
-		isWalking = true
-	end
-
-	local isUsingLadder = false
-
-	-- TODO: when the player is using the ladder, we somehow need to disable
-	-- collisions with tiles, we did this in the dart version by putting the player into 
-	-- 'kinematic' mode. OR we can disable the collision that a ladder tile
-	-- might be on, so player can move through it.... this second method won't work
-	-- if there are other physics objects on top of the ladder!
-	if (love.keyboard.isDown("up") and self.ladder ~= nil) then
-		self.collider:setLinearVelocity(0, -100)
-		isUsingLadder = true
-	end
-
-	if (love.keyboard.isDown("down")) then
-		local ladderBelow = self:ladderBelow()
-		if self.ladder ~= nil or ladderBelow ~= nil then
-			self.collider:setLinearVelocity(0, 100)
-			isUsingLadder = true
-		end
-	end
-
-	if (isUsingLadder) then
-		self.fsm:doLadder()
-	else
-		if (self.fsm.current == 'ladder' and self.ladder == nil) then
-			self.fsm:doIdle()
-		end
-	end
-
-	if (self.fsm.current ~= 'ladder') then
-		if (isWalking) then
-			self.fsm:doWalk()
-		else
-			self.fsm:doIdle()
-		end
-	end
 end
 
 function Player:ladderBelow()

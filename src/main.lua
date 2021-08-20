@@ -13,13 +13,14 @@ print(package.path)
 -- global includes to save having to include in other files!
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
-StateMachine = require('lib.lua-state-machine.statemachine')
+--StateMachine = require('lib.lua-state-machine.statemachine')
 
 utils = require('utils')
 Func = require('func')
 
 World = require('world')
 Entity = require('entity')
+StateMachine = require('components.state_machine')
 Sprite = require('components.sprite')
 Collider = require('components.collider')
 Pickup = require('components.pickup')
