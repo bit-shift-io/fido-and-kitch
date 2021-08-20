@@ -3,8 +3,10 @@ local Player = Class{__includes = Entity}
 function Player:init(object)
 	Entity.init(self)
 	self.name = 'player'
-	character = 'dog';
-	position = Vector(object.x + 14, object.y - 14)
+	self.type = 'player'
+	self.onLadder = false
+	local character = 'dog';
+	local position = Vector(object.x + 14, object.y - 14)
 
 	self.sprite = self:addComponent(Sprite{
 		frames=string.format('res/img/%s/Idle (${i}).png', character),
@@ -31,9 +33,11 @@ function Player:init(object)
 	self.inventory = self:addComponent(Inventory{})
 end
 
+
 function Player:contact(other)
 	--print('player has made contact with something!')
 end
+
 
 function Player:checkForUsables()
 	local x = self.collider:getX()
@@ -66,19 +70,39 @@ function Player:update(dt)
 		self:checkForUsables()
 	end
 
+	-- is user falling
+	local isFalling = false
+	local v_x, v_y = self.collider:getLinearVelocity()
+	if (v_y > 2) then
+		isFalling = true
+	end
+
+	-- reset horizontal velocity
+	self.collider:setLinearVelocity(0, v_y)
+
+	if isFalling then
+		return
+	end
+
+	-- movement
 	if love.keyboard.isDown("right") then
-		self.collider:setPositionV(Vector(x + delta, y))
+		self.collider:setLinearVelocity(100, v_y)
 	end
+
 	if love.keyboard.isDown("left") then
-	   self.collider:setPositionV(Vector(x - delta, y))
+		self.collider:setLinearVelocity(-100, v_y)
 	end
-	if love.keyboard.isDown("up") then
+
+	if (love.keyboard.isDown("up") and self.onLadder) then
 		self.collider:setLinearVelocity(0, -100)
 	end
-	if love.keyboard.isDown("down") then
+
+	if (love.keyboard.isDown("down") and self.onLadder) then
 		self.collider:setLinearVelocity(0, 100)
 	end
+
 end
+
 
 function Player:pickup(pickup)
 	local entity = pickup.entity
@@ -86,5 +110,6 @@ function Player:pickup(pickup)
 	self.inventory:addItems(pickup.itemName, pickup.itemCount)
 	entity:queueDestroy()
 end
+
 
 return Player

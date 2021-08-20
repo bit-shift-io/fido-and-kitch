@@ -2,7 +2,8 @@ local Coin = Class{__includes = Entity}
 
 function Coin:init(object)
 	Entity.init(self)
-	self.name = 'coin'
+	self.type = 'coin'
+	self.name = object.name
 	local position = Vector(object.x + 16, object.y - 16)
 	local sprite = self:addComponent(Sprite{
 		image='res/img/coins.png', 

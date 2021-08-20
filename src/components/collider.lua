@@ -8,7 +8,7 @@ local Collider = Class{}
 -- which we don't care about supplying, circle just needs a radius
 -- so this needs some tweaking
 function Collider:init(props)
-	self.name = 'collider'
+	self.type = 'collider'
 
 	if props.shape_arguments then
 		world:newCollider(props.shape_type, props.shape_arguments, self)

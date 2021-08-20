@@ -2,7 +2,7 @@ local Key = Class{__includes = Entity}
 
 function Key:init(object)
 	Entity.init(self)
-	self.name = 'key'
+	self.type = 'key'
 	local color = object.properties.color
 	local sprite = self:addComponent(Sprite{
 		image=string.format('res/img/key_%s.png', color), 

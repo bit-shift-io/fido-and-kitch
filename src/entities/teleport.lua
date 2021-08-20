@@ -2,8 +2,8 @@ local Teleport = Class{__includes = Entity}
 
 function Teleport:init(object)
 	Entity.init(self)
-	self.name = 'teleport'
-	self.id = object.id
+	self.name = object.name
+	self.type = 'teleport'
 	local position = Vector(object.x+16, object.y-16)
 	self.target = map:getObjectById(object.properties.target.id)
 	self.sprite = self:addComponent(Sprite{

@@ -3,7 +3,7 @@
 local Pickup = Class{}
 
 function Pickup:init(props)
-	self.name = 'pickup'
+	self.type = 'pickup'
     self.entity = props.entity
     self.itemName = props.itemName
 	self.itemCount = props.itemCount or 1

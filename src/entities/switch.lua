@@ -2,7 +2,8 @@ local Switch = Class{__includes = Entity}
 
 function Switch:init(object)
 	Entity.init(self)
-	self.name = 'switch'
+	self.name = object.name
+	self.type = 'switch'
 	local position = Vector(object.x+16, object.y-16)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/switch.png',

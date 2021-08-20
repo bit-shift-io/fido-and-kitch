@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 18,
-  nextobjectid = 65,
+  nextobjectid = 66,
   properties = {},
   tilesets = {
     {
@@ -427,13 +427,13 @@ return {
       parallaxx = 1,
       parallaxy = 1,
       properties = {
-        ["ladder"] = true
+        ["ladder"] = false
       },
       objects = {
         {
           id = 60,
-          name = "",
-          type = "",
+          name = "ladder",
+          type = "ladder",
           shape = "rectangle",
           x = 128,
           y = 192,
@@ -445,8 +445,8 @@ return {
         },
         {
           id = 61,
-          name = "",
-          type = "",
+          name = "ladder",
+          type = "ladder",
           shape = "rectangle",
           x = 160,
           y = 384,

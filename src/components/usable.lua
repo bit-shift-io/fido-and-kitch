@@ -5,7 +5,7 @@
 local Usable = Class{}
 
 function Usable:init(props)
-	self.name = 'usable'
+	self.type = 'usable'
     self.entity = props.entity
     self.useFunc = props.use
     self.canUseFunc = props.canUse -- optional override for complex canUse situations

@@ -7,7 +7,7 @@ local function cloneArray(arr)
 end
 
 function Sprite:init(props)
-	self.name = 'sprite'
+	self.type = 'sprite'
 	local frames = props.frames
 	local image = props.image
 	local draw = Sprite.draw_image_frames

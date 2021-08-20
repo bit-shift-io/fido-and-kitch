@@ -4,7 +4,7 @@
 local Inventory = Class{}
 
 function Inventory:init(props)
-	self.name = 'inventory'
+	self.type = 'inventory'
     self.items = {}
 end
 
