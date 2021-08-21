@@ -6,6 +6,7 @@ local function cloneArray(arr)
 	return result
 end
 
+
 function Sprite:init(props)
 	self.type = 'sprite'
 	local frames = props.frames
@@ -55,6 +56,19 @@ function Sprite:init(props)
 	self.scale = props.scale or Vector(1, 1)
 	self.offset = props.offset or Vector(0, 0)
 
+	if props.shape_arguments then
+		-- calculate scale and offset
+		local width = props.shape_arguments[3]
+		local height = props.shape_arguments[4]
+		local img_height = image:getHeight() / #self.frames
+		local img_width= image:getWidth() / #self.frames
+		local x_scale = width / img_width
+		local y_scale = x_scale -- TODO: support y scale? for now assume squares
+		self.scale = Vector(x_scale, y_scale)
+		self.offset = Vector(width, height)
+		print('calculate scale offset')
+	end
+
 	self.playing = false
 	if props.playing ~= nil then
 		self.playing = props.playing
@@ -63,17 +77,21 @@ function Sprite:init(props)
 	self.draw = draw
 end
 
+
 function Sprite:setFrameNum(frameNum)
 	self.frameNum = frameNum
 end
+
 
 function Sprite:setPositionV(pos)
 	self.position = pos
 end
 
+
 function Sprite:getPositionV()
 	return self.position
 end
+
 
 function Sprite:update(dt)
 	if self.playing == false then
@@ -87,6 +105,7 @@ function Sprite:update(dt)
 
 	self.frameNum = math.floor(self.currentTime / self.duration * #self.frames) + 1
 end
+
 
 function Sprite:draw_image_frames()
 	local frame = self.frames[self.frameNum]
