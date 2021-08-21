@@ -13,6 +13,7 @@ print(package.path)
 -- global includes to save having to include in other files!
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
+Camera = require('lib.hump.camera')
 --StateMachine = require('lib.lua-state-machine.statemachine')
 
 utils = require('utils')
@@ -54,6 +55,8 @@ function love.load()
 	world = World:new(0, 90.81, true)
 	map = Map:new('res/map/sandbox.lua', world)
 
+	camera = Camera(love.graphics.getWidth()/2,love.graphics.getHeight()/2, 1)
+
 	-- spawn players
 	local playerCount = 2
 	local index = 1
@@ -84,13 +87,50 @@ function love.update(dt)
 end
 
 function love.draw()
-	map:draw()
 
+	--[[
+	local tx = camera.x - (love.graphics.getWidth() / 2)
+	local ty = camera.y - (love.graphics.getHeight() / 2)
+
+	if tx < 0 then 
+		tx = 0 
+	end
+	if tx > map.map.width  * map.map.tilewidth  - love.graphics.getWidth()  then
+		tx = map.map.width  * map.map.tilewidth  - love.graphics.getWidth()  
+	end
+	if ty > map.map.height * map.map.tileheight - love.graphics.getHeight() then
+		ty = map.map.height * map.map.tileheight - love.graphics.getHeight()
+	end
+
+	tx = math.floor(tx)
+	ty = math.floor(ty)
+	]]--
+
+	local w = love.graphics.getWidth()
+	local h = love.graphics.getHeight()
+	local mw = map.map.width * map.map.tilewidth
+	local mh = map.map.height * map.map.tileheight
+	local sx = w / mw
+	local sy = h / mh
+	local s = math.min(sx, sy)
+
+	-- todo: centre the map? why is there a black bar at the bottom?
+	map.map:draw(0, 0, s, s)
+
+	--[[
+	camera:attach()
+	map:draw()
 	if physics_draw then
 		world:draw()
 	end
+	camera:detach()
+	]]--
 end
 
+function love.resize(w, h)
+	--camera = Camera(w/2,h/2, 1)
+	--map.map:resize(w, h)
+end
 
 function love.keypressed(k)
 	if k == "escape" then
