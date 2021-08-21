@@ -203,11 +203,11 @@ function Player:isDown(action)
 	end
 
 	if (joystick) then
-		local deadzone = 0.1
-		local vert, hor = joystick:getAxes()
+		local deadzone = 0.2
+		local hor, vert = joystick:getAxes()
 
 		if (action == 'left') then
-			return hor < deadzone
+			return hor < -deadzone
 		end
 
 		if (action == 'right') then
@@ -215,7 +215,7 @@ function Player:isDown(action)
 		end
 
 		if (action == 'up') then
-			return vert < deadzone
+			return vert < -deadzone
 		end
 
 		if (action == 'down') then
