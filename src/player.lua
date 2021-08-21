@@ -2,12 +2,15 @@ local PlayerStates = require('player_states')
 
 local Player = Class{__includes = Entity}
 
-function Player:init(object)
+function Player:init(props)
 	Entity.init(self)
+
+	local object = props.object
+	self.index = props.index
 	self.name = 'player'
 	self.type = 'player'
 	self.ladder = null
-	local character = 'dog';
+	local character = self.index == 1 and 'dog' or 'cat';
 	local position = Vector(object.x + 14, object.y - 14)
 
 	-- use the statemachine as the animation state system
@@ -171,6 +174,61 @@ function Player:pickup(pickup)
 	print('player picked up a ' .. pickup.itemName)
 	self.inventory:addItems(pickup.itemName, pickup.itemCount)
 	entity:queueDestroy()
+end
+
+function Player:isDown(action)
+	local actionMap = {}
+
+	local joysticks = love.joystick.getJoysticks()
+	local joystick = joysticks[self.index]
+
+	if (self.index == 1) then
+		actionMap = {
+			left='left',
+			right='right',
+			up='up',
+			down='down',
+			use='rshift'
+		}
+	end
+
+	if (self.index == 2) then
+		actionMap = {
+			left='a',
+			right='d',
+			up='w',
+			down='s',
+			use='e'
+		}
+	end
+
+	if (joystick) then
+		local deadzone = 0.1
+		local vert, hor = joystick:getAxes()
+
+		if (action == 'left') then
+			return hor < deadzone
+		end
+
+		if (action == 'right') then
+			return hor > deadzone
+		end
+
+		if (action == 'up') then
+			return vert < deadzone
+		end
+
+		if (action == 'down') then
+			return vert > deadzone
+		end
+
+		if (action == 'use') then
+			return joystick:isDown(1)
+		end
+	end
+
+	local key = actionMap[action]
+	return love.keyboard.isDown(key)
 end
 
 

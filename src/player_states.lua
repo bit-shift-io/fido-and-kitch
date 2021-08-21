@@ -18,13 +18,13 @@ function LadderState:canTransition()
 	local player = self.entity
 	local ladder = player:queryLadder()
 
-	if (love.keyboard.isDown("up")) then
+	if (player:isDown("up")) then
 		if (ladder) then
 			return true
 		end
 	end
 
-	if (love.keyboard.isDown("down")) then
+	if (player:isDown("down")) then
 		local ladderBelow = player:queryLadderBelow()
 		if (ladderBelow) then
 			return true
@@ -45,7 +45,7 @@ function LadderState:update(dt)
 	-- in the ladder state, reset vertical velocity
 	player.collider:setLinearVelocity(0, 0)
 
-	if (love.keyboard.isDown("up")) then
+	if (player:isDown("up")) then
 		if (ladder) then
 			player.collider:setLinearVelocity(0, -100)
 			movingOnLadder = true
@@ -54,7 +54,7 @@ function LadderState:update(dt)
 		end
 	end
 
-	if (love.keyboard.isDown("down")) then
+	if (player:isDown("down")) then
 		if (ladderBelow) then
 			player.collider:setLinearVelocity(0, 100)
 			movingOnLadder = true
@@ -95,9 +95,9 @@ function WalkIdleState:update(dt)
 	local y = player.collider:getY()
 	local delta = player.speed * dt
 
-	local eDownLast = player.eDown
-	player.eDown = love.keyboard.isDown("e")
-	if player.eDown == true and eDownLast == false then
+	local useDownLast = player.useDown
+	player.useDown = player:isDown('use')
+	if player.useDown == true and useDownLast == false then
 		player:checkForUsables()
 	end
 
@@ -112,12 +112,12 @@ function WalkIdleState:update(dt)
 
 	local isWalking = false
 	
-	if love.keyboard.isDown("right") then
+	if player:isDown("right") then
 		player.collider:setLinearVelocity(100, v_y)
 		isWalking = true
 	end
 
-	if love.keyboard.isDown("left") then
+	if player:isDown("left") then
 		player.collider:setLinearVelocity(-100, v_y)
 		isWalking = true
 	end
