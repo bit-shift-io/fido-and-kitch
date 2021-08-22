@@ -60,6 +60,12 @@ function Sprite:init(props)
 		-- calculate scale and offset
 		local width = props.shape_arguments[3]
 		local height = props.shape_arguments[4]
+
+		local f = 1
+		if (type(props.frames) == 'number') then
+			f = props.frames
+		end
+
 		local img
 		if (image) then
 			img = image
@@ -67,12 +73,14 @@ function Sprite:init(props)
 			img = frames[1]
 		end
 		local img_height = img:getHeight()
-		local img_width = img:getWidth() / props.frames
+		local img_width = img:getWidth() / f
+
 		local x_scale = width / img_width * self.scale.x
 		local y_scale = height / img_height * self.scale.y
 		self.scale = Vector(x_scale, y_scale)
-		local x_offset = img_width * 0.5 + self.offset.x
-		local y_offset = img_height * 0.5 + self.offset.y
+
+		local x_offset = img_width * 0.5 + (self.offset.x / x_scale)
+		local y_offset = img_height * 0.5 + (self.offset.y / y_scale)
 		self.offset = Vector(x_offset, y_offset)
 	end
 
