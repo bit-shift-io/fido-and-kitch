@@ -135,6 +135,7 @@ local function createEntitiesFromObjectGroupLayers(map)
 				else
 					local entity = err(object)
 					entity.mapData = object -- store the map data in the entity
+					object.entity = entity
 					table.insert(layer.entities, entity)
 				end
 			end

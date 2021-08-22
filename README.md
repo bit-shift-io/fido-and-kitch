@@ -1,6 +1,6 @@
 # Fido and Kitch
 
-Fido and Kitch is a puzzle platformer. It features local couch co-op with bite sized puzzles. Think Lurid Land made with Flutter and Flame.
+Fido and Kitch is a puzzle platformer. It features local couch co-op with bite sized puzzles similar to Lurid Land.
 
 ## Install
 
@@ -46,3 +46,4 @@ Here are a list of assets we use in the game and their source of origin.
 * Cage - https://opengameart.org/content/cage
 * Switch/lever - https://forums.tigsource.com/index.php?topic=59695.0
 * Door - https://opengameart.org/content/heavy-slamdoor-0
+* Bird - https://opengameart.org/content/cartooney-bird-01

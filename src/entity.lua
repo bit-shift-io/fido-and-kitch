@@ -14,6 +14,15 @@ function Entity:addComponent(component)
 end
 
 
+function Entity:removeComponent(component)
+	local idx = utils.tablefind(self.components, component)
+	if idx then
+		table.remove(self.components, idx)
+	end
+	return component
+end
+
+
 function Entity:update(dt)
 	for _, component in pairs(self.components) do
 		if component.update ~= nil then

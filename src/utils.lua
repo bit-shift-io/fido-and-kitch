@@ -44,4 +44,14 @@ function utils.instanceOf(subject, super)
 	end	
 end
 
+
+function utils.tablefind(tab,el)
+   for index, value in pairs(tab) do
+      if value == el then
+         return index
+      end
+   end
+   return nil
+end
+
 return utils --{set_funcs, love.physics, love.graphics, COLLIDER_TYPES}
