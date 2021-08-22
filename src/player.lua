@@ -9,9 +9,12 @@ function Player:init(props)
 	self.index = props.index
 	self.name = 'player'
 	self.type = 'player'
-	self.ladder = null
+	self.ladder = nil
 	local character = self.index == 1 and 'dog' or 'cat';
-	local position = Vector(object.x + 14, object.y - 14)
+	local height = 28
+	local width = 20
+	local position = Vector(object.x - width * 0.5, object.y - height * 0.5)
+	local shape_arguments = {0, 0, width, height}
 
 	-- use the statemachine as the animation state system
 	local animations = {
@@ -19,37 +22,33 @@ function Player:init(props)
 			frames=string.format('res/img/%s/Idle (${i}).png', character),
 			frameCount=10, 
 			duration=1.0,
-			scale=Vector(0.1, 0.1),
 			position=position,
-			offset=Vector(280, 320),
-			playing=true
+			playing=true,
+			shape_arguments=shape_arguments,
 		},
 		fall=Sprite{
 			frames=string.format('res/img/%s/Fall (${i}).png', character),
 			frameCount=8, 
 			duration=1.0,
-			scale=Vector(0.1, 0.1),
 			position=position,
-			offset=Vector(280, 320),
-			playing=true
+			playing=true,
+			shape_arguments=shape_arguments,
 		},
 		walk=Sprite{
 			frames=string.format('res/img/%s/Walk (${i}).png', character),
 			frameCount=10, 
 			duration=1.0,
-			scale=Vector(0.1, 0.1),
 			position=position,
-			offset=Vector(280, 320),
-			playing=true
+			playing=true,
+			shape_arguments=shape_arguments,
 		},
 		climb=Sprite{
 			frames=string.format('res/img/%s/Jump (${i}).png', character),
 			frameCount=8,
 			duration=1.0,
-			scale=Vector(0.1, 0.1),
 			position=position,
-			offset=Vector(280, 320),
-			playing=true
+			playing=true,
+			shape_arguments=shape_arguments,
 		}
 	}
 
@@ -64,8 +63,8 @@ function Player:init(props)
 	self.climbSpeed = 100;
 
 	self.collider = self:addComponent(Collider{
-		shape_type='rectangle', 
-		shape_arguments={0, 0, 20, 28}, 
+		shape_type='rectangle',
+		shape_arguments=shape_arguments,
 		postSolve=Func(self.contact, self),
 		sprite=self.animations,
 		position=position,

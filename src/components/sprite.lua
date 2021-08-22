@@ -60,13 +60,20 @@ function Sprite:init(props)
 		-- calculate scale and offset
 		local width = props.shape_arguments[3]
 		local height = props.shape_arguments[4]
-		local img_height = image:getHeight() / #self.frames
-		local img_width= image:getWidth() / #self.frames
-		local x_scale = width / img_width
-		local y_scale = x_scale -- TODO: support y scale? for now assume squares
+		local img
+		if (image) then
+			img = image
+		else
+			img = frames[1]
+		end
+		local img_height = img:getHeight()
+		local img_width = img:getWidth() / props.frames
+		local x_scale = width / img_width * self.scale.x
+		local y_scale = height / img_height * self.scale.y
 		self.scale = Vector(x_scale, y_scale)
-		self.offset = Vector(width, height)
-		print('calculate scale offset')
+		local x_offset = img_width * 0.5 + self.offset.x
+		local y_offset = img_height * 0.5 + self.offset.y
+		self.offset = Vector(x_offset, y_offset)
 	end
 
 	self.playing = false
