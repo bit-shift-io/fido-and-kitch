@@ -45,7 +45,7 @@ function utils.instanceOf(subject, super)
 end
 
 
-function utils.tablefind(tab,el)
+function utils.tableFind(tab,el)
    for index, value in pairs(tab) do
       if value == el then
          return index
@@ -54,4 +54,4 @@ function utils.tablefind(tab,el)
    return nil
 end
 
-return utils --{set_funcs, love.physics, love.graphics, COLLIDER_TYPES}
+return utils

@@ -1,15 +1,15 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.5.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
   height = 20,
   tilewidth = 32,
   tileheight = 32,
-  nextlayerid = 18,
-  nextobjectid = 66,
+  nextlayerid = 19,
+  nextobjectid = 68,
   properties = {},
   tilesets = {
     {
@@ -207,7 +207,8 @@ return {
           visible = true,
           properties = {
             ["color"] = "red",
-            ["image"] = "../img/cage.png"
+            ["image"] = "../img/cage.png",
+            ["path"] = { id = 67 }
           }
         },
         {
@@ -273,6 +274,45 @@ return {
           properties = {
             ["image"] = "../img/teleporter_1.png",
             ["target"] = { id = 26 }
+          }
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 18,
+      name = "waypoints",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 67,
+          name = "",
+          type = "",
+          shape = "polyline",
+          x = 48,
+          y = 368,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 32, y = -64 },
+            { x = 256, y = -96 },
+            { x = 392, y = -128 },
+            { x = 448, y = -128 },
+            { x = 448, y = -192 },
+            { x = 384, y = -192 }
+          },
+          properties = {
+            ["target"] = { id = 43 }
           }
         }
       }

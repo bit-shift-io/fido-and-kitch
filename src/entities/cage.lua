@@ -29,13 +29,15 @@ function Cage:init(object)
 	})
 
 	-- spawn the prisoner!
+	local pathObj = map:getObjectById(object.properties.path.id)
+
 	local layer = object.layer
 	local ok, err = pcall(require, object.properties.actor or 'bird') 
 	if not ok then
 		print('Entity Error: ' .. err)
 	else
-		local entity = err(object)
-		entity.mapData = object -- store the map data in the entity
+		local entity = err(pathObj)
+		--entity.mapData = object -- store the map data in the entity
 		table.insert(layer.entities, entity)
 		self.actor = entity
 	end
@@ -45,6 +47,7 @@ function Cage:use(user)
 	print('Cage has been used')
 	-- for now just stop drawing the cage, in future we need an animation to play
 	self:removeComponent(self.sprite)
+	self.actor:trigger()
 end
 
 return Cage
