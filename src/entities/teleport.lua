@@ -4,7 +4,7 @@ function Teleport:init(object)
 	Entity.init(self)
 	self.name = object.name
 	self.type = 'teleport'
-	local position = Vector(object.x - object.width * 0.5, object.y - object.height * 0.5)
+	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
 	self.target = map:getObjectById(object.properties.target.id)
 	self.sprite = self:addComponent(Sprite{

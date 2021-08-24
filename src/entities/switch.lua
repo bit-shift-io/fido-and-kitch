@@ -4,7 +4,7 @@ function Switch:init(object)
 	Entity.init(self)
 	self.name = object.name
 	self.type = 'switch'
-	local position = Vector(object.x - object.width * 0.5, object.y - object.height * 0.5)
+	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/switch.png',

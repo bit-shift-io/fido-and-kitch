@@ -13,7 +13,7 @@ function Player:init(props)
 	local character = self.index == 1 and 'dog' or 'cat';
 	local height = 50
 	local width = 50
-	local position = Vector(object.x - width * 0.5, object.y - height * 0.5)
+	local position = Vector(object.x + width * 0.5, object.y - height * 0.5)
 	local offset = Vector(0,8)
 	local shape_arguments = {0, 0, width, height}
 	local physics_arguments = {0, 0, 20, 30}
