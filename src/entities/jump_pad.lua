@@ -2,7 +2,7 @@ local JumpPad = Class{__includes = Entity}
 
 function JumpPad:init(object)
 	Entity.init(self)
-	self.type = 'coin'
+	self.type = 'jump_pad'
 	self.name = object.name
 	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}

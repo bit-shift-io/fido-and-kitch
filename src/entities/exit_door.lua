@@ -3,6 +3,7 @@ local ExitDoor = Class{__includes = Entity}
 function ExitDoor:init(object)
 	Entity.init(self)
 	self.type = 'exit_door'
+	self.name = object.name
 	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
 	local sprite = self:addComponent(Sprite{
