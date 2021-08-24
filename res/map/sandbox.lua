@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.5.0",
+  tiledversion = "1.7.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 19,
-  nextobjectid = 68,
+  nextobjectid = 74,
   properties = {},
   tilesets = {
     {
@@ -275,6 +275,23 @@ return {
             ["image"] = "../img/teleporter_1.png",
             ["target"] = { id = 26 }
           }
+        },
+        {
+          id = 68,
+          name = "jump_pad",
+          type = "jump_pad",
+          shape = "rectangle",
+          x = 192,
+          y = 384,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["image"] = "../img/spring/Spring - 1.png",
+            ["path"] = { id = 73 }
+          }
         }
       }
     },
@@ -293,7 +310,7 @@ return {
       objects = {
         {
           id = 67,
-          name = "",
+          name = "bird_path",
           type = "",
           shape = "polyline",
           x = 48,
@@ -314,6 +331,28 @@ return {
           properties = {
             ["target"] = { id = 43 }
           }
+        },
+        {
+          id = 73,
+          name = "jump_path",
+          type = "",
+          shape = "polyline",
+          x = 208,
+          y = 368,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 16, y = -48 },
+            { x = 48, y = -80 },
+            { x = 96, y = -96 },
+            { x = 128, y = -88 },
+            { x = 152, y = -64 },
+            { x = 160, y = -32 }
+          },
+          properties = {}
         }
       }
     },
@@ -419,36 +458,6 @@ return {
           y = 544,
           width = 320,
           height = 96,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        }
-      }
-    },
-    {
-      type = "objectgroup",
-      draworder = "topdown",
-      id = 17,
-      name = "testing",
-      visible = false,
-      opacity = 1,
-      offsetx = 0,
-      offsety = 0,
-      parallaxx = 1,
-      parallaxy = 1,
-      properties = {
-        ["collision"] = false
-      },
-      objects = {
-        {
-          id = 64,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 0,
-          y = 0,
-          width = 32,
-          height = 32,
           rotation = 0,
           visible = true,
           properties = {}
