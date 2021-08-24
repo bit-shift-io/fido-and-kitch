@@ -12,8 +12,7 @@ function JumpPad:init(object)
 		duration=1.0,
 		loop=true,
 		playing=true,
-		shape_arguments=shape_arguments,
-		scale=Vector(0.8,0.8)
+		shape_arguments=shape_arguments
 	})
 	
 	self.collider = self:addComponent(Collider{
