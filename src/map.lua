@@ -24,7 +24,75 @@ local function getColliderFromShape(obj)
 end
 
 
-local function createLadderVolumes(layer)
+
+
+
+
+
+function Map:new(path, world, debug)
+	_G.map = self
+
+	-- https://stackoverflow.com/questions/68771724/lua-inheritance-on-existing-object
+	local map = sti(path, { "box2d" })
+
+	self.map = map
+
+	self.typeIgnores = {'', 'spawn'}
+
+	--local mmeta = getmetatable(map)
+
+	--Map.__index = mmeta
+	--Map2 = setmetatable(Map, mmeta)
+	--map.__index = Map
+	--map = setmetatable(map, Map)
+
+	--map.__includes = Map
+	--map = Class.new(map)
+
+	--local midx = map.__index
+	--local sidx = self.__index
+	--map.__index = self.__index
+	--map.__index.__index = midx
+
+	--setmetatable(self, map)
+	--setmetatable(map, Map)
+
+	--map._map = map
+	--set_funcs(w, w._world)
+
+	--utils.set_funcs(self, self._map)
+
+	-- Prepare collision objects
+	if world then
+		map:box2d_init(world._world)
+	end
+
+	self:createEntitiesFromObjectGroupLayers()
+	self:createStaticPhysicsBodyBoundary(map)
+
+	for li, layer in ipairs(map.layers) do
+		layer.map = map
+		if (layer.properties.collision) then -- custom properties collisions=true
+			print ('creating collisions')
+			self:createStaticPhysicsBodies(layer)
+		end
+		if (layer.properties.ladder) then -- custom properties ladders=true
+			print('creating ladders')
+			self:createLadderVolumes(layer)
+		end
+	end
+--[[
+	return setmetatable({
+		--map = map,
+		debug = debug or false
+	  },
+	  Map
+	)
+	]]--
+	return self
+end
+
+function Map:createLadderVolumes(layer)
 	local volumes = {}
 
 	if (layer.type == 'objectgroup' and layer.objects) then -- object layer
@@ -39,8 +107,7 @@ local function createLadderVolumes(layer)
 	return volumes
 end
 
-
-local function createStaticPhysicsBodies(layer)
+function Map:createStaticPhysicsBodies(layer)
 	local colliders = {}
 
 	if (layer.type == 'objectgroup' and layer.objects) then -- object layer
@@ -78,8 +145,8 @@ local function createStaticPhysicsBodies(layer)
 	return colliders
 end
 
-
-local function createStaticPhysicsBodyBoundary(map)
+function Map:createStaticPhysicsBodyBoundary()
+	local map = self.map
 	local width = map.width * map.tilewidth
 	local height = map.height * map.tileheight
 
@@ -90,9 +157,9 @@ local function createStaticPhysicsBodyBoundary(map)
 	return b
 end
 
-
-
-local function createEntitiesFromObjectGroupLayers(map)
+function Map:createEntitiesFromObjectGroupLayers()
+	local thisMap = self
+	local map = self.map
 	-- we basically take each object layer and replace
 	-- them with entities
 	-- so the layer order is the render order
@@ -128,80 +195,22 @@ local function createEntitiesFromObjectGroupLayers(map)
 			end
 
 			for _, object in ipairs(objects) do
-				-- move to a util function with option to supress error
-				local ok, err = pcall(require, object.type) 
-				if not ok then
-					print('Entity Error: ' .. err)
-				else
-					local entity = err(object)
-					entity.mapData = object -- store the map data in the entity
-					object.entity = entity
-					table.insert(layer.entities, entity)
+				local in_ignore_list = utils.tableFind(thisMap.typeIgnores, object.type)
+				if in_ignore_list == nil then
+					-- move to a util function with option to supress error
+					local ok, err = pcall(require, object.type) 
+					if not ok then
+						print('Entity Error: ' .. err)
+					else
+						local entity = err(object)
+						entity.mapData = object -- store the map data in the entity
+						object.entity = entity
+						table.insert(layer.entities, entity)
+					end
 				end
 			end
 		end
 	end
-end
-
-function Map:new(path, world, debug)
-	_G.map = self
-
-	-- https://stackoverflow.com/questions/68771724/lua-inheritance-on-existing-object
-	local map = sti(path, { "box2d" })
-
-	self.map = map
-
-	--local mmeta = getmetatable(map)
-
-	--Map.__index = mmeta
-	--Map2 = setmetatable(Map, mmeta)
-	--map.__index = Map
-	--map = setmetatable(map, Map)
-
-	--map.__includes = Map
-	--map = Class.new(map)
-
-	--local midx = map.__index
-	--local sidx = self.__index
-	--map.__index = self.__index
-	--map.__index.__index = midx
-
-	--setmetatable(self, map)
-	--setmetatable(map, Map)
-
-	--map._map = map
-	--set_funcs(w, w._world)
-
-	--utils.set_funcs(self, self._map)
-
-	-- Prepare collision objects
-	if world then
-		map:box2d_init(world._world)
-	end
-
-	createEntitiesFromObjectGroupLayers(map)
-	createStaticPhysicsBodyBoundary(map)
-
-	for li, layer in ipairs(map.layers) do
-		layer.map = map
-		if (layer.properties.collision) then -- custom properties collisions=true
-			print ('creating collisions')
-			createStaticPhysicsBodies(layer)
-		end
-		if (layer.properties.ladder) then -- custom properties ladders=true
-			print('creating ladders')
-			createLadderVolumes(layer)
-		end
-	end
---[[
-	return setmetatable({
-		--map = map,
-		debug = debug or false
-	  },
-	  Map
-	)
-	]]--
-	return self
 end
 
 --function Map:init(path, plugins, ox, oy)

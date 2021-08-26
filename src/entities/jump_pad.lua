@@ -25,9 +25,10 @@ function JumpPad:init(object)
 		entity=self
 	})
 
+	local pathObject = map:getObjectById(object.properties.path.id)
     self.pathFollow = self:addComponent(PathFollow{
 		sprite=self.sprite,
-        path=Path(object),
+        path=Path(pathObject),
         finish=Func(self.finish, self),
     })
 end
