@@ -39,11 +39,11 @@ function ExitDoor:actorReached(actor)
 			print("door is closed!")
 		end)
 		-- todo: play in reverse
-		self.sprite.currentTime = 0 -- this should be done by a play function
-		self.sprite.frameNum = 1
-		self.sprite:setPlaying(true)
+		self.sprite.timeline:reset()
+		self.sprite.timeline:play()
 	end)
-	self.sprite:setPlaying(true)
+	self.sprite.timeline:reset()
+	self.sprite.timeline:play()
 end
 
 return ExitDoor

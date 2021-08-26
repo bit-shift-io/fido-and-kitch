@@ -10,12 +10,6 @@ end
 function Sprite:init(props)
 	self.type = 'sprite'
 
-	self.loop = true
-	if props.loop ~= nil then
-		self.loop = props.loop
-	end
-
-	self.finishFunc = props.finish
 	local frames = props.frames
 	local image = props.image
 	local draw = Sprite.draw_image_frames
@@ -56,12 +50,11 @@ function Sprite:init(props)
 
 	self.frames = cloneArray(frames)
 	self.image = image
-	self.duration = props.duration
-	self.currentTime = 0
 	self.frameNum = 1
 	self.position = props.position or Vector(0, 0)
 	self.scale = props.scale or Vector(1, 1)
 	self.offset = props.offset or Vector(0, 0)
+	self.timeline = Timeline(props)
 
 	if props.shape_arguments then
 		-- calculate scale and offset
@@ -91,17 +84,9 @@ function Sprite:init(props)
 		self.offset = Vector(x_offset, y_offset)
 	end
 
-	self.playing = false
-	if props.playing ~= nil then
-		self.playing = props.playing
-	end
-
 	self.draw = draw
 end
 
-function Sprite:setPlaying(playing)
-    self.playing = playing
-end
 
 function Sprite:setFrameNum(frameNum)
 	self.frameNum = frameNum
@@ -119,30 +104,12 @@ end
 
 
 function Sprite:update(dt)
-	if self.playing == false then
-		return
+	-- incase the user wants to manually fudge frame numbers
+	if self.timeline.playing == false then
+		return;
 	end
-
-	self.currentTime = self.currentTime + dt
-
-	if self.loop then
-		while self.currentTime >= self.duration do
-			self.currentTime = self.currentTime - self.duration
-			if self.finishFunc then
-				self.finishFunc:call()
-			end
-		end
-	else
-		if self.currentTime >= self.duration then
-			self.currentTime = self.duration
-			self.playing = false
-			if self.finishFunc then
-				self.finishFunc:call()
-			end
-		end
-	end
-
-	self.frameNum = math.floor((self.currentTime / self.duration) * (#self.frames - 1)) + 1
+	self.timeline:update(dt)
+	self.frameNum = self.timeline:getFrameIndex(#self.frames)
 end
 
 
@@ -153,6 +120,7 @@ end
 
 function Sprite:draw_quad_frames()
 	local frame = self.frames[self.frameNum]
+	assert(frame)
 	love.graphics.draw(self.image, frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 

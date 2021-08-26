@@ -7,15 +7,12 @@ function PathFollow:init(props)
 	self.type = 'path_follow'
     self.path = props.path
     self.sprite = props.sprite
-    self.currentTime = 0
-    self.speed = props.speed or 30
-    self.t = 0
-    self.finishFunc = props.finish
 
-    self.playing = false
-	if props.playing ~= nil then
-		self.playing = props.playing
-	end
+    local speed = props.speed or 40
+    local duration = self.path.length / speed
+    self.timeline = Timeline({
+        duration=duration
+    })
 
     -- do we need an option to do this?
     if self.sprite then
@@ -25,31 +22,20 @@ function PathFollow:init(props)
 end
 
 function PathFollow:update(dt)
-    if self.playing == false then
-		return
+    -- incase the user wants to manually fudge frame numbers
+	if self.timeline.playing == false then
+		return;
 	end
-
-    local tPrev = self.t
-    self.currentTime = self.currentTime + dt
-    local dist = (self.speed * self.currentTime) / self.path.length
-    self.t = math.min(1, dist)
-
-    if self.t >= 1 and tPrev < 1 and self.finishFunc then
-        self.finishFunc:call()
-    end
+	self.timeline:update(dt)
 
     if self.sprite then
-        local pos = self.path:getPositionV(dist)
+        local pos = self.path:getPositionV(self.timeline:timePercent())
         self.sprite:setPositionV(pos)
     end
 end
 
 function PathFollow:getPositionV() 
-    return self.path:getPositionV(self.t)
-end
-
-function PathFollow:setPlaying(playing)
-    self.playing = playing
+    return self.path:getPositionV(self.timeline:timePercent())
 end
 
 function PathFollow:draw()

@@ -27,7 +27,7 @@ end
 -- freedom! follow the path!
 function Bird:trigger()
     print('bird released, follow the path!')
-    self.pathFollow:setPlaying(true)
+    self.pathFollow.timeline.play()
 end
 
 -- we reached the end of the path
