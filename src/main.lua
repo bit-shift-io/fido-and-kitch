@@ -1,14 +1,12 @@
 if arg[#arg] == "debug" then 
 	require("lldebugger").start() 
+	print(package.path)
 elseif arg[#arg] == "profile" then
 	profile = require('profile')
 end
 
-print(package.path)
-
 -- includes
 --require('lovedebug')
-
 
 -- global includes to save having to include in other files!
 Vector = require('lib.hump.vector')

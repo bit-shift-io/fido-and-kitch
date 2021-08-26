@@ -73,11 +73,9 @@ function Map:new(path, world, debug)
 	for li, layer in ipairs(map.layers) do
 		layer.map = map
 		if (layer.properties.collision) then -- custom properties collisions=true
-			print ('creating collisions')
 			self:createStaticPhysicsBodies(layer)
 		end
 		if (layer.properties.ladder) then -- custom properties ladders=true
-			print('creating ladders')
 			self:createLadderVolumes(layer)
 		end
 	end
@@ -164,7 +162,6 @@ function Map:createEntitiesFromObjectGroupLayers()
 	-- them with entities
 	-- so the layer order is the render order
 	for li, layer in ipairs(map.layers) do
-		print(layer.type)
 		if layer.type == "objectgroup" then
 			local objects = layer.objects
 			layer.entities = {}
