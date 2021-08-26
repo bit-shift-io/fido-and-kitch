@@ -5,9 +5,14 @@ local Path = Class{}
 
 function Path:init(props)
 	self.type = 'path'
+    if props.polyline == nil then
+        print('Bad object passed to Path! Pass an object that is a polyline')
+        return -- error!
+    end
 
     curveTable = {}
     self.points = {}
+
     for i,p in ipairs(props.polyline) do
         local v = Vector(p.x, p.y)
         table.insert(self.points, v)
@@ -31,11 +36,19 @@ function Path:init(props)
 end
 
 function Path:getPositionV(percentage)
+    if self.curve == nil then
+        return Vector(0, 0)
+    end
+
     local t = math.min(1, math.max(0, percentage))
     return Vector(self.curve:evaluate(t))
 end
 
-function Path:draw() 
+function Path:draw()
+    if self.curve == nil then
+        return
+    end
+
     love.graphics.line(self.curve:render())
 end
 
