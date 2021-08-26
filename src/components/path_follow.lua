@@ -32,7 +32,7 @@ function PathFollow:update(dt)
     local tPrev = self.t
     self.currentTime = self.currentTime + dt
     local dist = (self.speed * self.currentTime) / self.path.length
-    self.t = dist
+    self.t = math.min(1, dist)
 
     if self.t >= 1 and tPrev < 1 and self.finishFunc then
         self.finishFunc:call()

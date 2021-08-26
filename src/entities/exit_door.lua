@@ -6,7 +6,7 @@ function ExitDoor:init(object)
 	self.name = object.name
 	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
-	local sprite = self:addComponent(Sprite{
+	self.sprite = self:addComponent(Sprite{
 		image='res/img/door.png',
 		frames=5,
 		duration=1.0,
@@ -30,6 +30,11 @@ end
 
 function ExitDoor:actorReached(actor)
 	print('some birdy reached the exit!')
+
+	self.sprite.finishFunc = function()
+		print("door is open!")
+	end
+	self.sprite:setPlaying(true)
 	-- TODO: once so many actors escape, the door opens
 	-- how do actors escape when the door is closed?! some lurid land research isin order
 	actor:queueDestroy()

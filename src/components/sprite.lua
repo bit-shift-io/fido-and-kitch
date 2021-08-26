@@ -9,6 +9,8 @@ end
 
 function Sprite:init(props)
 	self.type = 'sprite'
+	self.loop = props.loop or true
+	self.finishFunc = props.finish
 	local frames = props.frames
 	local image = props.image
 	local draw = Sprite.draw_image_frames
@@ -92,6 +94,9 @@ function Sprite:init(props)
 	self.draw = draw
 end
 
+function Sprite:setPlaying(playing)
+    self.playing = playing
+end
 
 function Sprite:setFrameNum(frameNum)
 	self.frameNum = frameNum
@@ -114,11 +119,25 @@ function Sprite:update(dt)
 	end
 
 	self.currentTime = self.currentTime + dt
-	while self.currentTime >= self.duration do
-		self.currentTime = self.currentTime - self.duration
+
+	if self.loop then
+		while self.currentTime >= self.duration do
+			self.currentTime = self.currentTime - self.duration
+			if self.finishFunc then
+				self.finishFunc:call()
+			end
+		end
+	else
+		if self.currentTime >= self.duration then
+			self.currentTime = self.duration
+			self.playing = false
+			if self.finishFunc then
+				self.finishFunc:call()
+			end
+		end
 	end
 
-	self.frameNum = math.floor(self.currentTime / self.duration * #self.frames) + 1
+	self.frameNum = math.floor((self.currentTime / self.duration) * (#self.frames - 1)) + 1
 end
 
 
