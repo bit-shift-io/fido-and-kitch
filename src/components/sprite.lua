@@ -9,7 +9,12 @@ end
 
 function Sprite:init(props)
 	self.type = 'sprite'
-	self.loop = props.loop or true
+
+	self.loop = true
+	if props.loop ~= nil then
+		self.loop = props.loop
+	end
+
 	self.finishFunc = props.finish
 	local frames = props.frames
 	local image = props.image

@@ -31,13 +31,19 @@ end
 function ExitDoor:actorReached(actor)
 	print('some birdy reached the exit!')
 
-	self.sprite.finishFunc = function()
+	self.sprite.finishFunc = Func(function()
 		print("door is open!")
-	end
+		actor:queueDestroy()
+
+		self.sprite.finishFunc = Func(function()
+			print("door is closed!")
+		end)
+		-- todo: play in reverse
+		self.sprite.currentTime = 0 -- this should be done by a play function
+		self.sprite.frameNum = 1
+		self.sprite:setPlaying(true)
+	end)
 	self.sprite:setPlaying(true)
-	-- TODO: once so many actors escape, the door opens
-	-- how do actors escape when the door is closed?! some lurid land research isin order
-	actor:queueDestroy()
 end
 
 return ExitDoor
