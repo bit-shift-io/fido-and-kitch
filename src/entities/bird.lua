@@ -21,13 +21,14 @@ function Bird:init(object)
         sprite=self.sprite,
         path=Path(object),
         finish=Func(self.finish, self),
+        speed=50
     })
 end
 
 -- freedom! follow the path!
 function Bird:trigger()
     print('bird released, follow the path!')
-    self.pathFollow.timeline.play()
+    self.pathFollow.timeline:play()
 end
 
 -- we reached the end of the path

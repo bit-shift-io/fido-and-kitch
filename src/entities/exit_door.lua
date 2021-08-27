@@ -31,17 +31,17 @@ end
 function ExitDoor:actorReached(actor)
 	print('some birdy reached the exit!')
 
-	self.sprite.finishFunc = Func(function()
+	self.sprite.timeline:setFinishFunc(Func(function()
 		print("door is open!")
 		actor:queueDestroy()
 
-		self.sprite.finishFunc = Func(function()
+		self.sprite.timeline:setFinishFunc(Func(function()
 			print("door is closed!")
-		end)
-		-- todo: play in reverse
-		self.sprite.timeline:reset()
+		end))
+		--self.sprite.timeline:reset()
+		self.sprite.timeline:reverse()
 		self.sprite.timeline:play()
-	end)
+	end))
 	self.sprite.timeline:reset()
 	self.sprite.timeline:play()
 end

@@ -11,7 +11,7 @@ function Timeline:init(props)
     self.tween = Tween.new(props.duration, {time=0.0}, {time=1.0})
     self.duration = props.duration
     self.speed = 1
-    self.reverse = false
+    self.isReverse = false
     self.loop = false
     if (props.loop) then
         self.loop = props.loop
@@ -34,33 +34,57 @@ function Timeline:init(props)
     end
 end
 
+function Timeline:setFinishFunc(fn)
+    -- change the fn
+    -- TODO: should we simply add a new finish event?
+    -- I"m not happy with this yet... needs more thought
+    -- we might want multiple finish events!
+    for i, v in pairs(self.events) do
+        if (v.time == 1.0) then
+            v.fn = fn
+            return
+        end
+    end
+
+    table.insert(self.events, {
+        time=1.0,
+        fn=fn 
+    })
+end
+
 function Timeline:update(dt)
     if self.playing == false then
 		return
 	end
 
     local speed = self.speed
-    if (self.reverse) then
+    if (self.isReverse) then
         speed = -speed
     end
 
     self:progress(dt * speed)
 end
 
-function Timeline:fireEvents(startClock, endClock)
-    --[[
-    -- TODO: fire any events we passed along the way between startClock and endClock
+
+-- fire any events we passed along the way between startClock and endClock
+function Timeline:fireEvents(startPercent, endPercent)
     for _, v in pairs(self.events) do
+        if (startPercent < v.time and endPercent >= v.time) then
+            v.fn:call()
+        end
     end
-    ]]--
 end
 
+
 function Timeline:progress(dt, supressEvents)
+    local stp = self:timePercent()
     local startClock = self.tween.clock
     local overflow = (self.tween.clock + dt) - self.tween.duration
     self.tween:update(dt)
     local endClock = self.tween.clock
-    self:fireEvents(startClock, endClock)
+    local etp = self:timePercent()
+
+    self:fireEvents(stp, etp)
 
     if self.tween.clock == self.tween.duration then
         if self.loop then
@@ -75,7 +99,8 @@ function Timeline:reset()
 end
 
 function Timeline:reverse()
-    self.tween = Tween.new(self.tween.duration, {time=1.0}, {time=0.0})
+    self.isReverse = not self.isReverse
+    --self.tween = Tween.new(self.tween.duration, {time=1.0}, {time=0.0})
 end
 
 -- Given a set of frames 

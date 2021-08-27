@@ -30,6 +30,7 @@ function JumpPad:init(object)
 		sprite=self.sprite,
         path=Path(pathObject),
         finish=Func(self.finish, self),
+		speed=50
     })
 end
 

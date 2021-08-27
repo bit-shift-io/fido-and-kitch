@@ -8,10 +8,12 @@ function PathFollow:init(props)
     self.path = props.path
     self.sprite = props.sprite
 
-    local speed = props.speed or 40
+    local speed = props.speed
     local duration = self.path.length / speed
+    local finsh = props.finish
     self.timeline = Timeline({
-        duration=duration
+        duration=duration,
+        finish=finsh
     })
 
     -- do we need an option to do this?
