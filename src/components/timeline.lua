@@ -18,38 +18,37 @@ function Timeline:init(props)
     end
 
     self.events = {} -- pairs of time/Func's for firing off events
+    self.finishEvents = {} -- special table for events to occur on last frame
 
+    --[[
     if (props.start) then
         table.insert(self.events, {
             time=0.0,
             fn=props.start 
         })
     end
+    ]]--
 
+    --[[
     if (props.finish) then
         table.insert(self.events, {
             time=1.0,
             fn=props.finish 
         })
     end
+    ]]--
+
+    if (props.finish) then
+        table.insert(self.finishEvents, props.finish)
+    end
 end
 
+-- clear existing finish func and set new finish event
 function Timeline:setFinishFunc(fn)
-    -- change the fn
-    -- TODO: should we simply add a new finish event?
-    -- I"m not happy with this yet... needs more thought
-    -- we might want multiple finish events!
-    for i, v in pairs(self.events) do
-        if (v.time == 1.0) then
-            v.fn = fn
-            return
-        end
+    self.finishEvents = {}
+    if (fn) then
+        table.insert(self.finishEvents, fn)
     end
-
-    table.insert(self.events, {
-        time=1.0,
-        fn=fn 
-    })
 end
 
 function Timeline:update(dt)
@@ -63,14 +62,39 @@ function Timeline:update(dt)
     end
 
     self:progress(dt * speed)
+
+    -- TODO: set playing = false if start/end reached
 end
 
 
 -- fire any events we passed along the way between startClock and endClock
 function Timeline:fireEvents(startPercent, endPercent)
+    local forward = endPercent > startPercent
+
     for _, v in pairs(self.events) do
-        if (startPercent < v.time and endPercent >= v.time) then
-            v.fn:call()
+        if (forward) then
+            if (startPercent < v.time and endPercent >= v.time) then
+                v.fn:call()
+            end
+        else
+            if (startPercent <= v.time and endPercent > v.time) then
+                v.fn:call()
+            end
+        end
+    end
+
+    -- special handling for 'finish' events which can occur at at start or end of the animation
+    if (forward) then
+        if endPercent == 1.0 then
+            for _, fn in pairs(self.finishEvents) do
+                fn:call()
+            end
+        end
+    else
+        if endPercent == 0.0 then
+            for _, fn in pairs(self.finishEvents) do
+                fn:call()
+            end
         end
     end
 end
