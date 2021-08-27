@@ -77,6 +77,8 @@ function Player:init(props)
 		entity=self,
 		fixedRotation=true
 	})
+	-- items in the -ve group do not collide with each other, this stops player colliding
+	self.collider:setGroupIndex(-1)
 
 	self.inventory = self:addComponent(Inventory{})
 
