@@ -192,6 +192,37 @@ function Map:createEntitiesFromObjectGroupLayers()
 			end
 
 			for _, object in ipairs(objects) do
+
+				function object:exec(propertyName, entity)
+					local eventStr = object.properties[propertyName]
+					if (eventStr) then
+						for k, v in pairs(object.properties) do
+							local sub = string.format('map:getObjectById(object.properties.%s.id):', k)
+							eventStr = eventStr:gsub(string.format('%s:', k), sub)
+						end
+
+						-- http://www.computercraft.info/forums2/index.php?/topic/8617-loadstring-has-some-issues-with-variable-scope/
+						print("exec script:", eventStr)
+
+						-- TODO: get this working
+						--[[
+						eventStr = string.format('function(object, entity)\n%s\nend', eventStr)
+						local fn = loadstring(eventStr)
+
+						--[[
+						local status, err = pcall(fn)
+						if not ok then
+							print('Entity Error: ' .. err)
+						else
+							err(object, entity)
+						end
+						] ] --
+						--setfenv( fn, getfenv() )
+						fn(object, entity)
+						]]--
+					end
+				end
+
 				local in_ignore_list = utils.tableFind(thisMap.typeIgnores, object.type)
 				if in_ignore_list == nil then
 					-- move to a util function with option to supress error

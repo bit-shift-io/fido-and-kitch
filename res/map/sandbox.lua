@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.5.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 19,
-  nextobjectid = 74,
+  nextobjectid = 75,
   properties = {},
   tilesets = {
     {
@@ -292,6 +292,23 @@ return {
             ["image"] = "../img/spring/Spring - 1.png",
             ["path"] = { id = 73 }
           }
+        },
+        {
+          id = 74,
+          name = "objective_count",
+          type = "variable",
+          shape = "rectangle",
+          x = 480,
+          y = 96,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["initial"] = 1,
+            ["on_0"] = "game:endGame()"
+          }
         }
       }
     },
@@ -329,6 +346,8 @@ return {
             { x = 384, y = -192 }
           },
           properties = {
+            ["finish"] = "target:actorReached(entity)\nobjective_var:subtract(1)",
+            ["objective_var"] = { id = 74 },
             ["target"] = { id = 43 }
           }
         },

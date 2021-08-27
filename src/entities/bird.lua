@@ -21,7 +21,7 @@ function Bird:init(object)
         sprite=self.sprite,
         path=Path(object),
         finish=Func(self.finish, self),
-        speed=50
+        speed=80
     })
 end
 
@@ -33,9 +33,13 @@ end
 
 -- we reached the end of the path
 function Bird:finish()
+    self.object:exec('finish', self)
+
+    --[[
     local exitDoorObject = map:getObjectById(self.object.properties.target.id)
     local exitDoorEntity = exitDoorObject.entity
     exitDoorEntity:actorReached(self)
+    ]]--
 end
 
 return Bird
