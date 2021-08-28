@@ -68,9 +68,20 @@ function utils.loadCode(code, environment)
    end
 end
 
+-- TODO: now there is confusion around when to use forwardFunc or
+-- func! 
+
 -- forward a function call from oldSelf:fn(...) to newSelf:fn(...)
 function utils.forwardFunc(fn, newSelf)
    return function(oldSelf, ...)
+      local function __NULL__() end
+      return (fn or __NULL__)(newSelf, ...)
+  end
+end
+
+-- make a function fn(...) call newSelf:fn(...)
+function utils.func(fn, newSelf)
+   return function(...)
       local function __NULL__() end
       return (fn or __NULL__)(newSelf, ...)
   end

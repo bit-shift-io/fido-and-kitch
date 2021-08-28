@@ -13,6 +13,7 @@ function Usable:init(props)
     self.requiredItemCount = props.requiredItemCount or 1
     self.consumeItems = props.consumeItems or false -- consume on use?
     self.playerAnimationOnUse = props.playerAnimationOnUse
+    self.enabled = (props.enabled == nil) and true or props.enabled
 end
 
 
@@ -22,12 +23,12 @@ function Usable:canUse(user)
     end
     
     -- TODO: check player has the required items in their inventory
-    return true
+    return self.enabled
 end
 
 
 function Usable:use(user)
-    print('usable is beinng used')
+    print('usable is being used')
     self.useFunc(user)
 end
 

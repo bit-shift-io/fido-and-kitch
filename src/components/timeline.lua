@@ -18,7 +18,7 @@ function Timeline:init(props)
     end
 
     self.events = {} -- pairs of time/Func's for firing off events
-    self.finishEvents = {} -- special table for events to occur on last frame
+    self.finishSignal = Signal{}
 
     --[[
     if (props.start) then
@@ -39,10 +39,11 @@ function Timeline:init(props)
     ]]--
 
     if (props.finish) then
-        table.insert(self.finishEvents, props.finish)
+        self.finishSignal:connect(props.finish)
     end
 end
 
+--[[
 -- clear existing finish func and set new finish event
 function Timeline:setFinishFunc(fn)
     self.finishEvents = {}
@@ -50,6 +51,7 @@ function Timeline:setFinishFunc(fn)
         table.insert(self.finishEvents, fn)
     end
 end
+]]--
 
 function Timeline:update(dt)
     if self.playing == false then
@@ -86,15 +88,11 @@ function Timeline:fireEvents(startPercent, endPercent)
     -- special handling for 'finish' events which can occur at at start or end of the animation
     if (forward) then
         if endPercent == 1.0 then
-            for _, fn in pairs(self.finishEvents) do
-                fn()
-            end
+            self.finishSignal:emit()
         end
     else
         if endPercent == 0.0 then
-            for _, fn in pairs(self.finishEvents) do
-                fn()
-            end
+            self.finishSignal:emit()
         end
     end
 end
