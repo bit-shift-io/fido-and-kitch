@@ -50,6 +50,7 @@ function InGameState:load()
 	camera = Camera(love.graphics.getWidth()/2,love.graphics.getHeight()/2, 1)
 
 	-- spawn players
+	self.players = {}
 	local playerCount = 2
 	local index = 1
 	for li, layer in ipairs(map.map.layers) do -- todo: map.map changed with the new layout for some reason??
@@ -57,8 +58,10 @@ function InGameState:load()
 			for _, object in ipairs(layer.objects) do
 				if object.type == 'spawn' then
 					for i = 1, playerCount, 1 do
-						local entity = Player({object=object, index=index})
+						local entity = Player{object=object, index=index}
+						entity.destroySignal:connect(utils.func(InGameState.onPlayerDestroyed, self))
 						table.insert(layer.entities, entity)
+						table.insert(self.players, entity)
 						index = index + 1
 					end
 				end
@@ -70,6 +73,19 @@ function InGameState:load()
 		profile.stop()
 		print('love.load profile:')
 		print(profile.report(10))
+	end
+end
+
+function InGameState:onPlayerDestroyed(player)
+	print('player destroyed')
+	local idx = utils.tableFind(self.players, player)
+	table.remove(self.players, idx)
+
+	local playerCount = #self.players
+	if (playerCount == 0) then
+		print('all players have left the map!')
+		local game = self.entity
+        game:setGameState('MenuState')
 	end
 end
 

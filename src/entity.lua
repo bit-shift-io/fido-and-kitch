@@ -4,6 +4,7 @@ local Entity = Class{}
 function Entity:init()
 	self.type = 'entity'
 	self.components = {}
+	self.destroySignal = Signal{} -- is this better as a special component that detects destruction? making entity more light weight
 end
 
 
@@ -60,6 +61,7 @@ function Entity:destroy()
 			component:destroy()
 		end
 	end
+	self.destroySignal:emit(self)
 end
 
 function Entity:getComponentByType(componentType)
