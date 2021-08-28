@@ -10,10 +10,11 @@ function Game:init(props)
 		currentState='MenuState'
 	}
 
-    -- when debbugging for now we just want to get straight into the game!
+    
+    -- when debugging for now we just want to get straight into the game!
     if arg[#arg] == "debug" then 
         self:setGameState('InGameState')
-        self:load();
+        self:load()
 	end
 end
 
@@ -33,7 +34,14 @@ function Game:draw()
     self.fsm:draw()
 end
 
+function Game:textinput(t)
+    suit.textinput(t)
+    self.fsm:textinput(t)
+end
+
 function Game:keypressed(k)
+    suit.keypressed(key)
+    
     if k == "f12" then
 		print('prnt')
 		love.filesystem.setIdentity("screenshot_example")

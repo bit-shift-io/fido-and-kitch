@@ -13,6 +13,7 @@ Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
 Camera = require('lib.hump.camera')
 Tween = require('lib.tween.tween')
+suit = require('lib.suit')
 
 utils = require('utils')
 Signal = require('signal')
@@ -55,6 +56,7 @@ function love.keypressed(k)
 end
 
 function love.textinput(t)
+	game:textinput(t)
 	--print(t)
 	--console_toggle(t)
 end

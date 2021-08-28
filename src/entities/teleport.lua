@@ -25,7 +25,7 @@ function Teleport:init(object)
 	})
 	self:addComponent(Usable{
 		entity=self,
-		use=utils.forwardFunc(self.use, self)
+		use=utils.func(self.use, self)
 	})
 end
 
