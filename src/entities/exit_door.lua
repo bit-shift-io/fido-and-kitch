@@ -18,7 +18,7 @@ function ExitDoor:init(object)
 		shape_type='rectangle', 
 		shape_arguments=shape_arguments,
 		body_type='static',
-		enter=Func(ExitDoor.contact, self),
+		enter=utils.forwardFunc(ExitDoor.contact, self),
 		sensor=true,
 		position=position
 	})
@@ -31,18 +31,23 @@ end
 function ExitDoor:actorReached(actor)
 	print('some birdy reached the exit!')
 
-	self.sprite.timeline:setFinishFunc(Func(function()
+	self.sprite.timeline:setFinishFunc(function()
 		print("door is open!")
 		actor:queueDestroy()
 
-		self.sprite.timeline:setFinishFunc(Func(function()
+		self.sprite.timeline:setFinishFunc(function()
 			print("door is closed!")
 			self.sprite.timeline:setFinishFunc(nil)
-		end))
+		end)
 		self.sprite.timeline:reverse()
 		self.sprite.timeline:play()
-	end))
+	end)
 	self.sprite.timeline:reset()
+	self.sprite.timeline:play()
+end
+
+function ExitDoor:open()
+	print('all objectives achived, open door for player to exit')
 	self.sprite.timeline:play()
 end
 

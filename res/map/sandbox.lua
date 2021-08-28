@@ -306,8 +306,9 @@ return {
           gid = 123,
           visible = true,
           properties = {
+            ["exit_door"] = { id = 43 },
             ["initial"] = 1,
-            ["on_0"] = "game:endGame()"
+            ["on_0"] = "exit_door:open()"
           }
         }
       }

@@ -20,7 +20,7 @@ function Bird:init(object)
     self.pathFollow = self:addComponent(PathFollow{
         sprite=self.sprite,
         path=Path(object),
-        finish=Func(self.finish, self),
+        finish=utils.forwardFunc(self.finish, self),
         speed=80
     })
 end

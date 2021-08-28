@@ -23,7 +23,7 @@ function Switch:init(object)
 	})
 	self:addComponent(Usable{
 		entity=self,
-		use=Func(self.use, self)
+		use=utils.forwardFunc(self.use, self)
 	})
 
 	self.target = map:getObjectById(object.properties.target.id)

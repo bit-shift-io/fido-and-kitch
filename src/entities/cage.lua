@@ -24,7 +24,7 @@ function Cage:init(object)
 	
 	self:addComponent(Usable{
 		entity=self,
-		use=Func(self.use, self),
+		use=utils.forwardFunc(self.use, self),
 		requiredItem=string.format('key_%s', color)
 	})
 

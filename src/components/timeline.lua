@@ -74,11 +74,11 @@ function Timeline:fireEvents(startPercent, endPercent)
     for _, v in pairs(self.events) do
         if (forward) then
             if (startPercent < v.time and endPercent >= v.time) then
-                v.fn:call()
+                v.fn()
             end
         else
             if (startPercent <= v.time and endPercent > v.time) then
-                v.fn:call()
+                v.fn()
             end
         end
     end
@@ -87,13 +87,13 @@ function Timeline:fireEvents(startPercent, endPercent)
     if (forward) then
         if endPercent == 1.0 then
             for _, fn in pairs(self.finishEvents) do
-                fn:call()
+                fn()
             end
         end
     else
         if endPercent == 0.0 then
             for _, fn in pairs(self.finishEvents) do
-                fn:call()
+                fn()
             end
         end
     end

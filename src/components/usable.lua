@@ -18,7 +18,7 @@ end
 
 function Usable:canUse(user)
     if self.canUseFunc then
-        return self.canUseFunc:call(user)
+        return self.canUseFunc(user)
     end
     
     -- TODO: check player has the required items in their inventory
@@ -28,7 +28,7 @@ end
 
 function Usable:use(user)
     print('usable is beinng used')
-    self.useFunc:call(user)
+    self.useFunc(user)
 end
 
 return Usable

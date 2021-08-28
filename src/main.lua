@@ -15,8 +15,6 @@ Camera = require('lib.hump.camera')
 Tween = require('lib.tween.tween')
 
 utils = require('utils')
-Func = require('func')
-
 World = require('world')
 Entity = require('entity')
 StateMachine = require('components.state_machine')

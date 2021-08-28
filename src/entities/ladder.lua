@@ -12,8 +12,8 @@ function Ladder:init(object)
 		body_type='static',
 		sensor=true,
 		position=position,
-		--enter=Func(self.enter, self),
-		--exit=Func(self.exit, self),
+		--enter=utils.forwardFunc(self.enter, self),
+		--exit=utils.forwardFunc(self.exit, self),
 		entity=self
 	})
 end

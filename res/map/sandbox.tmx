@@ -74,8 +74,9 @@
   </object>
   <object id="74" name="objective_count" type="variable" gid="123" x="480" y="96" width="32" height="32">
    <properties>
+    <property name="exit_door" type="object" value="43"/>
     <property name="initial" type="int" value="1"/>
-    <property name="on_0" value="game:endGame()"/>
+    <property name="on_0" value="exit_door:open()"/>
    </properties>
   </object>
  </objectgroup>

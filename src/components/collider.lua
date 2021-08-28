@@ -44,25 +44,25 @@ function Collider:init(props)
 
 	if self.postSolveFunc then
 		function self:postSolve(other)
-			self.postSolveFunc:call(other)
+			self.postSolveFunc(other)
 		end
 	end
 
 	if self.preSolveFunc then
 		function self:preSolve(other)
-			self.preSolveFunc:call(other)
+			self.preSolveFunc(other)
 		end
 	end
 
 	if self.enterFunc then
 		function self:enter(other)
-			self.enterFunc:call(other)
+			self.enterFunc(other)
 		end
 	end
 
 	if self.exitFunc then
 		function self:exit(other)
-			self.exitFunc:call(other)
+			self.exitFunc(other)
 		end
 	end
 

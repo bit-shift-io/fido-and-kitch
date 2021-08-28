@@ -71,7 +71,7 @@ function Player:init(props)
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',
 		shape_arguments=physics_arguments,
-		postSolve=Func(self.contact, self),
+		postSolve=utils.forwardFunc(self.contact, self),
 		sprite=self.animations,
 		position=position,
 		entity=self,

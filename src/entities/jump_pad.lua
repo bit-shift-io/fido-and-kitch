@@ -29,7 +29,7 @@ function JumpPad:init(object)
     self.pathFollow = self:addComponent(PathFollow{
 		sprite=self.sprite,
         path=Path(pathObject),
-        finish=Func(self.finish, self),
+        finish=utils.forwardFunc(self.finish, self),
 		speed=50
     })
 end

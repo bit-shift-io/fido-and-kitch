@@ -18,14 +18,14 @@ function Teleport:init(object)
 		shape_type='rectangle',
 		shape_arguments=shape_arguments,
 		body_type='static',
-		enter=Func(Teleport.contact, self),
+		enter=utils.forwardFunc(Teleport.contact, self),
 		sensor=true,
 		sprite=self.sprite,
 		position=position
 	})
 	self:addComponent(Usable{
 		entity=self,
-		use=Func(self.use, self)
+		use=utils.forwardFunc(self.use, self)
 	})
 end
 
