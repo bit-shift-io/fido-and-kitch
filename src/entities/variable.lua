@@ -24,7 +24,7 @@ end
 
 function Variable:set(v)
     self.value = v
-    local eventName = 'on_' + self.value
+    local eventName = 'on_' .. self.value
     self.object:exec(eventName, self)
 end
 

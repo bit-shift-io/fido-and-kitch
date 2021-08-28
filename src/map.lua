@@ -197,29 +197,18 @@ function Map:createEntitiesFromObjectGroupLayers()
 					local eventStr = object.properties[propertyName]
 					if (eventStr) then
 						for k, v in pairs(object.properties) do
-							local sub = string.format('map:getObjectById(object.properties.%s.id):', k)
+							local sub = string.format('map:getObjectById(object.properties.%s.id).entity:', k)
 							eventStr = eventStr:gsub(string.format('%s:', k), sub)
 						end
 
 						-- http://www.computercraft.info/forums2/index.php?/topic/8617-loadstring-has-some-issues-with-variable-scope/
 						print("exec script:", eventStr)
 
-						-- TODO: get this working
-						--[[
-						eventStr = string.format('function(object, entity)\n%s\nend', eventStr)
-						local fn = loadstring(eventStr)
-
-						--[[
-						local status, err = pcall(fn)
-						if not ok then
-							print('Entity Error: ' .. err)
-						else
-							err(object, entity)
-						end
-						] ] --
-						--setfenv( fn, getfenv() )
-						fn(object, entity)
-						]]--
+						local fn = utils.loadCode(eventStr, {
+							object=object,
+							entity=entity
+						})
+						fn()
 					end
 				end
 

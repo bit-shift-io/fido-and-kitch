@@ -54,4 +54,19 @@ function utils.tableFind(tab,el)
    return nil
 end
 
+
+-- https://stackoverflow.com/questions/9268954/lua-pass-context-into-loadstring
+function utils.loadCode(code, environment)
+   setmetatable(environment, { __index = _G }) -- hook up global access
+
+   if setfenv and loadstring then
+       local f = assert(loadstring(code))
+       setfenv(f, environment)
+       return f
+   else
+       return assert(load(code, nil, "t", environment))
+   end
+end
+
+
 return utils
