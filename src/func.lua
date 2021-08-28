@@ -1,4 +1,5 @@
 -- Helper to wrap function calls with optional instance to call the function on
+-- TODO: I think we can replace this class with a simple util function, see state_machine.lua how it forwards on function calls!
 
 local Func = Class{}
 

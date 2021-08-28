@@ -68,5 +68,13 @@ function utils.loadCode(code, environment)
    end
 end
 
+-- forward a function call from oldSelf:fn(...) to newSelf:fn(...)
+function utils.forwardFunc(fn, newSelf)
+   return function(oldSelf, ...)
+      local function __NULL__() end
+      return (fn or __NULL__)(newSelf, ...)
+  end
+end
+
 
 return utils

@@ -20,6 +20,22 @@ function StateMachine:init(props)
     if (props.currentState) then
         self:setState(props.currentState)
     end
+
+    -- forward any undefined functions to the currentState
+    local mt = getmetatable(self)
+    setmetatable(self, {__index = function(_, func)
+        if mt[func] then
+            return mt[func]
+        end
+
+        return utils.forwardFunc(self.currentState[func], self.currentState)
+        --[[
+        return function(oldSelf, ...)
+            local function __NULL__() end
+            return (self.currentState[func] or __NULL__)(self.currentState, ...)
+        end
+        ]]--
+    end})
 end
 
 function StateMachine:addState(state)
@@ -57,38 +73,5 @@ function StateMachine:setState(name)
     end
 end
 
-function StateMachine:update(dt)
-    if (self.currentState.update ~= nil) then
-        self.currentState:update(dt)
-    end
-end
-
-function StateMachine:draw()
-    if (self.currentState.draw ~= nil) then
-        self.currentState:draw()
-    end
-end
-
--- Ideally I want say: fsm:doIt()
--- to forward to fsm.currentState:doIt()
--- to save the code below setPositionV
--- that way the fsm can clock itself as any component
---[[
-function StateMachine:__index(table, key, x, y, z)
-    local mt = getmetatable(self)
-    local entry = mt[table]
-    if (entry == nil) then
-        mt = getmetatable(self.currentState)
-        entry = mt[table]
-    end
-    return entry
-end
-]]--
-
-function StateMachine:setPositionV(pos)
-    if (self.currentState.setPositionV ~= nil) then
-	    self.currentState:setPositionV(pos)
-    end
-end
 
 return StateMachine
