@@ -69,17 +69,17 @@ end
 
 -- call this function when an actor exits the scene straight away
 -- without going through this door
-function ExitDoor:exitInstant(actor)
-	rint('some birdy left the map!')
+function ExitDoor:exitInstant(entity)
+	print('some birdy left the map!')
 	entity:queueDestroy()
 	self:subtract(1)
 end
 
--- let the given actor through and then destroy the actor
+-- let the given entity through and then destroy the entity
 -- reduce the counter
-function ExitDoor:exitThroughDoor(actor)
+function ExitDoor:exitThroughDoor(entity)
 	print('some birdy reached the exit!')
-	self:addWaitingEntity(actor)
+	self:addWaitingEntity(entity)
 	self:updateState('openThenClose')
 	self:subtract(1)
 end

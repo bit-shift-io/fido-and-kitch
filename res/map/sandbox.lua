@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 19,
-  nextobjectid = 75,
+  nextobjectid = 78,
   properties = {},
   tilesets = {
     {
@@ -195,7 +195,7 @@ return {
         },
         {
           id = 41,
-          name = "cage",
+          name = "red_cage",
           type = "cage",
           shape = "rectangle",
           x = 32,
@@ -224,7 +224,7 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["actor_count"] = 1
+            ["actor_count"] = 2
           }
         },
         {
@@ -246,7 +246,7 @@ return {
         },
         {
           id = 62,
-          name = "key",
+          name = "red_key",
           type = "key",
           shape = "rectangle",
           x = 96,
@@ -294,6 +294,39 @@ return {
             ["image"] = "../img/spring/Spring - 1.png",
             ["path"] = { id = 73 }
           }
+        },
+        {
+          id = 75,
+          name = "blue_cage",
+          type = "cage",
+          shape = "rectangle",
+          x = 512,
+          y = 256,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["color"] = "blue",
+            ["path"] = { id = 77 }
+          }
+        },
+        {
+          id = 76,
+          name = "blue_key",
+          type = "key",
+          shape = "rectangle",
+          x = 608,
+          y = 256,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["color"] = "blue"
+          }
         }
       }
     },
@@ -312,7 +345,7 @@ return {
       objects = {
         {
           id = 67,
-          name = "bird_path",
+          name = "red_bird_path",
           type = "",
           shape = "polyline",
           x = 48,
@@ -356,6 +389,33 @@ return {
             { x = 160, y = -32 }
           },
           properties = {}
+        },
+        {
+          id = 77,
+          name = "blue_bird_path",
+          type = "",
+          shape = "polyline",
+          x = 528,
+          y = 240,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = -96, y = 8 },
+            { x = -144, y = 64 },
+            { x = -208, y = 96 },
+            { x = -232, y = 184 },
+            { x = -264, y = 224 },
+            { x = -392, y = 224 },
+            { x = -496, y = 224 },
+            { x = -576, y = 224 }
+          },
+          properties = {
+            ["finish"] = "target:exitInstant(entity)",
+            ["target"] = { id = 43 }
+          }
         }
       }
     },
