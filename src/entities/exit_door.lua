@@ -1,8 +1,12 @@
+-- Exit for actors and players
+-- also includes a variable counter to allow counting down to zero when the door will open
+
 local ExitDoor = Class{__includes = Entity}
 
 function ExitDoor:init(object)
 	Entity.init(self)
 	self.type = 'exit_door'
+	self.object = object
 	self.name = object.name
 	self.state = 'closed'
 	self.desiredState = 'closed'
@@ -30,6 +34,11 @@ function ExitDoor:init(object)
 		use=utils.func(ExitDoor.use, self),
 		enabled=false
 	})
+	self.variable = self:addComponent(Variable{
+        initial=object.properties.actor_count,
+		entity=self,
+		event=utils.func(self.event, self)
+	})
 
 	self.entitysWaiting = {}
 	self.enableUsableOnOpen = false
@@ -38,11 +47,41 @@ end
 function ExitDoor:contact(other)
 end
 
+
+function ExitDoor:reset()
+    self.variable:reset()
+end
+
+function ExitDoor:add(v)
+    self.variable:add(v)
+end
+
+function ExitDoor:subtract(v)
+    self.variable:subtract(v)
+end
+
+function ExitDoor:event(eventName, component)
+    self.object:exec(eventName, self)
+	if (self.variable.value == 0) then
+		self:open()
+	end
+end
+
+-- call this function when an actor exits the scene straight away
+-- without going through this door
+function ExitDoor:exitInstant(actor)
+	rint('some birdy left the map!')
+	entity:queueDestroy()
+	self:subtract(1)
+end
+
 -- let the given actor through and then destroy the actor
-function ExitDoor:actorReached(actor)
+-- reduce the counter
+function ExitDoor:exitThroughDoor(actor)
 	print('some birdy reached the exit!')
 	self:addWaitingEntity(actor)
 	self:updateState('openThenClose')
+	self:subtract(1)
 end
 
 -- open the door for players to exit

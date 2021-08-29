@@ -1,31 +1,34 @@
 -- special entity which is just a variable
 -- use this for keep count etc..
-local Variable = Class{__includes = Entity}
+-- for use in editor as a counter
+local VariableEntity = Class{__includes = Entity}
 
-function Variable:init(object)
+function VariableEntity:init(object)
 	Entity.init(self)
 	self.name = object.name
     self.object = object
 	self.type = 'variable'
-    self.value = object.properties.initial
+    self.variable = self:addComponent(Variable{
+        initial=object.properties.initial,
+		entity=self,
+		event=utils.func(self.event, self)
+	})
 end
 
-function Variable:reset()
-    self.value = self.object.properties.initial
+function VariableEntity:reset()
+    self.variable:reset()
 end
 
-function Variable:add(v)
-    self:set(self.value + v)
+function VariableEntity:add(v)
+    self.variable:add(v)
 end
 
-function Variable:subtract(v)
-    self:set(self.value - v)
+function VariableEntity:subtract(v)
+    self.variable:subtract(v)
 end
 
-function Variable:set(v)
-    self.value = v
-    local eventName = 'on_' .. self.value
+function VariableEntity:event(eventName, component)
     self.object:exec(eventName, self)
 end
 
-return Variable
+return VariableEntity

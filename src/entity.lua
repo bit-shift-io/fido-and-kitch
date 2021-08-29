@@ -25,6 +25,7 @@ end
 
 
 function Entity:update(dt)
+	assert(self.components)
 	for _, component in pairs(self.components) do
 		if component.update ~= nil then
 			component:update(dt)
