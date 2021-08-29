@@ -148,7 +148,9 @@ function ExitDoor:animFinished()
 	end
 
 	if (self.desiredState ~= self.state) then
-		self:updateState(self.desiredState)
+		if (self.desiredState == 'openThenClose') then
+			self:updateState('closed')
+		end
 	end
 end
 
