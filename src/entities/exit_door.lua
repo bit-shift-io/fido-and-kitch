@@ -126,7 +126,7 @@ function ExitDoor:updateState(desiredState)
 	if (self.state == 'open' and desiredState == 'closed') then
 		self.desiredState = desiredState
 		self.state = 'closing'
-		self.sprite.timeline:reverse()
+		self.sprite.timeline:resetReverse()
 		self.sprite.timeline:play()
 		return
 	end

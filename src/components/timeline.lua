@@ -106,18 +106,45 @@ function Timeline:progress(dt, supressEvents)
     local endClock = self.tween.clock
     local etp = self:timePercent()
 
+    if dt > 0 and endClock == self.tween.duration then
+        if not self.loop then
+            self.playing = false
+        end
+    end
+
+    if dt < 0 and endClock == 0 then
+        if not self.loop then
+            self.playing = false
+        end
+    end
+
     self:fireEvents(stp, etp)
 
-    if self.tween.clock == self.tween.duration then
+    if dt > 0 and endClock == self.tween.duration then
         if self.loop then
             self.tween:reset()
             self:progress(overflow, supressEvents)
         end
     end
+
+    if dt < 0 and endClock == 0 then
+        if self.loop then
+            self.tween:set(self.tween.duration)
+            self:progress(overflow, supressEvents)
+        end
+    end
 end
 
+-- move playhead to start and set for playing in the forward direction
 function Timeline:reset()
+    self.isReverse = false
     self.tween:reset()
+end
+
+-- move playhead to end and setup for playing in reverse
+function Timeline:resetReverse()
+    self.isReverse = true
+    self.tween:set(self.tween.duration)
 end
 
 function Timeline:reverse()
