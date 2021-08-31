@@ -7,6 +7,7 @@ function PathFollow:init(props)
 	self.type = 'path_follow'
     self.path = props.path
     self.sprite = props.sprite
+    self.collider = props.collider
 
     local speed = props.speed
     local duration = self.path.length / speed
@@ -23,6 +24,7 @@ function PathFollow:init(props)
     end
 end
 
+
 function PathFollow:update(dt)
     -- incase the user wants to manually fudge frame numbers
 	if self.timeline.playing == false then
@@ -34,14 +36,22 @@ function PathFollow:update(dt)
         local pos = self.path:getPositionV(self.timeline:timePercent())
         self.sprite:setPositionV(pos)
     end
+
+    if self.collider then
+        local pos = self.path:getPositionV(self.timeline:timePercent())
+        self.collider:setPositionV(pos)
+    end
 end
 
-function PathFollow:getPositionV() 
+
+function PathFollow:getPositionV()
     return self.path:getPositionV(self.timeline:timePercent())
 end
+
 
 function PathFollow:draw()
     self.path:draw()
 end
+
 
 return PathFollow

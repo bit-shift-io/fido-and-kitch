@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.5.0",
+  tiledversion = "1.7.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -374,7 +374,7 @@ return {
           type = "",
           shape = "polyline",
           x = 208,
-          y = 368,
+          y = 384,
           width = 0,
           height = 0,
           rotation = 0,

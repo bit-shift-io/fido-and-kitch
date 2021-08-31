@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="78">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="78">
  <editorsettings>
   <export target="sandbox.lua" format="lua"/>
  </editorsettings>
@@ -96,7 +96,7 @@
    </properties>
    <polyline points="0,0 32,-64 256,-96 392,-128 448,-128 448,-192 384,-192"/>
   </object>
-  <object id="73" name="jump_path" x="208" y="368">
+  <object id="73" name="jump_path" x="208" y="384">
    <polyline points="0,0 16,-48 48,-80 96,-96 128,-88 152,-64 160,-32"/>
   </object>
   <object id="77" name="blue_bird_path" x="528" y="240">

@@ -25,13 +25,34 @@ function JumpPad:init(object)
 		entity=self
 	})
 
-	local pathObject = map:getObjectById(object.properties.path.id)
-    self.pathFollow = self:addComponent(PathFollow{
-		sprite=self.sprite,
-        path=Path(pathObject),
-        finish=utils.forwardFunc(self.finish, self),
-		speed=50
-    })
+	self:addComponent(Usable{
+		entity=self,
+		use=utils.func(self.use, self)
+	})
+
+	self.pathObject = map:getObjectById(object.properties.path.id)
+
 end
+
+function JumpPad:use(user)
+
+	local function finish(user)
+		user:removeComponent(user.pathFollow) -- todo: how to make this self and remove user arg?
+		print('jump end delete path!') -- todo: not working!
+	end
+
+	-- add path follow for player
+	user.pathFollow = user:addComponent(PathFollow{
+		collider=user.collider,
+        path=Path(self.pathObject),
+        finish=utils.forwardFunc(finish(user), self),
+		speed=400
+    })
+
+	--user.pathFollow.timeline.tween.easing = 'outQuad' -- TODO: need a way to set tween
+	-- TODO: need pathfollow to support offset
+	user.pathFollow.timeline:play()
+end
+
 
 return JumpPad
