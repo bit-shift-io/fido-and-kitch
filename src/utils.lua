@@ -87,5 +87,28 @@ function utils.func(fn, newSelf)
   end
 end
 
+-- forward any undefined functions called on 'from' to 'to'
+-- if 'to' is a function, it acts as a dynamic proxy, incase you are changing what class you are proxying to
+-- on the fly. For example, a state machine proxies to the current state
+function utils.proxyClass(from, to)
+   local mt = getmetatable(from)
+   setmetatable(from, {__index = function(_, func)
+         if mt and mt[func] then
+            return mt[func]
+         end
+
+         local forwardTo = to
+         if type(to) == 'function' then
+            forwardTo = to(from)
+         end
+
+         if type(forwardTo[func]) == 'function' then
+            return utils.forwardFunc(forwardTo[func], forwardTo)
+         else
+            return forwardTo[func]
+         end
+   end})
+end
+
 
 return utils

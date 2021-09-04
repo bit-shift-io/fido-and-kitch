@@ -34,8 +34,8 @@ function Map:new(path, world, debug)
 
 	-- https://stackoverflow.com/questions/68771724/lua-inheritance-on-existing-object
 	local map = sti(path, { "box2d" })
-
 	self.map = map
+	utils.proxyClass(self, self.map)
 
 	self.typeIgnores = {'', 'spawn'}
 

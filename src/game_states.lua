@@ -76,14 +76,13 @@ function InGameState:load()
 
 	world = World:new(0, 90.81, true)
 	map = Map:new('res/map/sandbox.lua', world)
-
 	camera = Camera(love.graphics.getWidth()/2,love.graphics.getHeight()/2, 1)
 
 	-- spawn players
 	self.players = {}
 	local playerCount = 2
 	local index = 1
-	for li, layer in ipairs(map.map.layers) do -- todo: map.map changed with the new layout for some reason??
+	for li, layer in ipairs(map.layers) do -- todo: map.map changed with the new layout for some reason??
 		if layer.type == "objectgroup" then
 			for _, object in ipairs(layer.objects) do
 				if object.type == 'spawn' then
@@ -136,11 +135,11 @@ function InGameState:draw()
 	if tx < 0 then 
 		tx = 0 
 	end
-	if tx > map.map.width  * map.map.tilewidth  - love.graphics.getWidth()  then
-		tx = map.map.width  * map.map.tilewidth  - love.graphics.getWidth()  
+	if tx > map.width  * map.tilewidth  - love.graphics.getWidth()  then
+		tx = map.width  * map.tilewidth  - love.graphics.getWidth()  
 	end
-	if ty > map.map.height * map.map.tileheight - love.graphics.getHeight() then
-		ty = map.map.height * map.map.tileheight - love.graphics.getHeight()
+	if ty > map.height * map.tileheight - love.graphics.getHeight() then
+		ty = map.height * map.tileheight - love.graphics.getHeight()
 	end
 
 	tx = math.floor(tx)
@@ -149,8 +148,8 @@ function InGameState:draw()
 
 	local w = love.graphics.getWidth()
 	local h = love.graphics.getHeight()
-	local mw = map.map.width * map.map.tilewidth
-	local mh = map.map.height * map.map.tileheight
+	local mw = map.width * map.tilewidth
+	local mh = map.height * map.tileheight
 	local sx = w / mw
 	local sy = h / mh
 	local s = math.min(sx, sy)

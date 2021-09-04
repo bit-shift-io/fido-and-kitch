@@ -22,20 +22,9 @@ function StateMachine:init(props)
     end
 
     -- forward any undefined functions to the currentState
-    local mt = getmetatable(self)
-    setmetatable(self, {__index = function(_, func)
-        if mt[func] then
-            return mt[func]
-        end
-
-        return utils.forwardFunc(self.currentState[func], self.currentState)
-        --[[
-        return function(oldSelf, ...)
-            local function __NULL__() end
-            return (self.currentState[func] or __NULL__)(self.currentState, ...)
-        end
-        ]]--
-    end})
+    utils.proxyClass(self, function(s)
+        return s.currentState
+    end)
 end
 
 function StateMachine:addState(state)
