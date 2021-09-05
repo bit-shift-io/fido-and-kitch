@@ -6,7 +6,7 @@ function Teleport:init(object)
 	self.type = 'teleport'
 	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
-	self.target = map:getObjectById(object.properties.target.id)
+	self.target = object.properties.target and map:getObjectById(object.properties.target.id)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/teleporter_1.png',
 		frames=1, 

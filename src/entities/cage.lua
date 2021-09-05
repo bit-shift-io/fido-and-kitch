@@ -52,6 +52,9 @@ function Cage:use(user)
 	print('Cage has been used')
 	-- for now just stop drawing the cage, in future we need an animation to play
 	self:removeComponent(self.sprite)
+	if self.actor == nil then
+		return
+	end
 	self.actor:trigger()
 end
 
