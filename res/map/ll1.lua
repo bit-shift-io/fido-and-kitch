@@ -8,8 +8,8 @@ return {
   height = 22,
   tilewidth = 32,
   tileheight = 32,
-  nextlayerid = 5,
-  nextobjectid = 27,
+  nextlayerid = 6,
+  nextobjectid = 31,
   properties = {},
   tilesets = {
     {
@@ -150,7 +150,9 @@ return {
           rotation = 0,
           gid = 123,
           visible = true,
-          properties = {}
+          properties = {
+            ["actor_count"] = 4
+          }
         },
         {
           id = 5,
@@ -165,7 +167,8 @@ return {
           gid = 113,
           visible = true,
           properties = {
-            ["color"] = "yellow"
+            ["color"] = "yellow",
+            ["path"] = { id = 27 }
           }
         },
         {
@@ -181,7 +184,8 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["color"] = "blue"
+            ["color"] = "blue",
+            ["path"] = { id = 30 }
           }
         },
         {
@@ -197,7 +201,8 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["color"] = "red"
+            ["color"] = "red",
+            ["path"] = { id = 29 }
           }
         },
         {
@@ -213,7 +218,8 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["color"] = "green"
+            ["color"] = "green",
+            ["path"] = { id = 28 }
           }
         },
         {
@@ -335,6 +341,151 @@ return {
           gid = 123,
           visible = true,
           properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 5,
+      name = "waypoints",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 27,
+          name = "path (yellow)",
+          type = "",
+          shape = "polyline",
+          x = 16,
+          y = 144,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 64, y = -40 },
+            { x = 184, y = -80 },
+            { x = 240, y = -56 },
+            { x = 296, y = 24 },
+            { x = 408, y = 136 },
+            { x = 512, y = 192 },
+            { x = 624, y = 184 },
+            { x = 632, y = 112 },
+            { x = 608, y = 8 },
+            { x = 608, y = -72 },
+            { x = 656, y = -112 },
+            { x = 736, y = -128 }
+          },
+          properties = {
+            ["finish"] = "target:exitThroughDoor(entity)",
+            ["target"] = { id = 4 }
+          }
+        },
+        {
+          id = 28,
+          name = "path (green)",
+          type = "",
+          shape = "polyline",
+          x = 16,
+          y = 528,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 168, y = -16 },
+            { x = 384, y = -24 },
+            { x = 512, y = -8 },
+            { x = 608, y = -16 },
+            { x = 704, y = -144 },
+            { x = 856, y = -152 },
+            { x = 856, y = -200 },
+            { x = 832, y = -264 },
+            { x = 784, y = -336 },
+            { x = 728, y = -416 },
+            { x = 672, y = -440 },
+            { x = 664, y = -488 },
+            { x = 736, y = -512 }
+          },
+          properties = {
+            ["finish"] = "target:exitThroughDoor(entity)",
+            ["target"] = { id = 4 }
+          }
+        },
+        {
+          id = 29,
+          name = "path (red)",
+          type = "",
+          shape = "polyline",
+          x = 80,
+          y = 400,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 72, y = -56 },
+            { x = 200, y = -8 },
+            { x = 272, y = 0 },
+            { x = 368, y = -24 },
+            { x = 416, y = -104 },
+            { x = 328, y = -160 },
+            { x = 216, y = -184 },
+            { x = 184, y = -256 },
+            { x = 272, y = -328 },
+            { x = 416, y = -360 },
+            { x = 488, y = -320 },
+            { x = 544, y = -376 },
+            { x = 672, y = -384 }
+          },
+          properties = {
+            ["finish"] = "target:exitThroughDoor(entity)",
+            ["target"] = { id = 4 }
+          }
+        },
+        {
+          id = 30,
+          name = "path (blue)",
+          type = "",
+          shape = "polyline",
+          x = 16,
+          y = 272,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 128, y = -16 },
+            { x = 248, y = -40 },
+            { x = 312, y = -72 },
+            { x = 328, y = -152 },
+            { x = 392, y = -232 },
+            { x = 528, y = -248 },
+            { x = 560, y = -160 },
+            { x = 488, y = -88 },
+            { x = 416, y = -40 },
+            { x = 424, y = 48 },
+            { x = 584, y = 40 },
+            { x = 696, y = -16 },
+            { x = 768, y = -88 },
+            { x = 728, y = -168 },
+            { x = 648, y = -208 },
+            { x = 736, y = -256 }
+          },
+          properties = {
+            ["finish"] = "target:exitThroughDoor(entity)",
+            ["target"] = { id = 4 }
+          }
         }
       }
     },

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="36" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="27">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="36" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="31">
  <editorsettings>
   <export target="ll1.lua" format="lua"/>
  </editorsettings>
@@ -29,25 +29,33 @@
     <property name="color" value="red"/>
    </properties>
   </object>
-  <object id="4" name="exit" type="exit_door" gid="123" x="736" y="32" width="32" height="32"/>
+  <object id="4" name="exit" type="exit_door" gid="123" x="736" y="32" width="32" height="32">
+   <properties>
+    <property name="actor_count" type="int" value="4"/>
+   </properties>
+  </object>
   <object id="5" name="cage (yellow)" type="cage" gid="113" x="0" y="160" width="32" height="32">
    <properties>
     <property name="color" value="yellow"/>
+    <property name="path" type="object" value="27"/>
    </properties>
   </object>
   <object id="6" name="cage (blue)" type="cage" gid="123" x="0" y="288" width="32" height="32">
    <properties>
     <property name="color" value="blue"/>
+    <property name="path" type="object" value="30"/>
    </properties>
   </object>
   <object id="7" name="cage (red)" type="cage" gid="123" x="64" y="416" width="32" height="32">
    <properties>
     <property name="color" value="red"/>
+    <property name="path" type="object" value="29"/>
    </properties>
   </object>
   <object id="8" name="cage (green)" type="cage" gid="123" x="0" y="544" width="32" height="32">
    <properties>
     <property name="color" value="green"/>
+    <property name="path" type="object" value="28"/>
    </properties>
   </object>
   <object id="9" name="coin" type="coin" gid="123" x="800" y="288" width="32" height="32"/>
@@ -74,6 +82,36 @@
    </properties>
   </object>
   <object id="16" name="teleport" type="teleport" gid="123" x="1120" y="32" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup id="5" name="waypoints">
+  <object id="27" name="path (yellow)" x="16" y="144">
+   <properties>
+    <property name="finish" value="target:exitThroughDoor(entity)"/>
+    <property name="target" type="object" value="4"/>
+   </properties>
+   <polyline points="0,0 64,-40 184,-80 240,-56 296,24 408,136 512,192 624,184 632,112 608,8 608,-72 656,-112 736,-128"/>
+  </object>
+  <object id="28" name="path (green)" x="16" y="528">
+   <properties>
+    <property name="finish" value="target:exitThroughDoor(entity)"/>
+    <property name="target" type="object" value="4"/>
+   </properties>
+   <polyline points="0,0 168,-16 384,-24 512,-8 608,-16 704,-144 856,-152 856,-200 832,-264 784,-336 728,-416 672,-440 664,-488 736,-512"/>
+  </object>
+  <object id="29" name="path (red)" x="80" y="400">
+   <properties>
+    <property name="finish" value="target:exitThroughDoor(entity)"/>
+    <property name="target" type="object" value="4"/>
+   </properties>
+   <polyline points="0,0 72,-56 200,-8 272,0 368,-24 416,-104 328,-160 216,-184 184,-256 272,-328 416,-360 488,-320 544,-376 672,-384"/>
+  </object>
+  <object id="30" name="path (blue)" x="16" y="272">
+   <properties>
+    <property name="finish" value="target:exitThroughDoor(entity)"/>
+    <property name="target" type="object" value="4"/>
+   </properties>
+   <polyline points="0,0 128,-16 248,-40 312,-72 328,-152 392,-232 528,-248 560,-160 488,-88 416,-40 424,48 584,40 696,-16 768,-88 728,-168 648,-208 736,-256"/>
+  </object>
  </objectgroup>
  <objectgroup id="4" name="ladder">
   <properties>
