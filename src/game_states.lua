@@ -1,7 +1,10 @@
-local MenuState = Class{}
+MapList = require('ui.map_list')
+
+local MenuState = Class{__includes = Entity}
 
 local input = {text = ""}
 
+--[[
 function testUi()
 	-- put the layout origin at position (100,100)
 	-- the layout will grow down and to the right from this point
@@ -24,21 +27,46 @@ function testUi()
 		love.event.quit()
 	end
 end
+]]--
 
 function MenuState:enter()
     print('menu enter')
+	self.mapList = MapList{dir='res/map'} --self:addComponent(MapList())
 end
 
 function MenuState:exit()
 end
 
+function MenuState:startGame(props)
+	local game = self.entity
+	game:setGameState('InGameState')
+	game:load(props)
+end
+
 function MenuState:update(dt)
-	testUi()
+	Slab.Update(dt)
+
+	Entity.update(self, dt)
+  
+	Slab.BeginWindow('MainMenu', {Title = "Main Menu"})
+	Slab.Text("Pick a map")
+	self.mapList:update(dt)
+
+	if Slab.Button("Start") then
+		self:startGame{map=self.mapList.selectedFile}
+	end
+	
+
+	Slab.EndWindow()
+	--testUi()
+	--u:update(dt)
 end
 
 function MenuState:draw()
-	suit.draw()
-    love.graphics.print("Menu. Press Enter to start. Esc to exit", 10, 10)
+	Slab.Draw()
+	--suit.draw()
+	--u:draw()
+    --love.graphics.print("Menu. Press Enter to start. Esc to exit", 10, 10)
 end
 
 function MenuState:textinput(t)
@@ -63,7 +91,7 @@ function InGameState:enter()
     print('ingame enter')
 end
 
-function InGameState:load()
+function InGameState:load(props)
     if profile then
 		profile.start()
 	end
@@ -75,7 +103,7 @@ function InGameState:load()
 	--print(love.filesystem.isFused())
 
 	world = World:new(0, 90.81, true)
-	map = Map:new('res/map/sandbox.lua', world)
+	map = Map:new(props.map or 'res/map/sandbox.lua', world)
 	camera = Camera(love.graphics.getWidth()/2,love.graphics.getHeight()/2, 1)
 
 	-- spawn players

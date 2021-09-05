@@ -13,7 +13,9 @@ Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
 Camera = require('lib.hump.camera')
 Tween = require('lib.tween.tween')
-suit = require('lib.suit')
+--suit = require('lib.suit')
+--urutora = require('lib.urutora')
+Slab = require('lib.Slab')
 
 utils = require('utils')
 Signal = require('signal')
@@ -35,7 +37,9 @@ Game = require('game')
 
 -- local includes only accessible to this file
 
-function love.load()
+function love.load(args)
+	Slab.Initialize(args)
+	--u = urutora:new()
 	game = Game()
 end
 

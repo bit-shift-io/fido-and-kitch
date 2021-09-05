@@ -12,18 +12,20 @@ function Game:init(props)
 
     
     -- when debugging for now we just want to get straight into the game!
+    --[[
     if arg[#arg] == "debug" then 
         self:setGameState('InGameState')
         self:load()
 	end
+    ]]--
 end
 
 function Game:setGameState(name)
     self.fsm:setState(name)
 end
 
-function Game:load()
-    self.fsm:load()
+function Game:load(props)
+    self.fsm:load(props)
 end
 
 function Game:update(dt)
@@ -35,12 +37,12 @@ function Game:draw()
 end
 
 function Game:textinput(t)
-    suit.textinput(t)
+    --suit.textinput(t)
     self.fsm:textinput(t)
 end
 
 function Game:keypressed(k)
-    suit.keypressed(key)
+    --suit.keypressed(key)
     
     if k == "f12" then
 		print('prnt')
