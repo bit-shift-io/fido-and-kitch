@@ -41,12 +41,19 @@ function JumpPad:use(user)
 		print('jump end delete path!') -- todo: not working!
 	end
 
+	-- calc offset
+	local user_bounds = user.collider:getBounds()
+	local path_start = self.pathObject.polyline[1]
+	local offset = Vector(0,100)
+	print(path_start)
+
 	-- add path follow for player
 	user.pathFollow = user:addComponent(PathFollow{
 		collider=user.collider,
         path=Path(self.pathObject),
         finish=utils.forwardFunc(finish(user), self),
-		speed=400
+		speed=400,
+		offset=offset
     })
 
 	--user.pathFollow.timeline.tween.easing = 'outQuad' -- TODO: need a way to set tween
