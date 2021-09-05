@@ -29,6 +29,11 @@ function Cage:init(object)
 	})
 
 	-- spawn the prisoner!
+	if object.properties.path == nil then
+		print('Cage has no path property setup for the actor to follow when released')
+		return
+	end
+
 	local pathObj = map:getObjectById(object.properties.path.id)
 
 	local layer = object.layer
