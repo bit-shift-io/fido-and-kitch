@@ -18,7 +18,13 @@ git clone --depth 1 git@github.com:vrld/hump.git
 
 git clone --depth 1 git@github.com:kikito/tween.lua.git tween
 
-git clone --depth 1 git@github.com:vrld/suit.git
+git clone --depth 1 git@github.com:flamendless/Slab.git
+
+#git clone --depth 1 git@github.com:tavuntu/urutora.git urutora_temp
+#mv urutora_temp/urutora urutora
+#rm -rf urutora_temp
+
+# git clone --depth 1 git@github.com:vrld/suit.git
 
 # git clone --depth 1 git@github.com:kyleconroy/lua-state-machine.git
 

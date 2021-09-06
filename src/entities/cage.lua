@@ -29,6 +29,11 @@ function Cage:init(object)
 	})
 
 	-- spawn the prisoner!
+	if object.properties.path == nil then
+		print('Cage has no path property setup for the actor to follow when released')
+		return
+	end
+
 	local pathObj = map:getObjectById(object.properties.path.id)
 
 	local layer = object.layer
@@ -47,6 +52,9 @@ function Cage:use(user)
 	print('Cage has been used')
 	-- for now just stop drawing the cage, in future we need an animation to play
 	self:removeComponent(self.sprite)
+	if self.actor == nil then
+		return
+	end
 	self.actor:trigger()
 end
 
