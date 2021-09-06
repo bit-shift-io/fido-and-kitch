@@ -37,15 +37,14 @@ end
 function JumpPad:use(user)
 
 	local function finish(user)
-		user:removeComponent(user.pathFollow) -- todo: how to make this self and remove user arg?
-		print('jump end delete path!') -- todo: not working!
+		user:removeComponent(user.pathFollow) -- todo: how to make this self and remove user arg? not working
+		print('jump end delete path!')
 	end
 
 	-- calc offset
-	local user_bounds = user.collider:getBounds()
+	local user_pos = user.collider:getPositionV()
 	local path_start = self.pathObject.polyline[1]
-	local offset = Vector(0,100)
-	print(path_start)
+	local offset = user_pos - path_start
 
 	-- add path follow for player
 	user.pathFollow = user:addComponent(PathFollow{
@@ -57,7 +56,6 @@ function JumpPad:use(user)
     })
 
 	--user.pathFollow.timeline.tween.easing = 'outQuad' -- TODO: need a way to set tween
-	-- TODO: need pathfollow to support offset
 	user.pathFollow.timeline:play()
 end
 
