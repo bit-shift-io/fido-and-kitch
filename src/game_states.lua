@@ -155,47 +155,7 @@ function InGameState:update(dt)
 end
 
 function InGameState:draw()
-
-	--[[
-	local tx = camera.x - (love.graphics.getWidth() / 2)
-	local ty = camera.y - (love.graphics.getHeight() / 2)
-
-	if tx < 0 then 
-		tx = 0 
-	end
-	if tx > map.width  * map.tilewidth  - love.graphics.getWidth()  then
-		tx = map.width  * map.tilewidth  - love.graphics.getWidth()  
-	end
-	if ty > map.height * map.tileheight - love.graphics.getHeight() then
-		ty = map.height * map.tileheight - love.graphics.getHeight()
-	end
-
-	tx = math.floor(tx)
-	ty = math.floor(ty)
-	]]--
-
-	local w = love.graphics.getWidth()
-	local h = love.graphics.getHeight()
-	local mw = map.width * map.tilewidth
-	local mh = map.height * map.tileheight
-	local sx = w / mw
-	local sy = h / mh
-	local s = math.min(sx, sy)
-
-	-- todo: centre the map? why is there a black bar at the bottom?
-	map.map:draw(0, 0, s, s)
-
-	--[[
-	camera:attach()
 	map:draw()
-
-    local physics_draw = (arg[#arg] == "debug") and true
-	if physics_draw then
-		world:draw()
-	end
-	camera:detach()
-	]]--
-
 end
 
 function InGameState:keypressed(k)
@@ -205,5 +165,7 @@ function InGameState:keypressed(k)
     end
 end
 
+function InGameState:textinput(t)
+end
 
 return {MenuState = MenuState, InGameState = InGameState}

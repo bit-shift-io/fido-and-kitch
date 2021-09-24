@@ -2,6 +2,8 @@ package.path = package.path .. ';res/?.lua;src/entities/?.lua'
 
 local sti = require('lib/sti')
 
+local lg    =  love.graphics
+
 local Map   = {}
 Map.__index = Map
 
@@ -87,6 +89,9 @@ function Map:new(path, world, debug)
 	  Map
 	)
 	]]--
+
+	self:resize()
+
 	return self
 end
 
@@ -239,14 +244,72 @@ function Map:update(dt)
 	self.map:update(dt)
 end
 
+function Map:resize(w, h)
+	if lg.isCreated then
+		-- scale map to fit the screen
+		w = w or lg.getWidth()
+		h = h or lg.getHeight()
+
+		local mw = self.map.width * self.map.tilewidth
+		local mh = self.map.height * self.map.tileheight
+
+		local sx = w / mw
+		local sy = h / mh
+
+		local s = math.min(sx, sy)
+		self.sx = s
+		self.sy = s
+
+		-- center the map
+		local tx = (w - (mw * self.sx)) / 2
+		local ty = (h - (mh * self.sy)) / 2
+		self.tx = tx
+		self.ty = ty
+
+		self.map.canvas = lg.newCanvas(mw, mh)
+		self.map.canvas:setFilter("nearest", "nearest")
+	end
+end
+
 function Map:draw()
-	self.map:draw()
+	self:draw2(self.tx, self.ty, self.sx, self.sy)
 
 	-- Draw Collision Map (useful for debugging)
 	if self.debug then
 		love.graphics.setColor(1, 0, 0)
 		self.map:box2d_draw()
 	end
+end
+
+function Map:draw2(tx, ty, sx, sy)
+	local current_canvas = lg.getCanvas()
+	lg.setCanvas(self.canvas)
+	lg.clear()
+
+	-- Scale map to 1.0 to draw onto canvas, this fixes tearing issues
+	-- Map is translated to correct position so the right section is drawn
+	lg.push()
+	lg.origin()
+
+	for _, layer in ipairs(self.layers) do
+		if layer.visible and layer.opacity > 0 then
+			self:drawLayer(layer)
+		end
+	end
+
+	lg.pop()
+
+	-- Draw canvas at 0,0; this fixes scissoring issues
+	-- Map is scaled to correct scale so the right section is shown
+	lg.push()
+	lg.origin()
+	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
+	lg.scale(sx or 1, sy or sx or 1)
+
+	lg.setCanvas(current_canvas)
+	lg.draw(self.canvas)
+
+	lg.pop()
 end
 
 function Map:getObjectById(id)
