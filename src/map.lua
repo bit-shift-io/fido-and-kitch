@@ -1,6 +1,6 @@
 package.path = package.path .. ';res/?.lua;src/entities/?.lua'
 
-local sti = require('lib/sti')
+local sti = require('lib.sti')
 
 local lg    =  love.graphics
 

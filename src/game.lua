@@ -1,5 +1,5 @@
 
-local GameStates = require('game_states')
+local GameStates = require('src.game_states')
 
 local Game = Class{}
 

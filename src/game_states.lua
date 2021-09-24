@@ -1,4 +1,4 @@
-MapList = require('ui.map_list')
+MapList = require('src.ui.map_list')
 
 local MenuState = Class{__includes = Entity}
 

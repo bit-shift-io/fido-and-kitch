@@ -1,4 +1,4 @@
-local PlayerStates = require('player_states')
+local PlayerStates = require('src.player_states')
 
 local Player = Class{__includes = Entity}
 
@@ -94,7 +94,7 @@ function Player:setAnimation(name)
 end
 
 function Player:contact(other)
-	--print('player has made contact with something!')
+	print('player has made contact with something!')
 end
 
 
