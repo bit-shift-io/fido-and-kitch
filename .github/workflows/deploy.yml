@@ -77,7 +77,7 @@ jobs:
         CHANNEL: linux
         ITCH_GAME: ${{ secrets.ITCH_GAME_ID }}
         ITCH_USER: ${{ secrets.ITCH_USERNAME }}
-        PACKAGE: main/makelove-build/macos/${{ env.ARTIFACT_NAME_APPIMAGE }}
+        PACKAGE: main/makelove-build/appimage/${{ env.ARTIFACT_NAME_APPIMAGE }}
         
     #- name: Butler Push
     #  run: |
