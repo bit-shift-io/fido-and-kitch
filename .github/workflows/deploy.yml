@@ -49,9 +49,18 @@ jobs:
         echo "ARTIFACT_NAME_WIN64=$(ls main/makelove-build/win64 | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_MACOS=$(ls main/makelove-build/macos | head -n1)" >> $GITHUB_ENV
 
-    - name: Butler Push
-      run: |
-        cd main
-        pwd
-        ls -la
-        ./tools/butler_deploy.sh "${{ env.ARTIFACT_NAME_WIN64 }}"
+    - name: Butler Push Windows
+      uses: josephbmanley/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: windows
+        ITCH_GAME: fido-and-kitch
+        ITCH_USER: bitshift
+        PACKAGE: ${{ env.ARTIFACT_NAME_WIN64 }}
+        
+    #- name: Butler Push
+    #  run: |
+    #    cd main
+    #    pwd
+    #    ls -la
+    #    ./tools/butler_deploy.sh "${{ env.ARTIFACT_NAME_WIN64 }}"
