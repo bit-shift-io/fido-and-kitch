@@ -14,11 +14,11 @@ jobs:
     - name: Install Dependencies
       run: sudo apt-get install --assume-yes wine-stable wine64 python3-pip
     - name: Install Butler
-      run: >
+      run: |
         curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-          && unzip butler.zip
-          && cp butler /usr/bin
-          && chmod +x /usr/bin/butler
+        unzip butler.zip
+        cp butler /usr/bin
+        chmod +x /usr/bin/butler
     # If you just want to use the official versions on PyPI, remove the checkout and `pip3 install makelove` instead
     - name: Checkout makelove
       uses: actions/checkout@v2
@@ -28,6 +28,7 @@ jobs:
     - name: Install makelove
       run:
         pip3 install ./makelove
+        
     - name: Build
       run: cd main && python3 -m makelove
     # I have this step, so I don't need to hardcode the project name in the upload-artifact steps below
@@ -42,11 +43,8 @@ jobs:
         echo "ARTIFACT_NAME_WIN64=$(ls main/makelove-build/win64 | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_MACOS=$(ls main/makelove-build/macos | head -n1)" >> $GITHUB_ENV
 
-    - uses: josephbmanley/butler-publish-itchio-action@master
-      env:
-        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
-        CHANNEL: win64
-        ITCH_GAME: ${{ secrets.ITCH_GAME_ID }}
-        ITCH_USER: ${{ secrets.ITCH_USERNAME }}
-        PACKAGE: ${{ env.ARTIFACT_NAME_WIN64 }}
+    - uses: Butler Push
+      run: |
+        echo "butler push \"${{ env.ARTIFACT_NAME_WIN64 }}\" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64"
+        butler push "${{ env.ARTIFACT_NAME_WIN64 }}" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64
 
