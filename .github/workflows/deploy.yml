@@ -56,7 +56,7 @@ jobs:
         CHANNEL: windows
         ITCH_GAME: fido-and-kitch
         ITCH_USER: bitshift
-        PACKAGE: ${{ env.ARTIFACT_NAME_WIN64 }}
+        PACKAGE: main/makelove-build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
         
     #- name: Butler Push
     #  run: |
