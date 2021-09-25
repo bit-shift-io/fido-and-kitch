@@ -51,4 +51,6 @@ jobs:
 
     - name: Butler Push
       run: |
-        chmod +x ./tools/butler_deploy.sh && ./tools/butler_deploy.sh "${{ env.ARTIFACT_NAME_WIN64 }}"
+        pwd
+        ls -la
+        ./tools/butler_deploy.sh "${{ env.ARTIFACT_NAME_WIN64 }}"
