@@ -51,6 +51,7 @@ jobs:
 
     - name: Butler Push
       run: |
+        cd main
         pwd
         ls -la
         ./tools/butler_deploy.sh "${{ env.ARTIFACT_NAME_WIN64 }}"
