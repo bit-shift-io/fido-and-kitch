@@ -28,13 +28,13 @@ git clone --depth 1 git@github.com:flamendless/Slab.git
 
 # git clone --depth 1 git@github.com:kyleconroy/lua-state-machine.git
 
-cd ..
+#cd ..
 
 # linux love engine
-OS="$(uname -s)"
-if [ ${OS} = "Linux" ]
-then
-    yay -S love --noconfirm --needed
-fi
+#OS="$(uname -s)"
+#if [ ${OS} = "Linux" ]
+#then
+#    yay -S love --noconfirm --needed
+#fi
 
 echo "Install complete"

@@ -22,6 +22,10 @@ jobs:
     - name: Install makelove
       run:
         pip3 install ./makelove
+
+    - name: Install libs
+      run: cd main && ./install.sh
+
     - name: Build
       run: cd main && python3 -m makelove
     # I have this step, so I don't need to hardcode the project name in the upload-artifact steps below
