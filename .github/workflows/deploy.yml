@@ -18,7 +18,7 @@ jobs:
       run: |
         sudo curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
         sudo unzip butler.zip
-        cp butler /usr/bin
+        sudo cp butler /usr/bin
         sudo chmod +x /usr/bin/butler
 
     # If you just want to use the official versions on PyPI, remove the checkout and `pip3 install makelove` instead
@@ -34,7 +34,7 @@ jobs:
         
     - name: Build
       run: cd main && python3 -m makelove
-      
+
     # I have this step, so I don't need to hardcode the project name in the upload-artifact steps below
     # Sadly all of these artifacts can only be downloaded as a zip, which means that some of them will be double-zipped!
     # This is currently a limitation of GitHub Actions: https://github.com/actions/upload-artifact/issues/3
