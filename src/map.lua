@@ -1,7 +1,4 @@
-package.path = package.path .. ';res/?.lua;src/entities/?.lua'
-
 local sti = require('lib.sti')
-
 local lg    =  love.graphics
 
 local Map   = {}
@@ -40,6 +37,9 @@ function Map:new(path, world, debug)
 	utils.proxyClass(self, self.map)
 
 	self.typeIgnores = {'', 'spawn'}
+	self.searchPaths = {
+		'src.entities.'
+	}
 
 	--local mmeta = getmetatable(map)
 
@@ -217,22 +217,31 @@ function Map:createEntitiesFromObjectGroupLayers()
 					end
 				end
 
-				local in_ignore_list = utils.tableFind(thisMap.typeIgnores, object.type)
-				if in_ignore_list == nil then
-					-- move to a util function with option to supress error
-					local ok, err = pcall(require, object.type) 
-					if not ok then
-						print('Entity Error: ' .. err)
-					else
-						local entity = err(object)
-						entity.mapData = object -- store the map data in the entity
-						object.entity = entity
-						table.insert(layer.entities, entity)
-					end
-				end
+				thisMap:loadEntity(object.type, object.layer, object)
 			end
 		end
 	end
+end
+
+function Map:loadEntity(entityName, layer, object)
+	local in_ignore_list = utils.tableFind(self.typeIgnores, entityName)
+	if in_ignore_list == nil then
+		-- move to a util function with option to supress error
+		for k, v in pairs(self.searchPaths) do
+			local ok, err = pcall(require, v .. entityName) 
+			if not ok then
+				print('Entity Error: ' .. err)
+			else
+				local entity = err(object)
+				entity.mapData = object -- store the map data in the entity
+				object.entity = entity
+				table.insert(layer.entities, entity)
+				return entity
+			end
+		end
+	end
+
+	return nil
 end
 
 --function Map:init(path, plugins, ox, oy)

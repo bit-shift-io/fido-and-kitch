@@ -1,6 +1,5 @@
 if arg[#arg] == "debug" then 
-	require("lldebugger").start() 
-	print(package.path)
+	require("lldebugger").start()
 elseif arg[#arg] == "profile" then
 	profile = require('src.profile')
 end

@@ -35,17 +35,7 @@ function Cage:init(object)
 	end
 
 	local pathObj = map:getObjectById(object.properties.path.id)
-
-	local layer = object.layer
-	local ok, err = pcall(require, object.properties.actor or 'bird') 
-	if not ok then
-		print('Entity Error: ' .. err)
-	else
-		local entity = err(pathObj)
-		--entity.mapData = object -- store the map data in the entity
-		table.insert(layer.entities, entity)
-		self.actor = entity
-	end
+	self.actor = map:loadEntity(object.properties.actor or 'bird', object.layer, pathObj)
 end
 
 function Cage:use(user)
