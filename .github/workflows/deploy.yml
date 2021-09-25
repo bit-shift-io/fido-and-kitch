@@ -43,7 +43,7 @@ jobs:
         echo "ARTIFACT_NAME_WIN64=$(ls main/makelove-build/win64 | head -n1)" >> $GITHUB_ENV
         echo "ARTIFACT_NAME_MACOS=$(ls main/makelove-build/macos | head -n1)" >> $GITHUB_ENV
 
-    - uses: Butler Push
+    - name: Butler Push
       run: |
         echo "butler push \"${{ env.ARTIFACT_NAME_WIN64 }}\" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64"
         butler push "${{ env.ARTIFACT_NAME_WIN64 }}" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64
