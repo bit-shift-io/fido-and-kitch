@@ -51,7 +51,6 @@ jobs:
 
     - name: Butler Push
       run: |
-        export BUTLER_API_KEY=${{ env.BUTLER_CREDENTIALS }}
         echo "butler push \"${{ env.ARTIFACT_NAME_WIN64 }}\" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64"
         butler push "${{ env.ARTIFACT_NAME_WIN64 }}" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64
 
