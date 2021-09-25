@@ -13,6 +13,12 @@ jobs:
       run: sudo apt-get update
     - name: Install Dependencies
       run: sudo apt-get install --assume-yes wine-stable wine64 python3-pip
+    - name: Install Butler
+      run: >
+        curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          && unzip butler.zip
+          && cp butler /usr/bin
+          && chmod +x /usr/bin/butler
     # If you just want to use the official versions on PyPI, remove the checkout and `pip3 install makelove` instead
     - name: Checkout makelove
       uses: actions/checkout@v2
