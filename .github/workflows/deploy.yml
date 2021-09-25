@@ -9,8 +9,10 @@ jobs:
       with:
         path: main
         submodules: true
-    - name: Update
-      run: sudo apt-get update
+        
+    #- name: Update
+    #  run: sudo apt-get update
+
     - name: Install Dependencies
       run: sudo apt-get install --assume-yes wine-stable wine64 python3-pip
 
@@ -49,6 +51,7 @@ jobs:
 
     - name: Butler Push
       run: |
+        export BUTLER_API_KEY=${{ env.BUTLER_API_KEY }}
         echo "butler push \"${{ env.ARTIFACT_NAME_WIN64 }}\" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64"
         butler push "${{ env.ARTIFACT_NAME_WIN64 }}" ${{ secrets.ITCH_USERNAME }}/${{ secrets.ITCH_GAME_ID }}:win64
 
