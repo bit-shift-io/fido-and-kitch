@@ -54,8 +54,8 @@ jobs:
       env:
         BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
         CHANNEL: windows
-        ITCH_GAME: ${{ env.ITCH_GAME_ID }}
-        ITCH_USER: ${{ env.ITCH_USERNAME }}
+        ITCH_GAME: ${{ secrets.ITCH_GAME_ID }}
+        ITCH_USER: ${{ secrets.ITCH_USERNAME }}
         PACKAGE: main/makelove-build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
 
     - name: Butler Push Macos
@@ -63,8 +63,8 @@ jobs:
       env:
         BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
         CHANNEL: macos
-        ITCH_GAME: ${{ env.ITCH_GAME_ID }}
-        ITCH_USER: ${{ env.ITCH_USERNAME }}
+        ITCH_GAME: ${{ secrets.ITCH_GAME_ID }}
+        ITCH_USER: ${{ secrets.ITCH_USERNAME }}
         PACKAGE: main/makelove-build/macos/${{ env.ARTIFACT_NAME_MACOS }}
 
     - name: Butler Push Linux
@@ -72,8 +72,8 @@ jobs:
       env:
         BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
         CHANNEL: linux
-        ITCH_GAME: ${{ env.ITCH_GAME_ID }}
-        ITCH_USER: ${{ env.ITCH_USERNAME }}
+        ITCH_GAME: ${{ secrets.ITCH_GAME_ID }}
+        ITCH_USER: ${{ secrets.ITCH_USERNAME }}
         PACKAGE: main/makelove-build/macos/${{ env.ARTIFACT_NAME_APPIMAGE }}
         
     #- name: Butler Push
