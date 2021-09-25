@@ -16,12 +16,12 @@ jobs:
     - name: Install Dependencies
       run: sudo apt-get install --assume-yes wine-stable wine64 python3-pip
 
-    - name: Install Butler
-      run: |
-        sudo curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-        sudo unzip butler.zip
-        sudo cp butler /usr/bin
-        sudo chmod +x /usr/bin/butler
+    #- name: Install Butler
+    #  run: |
+    #    sudo curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+    #    sudo unzip butler.zip
+    #    sudo cp butler /usr/bin
+    #    sudo chmod +x /usr/bin/butler
 
     # If you just want to use the official versions on PyPI, remove the checkout and `pip3 install makelove` instead
     - name: Checkout makelove
@@ -54,9 +54,27 @@ jobs:
       env:
         BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
         CHANNEL: windows
-        ITCH_GAME: fido-and-kitch
-        ITCH_USER: bitshift
+        ITCH_GAME: ${{ env.ITCH_GAME_ID }}
+        ITCH_USER: ${{ env.ITCH_USERNAME }}
         PACKAGE: main/makelove-build/win64/${{ env.ARTIFACT_NAME_WIN64 }}
+
+    - name: Butler Push Macos
+      uses: josephbmanley/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: macos
+        ITCH_GAME: ${{ env.ITCH_GAME_ID }}
+        ITCH_USER: ${{ env.ITCH_USERNAME }}
+        PACKAGE: main/makelove-build/macos/${{ env.ARTIFACT_NAME_MACOS }}
+
+    - name: Butler Push Linux
+      uses: josephbmanley/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: linux
+        ITCH_GAME: ${{ env.ITCH_GAME_ID }}
+        ITCH_USER: ${{ env.ITCH_USERNAME }}
+        PACKAGE: main/makelove-build/macos/${{ env.ARTIFACT_NAME_APPIMAGE }}
         
     #- name: Butler Push
     #  run: |
