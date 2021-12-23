@@ -103,7 +103,7 @@ function InGameState:load(props)
 	--print(love.filesystem.isFused())
 
 	world = World:new(0, 90.81, true)
-	map = Map:new(props.map or 'res/map/sandbox.lua', world)
+	map = Map:new(props.map or 'res/map/sandbox.lua', world, true)
 	camera = Camera(love.graphics.getWidth()/2,love.graphics.getHeight()/2, 1)
 
 	-- spawn players
@@ -156,6 +156,7 @@ end
 
 function InGameState:draw()
 	map:draw()
+	--world:draw()
 end
 
 function InGameState:keypressed(k)

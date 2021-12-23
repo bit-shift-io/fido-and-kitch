@@ -134,6 +134,8 @@ function Map:createStaticPhysicsBodies(layer)
 				local offset_y = cell.offset.y + height * 0.5
 				local quadX = ((x - 1) * width + margin + (x - 1) * spacing) + offset_x
 				local quadY = ((y - 1) * height + margin + (y - 1) * spacing) + offset_y
+
+				print('rect:', quadX, quadY, width, height)
 				local col = Collider{
 					shape_type='Rectangle', 
 					shape_arguments={quadX, quadY, width, height}, 
@@ -284,10 +286,10 @@ function Map:draw()
 	self:draw2(self.tx, self.ty, self.sx, self.sy)
 
 	-- Draw Collision Map (useful for debugging)
-	if self.debug then
-		love.graphics.setColor(1, 0, 0)
-		self.map:box2d_draw()
-	end
+	--if self.debug then
+	--	love.graphics.setColor(1, 0, 0)
+	--	self.map:box2d_draw()
+	--end
 end
 
 function Map:draw2(tx, ty, sx, sy)
@@ -317,6 +319,8 @@ function Map:draw2(tx, ty, sx, sy)
 
 	lg.setCanvas(current_canvas)
 	lg.draw(self.canvas)
+
+	world:draw()
 
 	lg.pop()
 end
