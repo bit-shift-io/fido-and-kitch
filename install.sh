@@ -20,6 +20,8 @@ git clone --depth 1 https://github.com/kikito/tween.lua.git tween
 
 git clone --depth 1 https://github.com/flamendless/Slab.git
 
+git clone --depth 1 https://github.com/kikito/bump.lua.git bump
+
 #git clone --depth 1 git@github.com:tavuntu/urutora.git urutora_temp
 #mv urutora_temp/urutora urutora
 #rm -rf urutora_temp

@@ -8,6 +8,8 @@ end
 --require('lovedebug')
 
 -- global includes to save having to include in other files!
+conf = require('conf')
+
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
 Camera = require('lib.hump.camera')
@@ -33,6 +35,7 @@ Variable = require('src.components.variable')
 Map = require('src.map')
 Player = require('src.player')
 Game = require('src.game')
+
 
 -- local includes only accessible to this file
 

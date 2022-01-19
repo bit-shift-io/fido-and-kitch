@@ -54,6 +54,12 @@ function utils.tableFind(tab,el)
    return nil
 end
 
+function utils.tableLength(t)
+   local count = 0
+   for _ in pairs(t) do count = count + 1 end
+   return count
+end
+
 
 -- https://stackoverflow.com/questions/9268954/lua-pass-context-into-loadstring
 function utils.loadCode(code, environment)

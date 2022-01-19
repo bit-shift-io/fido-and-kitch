@@ -65,7 +65,7 @@ function Map:new(path, world, debug)
 	--utils.set_funcs(self, self._map)
 
 	-- Prepare collision objects
-	if world then
+	if world and world.type == 'love' then
 		map:box2d_init(world._world)
 	end
 
@@ -124,6 +124,9 @@ function Map:createStaticPhysicsBodies(layer)
 
 	if (layer.type == 'tilelayer' and layer.data) then -- tile layer
 		for y, row in pairs(layer.data) do -- loop rows
+
+			local prev = 0
+
 			for x, cell in pairs(row) do -- loop columns
 				local tileset = layer.map.tilesets[cell.tileset]
 				local width   = cell.width
@@ -135,6 +138,12 @@ function Map:createStaticPhysicsBodies(layer)
 				local quadX = ((x - 1) * width + margin + (x - 1) * spacing) + offset_x
 				local quadY = ((y - 1) * height + margin + (y - 1) * spacing) + offset_y
 
+				if (prev > 0) then
+					local dx = quadX - prev
+					if (dx ~= 32) then
+						print('dx:', dx)
+					end
+				end
 				print('rect:', quadX, quadY, width, height)
 				local col = Collider{
 					shape_type='Rectangle', 
@@ -142,6 +151,8 @@ function Map:createStaticPhysicsBodies(layer)
 					body_type='static'
 				}
 				table.insert(colliders, col)
+
+				prev = quadX
 			end
 		end
 	end -- tile layer

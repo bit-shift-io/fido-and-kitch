@@ -1,4 +1,9 @@
+local conf = {}
+conf.args = args
+
 function love.conf(t)
+    t.physics = 'bump'                  -- Which physics enginne to use
+    
     t.identity = nil                    -- The name of the save directory (string)
     t.appendidentity = false            -- Search files in source directory before save directory (boolean)
     t.version = "11.3"                  -- The LÖVE version this game was made for (string)
@@ -48,4 +53,8 @@ function love.conf(t)
     t.modules.touch = true              -- Enable the touch module (boolean)
     t.modules.video = true              -- Enable the video module (boolean)
     t.modules.window = true             -- Enable the window module (boolean)
+
+    conf.t = t
 end
+
+return conf
