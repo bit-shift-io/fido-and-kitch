@@ -25,6 +25,7 @@ function Collider:init(props)
 		end
 	end
 
+	self:setGravityScale(1)
 	self:setLinearVelocity(0, 0)
 	self:setSensor(false)
 	self:setFixedRotation(false)
@@ -117,7 +118,7 @@ function Collider:getBounds()
 end
 
 
-function Collider:draw()
+function Collider:worldDraw()
 	love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
 end
  
@@ -213,21 +214,8 @@ function Collider:setLinearVelocity(x, y)
 	self.linearVelocityY = y
 end
 
-function colFilter(a, b)
-	-- allow a nd b to go through each other
-	if (a.sensor or b.sensor) then
-		return 'cross'
-	end
 
-	-- emulate box2d, if in the collision group ignore the collision
-	if (a.groupIndex == b.groupIndex) then
-		return nil
-	end
-
-	return 'slide'
-end
-
-function Collider:move(dt)
+function Collider:worldUpdate(dt)
 	if (self.bodyType == 'static') then
 		return
 	end
@@ -236,17 +224,20 @@ function Collider:move(dt)
 		print('moving in x dir')
 	end
 
-	--self.linearVelocityX = 100
 	-- apply gravity
-	self.linearVelocityY = self.linearVelocityY + (9.8 * dt)
+	self.linearVelocityY = self.linearVelocityY + ((98 * dt) * self.gravityScale)
 
-	local actualX, actualY, cols, len = self._world._world:move(self, self.x + (self.linearVelocityX * dt), self.y + (self.linearVelocityY * dt), colFilter)
+	local actualX, actualY, cols, len = self._world._world:move(self, self.x + (self.linearVelocityX * dt), self.y + (self.linearVelocityY * dt), self._world.colFilter)
 	self.x = actualX
 	self.y = actualY
 
 	if (len > 0) then
 		self:setLinearVelocity(0, 0)
 	end
+end
+
+function Collider:setGravityScale(scale)
+	self.gravityScale = scale
 end
 
 

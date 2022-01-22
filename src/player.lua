@@ -124,8 +124,8 @@ function Player:queryLadder()
 	local bounds = self.collider:getBounds()
 
 	-- make it narrower
-	bounds.left = bounds.left + 10
-	bounds.right = bounds.right - 10
+	bounds.left = bounds.left + 4
+	bounds.right = bounds.right - 4
 
 	bounds.bottom = bounds.bottom - 4 -- why is this number so high?
 	local colls = world:queryBounds(bounds)
@@ -144,8 +144,8 @@ function Player:queryLadderBelow()
 	local bounds = self.collider:getBounds()
 
 	-- make it narrower
-	bounds.left = bounds.left + 10
-	bounds.right = bounds.right - 10
+	bounds.left = bounds.left + 4
+	bounds.right = bounds.right - 4
 
 	bounds.top = bounds.bottom + 4 -- why is this number so high?
 	bounds.bottom = bounds.bottom + 5
@@ -164,7 +164,7 @@ end
 function Player:queryOnGround()
 	local bounds = self.collider:getBounds()
 
-	bounds.top = bounds.bottom + 4 -- why is this number so high?
+	bounds.top = bounds.bottom + 4 
 	bounds.bottom = bounds.bottom + 5
 	local colls = world:queryBounds(bounds)
 	for _, c in ipairs(colls) do

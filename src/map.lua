@@ -16,8 +16,9 @@ local function getColliderFromShape(obj)
 		local center_x = x + width * 0.5
 		local center_y = y + height * 0.5
 		return Collider{
-			shape_type='Rectangle',
+			shape_type='rectangle',
 			shape_arguments={center_x, center_y, width, height},
+			body_type='static'
 		}
 	end
 end
@@ -146,7 +147,7 @@ function Map:createStaticPhysicsBodies(layer)
 				end
 				print('rect:', quadX, quadY, width, height)
 				local col = Collider{
-					shape_type='Rectangle', 
+					shape_type='rectangle', 
 					shape_arguments={quadX, quadY, width, height}, 
 					body_type='static'
 				}
@@ -166,10 +167,10 @@ function Map:createStaticPhysicsBodyBoundary()
 	local width = map.width * map.tilewidth
 	local height = map.height * map.tileheight
 
-	local b = Collider{shape_type='Edge', shape_arguments={0, height, width, height}, body_type='static'}
-	b:addShape{shape_type='Edge', shape_arguments={0, 0, width, 0}}
-	b:addShape{shape_type='Edge', shape_arguments={0, 0, 0, height}}
-	b:addShape{shape_type='Edge', shape_arguments={width, 0, width, height}}
+	local b = Collider{shape_type='edge', shape_arguments={0, height, width, height}, body_type='static'}
+	b:addShape{shape_type='edge', shape_arguments={0, 0, width, 0}}
+	b:addShape{shape_type='edge', shape_arguments={0, 0, 0, height}}
+	b:addShape{shape_type='edge', shape_arguments={width, 0, width, height}}
 	return b
 end
 
