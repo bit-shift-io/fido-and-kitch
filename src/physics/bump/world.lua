@@ -77,7 +77,7 @@ function World:newCollider(collider_type, shape_arguments, table_to_use)
 end
 
 function World.colFilter(a, b)
-	-- allow a nd b to go through each other
+	-- allow a and b to go through each other
 	if (a.sensor or b.sensor) then
 		return 'cross'
 	end

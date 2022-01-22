@@ -22,6 +22,21 @@
         {
             "type": "lua-local",
             "request": "launch",
+            "name": "Debug (map=ll1.lua)",
+            "program":
+            {
+                "command": "love"
+            },
+            "args": 
+            [
+                "${workspaceFolder}",
+                "debug",
+                "map=ll1.lua"
+            ],
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
             "name": "Debug",
             "program":
             {

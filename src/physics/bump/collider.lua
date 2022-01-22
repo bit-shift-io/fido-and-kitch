@@ -95,6 +95,12 @@ function Collider:addShape(props)
 end
 
 
+function Collider:setPosition(x, y)
+	self:setX(x)
+	self:setY(y)
+end
+
+
 function Collider:setPositionV(pos)
 	self:setX(pos.x)
 	self:setY(pos.y)
@@ -125,13 +131,10 @@ end
  
 function Collider:destroy()
 	self._world.colliders[self] = nil
-	self.fixture:setUserData(nil)
-	self.fixture:destroy()
-	self.body:destroy()
 end
  
 
-
+--[[
 function Collider:collider_contacts()
 	local contacts = self:getContacts()
 	local colliders = {}
@@ -147,7 +150,7 @@ function Collider:collider_contacts()
 	end
 	return colliders
 end
-
+]]--
 
 function Collider:isSensor()
 	return self.sensor
@@ -233,6 +236,19 @@ function Collider:worldUpdate(dt)
 
 	if (len > 0) then
 		self:setLinearVelocity(0, 0)
+	end
+
+	-- emulate the contact system
+	for i, contact in ipairs(cols) do
+		if (contact.other.entity) then
+			print("we collided with"..contact.other.entity.type)
+		end
+		if (contact.other and contact.other.enter) then
+			contact.other:enter(self, contact.other, contact)
+		end
+		if (contact.other and contact.other.postSolve) then
+			contact.other:postSolve(self, contact.other, contact)
+		end
 	end
 end
 
