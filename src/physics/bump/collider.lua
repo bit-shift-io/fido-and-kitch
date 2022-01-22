@@ -28,6 +28,7 @@ function Collider:init(props)
 	self:setLinearVelocity(0, 0)
 	self:setSensor(false)
 	self:setFixedRotation(false)
+	self:setType('dynamic')
 
 	if props.fixedRotation then
 		self:setFixedRotation(true)
@@ -161,29 +162,39 @@ function Collider:setFixedRotation(fixed)
 	self.fixedRotation = fixed
 end
 
+-- update the rectangle within the world
+function Collider:teleport()
+	self._world._world:update(self, self.x, self.y, self.width, self.height)
+end
 
 function Collider:setX(x)
-	self.x = x
+	local halfWidth = self.width / 2
+	self.x = x - halfWidth
+	self:teleport()
 end
 
 
 function Collider:setY(y)
-	self.y = y
+	local halfHeight = self.height / 2
+	self.y = y - halfHeight
+	self:teleport()
 end
 
 
 function Collider:getX()
-	return self.x 
+	local halfWidth = self.width / 2
+	return self.x + halfWidth
 end
 
 
 function Collider:getY()
-	return self.y
+	local halfHeight = self.height / 2
+	return self.y + halfHeight
 end
 
 
 function Collider:setType(t)
-	self.type = t
+	self.bodyType = t
 end
 
 
@@ -202,13 +213,38 @@ function Collider:setLinearVelocity(x, y)
 	self.linearVelocityY = y
 end
 
+function colFilter(a, b)
+	-- allow a nd b to go through each other
+	if (a.sensor or b.sensor) then
+		return 'cross'
+	end
+
+	-- emulate box2d, if in the collision group ignore the collision
+	if (a.groupIndex == b.groupIndex) then
+		return nil
+	end
+
+	return 'slide'
+end
 
 function Collider:move(dt)
-	local actualX, actualY, cols, len = self._world._world:move(self, (self.linearVelocityX * dt), (self.linearVelocityY * dt))
-    self.x = actualX
-    self.y = actualY
+	if (self.bodyType == 'static') then
+		return
+	end
 
-	if (len) then
+	if (self.linearVelocityX ~= 0) then
+		print('moving in x dir')
+	end
+
+	--self.linearVelocityX = 100
+	-- apply gravity
+	self.linearVelocityY = self.linearVelocityY + (9.8 * dt)
+
+	local actualX, actualY, cols, len = self._world._world:move(self, self.x + (self.linearVelocityX * dt), self.y + (self.linearVelocityY * dt), colFilter)
+	self.x = actualX
+	self.y = actualY
+
+	if (len > 0) then
 		self:setLinearVelocity(0, 0)
 	end
 end

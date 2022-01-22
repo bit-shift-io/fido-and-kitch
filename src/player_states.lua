@@ -111,7 +111,7 @@ function WalkIdleState:update(dt)
 	-- https://github.com/ohookins/mole/blob/master/mole.lua <-- climbing code
 
 	local isWalking = false
-	
+
 	if player:isDown("right") then
 		player.collider:setLinearVelocity(100, v_y)
 		isWalking = true
