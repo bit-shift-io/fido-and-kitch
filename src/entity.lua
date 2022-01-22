@@ -16,7 +16,7 @@ end
 
 
 function Entity:removeComponent(component)
-	local idx = utils.tableFind(self.components, component)
+	local idx = tbl.findIndexEq(self.components, component)
 	if idx then
 		table.remove(self.components, idx)
 	end

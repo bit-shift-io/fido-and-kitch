@@ -7,6 +7,21 @@
         {
             "type": "lua-local",
             "request": "launch",
+            "name": "Debug (map=sandbox.lua)",
+            "program":
+            {
+                "command": "love"
+            },
+            "args": 
+            [
+                "${workspaceFolder}",
+                "debug",
+                "map=sandbox.lua"
+            ],
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
             "name": "Debug",
             "program":
             {

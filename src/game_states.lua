@@ -135,7 +135,7 @@ end
 
 function InGameState:onPlayerDestroyed(player)
 	print('player destroyed')
-	local idx = utils.tableFind(self.players, player)
+	local idx = tbl.findIndexEq(self.players, player)
 	table.remove(self.players, idx)
 
 	local playerCount = #self.players

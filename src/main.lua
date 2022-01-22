@@ -1,6 +1,10 @@
-if arg[#arg] == "debug" then 
+tbl = require('src.utils.tbl')
+
+if tbl.findIndexEq(arg, 'debug') then 
 	require("lldebugger").start()
-elseif arg[#arg] == "profile" then
+end
+
+if tbl.findIndexEq(arg, 'profile') then
 	profile = require('src.profile')
 end
 
@@ -9,6 +13,8 @@ end
 
 -- global includes to save having to include in other files!
 conf = require('conf')
+str = require('src.utils.str')
+utils = require('src.utils.utils')
 
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
@@ -18,8 +24,7 @@ Tween = require('lib.tween.tween')
 --urutora = require('lib.urutora')
 Slab = require('lib.Slab')
 
-utils = require('src.utils')
-Signal = require('src.signal')
+Signal = require('src.utils.signal')
 World = require('src.world')
 Entity = require('src.entity')
 StateMachine = require('src.components.state_machine')
@@ -40,6 +45,7 @@ Game = require('src.game')
 -- local includes only accessible to this file
 
 function love.load(args)
+	conf.args = args
 	Slab.Initialize(args)
 	--u = urutora:new()
 	game = Game()

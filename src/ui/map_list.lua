@@ -9,7 +9,7 @@ end
 function MapList:update(dt)
 	Slab.BeginListBox('ListBoxExample')
 	for k, file in ipairs(self.files) do
-		if utils.ends_with(file, '.lua') then
+		if str.endsWith(file, '.lua') then
 			Slab.BeginListBoxItem('ListBoxExample_Item_' .. k, {Selected = self.selectedFileName == file})
 			Slab.Text(file)
 

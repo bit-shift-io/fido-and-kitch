@@ -237,7 +237,7 @@ function Map:createEntitiesFromObjectGroupLayers()
 end
 
 function Map:loadEntity(entityName, layer, object)
-	local in_ignore_list = utils.tableFind(self.typeIgnores, entityName)
+	local in_ignore_list = tbl.findIndexEq(self.typeIgnores, entityName)
 	if in_ignore_list == nil then
 		-- move to a util function with option to supress error
 		for k, v in pairs(self.searchPaths) do

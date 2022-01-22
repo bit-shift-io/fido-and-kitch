@@ -3,21 +3,23 @@ local GameStates = require('src.game_states')
 
 local Game = Class{}
 
-function Game:init(props)
+function Game:init()
 	self.fsm = StateMachine{
 		stateClasses=GameStates,
 		entity=self,
 		currentState='MenuState'
 	}
-
     
-    -- when debugging for now we just want to get straight into the game!
-    --[[
-    if arg[#arg] == "debug" then 
-        self:setGameState('InGameState')
-        self:load()
-	end
-    ]]--
+    -- Look for map=somemap.lua and then load straight into that map
+    local fn = function(e) 
+        return str.startsWith(e, 'map=')
+    end
+    local mapArg = tbl.find(conf.args, fn)
+    if (mapArg) then
+        local split = str.split(mapArg, '=')
+        local mapName = split[2]
+        self.fsm.currentState:startGame('res/map/'..mapName)
+    end
 end
 
 function Game:setGameState(name)

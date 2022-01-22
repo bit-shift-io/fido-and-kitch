@@ -45,22 +45,6 @@ function utils.instanceOf(subject, super)
 end
 
 
-function utils.tableFind(tab,el)
-   for index, value in pairs(tab) do
-      if value == el then
-         return index
-      end
-   end
-   return nil
-end
-
-function utils.tableLength(t)
-   local count = 0
-   for _ in pairs(t) do count = count + 1 end
-   return count
-end
-
-
 -- https://stackoverflow.com/questions/9268954/lua-pass-context-into-loadstring
 function utils.loadCode(code, environment)
    setmetatable(environment, { __index = _G }) -- hook up global access
@@ -114,15 +98,6 @@ function utils.proxyClass(from, to)
             return forwardTo[func]
          end
    end})
-end
-
-
-function utils.starts_with(str, start)
-   return str:sub(1, #start) == start
-end
-
-function utils.ends_with(str, ending)
-   return ending == "" or str:sub(-#ending) == ending
 end
 
 return utils

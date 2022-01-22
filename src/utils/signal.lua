@@ -6,7 +6,7 @@ function Signal:init(object)
 end
 
 function Signal:connect(fn)
-    local idx = utils.tableFind(self.slots, fn)
+    local idx = tbl.findIndexEq(self.slots, fn)
     if (idx) then
         return
     end
@@ -14,7 +14,7 @@ function Signal:connect(fn)
 end
 
 function Signal:disconnect(fn)
-    local idx = utils.tableFind(self.slots, fn)
+    local idx = tbl.findIndexEq(self.slots, fn)
     if (idx) then
         table.remove(self.slots, idx)
     end

@@ -204,9 +204,13 @@ end
 
 
 function Collider:move(dt)
-	local actualX, actualY, cols, len = self._world._world:move(self, self.x + (self.linearVelocityX * dt), self.y + (self.linearVelocityY * dt))
+	local actualX, actualY, cols, len = self._world._world:move(self, (self.linearVelocityX * dt), (self.linearVelocityY * dt))
     self.x = actualX
     self.y = actualY
+
+	if (len) then
+		self:setLinearVelocity(0, 0)
+	end
 end
 
 
