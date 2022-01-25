@@ -7,7 +7,15 @@ function Cage:init(object)
 	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
 	self.sprite = self:addComponent(Sprite{
-		image='res/img/cage.png',
+		image='res/img/cage/cage.png',
+		frames=2,
+		duration=1.0,
+		loop=false,
+		position=position,
+		shape_arguments=shape_arguments,
+	})
+	self.lockSprite = self:addComponent(Sprite{
+		image=string.format('res/img/cage/cage_lock_%s.png', color),
 		frames=1,
 		duration=1.0,
 		loop=false,
@@ -40,8 +48,9 @@ end
 
 function Cage:use(user)
 	print('Cage has been used')
-	-- for now just stop drawing the cage, in future we need an animation to play
-	self:removeComponent(self.sprite)
+	self:removeComponent(self.lockSprite)
+	self.sprite.timeline:play()
+
 	if self.actor == nil then
 		return
 	end
