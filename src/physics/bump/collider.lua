@@ -130,6 +130,7 @@ end
  
  
 function Collider:destroy()
+	self._world._world:remove(self)
 	self._world.colliders[self] = nil
 end
  
@@ -223,10 +224,6 @@ function Collider:worldUpdate(dt)
 		return
 	end
 
-	if (self.linearVelocityX ~= 0) then
-		print('moving in x dir')
-	end
-
 	-- apply gravity
 	self.linearVelocityY = self.linearVelocityY + ((98 * dt) * self.gravityScale)
 
@@ -240,9 +237,11 @@ function Collider:worldUpdate(dt)
 
 	-- emulate the contact system
 	for i, contact in ipairs(cols) do
+		--[[
 		if (contact.other.entity) then
-			print("we collided with"..contact.other.entity.type)
+			print("we collided with "..contact.other.entity.type)
 		end
+		]]--
 		if (contact.other and contact.other.enter) then
 			contact.other:enter(self, contact.other, contact)
 		end

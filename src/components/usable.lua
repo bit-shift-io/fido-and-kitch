@@ -21,14 +21,33 @@ function Usable:canUse(user)
     if self.canUseFunc then
         return self.canUseFunc(user)
     end
+
+    if self.enabled == false then
+        return false
+    end
+
+    -- check the user has the required items in their inventory
+    local inventory = user:getComponentByType(Inventory)
+    if (inventory) then
+        local hasItems = inventory:hasItems(self.requiredItem, self.requiredItemCount)
+        if hasItems == false then
+            print('cant use usable, missing '..self.requiredItemCount..'x '..self.requiredItem)
+            return false
+        end
+    end
     
-    -- TODO: check player has the required items in their inventory
-    return self.enabled
+    return true
 end
 
 
 function Usable:use(user)
     print('usable is being used')
+
+    local inventory = user:getComponentByType(Inventory)
+    if inventory then
+        inventory:removeItems(self.requiredItem, self.requiredItemCount)
+    end
+
     self.useFunc(user)
 end
 

@@ -18,7 +18,7 @@ function Game:init()
     if (mapArg) then
         local split = str.split(mapArg, '=')
         local mapName = split[2]
-        self.fsm.currentState:startGame('res/map/'..mapName)
+        self.fsm.currentState:startGame({map='res/map/'..mapName})
     end
 end
 
