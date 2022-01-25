@@ -26,13 +26,15 @@ function Usable:canUse(user)
         return false
     end
 
-    -- check the user has the required items in their inventory
-    local inventory = user:getComponentByType(Inventory)
-    if (inventory) then
-        local hasItems = inventory:hasItems(self.requiredItem, self.requiredItemCount)
-        if hasItems == false then
-            print('cant use usable, missing '..self.requiredItemCount..'x '..self.requiredItem)
-            return false
+    if self.requiredItem then
+        -- check the user has the required items in their inventory
+        local inventory = user:getComponentByType(Inventory)
+        if (inventory) then
+            local hasItems = inventory:hasItems(self.requiredItem, self.requiredItemCount)
+            if hasItems == false then
+                print('cant use usable, missing '..self.requiredItemCount..'x '..self.requiredItem)
+                return false
+            end
         end
     end
     
@@ -43,9 +45,11 @@ end
 function Usable:use(user)
     print('usable is being used')
 
-    local inventory = user:getComponentByType(Inventory)
-    if inventory then
-        inventory:removeItems(self.requiredItem, self.requiredItemCount)
+    if self.requiredItem then
+        local inventory = user:getComponentByType(Inventory)
+        if inventory then
+            inventory:removeItems(self.requiredItem, self.requiredItemCount)
+        end
     end
 
     self.useFunc(user)
