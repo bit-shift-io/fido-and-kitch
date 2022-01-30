@@ -39,6 +39,22 @@
         {
             "type": "lua-local",
             "request": "launch",
+            "name": "Debug (map=ll2.lua)",
+            "program":
+            {
+                "command": "love"
+            },
+            "args": 
+            [
+                "${workspaceFolder}",
+                "debug",
+                "drawphysics",
+                "map=ll2.lua"
+            ],
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
             "name": "Debug",
             "program":
             {
