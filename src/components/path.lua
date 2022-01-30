@@ -45,6 +45,10 @@ function Path:getPositionV(percentage)
 end
 
 function Path:draw()
+    if conf.debug == false then
+        return
+    end
+
     if self.curve == nil then
         return
     end

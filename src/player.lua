@@ -205,7 +205,7 @@ function Player:isDown(action)
 			right='d',
 			up='w',
 			down='s',
-			use='e'
+			use='q'
 		}
 	end
 

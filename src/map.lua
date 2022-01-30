@@ -332,6 +332,7 @@ function Map:draw2(tx, ty, sx, sy)
 
 	-- Draw canvas at 0,0; this fixes scissoring issues
 	-- Map is scaled to correct scale so the right section is shown
+	
 	lg.push()
 	lg.origin()
 	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
@@ -340,8 +341,10 @@ function Map:draw2(tx, ty, sx, sy)
 	lg.setCanvas(current_canvas)
 	lg.draw(self.canvas)
 
-	world:draw()
-
+	if (conf.drawphysics) then
+		world:draw()
+	end
+	
 	lg.pop()
 end
 

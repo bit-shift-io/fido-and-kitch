@@ -1,10 +1,10 @@
 tbl = require('src.utils.tbl')
 
-if tbl.findIndexEq(arg, 'debug') then 
+if tbl.includes(arg, 'debug') then 
 	require("lldebugger").start()
 end
 
-if tbl.findIndexEq(arg, 'profile') then
+if tbl.includes(arg, 'profile') then
 	profile = require('src.profile')
 end
 
@@ -44,8 +44,14 @@ Game = require('src.game')
 
 -- local includes only accessible to this file
 
-function love.load(args)
+function setupConf(args)
 	conf.args = args
+    conf.drawphysics = tbl.includes(conf.args, 'drawphysics')
+	conf.debug = tbl.includes(conf.args, 'debug')
+end
+
+function love.load(args)
+	setupConf(args)
 	Slab.Initialize(args)
 	--u = urutora:new()
 	game = Game()

@@ -16,6 +16,7 @@
             [
                 "${workspaceFolder}",
                 "debug",
+                "drawphysics",
                 "map=sandbox.lua"
             ],
         },
@@ -31,6 +32,7 @@
             [
                 "${workspaceFolder}",
                 "debug",
+                "drawphysics",
                 "map=ll1.lua"
             ],
         },
@@ -60,6 +62,19 @@
             [
                 "${workspaceFolder}",
                 "profile"
+            ],
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
+            "name": "Game",
+            "program":
+            {
+                "command": "love"
+            },
+            "args": 
+            [
+                "${workspaceFolder}",
             ],
         },
     ]

@@ -9,6 +9,11 @@ function tbl.findIndexEq(tab, el)
    return nil
 end
 
+function tbl.includes(tab, el)
+   local idx = tbl.findIndexEq(tab, el)
+   return idx ~= nil
+end
+
 function tbl.findIndex(tab, fn)
    for index, value in pairs(tab) do
       if fn(value) then
