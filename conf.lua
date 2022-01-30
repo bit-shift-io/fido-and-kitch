@@ -2,7 +2,7 @@ local conf = {}
 conf.args = args
 
 function love.conf(t)
-    t.physics = 'bump'                  -- Which physics enginne to use
+    t.physics = 'bump'                  -- Which physics engine to use. 'love' (aka box2d) or 'bump'
     
     t.identity = nil                    -- The name of the save directory (string)
     t.appendidentity = false            -- Search files in source directory before save directory (boolean)

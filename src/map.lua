@@ -167,11 +167,19 @@ function Map:createStaticPhysicsBodyBoundary()
 	local width = map.width * map.tilewidth
 	local height = map.height * map.tileheight
 
+	local depth = 10
+	local boundaryLeft = Collider{shape_type='rectangle', shape_arguments={-depth * 0.5, height * 0.5, depth, height + (2 * depth)}, body_type='static'}
+	local boundaryTop = Collider{shape_type='rectangle', shape_arguments={width * 0.5, -depth * 0.5, width + (2 * depth), depth}, body_type='static'}
+	local boundaryRight = Collider{shape_type='rectangle', shape_arguments={width + (depth * 0.5), height * 0.5, depth, height + (2 * depth)}, body_type='static'}
+	local boundaryBottom = Collider{shape_type='rectangle', shape_arguments={width * 0.5, height + (depth * 0.5), width + (2 * depth), depth}, body_type='static'}
+--[[
+
 	local b = Collider{shape_type='edge', shape_arguments={0, height, width, height}, body_type='static'}
 	b:addShape{shape_type='edge', shape_arguments={0, 0, width, 0}}
 	b:addShape{shape_type='edge', shape_arguments={0, 0, 0, height}}
 	b:addShape{shape_type='edge', shape_arguments={width, 0, width, height}}
-	return b
+	]]--
+	--return b
 end
 
 function Map:createEntitiesFromObjectGroupLayers()
