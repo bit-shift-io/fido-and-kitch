@@ -19,7 +19,7 @@
  </layer>
  <objectgroup id="3" name="game">
   <object id="1" name="spawn" type="spawn" gid="123" x="704" y="544" width="32" height="32"/>
-  <object id="2" name="key" type="key" gid="123" x="800" y="160" width="32" height="32">
+  <object id="2" name="key (yellow)" type="key" gid="123" x="800" y="160" width="32" height="32">
    <properties>
     <property name="color" value="yellow"/>
    </properties>
