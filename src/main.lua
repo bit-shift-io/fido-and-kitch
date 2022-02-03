@@ -24,6 +24,7 @@ Tween = require('lib.tween.tween')
 --urutora = require('lib.urutora')
 Slab = require('lib.Slab')
 
+Rect = require('src.utils.rect')
 Signal = require('src.utils.signal')
 World = require('src.world')
 Entity = require('src.entity')
