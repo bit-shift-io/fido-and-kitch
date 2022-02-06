@@ -39,7 +39,7 @@ Inventory = require('src.components.inventory')
 Usable = require('src.components.usable')
 Variable = require('src.components.variable')
 Map = require('src.map')
-Player = require('src.player')
+Player = require('src.player.player')
 Game = require('src.game')
 
 

@@ -1,4 +1,4 @@
-local PlayerStates = require('src.player_states')
+local PlayerStates = require('src.player.player_states')
 
 local Player = Class{__includes = Entity}
 
