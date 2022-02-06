@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 6,
-  nextobjectid = 23,
+  nextobjectid = 24,
   properties = {},
   tilesets = {
     {
@@ -85,7 +85,9 @@ return {
           height = 96,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["switchOn"] = "entity:grow(5)"
+          }
         },
         {
           id = 10,
@@ -277,8 +279,8 @@ return {
           name = "exit",
           type = "exit_door",
           shape = "rectangle",
-          x = 1088,
-          y = 128,
+          x = 64,
+          y = 704,
           width = 32,
           height = 32,
           rotation = 0,
@@ -348,6 +350,23 @@ return {
           visible = true,
           properties = {
             ["color"] = "yellow"
+          }
+        },
+        {
+          id = 23,
+          name = "switch",
+          type = "switch",
+          shape = "rectangle",
+          x = 416,
+          y = 352,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          gid = 123,
+          visible = true,
+          properties = {
+            ["image"] = "../img/switch.png",
+            ["target"] = { id = 9 }
           }
         }
       }

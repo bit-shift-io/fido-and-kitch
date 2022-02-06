@@ -4,6 +4,7 @@ function Switch:init(object)
 	Entity.init(self)
 	self.name = object.name
 	self.type = 'switch'
+	self.state = 'off'
 	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 	local shape_arguments = {0, 0, object.width, object.height}
 	self.sprite = self:addComponent(Sprite{
@@ -37,14 +38,17 @@ function Switch:use(user)
 	local frameNum = self.sprite.frameNum
 	if frameNum == 1 then
 		frameNum = 3
+		self.state = 'on'
 	else
 		frameNum = 1
+		self.state = 'off'
 	end
 	self.sprite:setFrameNum(frameNum)
 
-	if self.target then
-		-- todo: do something to the target
-		print('do something to target')
+	if self.target.entity then
+		if self.target.entity.switch then
+			self.target.entity:switch(self, user)
+		end
 	end
 end
 

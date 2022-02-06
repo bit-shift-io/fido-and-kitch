@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="36" height="23" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="23">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="36" height="23" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="24">
  <editorsettings>
   <export target="ll2.lua" format="lua"/>
  </editorsettings>
@@ -13,7 +13,11 @@
   </data>
  </layer>
  <objectgroup id="4" name="ladder">
-  <object id="9" type="ladder" x="608" y="256" width="32" height="96"/>
+  <object id="9" type="ladder" x="608" y="256" width="32" height="96">
+   <properties>
+    <property name="switchOn" value="entity:grow(5)"/>
+   </properties>
+  </object>
   <object id="10" type="ladder" x="352" y="288" width="32" height="224"/>
   <object id="12" type="ladder" x="416" y="96" width="32" height="224"/>
   <object id="13" type="ladder" x="64" y="96" width="32" height="96"/>
@@ -29,7 +33,7 @@
  </objectgroup>
  <objectgroup id="2" name="game">
   <object id="1" name="spawn" type="spawn" gid="123" x="512" y="352" width="32" height="32"/>
-  <object id="4" name="exit" type="exit_door" gid="123" x="1088" y="128" width="32" height="32"/>
+  <object id="4" name="exit" type="exit_door" gid="123" x="64" y="704" width="32" height="32"/>
   <object id="5" name="key (red)" type="key" gid="123" x="736" y="704" width="32" height="32">
    <properties>
     <property name="color" value="red"/>
@@ -48,6 +52,12 @@
   <object id="8" name="key (yellow)" type="key" gid="123" x="896" y="128" width="32" height="32">
    <properties>
     <property name="color" value="yellow"/>
+   </properties>
+  </object>
+  <object id="23" template="../templates/switch.tx" name="switch" x="416" y="352">
+   <properties>
+    <property name="image" type="file" value="../img/switch.png"/>
+    <property name="target" type="object" value="9"/>
    </properties>
   </object>
  </objectgroup>

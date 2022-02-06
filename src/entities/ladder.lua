@@ -2,6 +2,7 @@ local Ladder = Class{__includes = Entity}
 
 function Ladder:init(object)
 	Entity.init(self)
+	self.object = object
 	self.name = object.name
 	self.type = 'ladder'
 	self.isLadder = true
@@ -26,13 +27,14 @@ function Ladder:tileHeight()
 	return self.rect.height / map.tileheight
 end
 
+-- if side is not supplied, top is the default
 function Ladder:resizeTileHeight(newTileHeight, side)
 	print('resize height to '..newTileHeight)
 
 	newHeight = (newTileHeight * map.tileheight)
 	heightDelta = newHeight - self.rect.height
 	self.rect.height = newHeight
-	if side == 'top' then -- move the top up
+	if side == nil or side == 'top' then -- move the top up
 		self.rect.y = self.rect.y - heightDelta
 	end
 
@@ -53,6 +55,10 @@ function Ladder:resizeTileHeight(newTileHeight, side)
 	})
 
 	self:createSprites()
+end
+
+function Ladder:grow(tileHeight, side) 
+	self:resizeTileHeight(self:tileHeight() + tileHeight, side)
 end
 
 function Ladder:createSprites()
@@ -94,4 +100,12 @@ function Ladder:exit(user)
 	end
 end
 ]]--
+
+function Ladder:switch(switch, user)
+	if (switch.state == 'on') then
+		self.object:exec('switchOn', self)
+	end
+end
+
+
 return Ladder
