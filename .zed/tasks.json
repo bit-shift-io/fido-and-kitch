@@ -1,0 +1,6 @@
+[
+  {
+    "label": "Run Love2D Game",
+    "command": "./run.sh",
+  },
+]
