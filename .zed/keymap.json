@@ -1,8 +1,0 @@
-[
-  {
-    "context": "Editor || Workspace || Pane",
-    "bindings": {
-      "f6": ["task::Spawn", { "task_name": "Run Love2D Game" }],
-    },
-  },
-]
