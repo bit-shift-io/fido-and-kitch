@@ -1,3 +1,8 @@
+---
+name: code-review
+description: Analyses git changes on the current branch, provides a summary, and delivers an actionable code review.
+---
+
 # /code-review
 
 Analyse the current branch's git changes, summarise what was done, and perform a code review with actionable feedback.
