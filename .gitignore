@@ -7,3 +7,5 @@ breezefield/
 *.tiled-session
 makelove-build/
 butler
+bin/*
+!bin/.gitkeep
