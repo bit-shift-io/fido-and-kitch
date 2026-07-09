@@ -204,7 +204,13 @@ Command-line flags parsed in `src/main.lua` / `Game:init`:
 
 ## Validation guidance
 
-There is no obvious automated test suite in this repository. For code changes, validate with the most targeted manual/runtime check available, for example:
+Fast headless Lua tests can be run from the repository root:
+
+```sh
+./test.sh
+```
+
+For runtime/gameplay checks, use the most targeted manual run available, for example:
 
 ```sh
 love . debug drawphysics map=sandbox.lua

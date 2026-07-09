@@ -14,6 +14,14 @@ To install dependencies, run:
 
 This installs LÖVE through the host package manager when available and checks out Lua dependencies into `lib/`. Package-manager LÖVE versions may lag behind 12.0, so keep a LÖVE 12 AppImage at `bin/love.AppImage` if your system package is older.
 
+## Tests
+
+Run the fast headless Lua tests from the repository root:
+
+    ./test.sh
+
+These tests use a tiny dependency-free runner and do not launch a LÖVE window.
+
 ## To debug in VSCode
 
 Launch VSCode Quick Open (Ctrl+P), paste the following commands, and press enter.
