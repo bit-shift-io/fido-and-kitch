@@ -1,8 +1,6 @@
-MapList = require('src.ui.map_list')
+local MapList = require('src.ui.map_list')
 
 local MenuState = Class{__includes = Entity}
-
-local input = {text = ""}
 
 --[[
 function testUi()
@@ -44,43 +42,71 @@ function MenuState:startGame(props)
 end
 
 function MenuState:update(dt)
-	Slab.Update(dt)
-
 	Entity.update(self, dt)
-  
-	Slab.BeginWindow('MainMenu', {Title = "Main Menu"})
-	Slab.Text("Pick a map")
-	self.mapList:update(dt)
 
-	if Slab.Button("Start") then
+	local action = self.mapList:update(dt)
+	if action == 'start' then
 		self:startGame{map=self.mapList.selectedFile}
+	elseif action == 'back' then
+		love.event.push('quit')
 	end
-	
-
-	Slab.EndWindow()
-	--testUi()
-	--u:update(dt)
 end
 
 function MenuState:draw()
-	Slab.Draw()
-	--suit.draw()
-	--u:draw()
-    --love.graphics.print("Menu. Press Enter to start. Esc to exit", 10, 10)
+	self.mapList:draw()
+end
+
+function MenuState:resize(w, h)
 end
 
 function MenuState:textinput(t)
 end
 
 function MenuState:keypressed(k)
-    local game = self.entity
-    if k == 'return' then
-        game:setGameState('InGameState')
-        game:load()
-    end
+    if k == 'return' or k == 'space' then
+        self:startGame{map=self.mapList.selectedFile}
+    elseif k == 'left' or k == 'a' then
+		self.mapList:previous()
+    elseif k == 'right' or k == 'd' then
+		self.mapList:next()
+    elseif k == 'escape' then
+		love.event.push('quit')
+	end
+end
 
-    if k == 'escape' then
-		love.event.push("quit")
+function MenuState:gamepadpressed(joystick, button)
+	local action = self.mapList:gamepadpressed(button)
+	if action == 'start' then
+		self:startGame{map=self.mapList.selectedFile}
+	elseif action == 'back' then
+		love.event.push('quit')
+	end
+end
+
+function MenuState:joystickpressed(joystick, button)
+	local action = self.mapList:joystickpressed(button)
+	if action == 'start' then
+		self:startGame{map=self.mapList.selectedFile}
+	elseif action == 'back' then
+		love.event.push('quit')
+	end
+end
+
+function MenuState:mousepressed(x, y, button)
+	if button ~= 1 then
+		return
+	end
+
+	local action = self.mapList:pressed(x, y)
+	if action == 'start' then
+		self:startGame{map=self.mapList.selectedFile}
+	end
+end
+
+function MenuState:touchpressed(id, x, y)
+	local action = self.mapList:pressed(x, y)
+	if action == 'start' then
+		self:startGame{map=self.mapList.selectedFile}
 	end
 end
 
@@ -159,11 +185,33 @@ function InGameState:draw()
 	--world:draw()
 end
 
+function InGameState:resize(w, h)
+	if map then
+		map:resize(w, h)
+	end
+
+	if camera then
+		camera = Camera(w/2, h/2, 1)
+	end
+end
+
 function InGameState:keypressed(k)
     local game = self.entity
     if k == 'escape' then
         game:setGameState('MenuState')
     end
+end
+
+function InGameState:gamepadpressed(joystick, button)
+end
+
+function InGameState:joystickpressed(joystick, button)
+end
+
+function InGameState:mousepressed(x, y, button)
+end
+
+function InGameState:touchpressed(id, x, y)
 end
 
 function InGameState:textinput(t)

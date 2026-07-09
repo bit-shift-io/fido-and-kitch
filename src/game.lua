@@ -38,6 +38,10 @@ function Game:draw()
     self.fsm:draw()
 end
 
+function Game:resize(w, h)
+	self.fsm:resize(w, h)
+end
+
 function Game:textinput(t)
     --suit.textinput(t)
     self.fsm:textinput(t)
@@ -54,6 +58,22 @@ function Game:keypressed(k)
 	end
 
     self.fsm:keypressed(k)
+end
+
+function Game:gamepadpressed(joystick, button)
+	self.fsm:gamepadpressed(joystick, button)
+end
+
+function Game:joystickpressed(joystick, button)
+	self.fsm:joystickpressed(joystick, button)
+end
+
+function Game:mousepressed(x, y, button)
+	self.fsm:mousepressed(x, y, button)
+end
+
+function Game:touchpressed(id, x, y)
+	self.fsm:touchpressed(id, x, y)
 end
 
 function Game:endGame()

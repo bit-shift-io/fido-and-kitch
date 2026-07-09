@@ -72,12 +72,30 @@ function love.draw()
 end
 
 function love.resize(w, h)
-	--camera = Camera(w/2,h/2, 1)
-	--map.map:resize(w, h)
+	game:resize(w, h)
 end
 
 function love.keypressed(k)
 	game:keypressed(k)
+end
+
+function love.gamepadpressed(joystick, button)
+	game:gamepadpressed(joystick, button)
+end
+
+function love.joystickpressed(joystick, button)
+	if joystick:isGamepad() then
+		return
+	end
+	game:joystickpressed(joystick, button)
+end
+
+function love.mousepressed(x, y, button)
+	game:mousepressed(x, y, button)
+end
+
+function love.touchpressed(id, x, y)
+	game:touchpressed(id, x, y)
 end
 
 function love.textinput(t)

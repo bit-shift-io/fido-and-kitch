@@ -276,7 +276,8 @@ function Map:update(dt)
 end
 
 function Map:resize(w, h)
-	if lg.isCreated then
+	local windowOpen = love.window and love.window.isOpen and love.window.isOpen()
+	if windowOpen or lg.isCreated then
 		-- scale map to fit the screen
 		w = w or lg.getWidth()
 		h = h or lg.getHeight()
@@ -321,6 +322,7 @@ function Map:draw2(tx, ty, sx, sy)
 	-- Map is translated to correct position so the right section is drawn
 	lg.push()
 	lg.origin()
+	lg.setColor(1, 1, 1, 1)
 
 	for _, layer in ipairs(self.layers) do
 		if layer.visible and layer.opacity > 0 then
@@ -339,6 +341,7 @@ function Map:draw2(tx, ty, sx, sy)
 	lg.scale(sx or 1, sy or sx or 1)
 
 	lg.setCanvas(current_canvas)
+	lg.setColor(1, 1, 1, 1)
 	lg.draw(self.canvas)
 
 	if (conf.drawphysics) then
