@@ -113,12 +113,14 @@ function WalkIdleState:update(dt)
 	local isWalking = false
 
 	if player:isDown("right") then
-		player.collider:setLinearVelocity(100, v_y)
+		player.collider:setLinearVelocity(player.speed, v_y)
+		player:setFacing('right')
 		isWalking = true
 	end
 
 	if player:isDown("left") then
-		player.collider:setLinearVelocity(-100, v_y)
+		player.collider:setLinearVelocity(-player.speed, v_y)
+		player:setFacing('left')
 		isWalking = true
 	end
 

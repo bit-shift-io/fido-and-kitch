@@ -24,6 +24,7 @@ function Player:init(props)
 			frames=string.format('res/img/%s/Idle (${i}).png', character),
 			frameCount=10,
 			duration=1.0,
+			loop=true,
 			position=position,
 			playing=true,
 			shape_arguments=shape_arguments,
@@ -33,15 +34,17 @@ function Player:init(props)
 			frames=string.format('res/img/%s/Fall (${i}).png', character),
 			frameCount=8, 
 			duration=1.0,
+			loop=true,
 			position=position,
 			playing=true,
 			shape_arguments=shape_arguments,
 			offset=offset,
 		},
 		walk=Sprite{
-			frames=string.format('res/img/%s/Walk (${i}).png', character),
-			frameCount=10, 
-			duration=1.0,
+			frames=string.format('res/img/%s/Run (${i}).png', character),
+			frameCount=8, 
+			duration=0.65,
+			loop=true,
 			position=position,
 			playing=true,
 			shape_arguments=shape_arguments,
@@ -51,6 +54,7 @@ function Player:init(props)
 			frames=string.format('res/img/%s/Jump (${i}).png', character),
 			frameCount=8,
 			duration=1.0,
+			loop=true,
 			position=position,
 			playing=true,
 			shape_arguments=shape_arguments,
@@ -67,6 +71,7 @@ function Player:init(props)
 	self.object = object
 	self.speed = 100;
 	self.climbSpeed = 100;
+	self.facing = 'right'
 
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',
@@ -91,6 +96,19 @@ end
 
 function Player:setAnimation(name)
 	self.animations:setState(name)
+end
+
+function Player:setFacing(facing)
+	if self.facing == facing then
+		return
+	end
+
+	self.facing = facing
+	for _, animation in pairs(self.animations.states) do
+		if animation.setFacing then
+			animation:setFacing(facing)
+		end
+	end
 end
 
 function Player:contact(other)

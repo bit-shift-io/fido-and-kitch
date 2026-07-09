@@ -299,7 +299,7 @@ function Map:resize(w, h)
 		self.ty = ty
 
 		self.map.canvas = lg.newCanvas(mw, mh)
-		self.map.canvas:setFilter("nearest", "nearest")
+		self.map.canvas:setFilter('linear', 'linear')
 	end
 end
 

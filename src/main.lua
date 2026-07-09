@@ -58,6 +58,7 @@ end
 
 function love.load(args)
 	setupConf(args)
+	love.graphics.setDefaultFilter('linear', 'linear')
 	Slab.Initialize(args)
 	--u = urutora:new()
 	game = Game()
