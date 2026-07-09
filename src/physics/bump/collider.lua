@@ -2,6 +2,8 @@
 -- a Collider object, wrapping shape, body, and fixtue
 
 local Collider = Class{}
+local DEFAULT_GRAVITY = 300
+local DEFAULT_MAX_FALL_SPEED = 500
 --local set_funcs, lp, lg, COLLIDER_TYPES = unpack(require('utils'))
 
 -- TODO: shape arguments includes position as first 2 values in the case or a circle
@@ -25,6 +27,8 @@ function Collider:init(props)
 		end
 	end
 
+	self.gravity = props.gravity or DEFAULT_GRAVITY
+	self.maxFallSpeed = props.maxFallSpeed or DEFAULT_MAX_FALL_SPEED
 	self:setGravityScale(1)
 	self:setLinearVelocity(0, 0)
 	self:setSensor(false)
@@ -35,7 +39,7 @@ function Collider:init(props)
 		self:setFixedRotation(true)
 	end
 
-	if props.sensor then 
+	if props.sensor then
 		self:setSensor(true)
 	end
 
@@ -107,7 +111,7 @@ function Collider:setPositionV(pos)
 end
 
 
-function Collider:getPositionV() 
+function Collider:getPositionV()
 	return Vector(self:getX(), self:getY())
 end
 
@@ -127,13 +131,13 @@ end
 function Collider:worldDraw()
 	love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
 end
- 
- 
+
+
 function Collider:destroy()
 	self._world._world:remove(self)
 	self._world.colliders[self] = nil
 end
- 
+
 
 --[[
 function Collider:collider_contacts()
@@ -224,15 +228,31 @@ function Collider:worldUpdate(dt)
 		return
 	end
 
-	-- apply gravity
-	self.linearVelocityY = self.linearVelocityY + ((98 * dt) * self.gravityScale)
+	-- apply simple platformer gravity. Pixels are the game's world units, so
+	-- values here are intentionally much higher than real-world metres/sec².
+	if (self.bodyType == 'dynamic') then
+		self.linearVelocityY = self.linearVelocityY + ((self.gravity * dt) * self.gravityScale)
+		if (self.linearVelocityY > self.maxFallSpeed) then
+			self.linearVelocityY = self.maxFallSpeed
+		end
+	end
 
 	local actualX, actualY, cols, len = self._world._world:move(self, self.x + (self.linearVelocityX * dt), self.y + (self.linearVelocityY * dt), self._world.colFilter)
 	self.x = actualX
 	self.y = actualY
 
-	if (len > 0) then
-		self:setLinearVelocity(0, 0)
+	-- emulate a small, predictable platformer collision response. Only cancel the
+	-- velocity component that pushed into a solid surface; sensor/cross contacts
+	-- should not stop falling or horizontal movement.
+	for i, contact in ipairs(cols) do
+		if (contact.type ~= 'cross' and contact.normal) then
+			if (contact.normal.x ~= 0 and self.linearVelocityX * contact.normal.x < 0) then
+				self.linearVelocityX = 0
+			end
+			if (contact.normal.y ~= 0 and self.linearVelocityY * contact.normal.y < 0) then
+				self.linearVelocityY = 0
+			end
+		end
 	end
 
 	-- emulate the contact system

@@ -36,8 +36,17 @@ end
 
 function JumpPad:use(user)
 
-	local function finish(user)
-		user:removeComponent(user.pathFollow) -- todo: how to make this self and remove user arg? not working
+	if user.pathFollow then
+		user.pathFollow:finish()
+		user:removeComponent(user.pathFollow)
+		user.pathFollow = nil
+	end
+
+	local function finish()
+		if user.pathFollow then
+			user:removeComponent(user.pathFollow)
+			user.pathFollow = nil
+		end
 		print('jump end delete path!')
 	end
 
@@ -50,7 +59,7 @@ function JumpPad:use(user)
 	user.pathFollow = user:addComponent(PathFollow{
 		collider=user.collider,
         path=Path(self.pathObject),
-        finish=utils.forwardFunc(finish(user), self),
+        finish=finish,
 		speed=400,
 		offset=offset
     })

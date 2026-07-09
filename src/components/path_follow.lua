@@ -10,12 +10,24 @@ function PathFollow:init(props)
     self.collider = props.collider
     self.offset = props.offset or Vector(0, 0)
 
+    if self.collider then
+        self.previousGravityScale = self.collider.gravityScale
+        self.previousVelocityX, self.previousVelocityY = self.collider:getLinearVelocity()
+        self.collider:setGravityScale(0)
+        self.collider:setLinearVelocity(0, 0)
+    end
+
     local speed = props.speed
     local duration = self.path.length / speed
-    local finsh = props.finish
+    local finish = props.finish
     self.timeline = Timeline({
         duration=duration,
-        finish=finsh
+        finish=function()
+            self:finish()
+            if finish then
+                finish()
+            end
+        end
     })
 
     -- do we need an option to do this?
@@ -50,6 +62,22 @@ end
 function PathFollow:getPositionV()
     local pos = self.path:getPositionV(self.timeline:timePercent())
     return pos
+end
+
+function PathFollow:finish()
+    if self.finished then
+        return
+    end
+
+    self.finished = true
+    if self.collider then
+        self.collider:setGravityScale(self.previousGravityScale or 1)
+        self.collider:setLinearVelocity(self.previousVelocityX or 0, self.previousVelocityY or 0)
+    end
+end
+
+function PathFollow:destroy()
+    self:finish()
 end
 
 
