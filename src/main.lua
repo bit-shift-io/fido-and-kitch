@@ -1,7 +1,12 @@
 tbl = require('src.utils.tbl')
 
 if tbl.includes(arg, 'debug') then 
-	require("lldebugger").start()
+	local ok, debugger = pcall(require, 'lldebugger')
+	if ok then
+		debugger.start()
+	else
+		print('lldebugger not found; continuing without debugger')
+	end
 end
 
 if tbl.includes(arg, 'profile') then

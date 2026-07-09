@@ -4,15 +4,15 @@ Fido and Kitch is a puzzle platformer. It features local couch co-op with bite s
 
 ## Install
 
-Add love to your path, on Mac edit .zshc and add: 
+This project targets LÖVE 12.0.
 
-    export PATH=$PATH:/Applications/love.app/Contents/MacOS/
+`run.sh` uses `bin/love.AppImage` when it exists, which is the preferred way to run a pinned local LÖVE 12 build on Linux. If that file is missing, it falls back to `love` from your PATH.
 
-To install simply run:
+To install dependencies, run:
 
-    ./install.sh
+    ./setup.sh
 
-This will checkout any required dependencies
+This installs LÖVE through the host package manager when available and checks out Lua dependencies into `lib/`. Package-manager LÖVE versions may lag behind 12.0, so keep a LÖVE 12 AppImage at `bin/love.AppImage` if your system package is older.
 
 ## To debug in VSCode
 

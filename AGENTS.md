@@ -6,7 +6,7 @@ Fido and Kitch is a LÖVE 2D puzzle-platformer with local couch co-op. It uses L
 
 ## Tech stack
 
-- Runtime: LÖVE 2D `11.3` (`conf.lua`)
+- Runtime: LÖVE 2D `12.0` (`conf.lua`)
 - Language: LuaJIT-style Lua
 - Map editor: Tiled (`.tmx` source maps exported as `.lua` under `res/map`)
 - UI: Slab (`lib.Slab`) for menu UI
@@ -28,13 +28,13 @@ Run from the repository root:
 ./setup.sh
 ```
 
-Installs LÖVE and fetches Lua dependencies into `lib/`. Note: `README.md` and CI reference `./install.sh`, but the repository currently contains `setup.sh` instead.
+Installs LÖVE through the host package manager when available and fetches Lua dependencies into `lib/`. Package-manager LÖVE versions may lag behind 12.0, so prefer keeping a local LÖVE 12 AppImage at `bin/love.AppImage` for development.
 
 ```sh
 ./run.sh
 ```
 
-Runs the game with `love $PWD`.
+Runs the game. The script uses `bin/love.AppImage` when present, otherwise it falls back to `love` from `PATH`.
 
 Useful direct run/debug forms:
 
@@ -214,9 +214,10 @@ If dependencies are missing, run `./setup.sh` first. For packaging changes, use 
 
 ## Known issues / things to watch
 
-- `README.md` and GitHub workflows mention `./install.sh`, but this repository currently has `setup.sh`; do not assume `install.sh` exists unless it is added.
+- GitHub workflows mention `./install.sh`, but this repository currently has `setup.sh`; do not assume `install.sh` exists unless it is added.
 - `lib/` may be empty until setup runs.
 - CI workflows also call `./install.sh`; packaging CI may need updating if that script remains absent.
+- The project targets LÖVE 12.0. `conf.lua` should use v12 config fields such as `t.graphics.gammacorrect`, `t.highdpi`, and `t.window.displayindex`.
 - `makelove.toml` `love_files` patterns include shallow globs such as `./src/*` and `./res/*`; verify packaging includes nested files if changing build behavior.
 - Map event properties execute Lua snippets. Treat map-provided code as trusted project content, and avoid exposing user-provided input to it.
 - The active bump backend has different semantics from LÖVE physics. Keep the abstraction in mind when modifying `Collider`/`World` APIs.
