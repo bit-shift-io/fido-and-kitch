@@ -1,8 +1,14 @@
 local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
 local Flash = require('src.components.flash')
+local GroundSupport = require('src.player.ground_support')
 
 local Player = Class{__includes = Entity}
+
+-- spawn/respawn flash: non-blocking, accompanied by a fade-in from transparent
+local SPAWN_FLASH_INTERVAL = 0.15
+local SPAWN_FLASH_BLINKS = 8
+local SPAWN_FADE_DURATION = SPAWN_FLASH_INTERVAL * SPAWN_FLASH_BLINKS
 
 function Player:init(props)
 	Entity.init(self)
@@ -98,6 +104,7 @@ function Player:init(props)
 	self.safePosition = SafePosition.new(position.x, position.y)
 
 	self.visible = true
+	self.alpha = 1
 	self.deathSignal = Signal{}
 end
 
@@ -144,6 +151,13 @@ end
 function Player:update(dt)
 	Entity.update(self, dt)
 
+	if self.fadeTween then
+		local finished = self.fadeTween:update(dt)
+		if finished then
+			self.fadeTween = nil
+		end
+	end
+
 	if not self:isDead() then
 		local killZone = self:queryKillZone()
 		if killZone then
@@ -151,13 +165,15 @@ function Player:update(dt)
 		end
 	end
 
-	local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and self:queryOnGround()
+	local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and self:queryFullySupported()
 	self.safePosition:update(dt, grounded, self.collider:getX(), self.collider:getY())
 end
 
 function Player:draw()
 	if self.visible then
+		love.graphics.setColor(1, 1, 1, self.alpha)
 		Entity.draw(self)
+		love.graphics.setColor(1, 1, 1, 1)
 	end
 
 	if conf.drawphysics then
@@ -194,12 +210,16 @@ end
 
 -- non-blocking flash: purely visual, movement/input stay live throughout.
 -- Used after a respawn and on the player's initial spawn at map load.
+-- Paired with a fade-in from transparent, over the same duration.
 function Player:startSpawnFlash()
+	self.alpha = 0
+	self.fadeTween = Tween.new(SPAWN_FADE_DURATION, self, {alpha = 1})
+
 	self.flash = self:addComponent(Flash{
 		target = self,
 		property = 'visible',
-		interval = 0.12,
-		blinks = 6,
+		interval = SPAWN_FLASH_INTERVAL,
+		blinks = SPAWN_FLASH_BLINKS,
 	})
 end
 
@@ -285,6 +305,12 @@ function Player:queryOnGround()
 		end
 	end
 	return false
+end
+
+-- stricter than queryOnGround(): requires support under both feet corners,
+-- so safe-position tracking never records a spot hanging off a ledge edge
+function Player:queryFullySupported()
+	return GroundSupport.isFullySupported(world, self.collider:getBounds())
 end
 
 function Player:pickup(pickup)

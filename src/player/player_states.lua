@@ -159,8 +159,9 @@ end
 
 local DeadState = Class{}
 
-local DEATH_FLASH_INTERVAL = 0.12
-local DEATH_FLASH_BLINKS = 6
+local DEATH_FLASH_INTERVAL = 0.15
+local DEATH_FLASH_BLINKS = 8
+local DEATH_FADE_DURATION = DEATH_FLASH_INTERVAL * DEATH_FLASH_BLINKS
 
 function DeadState:enter()
 	local player = self.entity
@@ -169,6 +170,9 @@ function DeadState:enter()
 	player.collider:setType('kinematic')
 	player.collider:setGravityScale(0)
 	player:setAnimation('idle')
+
+	player.alpha = 1
+	player.fadeTween = Tween.new(DEATH_FADE_DURATION, player, {alpha = 0})
 
 	player.flash = player:addComponent(Flash{
 		target = player,
