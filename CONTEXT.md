@@ -35,3 +35,39 @@
 **Definition** — A small extracted function or module that lets existing behavior be tested without broad runtime mocks.
 
 **Boundary** — A seam should preserve runtime behavior and stay narrowly focused. It is not a broad refactor away from the project's current global-oriented architecture.
+
+## Background prop
+
+**Definition** — A decorative entity (tree, bush, cloud) spawned from a tile object in a map's `background` objectgroup layer, placed in Tiled via a template backed by the `props` image-collection tileset so the real art shows in the editor. May move (procedurally and/or via frame animation) and react to nearby players.
+
+**Boundary** — Pure visuals: never has a physics collider and never obstructs or affects player movement. Not a gameplay volume (contrast with kill zone) and not a foreground/overlay element.
+
+## Gradient object
+
+**Definition** — A rect object of type `gradient` in the background layer carrying `colorTop`/`colorBottom` colours and a `coverMap` flag; the game draws a vertical colour gradient behind everything (full-map when `coverMap` is set).
+
+**Boundary** — Data authored in the map, rendered in code; Tiled cannot preview it. It is the backmost visual only, not lighting or tinting of other layers.
+
+## Cloud spawner
+
+**Definition** — A rect object of type `cloud_spawner` that, at level load, populates its region with a fixed count of clouds picked from a pool of Tiled templates; clouds drift with the wind and wrap around the map edges.
+
+**Boundary** — Seeds a stable population once; it does not continuously spawn/despawn and is not a weather system.
+
+## Wind
+
+**Definition** — A global per-map value (map custom property `windX`, signed direction+strength, with a code default when absent) that drives background motion — cloud drift and prop sway — scaled per object by a `windScale` multiplier.
+
+**Boundary** — Affects background visuals only; it never applies forces to players or gameplay entities.
+
+## Depth
+
+**Definition** — A number carried by every background element (default 1.0) reserved as its parallax factor for the planned camera rework.
+
+**Boundary** — Stored and plumbed but currently visually inert; it does not control draw order (layer/object order does).
+
+## Proximity component
+
+**Definition** — A generic entity component configured with a radius that watches player distance each update and emits enter/exit signals, letting the owning entity react (e.g. a bush rustles when a player runs past).
+
+**Boundary** — Read-only detection; it creates no collider and applies no gameplay effect itself — reactions belong to the owning entity.
