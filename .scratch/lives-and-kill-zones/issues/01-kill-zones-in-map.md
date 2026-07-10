@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Kill zones in the map, detected by the player
 

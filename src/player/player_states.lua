@@ -1,4 +1,5 @@
 local PlayerMovement = require('src.player.player_movement')
+local Flash = require('src.components.flash')
 local LadderState = Class{}
 
 function LadderState:enter()
@@ -156,4 +157,38 @@ function FallState:update(dt)
 end
 
 
-return {LadderState = LadderState, WalkIdleState = WalkIdleState, FallState = FallState}
+local DeadState = Class{}
+
+local DEATH_FLASH_INTERVAL = 0.12
+local DEATH_FLASH_BLINKS = 6
+
+function DeadState:enter()
+	local player = self.entity
+
+	player.collider:setLinearVelocity(0, 0)
+	player.collider:setType('kinematic')
+	player.collider:setGravityScale(0)
+	player:setAnimation('idle')
+
+	player.flash = player:addComponent(Flash{
+		target = player,
+		property = 'visible',
+		interval = DEATH_FLASH_INTERVAL,
+		blinks = DEATH_FLASH_BLINKS,
+		onComplete = utils.forwardFunc(player.resolveDeath, player)
+	})
+end
+
+function DeadState:exit()
+	local player = self.entity
+	player.collider:setType('dynamic')
+	player.collider:setGravityScale(1)
+end
+
+-- input and movement are intentionally ignored while dead; the flash
+-- component already ticks via Entity:update's normal component loop
+function DeadState:update(dt)
+end
+
+
+return {LadderState = LadderState, WalkIdleState = WalkIdleState, FallState = FallState, DeadState = DeadState}

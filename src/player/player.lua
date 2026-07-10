@@ -1,4 +1,6 @@
 local PlayerStates = require('src.player.player_states')
+local SafePosition = require('src.player.safe_position')
+local Flash = require('src.components.flash')
 
 local Player = Class{__includes = Entity}
 
@@ -92,6 +94,11 @@ function Player:init(props)
 		entity=self,
 		currentState='WalkIdleState'
 	})
+
+	self.safePosition = SafePosition.new(position.x, position.y)
+
+	self.visible = true
+	self.deathSignal = Signal{}
 end
 
 function Player:setAnimation(name)
@@ -136,6 +143,92 @@ end
 
 function Player:update(dt)
 	Entity.update(self, dt)
+
+	if not self:isDead() then
+		local killZone = self:queryKillZone()
+		if killZone then
+			self:die(killZone.deathType)
+		end
+	end
+
+	local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and self:queryOnGround()
+	self.safePosition:update(dt, grounded, self.collider:getX(), self.collider:getY())
+end
+
+function Player:draw()
+	if self.visible then
+		Entity.draw(self)
+	end
+
+	if conf.drawphysics then
+		self:drawSafePositionMarker()
+	end
+end
+
+function Player:isDead()
+	return self.fsm.currentState == self.fsm.states.DeadState
+end
+
+-- kills the player: locks movement, flashes, then signals InGameState to
+-- resolve the death (respawn or game over) once the flash completes
+function Player:die(deathType)
+	if self:isDead() then
+		return
+	end
+
+	self.deathType = deathType
+	self.fsm:setState('DeadState')
+end
+
+-- invoked when the death flash finishes; hands the decision to whoever is
+-- listening (InGameState owns the shared lives pool)
+function Player:resolveDeath()
+	self.deathSignal:emit(self, self.deathType)
+end
+
+function Player:respawn()
+	self.collider:setPosition(self.safePosition.x, self.safePosition.y)
+	self.fsm:setState('WalkIdleState')
+	self:startSpawnFlash()
+end
+
+-- non-blocking flash: purely visual, movement/input stay live throughout.
+-- Used after a respawn and on the player's initial spawn at map load.
+function Player:startSpawnFlash()
+	self.flash = self:addComponent(Flash{
+		target = self,
+		property = 'visible',
+		interval = 0.12,
+		blinks = 6,
+	})
+end
+
+-- temporary debug draw of the tracked safe position; strip once issue 04/05 land
+function Player:drawSafePositionMarker()
+	local size = 6
+	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.line(self.safePosition.x - size, self.safePosition.y, self.safePosition.x + size, self.safePosition.y)
+	love.graphics.line(self.safePosition.x, self.safePosition.y - size, self.safePosition.x, self.safePosition.y + size)
+	love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Player:queryKillZone()
+	local bounds = self.collider:getBounds()
+
+	-- make it narrower
+	bounds.left = bounds.left + 4
+	bounds.right = bounds.right - 4
+
+	local colls = world:queryBounds(bounds)
+	for _, c in ipairs(colls) do
+		local entity = c.entity
+		if entity then
+			if entity.isKillZone then
+				return entity
+			end
+		end
+	end
+	return nil
 end
 
 function Player:queryLadder()

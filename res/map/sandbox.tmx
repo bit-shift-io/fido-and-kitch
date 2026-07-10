@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="19" nextobjectid="78">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="79">
  <editorsettings>
   <export target="sandbox.lua" format="lua"/>
  </editorsettings>
@@ -33,6 +33,13 @@
   </properties>
   <object id="60" name="ladder" type="ladder" x="128" y="192" width="32" height="192"/>
   <object id="61" name="ladder" type="ladder" x="160" y="384" width="32" height="128"/>
+ </objectgroup>
+ <objectgroup id="19" name="kill">
+  <object id="78" name="water_kill" type="kill_zone" x="224" y="592" width="96" height="112">
+   <properties>
+    <property name="deathType" value="water"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="13" name="game">
   <object id="26" template="../templates/teleport.tx" name="teleport" type="teleport" x="193.683" y="511.321">

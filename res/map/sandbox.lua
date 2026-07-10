@@ -8,8 +8,8 @@ return {
   height = 20,
   tilewidth = 32,
   tileheight = 32,
-  nextlayerid = 19,
-  nextobjectid = 78,
+  nextlayerid = 20,
+  nextobjectid = 79,
   properties = {},
   tilesets = {
     {
@@ -155,6 +155,36 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 19,
+      name = "kill",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 78,
+          name = "water_kill",
+          type = "kill_zone",
+          shape = "rectangle",
+          x = 224,
+          y = 592,
+          width = 96,
+          height = 112,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["deathType"] = "water"
+          }
         }
       }
     },

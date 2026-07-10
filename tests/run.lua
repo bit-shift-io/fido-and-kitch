@@ -2,6 +2,10 @@ local defaultTestFiles = {
 	'tests/runner_smoke_test.lua',
 	'tests/player_movement_test.lua',
 	'tests/bump_physics_test.lua',
+	'tests/lives_test.lua',
+	'tests/kill_zone_test.lua',
+	'tests/safe_position_test.lua',
+	'tests/flash_test.lua',
 }
 
 local tests = {}

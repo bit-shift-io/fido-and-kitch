@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Spawn flash on map load
 
