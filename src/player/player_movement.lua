@@ -1,20 +1,29 @@
 local PlayerMovement = {}
 
 function PlayerMovement.decideHorizontalMovement(input, speed, velocityY)
+	local velocityX = 0
+	local facing = nil
+	local animation = 'idle'
+
 	if input.right then
-		return {
-			velocityX=speed,
-			velocityY=velocityY,
-			facing='right',
-			animation='walk',
-		}
+		velocityX = speed
+		facing = 'right'
+		animation = 'walk'
+	end
+
+	if input.left then
+		velocityX = -speed
+		facing = 'left'
+		animation = 'walk'
 	end
 
 	return {
-		velocityX=0,
-		velocityY=velocityY,
-		animation='idle',
+		velocityX = velocityX,
+		velocityY = velocityY,
+		facing = facing,
+		animation = animation,
 	}
 end
 
 return PlayerMovement
+

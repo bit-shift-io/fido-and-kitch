@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Test bump gravity and collision essentials
 
@@ -30,12 +30,12 @@ Keep values simple and assert game invariants rather than exact real-world physi
 
 ## Acceptance criteria
 
-- [ ] Gravity behavior can be tested without launching LÖVE.
-- [ ] Terminal velocity clamp test passes.
-- [ ] Solid vertical collision cancellation test passes.
-- [ ] Cross/sensor non-cancellation test passes.
-- [ ] Existing runtime falling/collision behavior is preserved.
-- [ ] Tests run through the custom runner.
+- [x] Gravity behavior can be tested without launching LÖVE.
+- [x] Terminal velocity clamp test passes.
+- [x] Solid vertical collision cancellation test passes.
+- [x] Cross/sensor non-cancellation test passes.
+- [x] Existing runtime falling/collision behavior is preserved.
+- [x] Tests run through the custom runner.
 
 ## Blocked by
 

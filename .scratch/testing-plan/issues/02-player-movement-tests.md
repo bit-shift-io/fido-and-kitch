@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Test player movement, facing, and animation decisions
 
@@ -29,12 +29,12 @@ The tests should verify behavior, not the exact implementation of the state mach
 
 ## Acceptance criteria
 
-- [ ] Movement decision logic can be tested without launching LÖVE.
-- [ ] Moving right test passes.
-- [ ] Moving left test passes.
-- [ ] Idle/no horizontal input test passes.
-- [ ] Existing runtime movement behavior is preserved.
-- [ ] Tests run through the custom runner.
+- [x] Movement decision logic can be tested without launching LÖVE.
+- [x] Moving right test passes.
+- [x] Moving left test passes.
+- [x] Idle/no horizontal input test passes.
+- [x] Existing runtime movement behavior is preserved.
+- [x] Tests run through the custom runner.
 
 ## Blocked by
 

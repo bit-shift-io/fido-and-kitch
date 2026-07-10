@@ -1,3 +1,4 @@
+local PlayerMovement = require('src.player.player_movement')
 local LadderState = Class{}
 
 function LadderState:enter()
@@ -103,32 +104,22 @@ function WalkIdleState:update(dt)
 
 	-- reset horizontal velocity
     local v_x, v_y = player.collider:getLinearVelocity()
-	player.collider:setLinearVelocity(0, v_y)
-
 
 	-- movement
 	-- https://github.com/jlett/Platformer-Tutorial
 	-- https://github.com/ohookins/mole/blob/master/mole.lua <-- climbing code
 
-	local isWalking = false
+	local input = {
+		right = player:isDown("right"),
+		left = player:isDown("left")
+	}
+	local decision = PlayerMovement.decideHorizontalMovement(input, player.speed, v_y)
 
-	if player:isDown("right") then
-		player.collider:setLinearVelocity(player.speed, v_y)
-		player:setFacing('right')
-		isWalking = true
+	player.collider:setLinearVelocity(decision.velocityX, decision.velocityY)
+	if decision.facing then
+		player:setFacing(decision.facing)
 	end
-
-	if player:isDown("left") then
-		player.collider:setLinearVelocity(-player.speed, v_y)
-		player:setFacing('left')
-		isWalking = true
-	end
-
-	if (isWalking) then
-		player:setAnimation('walk')
-	else
-		player:setAnimation('idle')
-	end
+	player:setAnimation(decision.animation)
 end
 
 

@@ -2,6 +2,7 @@
 -- a Collider object, wrapping shape, body, and fixtue
 
 local Collider = Class{}
+local Motion = require('src.physics.bump.motion')
 local DEFAULT_GRAVITY = 300
 local DEFAULT_MAX_FALL_SPEED = 500
 --local set_funcs, lp, lg, COLLIDER_TYPES = unpack(require('utils'))
@@ -231,10 +232,7 @@ function Collider:worldUpdate(dt)
 	-- apply simple platformer gravity. Pixels are the game's world units, so
 	-- values here are intentionally much higher than real-world metres/sec².
 	if (self.bodyType == 'dynamic') then
-		self.linearVelocityY = self.linearVelocityY + ((self.gravity * dt) * self.gravityScale)
-		if (self.linearVelocityY > self.maxFallSpeed) then
-			self.linearVelocityY = self.maxFallSpeed
-		end
+		self.linearVelocityY = Motion.updateGravity(self.linearVelocityY, self.gravity, self.gravityScale, self.maxFallSpeed, dt)
 	end
 
 	local actualX, actualY, cols, len = self._world._world:move(self, self.x + (self.linearVelocityX * dt), self.y + (self.linearVelocityY * dt), self._world.colFilter)
@@ -244,16 +242,7 @@ function Collider:worldUpdate(dt)
 	-- emulate a small, predictable platformer collision response. Only cancel the
 	-- velocity component that pushed into a solid surface; sensor/cross contacts
 	-- should not stop falling or horizontal movement.
-	for i, contact in ipairs(cols) do
-		if (contact.type ~= 'cross' and contact.normal) then
-			if (contact.normal.x ~= 0 and self.linearVelocityX * contact.normal.x < 0) then
-				self.linearVelocityX = 0
-			end
-			if (contact.normal.y ~= 0 and self.linearVelocityY * contact.normal.y < 0) then
-				self.linearVelocityY = 0
-			end
-		end
-	end
+	self.linearVelocityX, self.linearVelocityY = Motion.resolveCollisions(self.linearVelocityX, self.linearVelocityY, cols)
 
 	-- emulate the contact system
 	for i, contact in ipairs(cols) do
