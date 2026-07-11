@@ -115,6 +115,10 @@ end
 
 local InGameState = Class{}
 
+-- how long the camera eases out to the full-map view before the game-over
+-- screen takes over; matches the ~0.5s smoothing settle time
+local GAME_OVER_ZOOM_DELAY = 0.6
+
 function InGameState:enter()
     print('ingame enter')
 end
@@ -134,7 +138,18 @@ function InGameState:load(props)
 
 	world = World:new(0, 90.81, true)
 	map = Map:new(self.currentMap, world, true)
-	camera = Camera(love.graphics.getWidth()/2,love.graphics.getHeight()/2, 1)
+
+	local mapW = map.map.width * map.map.tilewidth
+	local mapH = map.map.height * map.map.tileheight
+	self.camera = AutoCamera.new{
+		screenW = love.graphics.getWidth(),
+		screenH = love.graphics.getHeight(),
+		mapW = mapW,
+		mapH = mapH,
+		tileW = map.map.tilewidth,
+		tileH = map.map.tileheight,
+	}
+	self.gameOverTimer = nil
 
 	self.lives = Lives.defaultCount()
 	local ingame = self
@@ -180,7 +195,18 @@ function InGameState:onPlayerDied(player, deathType)
 	end
 end
 
+-- eases the camera out to the full-map view (mirroring the level-start
+-- zoom-in) before handing off to GameOverState
 function InGameState:onGameOver()
+	if self.gameOverTimer then
+		return
+	end
+
+	self.camera:setMode('gameover')
+	self.gameOverTimer = GAME_OVER_ZOOM_DELAY
+end
+
+function InGameState:transitionToGameOver()
 	local game = self.entity
 	game:setGameState('GameOverState')
 	game:load{map=self.currentMap}
@@ -202,13 +228,55 @@ end
 function InGameState:exit()
 end
 
+-- world-space rects for every alive player, for the camera to frame
+function InGameState:collectPlayerTargets()
+	local targets = {}
+	for _, player in ipairs(self.players) do
+		local bounds = player.collider:getBounds()
+		table.insert(targets, {x = bounds.left, y = bounds.top, w = bounds.width, h = bounds.height})
+	end
+	return targets
+end
+
+-- while a player is dying, their respawn point joins the framing targets
+-- (as if a third player stood there) so the camera is already framing it
+-- by the time they reappear; cleared again once they're back up
+function InGameState:updateDeathFramingTargets()
+	for _, player in ipairs(self.players) do
+		if player:isDead() then
+			local bounds = player.collider:getBounds()
+			local safePosition = player.safePosition
+			self.camera:addExtraTarget(player, {
+				x = safePosition.x - bounds.width / 2,
+				y = safePosition.y - bounds.height / 2,
+				w = bounds.width,
+				h = bounds.height,
+			})
+		else
+			self.camera:removeExtraTarget(player)
+		end
+	end
+end
+
 function InGameState:update(dt)
 	map:update(dt)
 	world:update(dt)
+
+	if self.gameOverTimer then
+		self.gameOverTimer = self.gameOverTimer - dt
+		self.camera:update(dt, self:collectPlayerTargets())
+		if self.gameOverTimer <= 0 then
+			self:transitionToGameOver()
+		end
+	else
+		self:updateDeathFramingTargets()
+		self.camera:update(dt, self:collectPlayerTargets())
+	end
 end
 
 function InGameState:draw()
-	map:draw()
+	local tx, ty, sx, sy = self.camera:getDrawParams()
+	map:draw2(tx, ty, sx, sy)
 	--world:draw()
 	self.livesHud:draw()
 end
@@ -218,8 +286,8 @@ function InGameState:resize(w, h)
 		map:resize(w, h)
 	end
 
-	if camera then
-		camera = Camera(w/2, h/2, 1)
+	if self.camera then
+		self.camera:setScreenSize(w, h)
 	end
 end
 
@@ -227,10 +295,15 @@ function InGameState:keypressed(k)
     local game = self.entity
     if k == 'escape' then
         game:setGameState('MenuState')
+    elseif k == 'space' then
+        self.camera:toggleOverview()
     end
 end
 
 function InGameState:gamepadpressed(joystick, button)
+	if button == 'back' then
+		self.camera:toggleOverview()
+	end
 end
 
 function InGameState:joystickpressed(joystick, button)

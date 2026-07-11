@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Map overview toggle (spacebar / gamepad)
 

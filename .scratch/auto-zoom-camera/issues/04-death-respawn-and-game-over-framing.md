@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Death/respawn framing and game-over zoom-out
 

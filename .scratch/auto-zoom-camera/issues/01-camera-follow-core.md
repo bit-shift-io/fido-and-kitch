@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Camera follow core: frame all players (no smoothing yet)
 

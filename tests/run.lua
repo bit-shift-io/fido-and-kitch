@@ -7,6 +7,7 @@ local defaultTestFiles = {
 	'tests/safe_position_test.lua',
 	'tests/flash_test.lua',
 	'tests/ground_support_test.lua',
+	'tests/camera_test.lua',
 }
 
 local tests = {}
