@@ -4,12 +4,12 @@ conf.args = args
 function love.conf(t)
     t.physics = 'bump'                  -- Which physics engine to use. 'love' (aka box2d) or 'bump'
     t.graphics = t.graphics or {}       -- LÖVE 12 graphics startup options
-    
+
     t.identity = nil                    -- The name of the save directory (string)
     t.appendidentity = false            -- Search files in source directory before save directory (boolean)
-    t.version = "11.5"                  -- The LÖVE version this game was made for (string)
+    t.version = "12.0"                  -- The LÖVE version this game was made for (string)
     t.console = false                   -- Attach a console (boolean, Windows only)
-    t.externalstorage = false           -- True to save files (and read from the save directory) in external storage on Android (boolean) 
+    t.externalstorage = false           -- True to save files (and read from the save directory) in external storage on Android (boolean)
     t.highdpi = false                   -- Enable high-dpi mode for the window (boolean)
     t.graphics.gammacorrect = false     -- Enable gamma-correct rendering, when supported by the system (boolean)
 
