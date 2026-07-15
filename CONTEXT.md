@@ -114,6 +114,24 @@
 
 **Boundary** — Distinct from the user-triggered lever `switch` (which the player actively "uses"): a pressure switch reacts to weight/presence, not a button press. Activated by presence only; it applies no force and does not itself move props.
 
+## Ladder mount alignment
+
+**Definition** — When a player presses up/down to mount a ladder off-centre, the horizontal slide that moves them onto the ladder's centre-x before vertical climbing begins. The initial mount from the ground slides at walk speed; re-aligning after an on-ladder slide uses the slower slide speed. Alignment finishes exactly on centre-x.
+
+**Boundary** — Purely a horizontal on-ramp to climbing; it does not move the player vertically. It targets the nearest overlapping ladder's centre. Not a snap — it is a visible slide.
+
+## Ladder slide
+
+**Definition** — Holding left/right while on a ladder to shuffle sideways at a slow, deliberate speed. Sliding can carry the player off a ladder edge, and onto a touching ladder. The player falls (enters FallState) only when the collider fully clears every ladder.
+
+**Boundary** — Horizontal only and gravity stays off while any ladder is under the player. Distinct from ground walking (slower, on a ladder). It never causes a fall while any part of the body still overlaps a ladder.
+
+## Ladder mode
+
+**Definition** — The internal sub-state of `LadderState`: `aligning` (sliding to a ladder centre), `climbing` (centred, moving up/down), or `sliding` (moving sideways). Which mode is active is decided by last-pressed-axis-wins arbitration between the vertical and horizontal keys.
+
+**Boundary** — An implementation-level state inside the single `LadderState`, not a top-level player FSM state. Only meaningful while on a ladder.
+
 ## Snap alignment
 
 **Definition** — The deterministic forcing of a pushable's x to a tile's centre. Occurs only on two events: the prop's centre-x passing over an unsupported tile (it snaps and falls straight in) and a prop coming to rest on a pressure switch (it snaps on push-release when within tolerance). See ADR 0001.
