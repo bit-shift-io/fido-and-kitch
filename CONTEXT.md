@@ -132,6 +132,30 @@
 
 **Boundary** — An implementation-level state inside the single `LadderState`, not a top-level player FSM state. Only meaningful while on a ladder.
 
+## Enemy
+
+**Definition** — A Tiled-placed mobile entity (spider, robot) that hinders players by chasing the nearest valid (alive, unwrapped, un-banned) player at ~70% player speed under player-like physics, navigating by axis alignment: walk to close the X gap, and climb a ladder it already overlaps to close the Y gap. Wanders near its current position when no valid target exists.
+
+**Boundary** — A hindrance, never a direct killer: enemies cost time and control, not lives. Non-solid to players (overlap-based effects), solid to the world. No pathfinding — ladder use is strictly opportunistic. Invincible except for the head stomp.
+
+## Harassment ban
+
+**Definition** — A per-enemy, per-player cooldown (~30s) that starts once an enemy has successfully harassed a player — the spider on landing a wrap, the robot after ~10s of chasing the same target — during which that enemy may not target that player.
+
+**Boundary** — Scoped to the individual enemy instance, not global: another enemy may still target the banned-for player. It gates targeting only; it does not make the player immune to incidental contact effects from other enemies.
+
+## Web wrap
+
+**Definition** — The spider's catch: on overlapping its target, the player is frozen in place (~20s) under a web visual that fades out near expiry, then control returns. The wrapped player ignores input, settles under gravity, stays a camera framing target, can still be killed by kill zones, and cannot be shoved by the robot.
+
+**Boundary** — A timed lockout, not a death or damage: it never costs lives by itself and has no escape mechanic (no struggling, no teammate rescue). The web is a runtime visual entity, never placed in Tiled.
+
+## Head stomp
+
+**Definition** — A player landing on an enemy from above stuns it for ~10s (frozen, visually indicated) and bounces the player upward. The players' only counterplay against enemies.
+
+**Boundary** — A stun, not a kill — enemies cannot be destroyed. Detected geometrically (falling player overlapping from above), since enemies are not solid to players. Does not start a harassment ban.
+
 ## Snap alignment
 
 **Definition** — The deterministic forcing of a pushable's x to a tile's centre. Occurs only on two events: the prop's centre-x passing over an unsupported tile (it snaps and falls straight in) and a prop coming to rest on a pressure switch (it snaps on push-release when within tolerance). See ADR 0001.
