@@ -156,6 +156,36 @@
 
 **Boundary** — A stun, not a kill — enemies cannot be destroyed. Detected geometrically (falling player overlapping from above), since enemies are not solid to players. Does not start a harassment ban.
 
+## Cage objective
+
+**Definition** — The completion spine of a level: players collect colored keys to unlock matching cages, each cage releases a bird ally that follows its authored path (optionally performing actions like flicking a switch) before exiting, the exit door counts released birds down via `actor_count`, the last cage opens the door, and the level ends when all players exit through it.
+
+**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. Birds are allies with scripted paths, not controllable characters.
+
+## Level generator
+
+**Definition** — The standalone offline CLI tool that produces complete, playable-but-bland levels (Tiled `.tmx` source plus auto-exported `.lua` map and a solution walkthrough) for designers to hand-tweak in Tiled and ship through the normal pipeline.
+
+**Boundary** — A design-time tool, never part of the shipped game or its runtime. It generates new maps; it does not validate or repair hand-made ones.
+
+## Solution-first generation
+
+**Definition** — The level generator's construction discipline: build the abstract solution plan (an ordered dependency graph of objectives placed into connected zones) first, realise terrain and entities around it, and decorate last — so every emitted level is solvable by construction.
+
+**Boundary** — There is no post-hoc solvability checker; validity is implied by construction. It constrains generation, not hand-editing — a designer can still break a level in Tiled afterwards.
+
+## Puzzle rule
+
+**Definition** — A pluggable module in the level generator encoding one puzzle pattern (e.g. "momentary pressure switch holds a remote door") through a uniform interface: what it requires, what it unlocks, how it expands into terrain/entities, and the walkthrough steps it contributes.
+
+**Boundary** — Generator-side only; it describes how to *place* game mechanics, and adding a game prop later means adding a rule file, not changing the generator core. Not a runtime scripting system.
+
+## Solution walkthrough
+
+**Definition** — The ordered, human-readable completion steps the level generator emits alongside each generated level, derived directly from its solution plan, used to playtest candidates quickly.
+
+**Boundary** — A testing aid for designers, not shipped game content and not a hint system.
+
 ## Snap alignment
 
 **Definition** — The deterministic forcing of a pushable's x to a tile's centre. Occurs only on two events: the prop's centre-x passing over an unsupported tile (it snaps and falls straight in) and a prop coming to rest on a pressure switch (it snaps on push-release when within tolerance). See ADR 0001.
