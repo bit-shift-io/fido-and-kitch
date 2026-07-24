@@ -1,0 +1,46 @@
+# OpenCode Context Ignore Rules
+# These files are tracked by Git, but shouldn't be read by LLMs to save tokens & context bandwidth.
+
+# Dependency Lockfiles (massive files, zero value for agent reasoning)
+Cargo.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+poetry.lock
+Pipfile.lock
+
+# Build & Compilation Artifacts (if untracked or tracked)
+target/
+dist/
+build/
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Databases & Runtime Data
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Log & Trace Files
+*.log
+*.tracing
+
+# Large Test Fixtures, Mock Data, & Binaries
+tests/fixtures/*.json
+tests/fixtures/*.bin
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.wasm
+
+# Hidden IDE / Tooling metadata
+.idea/
+.vscode/
+.opencode/
+.zed/
