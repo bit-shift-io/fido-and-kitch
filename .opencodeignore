@@ -29,6 +29,7 @@ data/
 *.tracing
 
 # Large Test Fixtures, Mock Data, & Binaries
+raw/
 tests/fixtures/*.json
 tests/fixtures/*.bin
 *.png
