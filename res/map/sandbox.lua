@@ -9,7 +9,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 20,
-  nextobjectid = 79,
+  nextobjectid = 84,
   properties = {},
   tilesets = {
     {
@@ -216,6 +216,52 @@ return {
           properties = {
             ["image"] = "../img/teleporter_1.png",
             ["target"] = { id = 63 }
+          }
+        },
+        {
+          id = 80,
+          name = "push_box",
+          type = "push_box",
+          shape = "rectangle",
+          x = 200,
+          y = 480,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["allowPushWhenStoodOn"] = false
+          }
+        },
+        {
+          id = 81,
+          name = "boulder",
+          type = "boulder",
+          shape = "rectangle",
+          x = 400,
+          y = 320,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["allowPushWhenStoodOn"] = false
+          }
+        },
+        {
+          id = 82,
+          name = "pressure_switch",
+          type = "pressure_switch",
+          shape = "rectangle",
+          x = 300,
+          y = 480,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["target"] = { id = 43 },
+            ["latching"] = false
           }
         },
         {
@@ -553,13 +599,26 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
-        },
+},
         {
-          id = 58,
+          id = 57,
           name = "",
           type = "",
           shape = "rectangle",
           x = 0,
+          y = 512,
+          width = 192,
+          height = 128,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 60,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 224,
           y = 512,
           width = 224,
           height = 128,

@@ -9,9 +9,9 @@ function Game:init()
 		entity=self,
 		currentState='MenuState'
 	}
-    
+
     -- Look for map=somemap.lua and then load straight into that map
-    local fn = function(e) 
+    local fn = function(e)
         return str.startsWith(e, 'map=')
     end
     local mapArg = tbl.find(conf.args, fn)
@@ -49,12 +49,17 @@ end
 
 function Game:keypressed(k)
     --suit.keypressed(key)
-    
+
     if k == "f12" then
-		print('prnt')
-		love.filesystem.setIdentity("screenshot_example")
-		local cwd = love.filesystem.getWorkingDirectory() .. "/" .. os.time() .. ".png"
-		love.graphics.captureScreenshot(cwd)
+        print('prnt')
+        love.filesystem.setIdentity("screenshot_example")
+        local cwd = love.filesystem.getWorkingDirectory() .. "/" .. os.time() .. ".png"
+        love.graphics.captureScreenshot(cwd)
+    end
+
+    if k == "f1" then
+        print('toggle debug')
+		conf.drawphysics = not conf.drawphysics
 	end
 
     self.fsm:keypressed(k)

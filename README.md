@@ -36,6 +36,8 @@ ext install sumneko.lua
 
 https://www.mapeditor.org/
 
+```bash paru -S tiled```
+
 File > Preferences > check 'Embed tilesets'  
 Save the map as tmx but will need to be exported as .lua to be loaded.  
 
@@ -55,3 +57,5 @@ Here are a list of assets we use in the game and their source of origin.
 * Switch/lever - https://forums.tigsource.com/index.php?topic=59695.0
 * Door - https://opengameart.org/content/heavy-slamdoor-0
 * Bird - https://opengameart.org/content/cartooney-bird-01
+* Pushable Wood Crate - https://opengameart.org/content/pixel-wooden-crate
+* Pushable Stone Block - https://opengameart.org/content/block-with-a-face
