@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <tileset firstgid="0" source="../tilesets/props.tsx"/>
- <object name="push_box" type="push_box" gid="1" width="32" height="32">
+ <tileset firstgid="1" source="../tilesets/props.tsx"/>
+ <object name="push_box" type="push_box" gid="2" width="32" height="32">
   <properties>
    <property name="allowPushWhenStoodOn" type="bool" value="false"/>
    <property name="image" type="file" value="../img/pushable_crate_wood.png"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <tileset firstgid="0" source="../tilesets/props.tsx"/>
- <object name="jump_pad" type="jump_pad" gid="10" width="32" height="32"/>
+ <tileset firstgid="1" source="../tilesets/props.tsx"/>
+ <object name="jump_pad" type="jump_pad" gid="11" width="32" height="32"/>
 </template>

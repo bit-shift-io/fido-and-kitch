@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <tileset firstgid="0" source="../tilesets/props.tsx"/>
- <object name="key" type="key" gid="4" width="32" height="32">
+ <tileset firstgid="1" source="../tilesets/props.tsx"/>
+ <object name="key" type="key" gid="5" width="32" height="32">
   <properties>
    <property name="color" value="red"/>
    <property name="image" type="file" value="../img/key_black.png"/>

@@ -1,7 +1,8 @@
 return {
-  version = "1.5",
+  version = "1.11",
   luaversion = "5.1",
-  tiledversion = "1.5.0",
+  tiledversion = "1.12.2",
+  class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -9,12 +10,13 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 20,
-  nextobjectid = 84,
+  nextobjectid = 83,
   properties = {},
   tilesets = {
     {
       name = "generic_platformer_tiles",
       firstgid = 1,
+      class = "",
       tilewidth = 32,
       tileheight = 32,
       spacing = 0,
@@ -25,6 +27,8 @@ return {
       imageheight = 576,
       transparentcolor = "#000000",
       objectalignment = "unspecified",
+      tilerendersize = "tile",
+      fillmode = "stretch",
       tileoffset = {
         x = 0,
         y = 0
@@ -38,8 +42,135 @@ return {
       wangsets = {},
       tilecount = 144,
       tiles = {}
-    }
-  },
+    },
+    {
+      name = "props",
+      firstgid = 145,
+      class = "",
+      tilewidth = 1000,
+      tileheight = 1000,
+      spacing = 0,
+      margin = 0,
+      columns = 0,
+      objectalignment = "unspecified",
+      tilerendersize = "tile",
+      fillmode = "stretch",
+      tileoffset = {
+        x = 0,
+        y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 1,
+        height = 1
+      },
+      properties = {},
+      wangsets = {},
+      tilecount = 10,
+      tiles = {
+        {
+          id = 0,
+          image = "../img/default.png",
+          width = 32,
+          height = 32
+        },
+        {
+          id = 1,
+          image = "../img/pushable_crate_wood.png",
+          width = 256,
+          height = 256
+        },
+        {
+          id = 2,
+          image = "../img/ladder.png",
+          x = 96,
+          y = 0,
+          width = 32,
+          height = 32
+        },
+        {
+          id = 3,
+          image = "../img/switch.png",
+          x = 0,
+          y = 0,
+          width = 162,
+          height = 162
+        },
+        {
+          id = 4,
+          image = "../img/key_blue.png",
+          width = 32,
+          height = 32
+        },
+        {
+          id = 5,
+          image = "../img/door.png",
+          x = 0,
+          y = 0,
+          width = 64,
+          height = 64
+        },
+        {
+          id = 6,
+          image = "../img/coins.png",
+          x = 0,
+          y = 0,
+          width = 20,
+          height = 20
+        },
+        {
+          id = 8,
+          image = "../img/teleporter_1.png",
+          width = 1000,
+          height = 1000
+        },
+        {
+          id = 9,
+          image = "../img/cage/cage.png",
+          x = 0,
+          y = 0,
+          width = 380,
+          height = 370
+        },
+        {
+          id = 10,
+          image = "../img/spring/Spring - 1.png",
+          width = 31,
+          height = 26
+        }
+},
+        {
+          id = 82,
+          name = "push_box",
+          type = "push_box",
+          shape = "rectangle",
+          x = 140,
+          y = 160,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["allowPushWhenStoodOn"] = false
+          }
+        },
+        {
+          id = 83,
+          name = "push_box_spawn",
+          type = "push_box",
+          shape = "rectangle",
+          x = 160,
+          y = 160,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["allowPushWhenStoodOn"] = false
+          }
+        }
+      }
+    },
   layers = {
     {
       type = "tilelayer",
@@ -49,6 +180,7 @@ return {
       height = 20,
       id = 4,
       name = "sky",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -67,6 +199,7 @@ return {
       height = 20,
       id = 2,
       name = "trees",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -85,6 +218,7 @@ return {
       height = 20,
       id = 1,
       name = "ground",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -105,6 +239,7 @@ return {
       height = 20,
       id = 14,
       name = "water",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -120,6 +255,7 @@ return {
       draworder = "topdown",
       id = 16,
       name = "ladder",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -140,6 +276,7 @@ return {
           width = 32,
           height = 192,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -153,6 +290,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         }
@@ -163,6 +301,7 @@ return {
       draworder = "topdown",
       id = 19,
       name = "kill",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -181,6 +320,7 @@ return {
           width = 96,
           height = 112,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {
             ["deathType"] = "water"
@@ -193,6 +333,7 @@ return {
       draworder = "topdown",
       id = 13,
       name = "game",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -211,57 +352,12 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 153,
           visible = true,
           properties = {
             ["image"] = "../img/teleporter_1.png",
             ["target"] = { id = 63 }
-          }
-        },
-        {
-          id = 80,
-          name = "push_box",
-          type = "push_box",
-          shape = "rectangle",
-          x = 200,
-          y = 480,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["allowPushWhenStoodOn"] = false
-          }
-        },
-        {
-          id = 81,
-          name = "boulder",
-          type = "boulder",
-          shape = "rectangle",
-          x = 400,
-          y = 320,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["allowPushWhenStoodOn"] = false
-          }
-        },
-        {
-          id = 82,
-          name = "pressure_switch",
-          type = "pressure_switch",
-          shape = "rectangle",
-          x = 300,
-          y = 480,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["target"] = { id = 43 },
-            ["latching"] = false
           }
         },
         {
@@ -274,7 +370,8 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 151,
           visible = true,
           properties = {
             ["image"] = "../img/coins.png"
@@ -290,7 +387,8 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 145,
           visible = true,
           properties = {}
         },
@@ -304,11 +402,12 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 154,
           visible = true,
           properties = {
             ["color"] = "red",
-            ["image"] = "../img/cage.png",
+            ["image"] = "../img/cage/cage.png",
             ["path"] = { id = 67 }
           }
         },
@@ -322,7 +421,8 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 150,
           visible = true,
           properties = {
             ["actor_count"] = 2
@@ -338,7 +438,8 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 148,
           visible = true,
           properties = {
             ["image"] = "../img/switch.png",
@@ -355,11 +456,12 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 149,
           visible = true,
           properties = {
             ["color"] = "red",
-            ["image"] = "../img/key_black.png"
+            ["image"] = "../img/key_yellow.png"
           }
         },
         {
@@ -372,7 +474,8 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 153,
           visible = true,
           properties = {
             ["image"] = "../img/teleporter_1.png",
@@ -389,7 +492,8 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
-          gid = 123,
+          opacity = 1,
+          gid = 155,
           visible = true,
           properties = {
             ["image"] = "../img/spring/Spring - 1.png",
@@ -406,6 +510,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -423,10 +528,29 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
             ["color"] = "blue"
+          }
+        },
+        {
+          id = 81,
+          name = "push_box",
+          type = "push_box",
+          shape = "rectangle",
+          x = 160,
+          y = 192,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          opacity = 1,
+          gid = 146,
+          visible = true,
+          properties = {
+            ["allowPushWhenStoodOn"] = false,
+            ["image"] = "../img/pushable_crate_wood.png"
           }
         }
       }
@@ -436,6 +560,7 @@ return {
       draworder = "topdown",
       id = 18,
       name = "waypoints",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -454,6 +579,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },
@@ -479,6 +605,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },
@@ -501,6 +628,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },
@@ -525,6 +653,7 @@ return {
       draworder = "topdown",
       id = 15,
       name = "collision",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -545,6 +674,7 @@ return {
           width = 384,
           height = 32,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -558,6 +688,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -571,6 +702,7 @@ return {
           width = 192,
           height = 32,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -584,6 +716,7 @@ return {
           width = 160,
           height = 32,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -597,32 +730,21 @@ return {
           width = 224,
           height = 32,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
-},
+        },
         {
-          id = 57,
+          id = 58,
           name = "",
           type = "",
           shape = "rectangle",
           x = 0,
           y = 512,
-          width = 192,
-          height = 128,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 60,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 224,
-          y = 512,
           width = 224,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -636,6 +758,7 @@ return {
           width = 320,
           height = 96,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="81">
+<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="83">
  <editorsettings>
   <export target="sandbox.lua" format="lua"/>
  </editorsettings>
@@ -47,7 +47,6 @@
     <property name="target" type="object" value="63"/>
    </properties>
   </object>
-  <object id="80" template="../templates/push_box.tx" x="160" y="384"/>
   <object id="36" template="../templates/coin.tx" x="480" y="352">
    <properties>
     <property name="image" type="file" value="../img/coins.png"/>
@@ -97,6 +96,7 @@
     <property name="color" value="blue"/>
    </properties>
   </object>
+  <object id="81" template="../templates/push_box.tx" x="160" y="192"/>
  </objectgroup>
  <objectgroup id="18" name="waypoints">
   <object id="67" name="red_bird_path" x="48" y="368">
