@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Input emulation (FakeInput) + query helpers + movement integration test
 

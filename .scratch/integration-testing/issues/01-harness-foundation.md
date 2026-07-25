@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Harness foundation: love mock, frame stepper, first fixture map, integration runner
 

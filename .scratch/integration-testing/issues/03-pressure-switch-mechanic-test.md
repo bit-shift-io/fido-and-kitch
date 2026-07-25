@@ -1,4 +1,4 @@
-Status: pending
+Status: deferred — blocked on src/entities/pressure_switch.lua, which doesn't exist yet (belongs to the separate, still-pending pushable-props feature, issue 05). Revisit once that entity lands; the harness (issues 01/02/04) is ready to reuse as-is.
 
 # Pressure switch mechanic integration test
 
