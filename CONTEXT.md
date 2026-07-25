@@ -48,6 +48,18 @@
 
 **Boundary** — These tests are for fast feedback on logic regressions. They are not visual tests, full map-loading tests, or packaging tests.
 
+## Integration test
+
+**Definition** — A headless Lua test that loads a real (usually small, dedicated fixture) map through the actual `Game`/`InGameState`/`Map`/`Player` stack, drives simulated keyboard or joystick input across many stepped frames the way a human would, and asserts on resulting gameplay state. Runs outside the real LÖVE runtime via a minimal `love.*` mock, through a separate command from the fast unit-test suite.
+
+**Boundary** — Distinct from a fast gameplay regression test: that category deliberately avoids loading maps or the LÖVE surface; integration tests deliberately load real maps and simulate real input. Not a visual/rendering test (`love.graphics` calls are no-ops) and not a menu/UI-navigation test (tests start directly in `InGameState`, skipping `MenuState`/Slab).
+
+## Fixture map
+
+**Definition** — A small, dedicated Tiled map (`.tmx` source plus its exported `.lua`) authored specifically for integration tests — e.g. a flat ground room, a room with one pressure switch — kept minimal and shared across tests where its layout fits.
+
+**Boundary** — Not a real playable level; it is never shipped or referenced from `res/map/`. Distinct from the separate "load every real map" smoke test, which exercises actual shipped levels instead of fixtures.
+
 ## Testability seam
 
 **Definition** — A small extracted function or module that lets existing behavior be tested without broad runtime mocks.
