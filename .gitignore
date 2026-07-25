@@ -9,3 +9,4 @@ makelove-build/
 butler
 bin/*
 !bin/.gitkeep
+tests/screenshots/

@@ -10,7 +10,7 @@ local function hasGroundAt(world, x, top, bottom)
 	local probe = {left = x - 2, right = x + 2, top = top, bottom = bottom}
 	local colls = world:queryBounds(probe)
 	for _, c in ipairs(colls) do
-		if c.entity == nil then
+		if c.entity == nil or c.walkable then
 			return true
 		end
 	end

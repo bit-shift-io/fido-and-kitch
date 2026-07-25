@@ -2,7 +2,7 @@
 set -e
 
 if command -v luajit >/dev/null 2>&1; then
-	luajit tests/run.lua "$@"
+	luajit tests/unit/run.lua "$@"
 else
-	lua tests/run.lua "$@"
+	lua tests/unit/run.lua "$@"
 fi

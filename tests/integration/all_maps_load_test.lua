@@ -2,8 +2,8 @@
 -- Map stack and steps a few frames, so a broken Tiled export or a bad entity
 -- `type` reference in any shipped level is caught automatically. Enumerated,
 -- not hardcoded, so adding a new map needs no test-file changes.
-local GameHarness = require('tests.integration.support.game_harness')
-local FrameStepper = require('tests.integration.support.frame_stepper')
+local GameHarness = require('tests.support.game_harness')
+local FrameStepper = require('tests.support.frame_stepper')
 
 local function listMapFiles()
 	local files = {}

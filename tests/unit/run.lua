@@ -1,15 +1,15 @@
 local defaultTestFiles = {
-	'tests/runner_smoke_test.lua',
-	'tests/player_movement_test.lua',
-	'tests/bump_physics_test.lua',
-	'tests/lives_test.lua',
-	'tests/kill_zone_test.lua',
-	'tests/safe_position_test.lua',
-	'tests/flash_test.lua',
-	'tests/ground_support_test.lua',
-	'tests/camera_test.lua',
-	'tests/timeline_reverse_test.lua',
-	'tests/drawbridge_test.lua',
+	'tests/unit/runner_smoke_test.lua',
+	'tests/unit/player_movement_test.lua',
+	'tests/unit/bump_physics_test.lua',
+	'tests/unit/lives_test.lua',
+	'tests/unit/kill_zone_test.lua',
+	'tests/unit/safe_position_test.lua',
+	'tests/unit/flash_test.lua',
+	'tests/unit/ground_support_test.lua',
+	'tests/unit/camera_test.lua',
+	'tests/unit/timeline_reverse_test.lua',
+	'tests/unit/drawbridge_test.lua',
 }
 
 local tests = {}

@@ -2,16 +2,16 @@
 -- love.keyboard/love.joystick each frame) across flat_ground, proving both
 -- keyboard and joystick paths move the player and that releasing input
 -- stops it -- and that P1/P2 input schemes don't leak into each other.
-local GameHarness = require('tests.integration.support.game_harness')
-local FrameStepper = require('tests.integration.support.frame_stepper')
-local FakeInputModule = require('tests.integration.support.fake_input')
-local Queries = require('tests.integration.support.queries')
+local GameHarness = require('tests.support.game_harness')
+local FrameStepper = require('tests.support.frame_stepper')
+local FakeInputModule = require('tests.support.fake_input')
+local Queries = require('tests.support.queries')
 
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 local runUntil = FakeInputModule.runUntil
 
-local MAP = 'tests/integration/fixtures/flat_ground.lua'
+local MAP = 'tests/fixtures/flat_ground.lua'
 
 -- let both players fall from their spawn onto the floor and settle into
 -- WalkIdleState before driving any horizontal input

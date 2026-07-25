@@ -1,6 +1,6 @@
 tbl = require('src.utils.tbl')
 
-if tbl.includes(arg, 'debug') then 
+if tbl.includes(arg, 'debug') then
 	local ok, debugger = pcall(require, 'lldebugger')
 	if ok then
 		debugger.start()
@@ -56,9 +56,31 @@ function setupConf(args)
 	conf.debug = tbl.includes(conf.args, 'debug')
 end
 
+-- e2e=<path/to/scenario_test.lua>, following the same launch-argument style
+-- as map=/debug/drawphysics. Detected by src/main.lua so the entry point
+-- can hand control to the e2e runner instead of constructing the normal
+-- Game (DECISIONS.md Q11).
+local function findE2ETestFile(args)
+	local e2eArg = tbl.find(args, function(e) return str.startsWith(e, 'e2e=') end)
+	if not e2eArg then
+		return nil
+	end
+	return str.split(e2eArg, '=')[2]
+end
+
 function love.load(args)
 	setupConf(args)
 	love.graphics.setDefaultFilter('linear', 'linear')
+
+	local e2eTestFile = findE2ETestFile(args)
+	if e2eTestFile then
+		-- requiring tests.e2e.run defines its own love.update/love.draw/
+		-- love.quit, replacing the ones below for the rest of this process.
+		local E2ERunner = require('tests.e2e.run')
+		E2ERunner.start(e2eTestFile, args)
+		return
+	end
+
 	Slab.Initialize(args)
 	--u = urutora:new()
 	game = Game()

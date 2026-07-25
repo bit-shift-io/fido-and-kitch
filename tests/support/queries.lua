@@ -28,4 +28,12 @@ function Queries.inventoryCount(player, itemName)
 	return player.inventory.items[itemName] or 0
 end
 
+function Queries.playerIsDead(player)
+	return player:isDead()
+end
+
+function Queries.drawbridgeState(bridge)
+	return bridge.state
+end
+
 return Queries

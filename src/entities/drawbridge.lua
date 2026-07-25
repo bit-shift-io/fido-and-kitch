@@ -32,12 +32,22 @@ function Drawbridge:init(object)
 		finish = utils.func(self.onAnimationFinish, self),
 	})
 
-	-- solid while closed, blocks horizontal entry like a wall
+	-- Solid while closed, blocks horizontal entry like a wall. Shaped taller
+	-- than the tile itself (bottom flush with it, extending well above the
+	-- walking surface) rather than reusing the tile's own flush-with-ground
+	-- rect: two solid rects of the same height, both starting at the ground
+	-- surface, resolve as a walkable step rather than a wall under this
+	-- project's simple AABB collision, so a same-height barrier never
+	-- actually stops a player approaching at normal standing height (found
+	-- via the headed drawbridge scenario -- see DECISIONS.md in
+	-- .scratch/headed-e2e-tests/).
+	local barrierHeight = self.rect.height * 5
+	local barrierPosition = Vector(position.x, (object.y + object.height) - barrierHeight / 2)
 	self.barrier = self:addComponent(Collider{
 		shape_type = 'rectangle',
-		shape_arguments = shape_arguments,
+		shape_arguments = {0, 0, self.rect.width, barrierHeight},
 		body_type = 'static',
-		position = position,
+		position = barrierPosition,
 		sensor = not DrawbridgeSupport.isBarrierPresent(self.state),
 	})
 
@@ -49,6 +59,12 @@ function Drawbridge:init(object)
 		position = position,
 		sensor = not DrawbridgeSupport.isDeckSolid(self.state),
 	})
+	-- Player:queryOnGround()/GroundSupport treat a bare `entity == nil`
+	-- collider as terrain; the deck belongs to this Drawbridge entity, so it
+	-- needs an explicit opt-in to be recognised as ground a player can
+	-- stand and walk on, or a crossing player gets stuck in FallState the
+	-- instant they step onto it (found via the headed drawbridge scenario).
+	self.deck.walkable = true
 
 	-- always-present sensor on the correct (facing) side; overlap by an
 	-- eligible entity starts (or reverses back into) the open transition

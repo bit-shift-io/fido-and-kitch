@@ -300,7 +300,7 @@ function Player:queryOnGround()
 	local colls = world:queryBounds(bounds)
 	for _, c in ipairs(colls) do
 		local entity = c.entity
-		if entity == nil then 
+		if entity == nil or c.walkable then
 			return true
 		end
 	end

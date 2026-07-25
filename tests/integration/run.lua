@@ -1,6 +1,6 @@
--- Integration test runner. Mirrors tests/run.lua's test()/assert*/file-list
+-- Integration test runner. Mirrors tests/unit/run.lua's test()/assert*/file-list
 -- pattern so both suites feel like one testing convention; kept separate so
--- ./test.sh stays fast and untouched (see .scratch/integration-testing/).
+-- ./test-unit.sh stays fast and untouched (see .scratch/integration-testing/).
 --
 -- lib/sti is a directory module (lib/sti/init.lua); the default luajit/lua
 -- package.path only searches system init.lua locations, not a local one, so
@@ -15,6 +15,7 @@ local defaultTestFiles = {
 	'tests/integration/harness_smoke_test.lua',
 	'tests/integration/movement_test.lua',
 	'tests/integration/all_maps_load_test.lua',
+	'tests/integration/capture_guard_test.lua',
 }
 
 local tests = {}

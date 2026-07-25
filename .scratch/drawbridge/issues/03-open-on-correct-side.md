@@ -1,4 +1,4 @@
-Status: in-progress — blocked on a real repro-ability problem, see notes below
+Status: done — the repro-ability problem below is resolved; both remaining acceptance criteria are now covered by an automated headed test (see notes below)
 
 # Open on correct-side player approach, cross the solid deck
 
@@ -23,8 +23,8 @@ When a player (eligibility is hard-coded to players-only in this slice) approach
 
 - [x] Correct-side player approach triggers the open animation and a solid deck.
 - [x] The deck becomes solid before the player reaches the gap (no fall).
-- [ ] Wrong-side approach does not open the bridge. (implemented — no sensor exists on the wrong side by construction — but not yet re-verified after the fixes below)
-- [ ] Once open, the deck is solid ground the player crosses. **Player gets stuck partway across — see below.**
+- [x] Wrong-side approach does not open the bridge. Re-verified by `tests/e2e/drawbridge_test.lua` — the trigger genuinely never fires from the wrong side once the barrier fix below makes it actually block.
+- [x] Once open, the deck is solid ground the player crosses. Root cause of the "stuck partway across" bug found and fixed (see below); now covered by `tests/e2e/drawbridge_test.lua`.
 - [x] Trigger sensor and open behaviour mirror correctly with `facing`.
 - [x] New helpers covered by tests (`mayOpen`, `nextStateOnTrigger`, `nextStateOnAnimationFinish`).
 
@@ -45,3 +45,12 @@ When a player (eligibility is hard-coded to players-only in this slice) approach
 **Known environment gotcha that cost significant time and is *not* the bug above:** the installed `love` binary is 11.5 but `conf.lua` targets `t.version = "12.0"`, so LÖVE sometimes shows a native "Compatibility Warning" alert on launch. It's a separate OS-level window; dismissing it via the Accessibility API (`System Events click button "OK"`) rather than a real mouse click can leave the game window unable to receive synthesized keyboard input afterward, which looks exactly like "player frozen" and cost a lot of debugging time before being ruled out. If automating manual verification again: click into the game window with a real synthesized click (`cliclick`, not `osascript`'s accessibility click) before sending key events, and do it on a fresh launch.
 
 **Decision:** paused here to build the `.scratch/integration-testing/` harness first (real `Game`/`Map`/`Player` stack, headless `love` mock, scripted input, fixed timestep) so this kind of movement bug is caught by a deterministic assertion instead of screenshot/AppleScript archaeology. Resume this issue once that harness exists.
+
+## Resolution (via `.scratch/headed-e2e-tests/`)
+
+Both problems above are now root-caused and fixed, verified by the headed e2e scenario in `tests/e2e/drawbridge_test.lua` rather than manual screenshot/AppleScript archaeology:
+
+- **"Stuck partway across" root cause:** `Player:queryOnGround()` and `GroundSupport.isFullySupported()` both only recognise a collider as "ground" when it has no owning entity (`c.entity == nil`) — correct for plain map terrain, but the drawbridge's deck collider belongs to the `Drawbridge` entity, so it was never recognised as ground at all. The player's FSM transitioned to `FallState` the instant they stepped onto the open deck and never transitioned back (vertically supported by real physics, but the FSM didn't know it), and `FallState` doesn't apply horizontal movement input — hence "stuck", not falling. Fixed with an explicit `collider.walkable` opt-in flag (set on the deck in `src/entities/drawbridge.lua`), read by both ground checks; `src/physics/bump/world.lua`'s query-result mirroring (`v.entity = v.other.entity`) was extended to mirror `.walkable` the same way, since query results are new tables, not the original collider objects.
+- **Wrong-side approach never actually blocked:** the closed barrier collider reused the bridge tile's own flush-with-ground rect (same height, same top edge as the walking surface). Two solid rects of equal height that both start at the ground surface resolve as a walkable step under this project's simple AABB collision (`lib/bump`), not a wall — so the barrier never stopped a player approaching at normal standing height, from either side. This was never caught because the correct-side approach always hits the trigger (which sits closer to spawn than the barrier) before reaching the barrier, and the wrong-side case was never verified for real. Fixed by giving the barrier its own taller collider shape (5x the tile height, bottom flush with the tile, extending upward) in `src/entities/drawbridge.lua`, distinct from the deck's shape.
+
+Both fixes are narrowly scoped to the drawbridge/ground-support code paths they touch and were verified against the existing headless suites (`./test-unit.sh`, `./test-integration.sh`) to introduce no regressions there.

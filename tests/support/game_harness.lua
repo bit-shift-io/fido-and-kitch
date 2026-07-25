@@ -3,13 +3,18 @@
 -- skipping MenuState/Slab entirely, per DECISIONS.md Q3: driving Slab menu
 -- UI via simulated input is out of scope, so tests jump straight to the
 -- state that actually loads the map/player/world stack.
-local LoveMock = require('tests.integration.support.love_mock')
+local LoveMock = require('tests.support.love_mock')
 
 local GameHarness = {}
 
 local globalsBooted = false
 
-local function bootGlobals()
+-- Under real LÖVE (isReal = true) the engine itself already invoked
+-- love.conf(t) and src/main.lua already set conf.args from the real launch
+-- arguments before handing off to the e2e runner -- redoing either here
+-- would stomp on real window/module setup rather than just replicate it, so
+-- that block is skipped entirely in that mode (see DECISIONS.md Q11).
+local function bootGlobals(isReal)
 	if globalsBooted then
 		return
 	end
@@ -17,12 +22,14 @@ local function bootGlobals()
 
 	tbl = require('src.utils.tbl')
 
-	conf = require('conf')
-	-- love.conf(t) is normally invoked by the LÖVE runtime itself before
-	-- love.load, with `t` pre-seeded with these sub-tables for conf.lua to
-	-- override -- outside LÖVE nobody calls it, so we replicate that here.
-	love.conf({graphics = {}, window = {}, modules = {}, audio = {}})
-	conf.args = {}
+	if not isReal then
+		conf = require('conf')
+		-- love.conf(t) is normally invoked by the LÖVE runtime itself before
+		-- love.load, with `t` pre-seeded with these sub-tables for conf.lua to
+		-- override -- outside LÖVE nobody calls it, so we replicate that here.
+		love.conf({graphics = {}, window = {}, modules = {}, audio = {}})
+		conf.args = {}
+	end
 
 	str = require('src.utils.str')
 	utils = require('src.utils.utils')
@@ -52,9 +59,15 @@ end
 
 -- Fresh love mock per game so keyboard/joystick state never leaks between
 -- tests (or between successive games started within the same test).
-function GameHarness.startGame(mapPath)
-	love = LoveMock.new()
-	bootGlobals()
+-- Pass {real = true} under the e2e tier to start against the real `love`
+-- global the engine already provided instead of installing the mock.
+function GameHarness.startGame(mapPath, opts)
+	opts = opts or {}
+
+	if not opts.real then
+		love = LoveMock.new()
+	end
+	bootGlobals(opts.real)
 
 	local GameStates = require('src.game_states')
 	local game = {}
@@ -72,7 +85,18 @@ function GameHarness.startGame(mapPath)
 		self.fsm:update(dt)
 	end
 
+	function game:draw()
+		self.fsm:draw()
+	end
+
 	game:load{map = mapPath}
+
+	-- Lets the e2e runner (tests/e2e/run.lua) know which game object to
+	-- render every real drawn frame and capture from; a no-op hook outside
+	-- the e2e tier.
+	if opts.real and _G.E2E_ON_GAME_STARTED then
+		_G.E2E_ON_GAME_STARTED(game)
+	end
 
 	return game
 end

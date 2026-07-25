@@ -115,6 +115,7 @@ function World:queryRectangleArea(x1, y1, x2, y2)
 
    for i,v in ipairs(cols) do
 		v.entity = v.other.entity
+		v.walkable = v.other.walkable
 	end
 
    return cols
