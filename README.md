@@ -41,6 +41,17 @@ https://www.mapeditor.org/
 Edit > Preferences > check 'Embed tilesets' & 'Detatch Templates'
 Save the map as tmx but will need to be exported as .lua to be loaded.  
 
+## Controls
+F1 - debug
+F12 - screenshot
+
+P1
+Arrow keys + right shift
+
+P2
+WASD + left shift
+
+
 ## Contribute
 
 Looking for things to do, look here: https://github.com/bit-shift-io/fido-and-kitch/projects
