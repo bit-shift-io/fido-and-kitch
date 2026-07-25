@@ -12,14 +12,12 @@ test('facing left places the trigger sensor one tile to the left', function()
 	assertEqual(-32, DrawbridgeSupport.triggerOffsetX('left', 32))
 end)
 
-test('closed state has a solid barrier and no walkable deck', function()
-	assertTrue(DrawbridgeSupport.isBarrierPresent('closed'))
+test('closed state has no walkable deck (the gap is fully exposed, no barrier)', function()
 	assertFalse(DrawbridgeSupport.isDeckSolid('closed'))
 end)
 
-test('opening, open, and closing states have a solid deck and no barrier', function()
+test('opening, open, and closing states have a solid deck', function()
 	for _, state in ipairs({'opening', 'open', 'closing'}) do
-		assertFalse(DrawbridgeSupport.isBarrierPresent(state), state .. ' should have no barrier')
 		assertTrue(DrawbridgeSupport.isDeckSolid(state), state .. ' should have a solid deck')
 	end
 end)

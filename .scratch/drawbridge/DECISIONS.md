@@ -19,10 +19,17 @@
 - **Alternatives considered:** Inferring the correct side from adjacent solid tiles — rejected as too implicit and easy to get wrong; a solid-invisible-wall-only model with no real gap — rejected, the user wants a genuine chasm underneath.
 
 ### Q4: What a *blocked* entity experiences when closed
-**Decision:** Blocked entities (wrong side, or ineligible) are **stopped like a wall** — they bump the closed bridge and cannot step onto the tile; they do not fall into the gap by bumping it.
+**Original decision (superseded — see revision below):** Blocked entities (wrong side, or ineligible) are **stopped like a wall** — they bump the closed bridge and cannot step onto the tile; they do not fall into the gap by bumping it.
 - **Why:** Falling on every failed crossing would be punishing and unreadable; a wall is predictable.
 - **Implication:** Closed state needs a solid **closed barrier** collider that blocks horizontal entry, separate from the walkable deck. The gap below is still real — the barrier just prevents an entity from wandering into it off a closed bridge.
 - **Alternatives considered:** Letting blocked entities fall — rejected as too punishing for a routing primitive.
+
+**Revision (post-playtesting):** Removed the barrier entirely. Closed = the gap is fully exposed on both sides; approaching from the wrong side means falling in, exactly like any other unbridged pit.
+- **Why:** After building and playing it, an invisible wall on the wrong side read as an arbitrary, unreadable block rather than a meaningful consequence — worse for feel than the "punishing" fall it was meant to avoid. Falling is legible: the player can see the gap the whole time; the wall required no visual cue at all to explain why they'd stopped.
+- **Implication:** `Drawbridge` has no barrier collider or `isBarrierPresent` concept at all now — only the deck (solid while opening/open/closing) and the always-present correct-side trigger sensor. This also **surfaced two real, general engine bugs** (not drawbridge-specific), both now fixed and documented in `tests/README.md`'s gotchas section:
+  - `Player:queryOnGround()` / `GroundSupport.hasGroundAt` treated `collider.walkable` as a standing guarantee rather than a capability flag, so a walkable-but-currently-sensor collider (the deck while closed) still registered as ground — a player would walk straight across the "exposed" gap at a fixed height instead of falling. Fixed by additionally requiring `not collider.sensor`.
+  - The fixture map's declared `height` (6 tiles) was shorter than its own kill zone, so the map's own invisible bottom-boundary wall (sized off the declared map dimensions) sat exactly at the kill zone's top edge and physically stopped the fall before it ever reached the kill zone's interior. Fixed by growing the fixture to a declared height that comfortably contains the pit.
+- **Alternatives considered:** Keeping the wall but only from one side (still arbitrary-feeling and adds asymmetric-collision complexity for no real benefit); a softer "slow down near the edge" cue (adds a whole new interaction model for a problem falling already solves once the ground-check bug was fixed).
 
 ### Q5: Interrupting the open↔close transition
 **Decision:** A close-in-progress that gets re-triggered **reverses in place** back to open.

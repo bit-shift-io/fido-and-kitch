@@ -1,4 +1,4 @@
-Status: done
+Status: done — superseded by a post-playtesting design revision, see note at the end
 
 # Closed drawbridge entity that blocks like a wall
 
@@ -38,3 +38,13 @@ None — can start immediately (parallel with 01).
 - No Tiled GUI was available while building this — `res/map/drawbridge_fixture.lua` was hand-written directly in STI's exported-Lua shape (no `.tmx` source). It loads and plays correctly (confirmed via manual run below), but if anyone has Tiled available, re-authoring it properly and exporting would be preferable to hand-maintaining Lua.
 - **Manually verified in-game**: `love . map=drawbridge_fixture.lua`, walked a player into the closed bridge from the spawn side — they stop flush against it, no fall into the gap.
 - Added tile id 11 to `res/tilesets/props.tsx` (reusing `default.png`) purely so the Tiled template (`res/templates/drawbridge.tx`) has a palette icon; the entity itself renders via its own `Sprite` component, not STI's tile rendering.
+
+## Superseded (post-playtesting revision)
+
+Everything above describes the **original** design: a closed drawbridge blocks like a wall from both sides via a solid `barrier` collider. After playtesting the shipped feature, this was reversed — see DECISIONS.md Q4's revision. **The barrier collider was removed entirely.** Closed now means the gap is fully exposed on both sides; approaching from the wrong side means falling in, like any other pit, not bumping a wall.
+
+This also surfaced two real, general engine bugs while fixing the wrong-side e2e test to expect a fall instead of a block (both documented in `tests/README.md`'s gotchas, both fixed):
+- `Player:queryOnGround()`/`GroundSupport.hasGroundAt()` treated the deck's `collider.walkable = true` flag as a standing guarantee regardless of its current `sensor` state, so a player walked straight across the "exposed" gap at a fixed height instead of falling through the now-sensor deck.
+- The fixture map's declared `height` was shorter than its own kill zone, so the map's own invisible bottom-boundary wall physically stopped the fall before it ever reached the kill zone.
+
+The acceptance criteria above (checked as `[x]`) reflect what was true when this issue was originally closed; they are no longer the current behaviour. See `issues/03-open-on-correct-side.md`'s own superseded-note for the corresponding wrong-side test rewrite.

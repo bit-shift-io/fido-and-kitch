@@ -43,3 +43,18 @@ test('not fully supported when entirely over open air', function()
 
 	assertFalse(GroundSupport.isFullySupported(world, bounds))
 end)
+
+test('not fully supported over a walkable collider that is currently a sensor', function()
+	-- mirrors an entity-owned collider like a drawbridge deck: marked
+	-- walkable (a capability, not a standing guarantee), but not currently
+	-- solid -- must not count as ground while it's a sensor
+	world = World:new(0, 0, true)
+	local deck = makeGround(100, 500, 200, 32)
+	deck.entity = {}
+	deck.walkable = true
+	deck:setSensor(true)
+
+	local bounds = {left = 90, right = 110, bottom = 480}
+
+	assertFalse(GroundSupport.isFullySupported(world, bounds))
+end)

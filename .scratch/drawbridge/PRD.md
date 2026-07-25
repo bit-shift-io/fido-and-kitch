@@ -8,7 +8,7 @@ Every path through a level is currently symmetric: if a player can walk left-to-
 
 Introduce the **drawbridge**: a single-tile, one-way crossing placed over a real gap in the terrain.
 
-- It starts **closed** — the gap is exposed and the tile blocks passage like a wall, so nobody can cross.
+- It starts **closed** — the gap is fully exposed, a real hazard like any other pit. Approaching from the wrong side means falling in, not bumping a wall. (Revised after hands-on playtesting — see Q4 in DECISIONS.md; the original design had a closed barrier blocking both sides like a wall.)
 - When an **eligible** entity (a player by default) approaches from the drawbridge's **correct side**, the bridge plays its **open (lower) animation** and becomes solid, walkable ground spanning the gap.
 - While open, the crossing is solid to *everyone* — the second player, and even enemies — so they can follow the player who opened it across, from either direction.
 - The bridge stays open as long as any entity overlaps its tile. When the last one clears, it plays the **close (raise) animation** — the open animation played in reverse — and returns to blocking the gap.
@@ -19,8 +19,8 @@ This gives designers a directional gate: the correct-side player is the only one
 ## User Stories
 
 1. As a player, I want to walk toward a closed drawbridge from its correct side and have it lower into a solid crossing before I reach the gap, so that I can walk straight across without falling.
-2. As a player, I want the closed drawbridge to block me like a wall (not drop me into the gap) when I can't open it, so that bumping a closed bridge is safe and predictable.
-3. As a player approaching from the wrong side, I want the closed bridge to stay shut and block me, so that the crossing is genuinely one-way until someone opens it.
+2. As a player approaching from the wrong side, I want the closed bridge to stay shut and never open for me, so that the crossing is genuinely one-way until someone opens it from the correct side.
+3. As a player approaching from the wrong side, I want the exposed gap to be a real hazard (I fall in, like any other pit) rather than a wall I bump into, so the one-way gate has real stakes and doesn't feel like an arbitrary invisible block. (Revised from the original "blocks like a wall" design after playtesting — see DECISIONS.md Q4.)
 4. As the second player, I want to cross a drawbridge that my co-op partner opened, from either direction, so that one player can unlock a route for the other.
 5. As a player, I want an enemy chasing me to be able to follow me across a bridge I opened, so that opening a crossing carries a real trade-off.
 6. As a player, I want the bridge to stay open the whole time anyone is standing on or overlapping it, so that it never closes under me or a partner mid-crossing.
@@ -37,14 +37,13 @@ This gives designers a directional gate: the correct-side player is the only one
 
 - **New entity** `drawbridge` (`Class{__includes = Entity}`, one Tiled `type`), built by composition from existing components (`Sprite`, `Collider`) plus a small internal state machine for closed / opening / open / closing.
 - **Placement over a real gap.** The designer authors an actual 1-tile gap in the terrain and drops the drawbridge onto it. The pit below is ordinary terrain (or a kill zone) authored independently — the drawbridge does not create the hazard, it gates the crossing.
-- **Two-part collision:**
-  - A **deck collider** — static, solid (non-sensor) — that represents the walkable, lowered bridge. Present only while the bridge is open; absent while closed. This is what makes the crossing solid ground for everyone once opened.
-  - A **closed barrier** — static, solid — that blocks horizontal passage while closed so a blocked entity bumps like a wall instead of falling into the gap. Present only while closed; removed while open.
+- **Collision:**
+  - A **deck collider** — static, solid (non-sensor) — that represents the walkable, lowered bridge. Present only while the bridge is open/opening/closing; absent while closed, at which point the gap is fully exposed (no barrier — see DECISIONS.md Q4).
   - A **trigger sensor** on the correct-approach side, always present, that detects eligible entities and starts the open transition.
 - **Correct side** is a Tiled custom property (e.g. `facing` = `left` / `right`) naming the side the bridge lowers toward and the side its trigger sensor sits on. The sprite mirrors to match (horizontal flip via the existing `Sprite:setFacing`).
 - **Eligibility** is a Tiled custom property controlling who may open the bridge — players only by default, with an opt-in to also allow enemies. Eligibility gates *opening* only; once open, the deck is solid to all entities regardless of eligibility.
 - **Occupancy → close.** The bridge stays open while ≥1 entity's collider overlaps the bridge tile (players and enemies both count). When the last overlapping entity leaves, the close transition begins.
-- **Reversible animation.** The close animation is the open animation played in reverse. Solidity is tied to the transition: opening makes the deck solid, closing restores the closed barrier, with the flip timed so an entity is never dropped (occupancy keeps it open while anyone is present). A mid-close re-trigger reverses the timeline in place back toward open.
+- **Reversible animation.** The close animation is the open animation played in reverse. Solidity is coherent across opening/open/closing (deck solid throughout) so an entity is never dropped mid-transition (occupancy keeps it open while anyone is present); only the fully-`closed` state has an exposed gap. A mid-close re-trigger reverses the timeline in place back toward open.
 - **Reset** — the drawbridge resets to closed spawn state on level restart, matching the pushable-props reset model. An individual player's death/respawn does not force it closed (occupancy governs that naturally).
 
 ## Reversible Sprite/Timeline API
@@ -101,9 +100,9 @@ tests/
 
 ## Acceptance Criteria
 
-- [ ] A closed drawbridge blocks passage from both sides like a wall; no entity falls into the gap by bumping it.
+- [ ] A closed drawbridge has no barrier; the gap is fully exposed and a real hazard from either side until opened. (Revised — see DECISIONS.md Q4.)
 - [ ] An eligible entity (player by default) approaching from the correct side triggers the open (lower) animation and the crossing becomes solid before the entity reaches the gap.
-- [ ] An entity approaching from the wrong side cannot open the bridge.
+- [ ] An entity approaching from the wrong side cannot open the bridge, and falls into the gap rather than being blocked.
 - [ ] An ineligible entity (e.g. an enemy when not opted in) cannot open the bridge from either side.
 - [ ] Once open, the deck is solid ground to all entities from either direction; a second player and an enemy can both cross.
 - [ ] The bridge stays open while any entity overlaps its tile and never drops an occupant.

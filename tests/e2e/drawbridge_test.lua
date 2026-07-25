@@ -98,7 +98,7 @@ test('correct-side approach opens the deck before the gap and the player crosses
 	assertTrue(finalX >= FAR_SIDE_X, 'expected the player to have fully crossed onto the far side')
 end)
 
-test('wrong-side approach leaves the player blocked and the bridge closed', function()
+test('wrong-side approach falls into the exposed gap; the bridge never opens', function()
 	local game = GameHarness.startGame(MAP, {real = true})
 	local controller = FakeInput.new()
 
@@ -116,23 +116,38 @@ test('wrong-side approach leaves the player blocked and the bridge closed', func
 	assertEqual('closed', Queries.drawbridgeState(bridge), 'expected the bridge to start closed')
 	Capture.capture('01_wrong_side_approach')
 
+	-- closed means the gap is fully exposed -- no barrier, so the wrong side
+	-- is a real hazard, not a wall
 	controller:press('left')
 
+	local fell = false
 	for _ = 1, MAX_APPROACH_FRAMES do
 		FrameStepper.step(game, 1)
+		local x = Queries.playerPositionV(player).x
 
-		assertFalse(Queries.playerIsDead(player), 'player must never die/fall while blocked at the bridge')
-		assertEqual('closed', Queries.drawbridgeState(bridge), 'the bridge must never open from the wrong side')
+		-- only asserted while still approaching on solid ground: once the
+		-- player is falling through/past the gap, held 'left' input keeps
+		-- drifting them the rest of the way across during the fall (a ~64px
+		-- drop takes long enough to cover the remaining ~65px sideways at
+		-- normal walk speed) and they can legitimately end up overlapping
+		-- the correct-side trigger while still mid-air -- harmless (they're
+		-- already committed to falling into the kill zone below), but not
+		-- the invariant this test cares about
+		if x > GAP_END_X then
+			assertEqual('closed', Queries.drawbridgeState(bridge), 'the bridge must not open while still approaching from the wrong side')
+		end
+
+		if Queries.playerIsDead(player) then
+			fell = true
+			break
+		end
 	end
 
 	controller:release('left')
-	Capture.capture('02_outcome_blocked')
+	Capture.capture('02_fell_into_gap')
 
+	assertTrue(fell, 'expected the wrong-side approach to fall into the exposed gap')
 	assertEqual('closed', Queries.drawbridgeState(bridge), 'expected the bridge to remain closed')
-	assertFalse(Queries.playerIsDead(player), 'player must not have died')
-
-	local finalX = Queries.playerPositionV(player).x
-	assertTrue(finalX > GAP_END_X, 'expected the player to have stayed on the far side, blocked by the barrier')
 end)
 
 test('the bridge closes once the last occupant leaves, and a re-trigger mid-close reverses back to open', function()

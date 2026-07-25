@@ -300,7 +300,11 @@ function Player:queryOnGround()
 	local colls = world:queryBounds(bounds)
 	for _, c in ipairs(colls) do
 		local entity = c.entity
-		if entity == nil or c.walkable then
+		-- `walkable` is a capability flag ("this collider counts as ground
+		-- when solid"), not a standing guarantee -- an entity-owned collider
+		-- like a drawbridge deck can currently be a sensor (e.g. closed), in
+		-- which case it must not count as ground
+		if entity == nil or (c.walkable and not c.other.sensor) then
 			return true
 		end
 	end

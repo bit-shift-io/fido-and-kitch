@@ -4,8 +4,9 @@
 --
 -- State model: closed -> opening -> open -> closing -> closed.
 -- Solidity is intentionally coherent across opening/open/closing (deck solid
--- the whole time, barrier only present when fully closed) so an occupant is
--- never dropped and a mid-close reversal never has to flip solidity.
+-- the whole time) so an occupant is never dropped and a mid-close reversal
+-- never has to flip solidity. Closed has no barrier at all -- the gap is
+-- fully exposed; approaching from the wrong side means falling in.
 local DrawbridgeSupport = {}
 
 -- how far ahead of the bridge tile (in tiles) the correct-side trigger
@@ -30,10 +31,6 @@ end
 
 function DrawbridgeSupport.isDeckSolid(state)
 	return state ~= 'closed'
-end
-
-function DrawbridgeSupport.isBarrierPresent(state)
-	return state == 'closed'
 end
 
 -- an eligible entity overlapping the correct-side trigger sensor: starts a
@@ -87,7 +84,7 @@ function DrawbridgeSupport.nextStateOnAnimationFinish(state)
 end
 
 -- true if any collider in the overlap set belongs to an entity other than
--- the drawbridge's own colliders (deck/barrier/trigger)
+-- the drawbridge's own colliders (deck/trigger)
 function DrawbridgeSupport.hasOccupant(overlaps, selfEntity)
 	for _, collider in ipairs(overlaps) do
 		if collider.entity and collider.entity ~= selfEntity then

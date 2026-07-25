@@ -54,3 +54,14 @@ Both problems above are now root-caused and fixed, verified by the headed e2e sc
 - **Wrong-side approach never actually blocked:** the closed barrier collider reused the bridge tile's own flush-with-ground rect (same height, same top edge as the walking surface). Two solid rects of equal height that both start at the ground surface resolve as a walkable step under this project's simple AABB collision (`lib/bump`), not a wall — so the barrier never stopped a player approaching at normal standing height, from either side. This was never caught because the correct-side approach always hits the trigger (which sits closer to spawn than the barrier) before reaching the barrier, and the wrong-side case was never verified for real. Fixed by giving the barrier its own taller collider shape (5x the tile height, bottom flush with the tile, extending upward) in `src/entities/drawbridge.lua`, distinct from the deck's shape.
 
 Both fixes are narrowly scoped to the drawbridge/ground-support code paths they touch and were verified against the existing headless suites (`./test-unit.sh`, `./test-integration.sh`) to introduce no regressions there.
+
+## Further revision: the barrier itself was removed (post-playtesting)
+
+After the above shipped and was playtested live, the "wrong-side approach leaves the player blocked" behaviour was reversed — see DECISIONS.md Q4's revision and `issues/02-closed-drawbridge-blocks.md`'s superseded note. **There is no barrier collider at all now.** Closed means the gap is fully exposed; the wrong side is a real hazard (fall in), not a wall.
+
+Removing the barrier immediately surfaced the *exact* two bugs described above, again, in a new guise, while rewriting the e2e wrong-side test to expect a fall instead of a block:
+
+- `Player:queryOnGround()`/`GroundSupport.hasGroundAt()`'s `walkable` check didn't look at the collider's *current* `sensor` state, only its permanent `walkable` flag — so a player walking over the (now correctly non-solid) closed deck was still treated as grounded and walked straight across at a fixed height instead of falling through. Fixed by additionally requiring `not collider.other.sensor` in both checks.
+- The fixture map's declared `height` (6 tiles) was shorter than its own kill zone, so the map's own invisible bottom-boundary wall physically stopped the fall exactly at the kill zone's top edge, before the fall ever reached the zone's interior — the player just hung there, alive, never dying. Fixed by growing the fixture map's declared height.
+
+Both are documented as general gotchas (not drawbridge-specific) in `tests/README.md`. The e2e wrong-side test (`tests/e2e/drawbridge_test.lua`) now asserts the player falls into the gap and the bridge never opens while still approaching on solid ground (a mid-air drift into the correct-side trigger while already falling is possible and harmless, since they're already committed to the fall — not asserted against).

@@ -14,7 +14,7 @@ return {
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 9,
-  height = 6,
+  height = 14,
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 4,

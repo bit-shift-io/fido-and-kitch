@@ -10,7 +10,11 @@ local function hasGroundAt(world, x, top, bottom)
 	local probe = {left = x - 2, right = x + 2, top = top, bottom = bottom}
 	local colls = world:queryBounds(probe)
 	for _, c in ipairs(colls) do
-		if c.entity == nil or c.walkable then
+		-- `walkable` is a capability flag, not a standing guarantee -- an
+		-- entity-owned collider (e.g. a drawbridge deck) can currently be a
+		-- sensor, in which case it must not count as ground (see
+		-- Player:queryOnGround for the same fix)
+		if c.entity == nil or (c.walkable and not c.other.sensor) then
 			return true
 		end
 	end
