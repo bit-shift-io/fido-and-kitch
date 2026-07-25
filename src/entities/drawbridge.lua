@@ -13,6 +13,8 @@ function Drawbridge:init(object)
 	self.name = object.name
 	self.state = 'closed'
 
+	self.hasBeenOccupied = false
+
 	self.rect = Rect(object)
 	local shape_arguments = self.rect:colliderShapeArgs()
 	local position = self.rect:centre()
@@ -23,7 +25,11 @@ function Drawbridge:init(object)
 	self.sprite = self:addComponent(Sprite{
 		image = 'res/img/default.png',
 		frames = 1,
-		duration = 1.0,
+		-- fast enough that the deck finishes lowering while the entity that
+		-- triggered it (walking from the lead-in sensor, one tile away) is
+		-- still on or approaching the tile, not long after they've already
+		-- crossed and left
+		duration = 0.3,
 		loop = false,
 		playing = false,
 		position = position,
@@ -84,6 +90,50 @@ function Drawbridge:setState(state)
 	self.state = state
 	self.barrier:setSensor(not DrawbridgeSupport.isBarrierPresent(state))
 	self.deck:setSensor(not DrawbridgeSupport.isDeckSolid(state))
+end
+
+function Drawbridge:update(dt)
+	Entity.update(self, dt)
+	self:checkOccupancy()
+end
+
+-- comfortably taller than any standing entity, so an occupant resting on
+-- the deck (feet at the tile's top edge, body extending upward) is caught
+-- by the occupancy query below, not just something inside the tile's own
+-- physical depth
+local OCCUPANCY_HEIGHT_MARGIN = 200
+
+-- occupancy is the safety net: it keeps the bridge open (or reopens a
+-- close-in-progress) while anyone overlaps the tile's footprint, independent
+-- of the trigger sensor, so an occupant is never dropped
+function Drawbridge:checkOccupancy()
+	local bounds = {
+		left = self.rect.x,
+		right = self.rect.x + self.rect.width,
+		top = self.rect.y - OCCUPANCY_HEIGHT_MARGIN,
+		bottom = self.rect.y + self.rect.height,
+	}
+	local overlaps = world:queryOverlap(bounds)
+	local occupied = DrawbridgeSupport.hasOccupant(overlaps, self)
+
+	if occupied then
+		self.hasBeenOccupied = true
+	end
+
+	local nextState = DrawbridgeSupport.nextStateOnOccupancyChange(self.state, occupied, self.hasBeenOccupied)
+
+	if nextState == self.state then
+		return
+	end
+
+	if nextState == 'closing' then
+		self.sprite:playReverse() -- fresh close from the fully-open end
+		self.hasBeenOccupied = false -- reset for the next open cycle
+	elseif nextState == 'opening' then
+		self.sprite:reverseFromCurrent() -- reverse in place, no snap
+	end
+
+	self:setState(nextState)
 end
 
 function Drawbridge:onTriggerEnter(other)

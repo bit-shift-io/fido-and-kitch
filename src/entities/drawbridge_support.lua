@@ -53,9 +53,17 @@ end
 -- occupancy (any entity overlapping the bridge tile, players or enemies
 -- alike) governs staying open and reopening; it is the safety net that
 -- guarantees the bridge never closes on an occupant, independent of who
--- (or whether anyone) touched the trigger sensor
-function DrawbridgeSupport.nextStateOnOccupancyChange(state, occupied)
-	if state == 'open' and not occupied then
+-- (or whether anyone) touched the trigger sensor.
+--
+-- `hasBeenOccupied` guards the open->closing edge: closing only begins once
+-- someone has actually been on the tile and then left ("the last one
+-- clears the footprint"), not the instant it opens. Without this, a bridge
+-- that just finished opening -- deck deliberately made solid before the
+-- triggering entity has physically arrived, per the lead-in trigger design
+-- -- would see `occupied == false` and immediately reverse right back to
+-- closing before anyone ever set foot on it.
+function DrawbridgeSupport.nextStateOnOccupancyChange(state, occupied, hasBeenOccupied)
+	if state == 'open' and hasBeenOccupied and not occupied then
 		return 'closing'
 	end
 

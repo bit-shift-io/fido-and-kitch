@@ -36,10 +36,15 @@ Solidity is tied to the transition and must stay coherent through a mid-close re
 
 ## Status (as of this session)
 
-- **01 (reversible Timeline API): done.** Tested, no regressions.
-- **02 (closed drawbridge blocks): done.** Tested + manually verified in-game.
-- **03 (open on correct-side approach): in progress, paused.** Trigger/state-machine/solidity logic is implemented, unit-tested, and confirmed correct via a live debug readout — but a real, unexplained bug was found where the player stops moving partway across the open deck (not at a tile seam). See `issues/03-open-on-correct-side.md` for full details. **Paused to build `.scratch/integration-testing/` first**, so this class of bug gets a deterministic headless repro instead of manual screenshot-driven verification.
-- **04, 05: not started** (blocked on 03).
+All five slices are done. The feature was paused mid-03 to build a proper headed/headless test harness (`.scratch/integration-testing/` and `.scratch/headed-e2e-tests/`, both since folded into `tests/unit|integration|e2e/` and their own `test-*.sh` scripts — see `tests/README.md`) rather than continue debugging through manual screenshot/AppleScript verification; once that harness existed, the remaining work (03's real bug, 04, 05) went quickly with fast, deterministic repros.
+
+- **01 (reversible Timeline API): done.**
+- **02 (closed drawbridge blocks): done.**
+- **03 (open on correct-side approach): done.** The "player stuck mid-crossing" bug was root-caused with the new harness: `Player:queryOnGround()`/`GroundSupport` don't recognise an entity-owned collider as ground without an explicit `collider.walkable = true` opt-in (the deck now sets it), and a solid rect flush with the ground's own top edge resolves as a walkable step, not a wall, under this project's AABB collision (the barrier is now taller than the tile). Both are now general `tests/README.md` gotchas, not drawbridge-specific.
+- **04 (occupancy close + reverse-in-place): done.** One additional real bug: occupancy closing the bridge the instant `open` was reached (same frame as the animation-finish event, before the triggering entity had physically arrived — by design the trigger leads the gap) needed a `hasBeenOccupied` edge-triggered guard, not a plain "currently unoccupied" check.
+- **05 (eligibility, enemy-follow, reset): done.** Two more real bugs surfaced building its tests, both now documented in `tests/README.md`: `World:queryBounds`'s movement-based `check()` doesn't reliably find dynamic bodies (added `World:queryOverlap`, a real AABB query, for occupancy); and `collider.groupIndex` defaulting to `nil` on both sides silently disables collision between any two ungrouped colliders (a bare test collider needs an explicit one).
+
+Full test suite: `./test-unit.sh && ./test-integration.sh && ./test-e2e.sh` (or `./test-all.sh`). All green except one pre-existing, unrelated flaky camera test (`tests/unit/camera_test.lua`, confirmed flaky on `main` before this feature too).
 
 ## Links
 

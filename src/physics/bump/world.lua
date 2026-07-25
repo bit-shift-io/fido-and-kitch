@@ -127,4 +127,30 @@ function World:queryBounds(bounds)
 end
 
 
+-- Pure "what overlaps this rect right now" query, unlike queryBounds/
+-- queryRectangleArea above: those are built on bump's movement-based
+-- check() (a zero-distance "move"), which reliably finds other STATIC
+-- colliders sharing a cell but does not reliably surface DYNAMIC bodies
+-- (e.g. a player standing in the queried area) -- found via the drawbridge's
+-- occupancy check, which needs exactly that. bump's own World:queryRect is
+-- a genuine AABB overlap query against the spatial hash, no movement/
+-- collision-response semantics involved, so it does not share that gap.
+function World:queryOverlap(bounds)
+   local x = bounds.left
+   local y = bounds.top
+   local w = bounds.right - bounds.left
+   local h = bounds.bottom - bounds.top
+
+   local items, len = self._world:queryRect(x, y, w, h)
+
+   table.insert(self.queryRects, {x=x, y=y, width=w, height=h})
+
+   local results = {}
+   for i = 1, len do
+      results[i] = items[i]
+   end
+   return results
+end
+
+
 return World

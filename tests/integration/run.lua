@@ -16,6 +16,7 @@ local defaultTestFiles = {
 	'tests/integration/movement_test.lua',
 	'tests/integration/all_maps_load_test.lua',
 	'tests/integration/capture_guard_test.lua',
+	'tests/integration/drawbridge_test.lua',
 }
 
 local tests = {}

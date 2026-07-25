@@ -68,3 +68,38 @@ test('animation finish has no effect on closed or open (nothing mid-flight)', fu
 	assertEqual('closed', DrawbridgeSupport.nextStateOnAnimationFinish('closed'))
 	assertEqual('open', DrawbridgeSupport.nextStateOnAnimationFinish('open'))
 end)
+
+test('occupancy is any collider whose entity is not the bridge itself', function()
+	local bridge = {}
+	local occupantCollider = {entity = {type = 'player'}}
+	local ownCollider = {entity = bridge}
+	local groundCollider = {entity = nil}
+
+	assertTrue(DrawbridgeSupport.hasOccupant({occupantCollider}, bridge))
+	assertFalse(DrawbridgeSupport.hasOccupant({ownCollider, groundCollider}, bridge))
+	assertFalse(DrawbridgeSupport.hasOccupant({}, bridge))
+end)
+
+test('an open bridge that has been occupied begins closing once empty', function()
+	assertEqual('closing', DrawbridgeSupport.nextStateOnOccupancyChange('open', false, true))
+end)
+
+test('a freshly-open bridge nobody has reached yet does not close just because it is currently empty', function()
+	assertEqual('open', DrawbridgeSupport.nextStateOnOccupancyChange('open', false, false))
+end)
+
+test('an open bridge stays open while occupied', function()
+	assertEqual('open', DrawbridgeSupport.nextStateOnOccupancyChange('open', true, true))
+end)
+
+test('a new occupant mid-close reverses back to opening', function()
+	assertEqual('opening', DrawbridgeSupport.nextStateOnOccupancyChange('closing', true, false))
+end)
+
+test('occupancy has no effect on closed, opening, or an already-closing empty bridge', function()
+	assertEqual('closed', DrawbridgeSupport.nextStateOnOccupancyChange('closed', false, false))
+	assertEqual('closed', DrawbridgeSupport.nextStateOnOccupancyChange('closed', true, false))
+	assertEqual('opening', DrawbridgeSupport.nextStateOnOccupancyChange('opening', false, false))
+	assertEqual('opening', DrawbridgeSupport.nextStateOnOccupancyChange('opening', true, false))
+	assertEqual('closing', DrawbridgeSupport.nextStateOnOccupancyChange('closing', false, false))
+end)
