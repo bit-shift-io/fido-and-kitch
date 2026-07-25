@@ -50,9 +50,21 @@
 
 ## Integration test
 
-**Definition** — A headless Lua test that loads a real (usually small, dedicated fixture) map through the actual `Game`/`InGameState`/`Map`/`Player` stack, drives simulated keyboard or joystick input across many stepped frames the way a human would, and asserts on resulting gameplay state. Runs outside the real LÖVE runtime via a minimal `love.*` mock, through a separate command from the fast unit-test suite.
+**Definition** — A headless Lua test that loads a real (usually small, dedicated fixture) map through the actual `Game`/`InGameState`/`Map`/`Player` stack, drives simulated keyboard or joystick input across many stepped frames the way a human would, and asserts on resulting gameplay state. Runs outside the real LÖVE runtime via a minimal `love.*` mock, through its own command.
 
-**Boundary** — Distinct from a fast gameplay regression test: that category deliberately avoids loading maps or the LÖVE surface; integration tests deliberately load real maps and simulate real input. Not a visual/rendering test (`love.graphics` calls are no-ops) and not a menu/UI-navigation test (tests start directly in `InGameState`, skipping `MenuState`/Slab).
+**Boundary** — The middle of three test tiers (unit, integration, e2e), and the headless one. Distinct from a fast gameplay regression test: that category deliberately avoids loading maps or the LÖVE surface; integration tests deliberately load real maps and simulate real input. Not a visual/rendering test (`love.graphics` calls are no-ops, and frame capture is unavailable) and not a menu/UI-navigation test (tests start directly in `InGameState`, skipping `MenuState`/Slab). A test needing real rendering is a headed test instead.
+
+## Headed test
+
+**Definition** — An end-to-end test that runs the same kind of scripted, deterministic scenario an integration test does — same simulated input, same fixed timestep, same gameplay assertions — but under the real LÖVE runtime with a real window and real rendering, so it can be watched while it runs and can capture frames to disk. Advances as fast as it can by default, with a flag to pace it to real time for watchable playback.
+
+**Boundary** — The outermost of the three test tiers, and the only one where frame capture works. A test belongs to exactly one tier: there is no running the same file both headless and headed, so a scenario asserting only gameplay state stays an integration test. Gameplay input is scripted and real physical input is ignored, so it is not a manual playtest. Closing the window reports the run as cancelled, not failed.
+
+## Frame capture
+
+**Definition** — A still image of a rendered frame written to disk by a headed test, as evidence a human or an AI agent can read afterward without having been present when the test ran. Triggered three ways, freely combined: an explicit named capture from scenario code, an automatic capture at the point an assertion fails, and an optional every-Nth-frame filmstrip whose interval is configurable and which is off by default.
+
+**Boundary** — A debugging artifact, not a baseline: captures are gitignored and never compared against committed reference images, so this is not visual regression testing. Still images only, not video. Unavailable in the headless tier, where attempting a capture is a loud error rather than a silent no-op.
 
 ## Fixture map
 
