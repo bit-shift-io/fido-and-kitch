@@ -38,7 +38,7 @@ https://www.mapeditor.org/
 
 ```bash paru -S tiled```
 
-File > Preferences > check 'Embed tilesets'  
+Edit > Preferences > check 'Embed tilesets' & 'Detatch Templates'
 Save the map as tmx but will need to be exported as .lua to be loaded.  
 
 ## Contribute
