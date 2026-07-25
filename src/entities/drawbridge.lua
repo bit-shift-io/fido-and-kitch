@@ -25,8 +25,8 @@ function Drawbridge:init(object)
 	self.allowEnemies = (object.properties and object.properties.allowEnemies) or false
 
 	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/default.png',
-		frames = 1,
+		image = 'res/img/entity_drawbridge.png',
+		frames = 4,
 		-- fast enough that the deck finishes lowering while the entity that
 		-- triggered it (walking from the lead-in sensor, one tile away) is
 		-- still on or approaching the tile, not long after they've already
@@ -34,8 +34,8 @@ function Drawbridge:init(object)
 		duration = 0.3,
 		loop = false,
 		playing = false,
-		position = position,
-		shape_arguments = shape_arguments,
+		position = Vector(object.x, object.y),
+		shape_arguments = {0, 0, object.width * 2, object.height * 2},
 		facing = self.facing,
 		finish = utils.func(self.onAnimationFinish, self),
 	})
