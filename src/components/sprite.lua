@@ -128,6 +128,41 @@ function Sprite:setFrameNum(frameNum)
 end
 
 
+-- play forward from the start and sync the visible frame immediately
+function Sprite:playForward()
+	self.timeline:playForward()
+	self.frameNum = self.timeline:getFrameIndex(#self.frames)
+end
+
+-- play in reverse from the end and sync the visible frame immediately
+function Sprite:playReverse()
+	self.timeline:playReverse()
+	self.frameNum = self.timeline:getFrameIndex(#self.frames)
+end
+
+-- flip direction from the current frame (no snap)
+function Sprite:reverseFromCurrent()
+	self.timeline:reverseFromCurrent()
+	self.frameNum = self.timeline:getFrameIndex(#self.frames)
+end
+
+function Sprite:getDirection()
+	return self.timeline:getDirection()
+end
+
+function Sprite:setSpeed(speed)
+	self.timeline:setSpeed(speed)
+end
+
+function Sprite:getSpeed()
+	return self.timeline:getSpeed()
+end
+
+function Sprite:isPlaying()
+	return self.timeline:isPlaying()
+end
+
+
 function Sprite:setPositionV(pos)
 	self.position = pos
 end

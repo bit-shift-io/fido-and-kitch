@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="1000" tileheight="1000" tilecount="10" columns="0">
+<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="1000" tileheight="1000" tilecount="11" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="../img/default.png" width="32" height="32"/>
@@ -30,5 +30,8 @@
  </tile>
  <tile id="10">
   <image source="../img/spring/Spring - 1.png" width="31" height="26"/>
+ </tile>
+ <tile id="11">
+  <image source="../img/default.png" width="32" height="32"/>
  </tile>
 </tileset>

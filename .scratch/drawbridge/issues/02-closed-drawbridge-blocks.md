@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Closed drawbridge entity that blocks like a wall
 
@@ -22,11 +22,19 @@ A designer can place a `drawbridge` object in Tiled (matching `src/entities/draw
 
 ## Acceptance criteria
 
-- [ ] `drawbridge` object placed in Tiled loads as the entity and renders closed.
-- [ ] `facing` property mirrors the sprite.
-- [ ] A player is blocked like a wall from both sides; no fall-through on bump.
-- [ ] Closed-state helpers covered by tests in `tests/drawbridge_test.lua`.
+- [x] `drawbridge` object placed in Tiled loads as the entity and renders closed.
+- [x] `facing` property mirrors the sprite.
+- [x] A player is blocked like a wall from both sides; no fall-through on bump.
+- [x] Closed-state helpers covered by tests in `tests/drawbridge_test.lua`.
 
 ## Blocked by
 
 None — can start immediately (parallel with 01).
+
+## Implementation notes
+
+- `src/entities/drawbridge_support.lua` holds the pure decision helpers (`triggerOffsetX`, `isBarrierPresent`, `isDeckSolid`, etc.), mirroring `ground_support.lua`. The entity itself can't be unit-tested headless (`Sprite:init` calls `love.graphics.newImage`), so only the pure module has `tests/drawbridge_test.lua` coverage; the entity is verified by manual run.
+- Collision model implemented as **two always-present static colliders at the same rect** (barrier, deck), toggling `Collider:setSensor()` rather than adding/removing bodies from the world. Simpler than dynamic add/remove and made the solidity-coherence requirement (see issue 04) trivial.
+- No Tiled GUI was available while building this — `res/map/drawbridge_fixture.lua` was hand-written directly in STI's exported-Lua shape (no `.tmx` source). It loads and plays correctly (confirmed via manual run below), but if anyone has Tiled available, re-authoring it properly and exporting would be preferable to hand-maintaining Lua.
+- **Manually verified in-game**: `love . map=drawbridge_fixture.lua`, walked a player into the closed bridge from the spawn side — they stop flush against it, no fall into the gap.
+- Added tile id 11 to `res/tilesets/props.tsx` (reusing `default.png`) purely so the Tiled template (`res/templates/drawbridge.tx`) has a palette icon; the entity itself renders via its own `Sprite` component, not STI's tile rendering.

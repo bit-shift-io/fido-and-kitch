@@ -152,6 +152,49 @@ function Timeline:reverse()
     --self.tween = Tween.new(self.tween.duration, {time=1.0}, {time=0.0})
 end
 
+-- play forward from the start
+function Timeline:playForward()
+    self:reset()
+    self:play()
+end
+
+-- play in reverse from the end
+function Timeline:playReverse()
+    self:resetReverse()
+    self:play()
+end
+
+-- flip direction from wherever the playhead currently is (no snap), and
+-- make sure playback is running; this is the drawbridge's mid-close
+-- reverse-in-place interrupt
+function Timeline:reverseFromCurrent()
+    self:reverse()
+    self:play()
+end
+
+function Timeline:getDirection()
+    if self.isReverse then
+        return 'reverse'
+    end
+    return 'forward'
+end
+
+function Timeline:setDirection(direction)
+    self.isReverse = (direction == 'reverse')
+end
+
+function Timeline:setSpeed(speed)
+    self.speed = speed
+end
+
+function Timeline:getSpeed()
+    return self.speed
+end
+
+function Timeline:isPlaying()
+    return self.playing
+end
+
 -- Given a set of frames 
 -- compute which frame is current
 function Timeline:getFrameIndex(frameCount)

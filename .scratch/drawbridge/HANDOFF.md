@@ -29,7 +29,17 @@ Solidity is tied to the transition and must stay coherent through a mid-close re
 - Occupancy and eligibility both come down to a world query over the bridge tile plus a small decision helper — extract these as pure functions and test them headless, mirroring `src/player/ground_support.lua` + `tests/ground_support_test.lua`.
 - The designer authors the gap and any kill zone under the bridge separately; the entity does not create terrain or hazards.
 - Build the fixture map (ground + 1-tile gap + drawbridge + spawns both sides, plus an enemy for slice 05) in slice 02 and reuse it through 03–05.
-- Validate logic with `./test.sh`; validate feel with `love . drawphysics map=<fixture>.lua` (F1 toggles collision boxes per recent editor work).
+- Validate logic with `./test.sh`; validate feel with `love . drawphysics map=<fixture>.lua`. Note: this repo's AGENTS.md claims F12 is a screenshot key — it isn't actually wired up in `src/main.lua`; there's no in-game screenshot binding currently.
+- **Collider `enter`/`exit`/`use` callbacks that need their argument must be wired with `utils.func(fn, self)`, not `utils.forwardFunc(fn, self)`.** `forwardFunc` drops the single argument these callbacks receive (it lands as `forwardFunc`'s discarded `oldSelf`, not in `...`). `ExitDoor:contact` and `Ladder`'s commented-out `enter`/`exit` get away with it only because their bodies never read the argument. `jump_pad.lua`'s `Usable{use=utils.func(...)}` is the correct precedent to copy.
+- **The installed `love` binary here is 11.5, but `conf.lua` targets `t.version = "12.0"`**, so LÖVE sometimes shows a native "Compatibility Warning" alert on launch, on top of the game window. If you automate manual verification (e.g. via `osascript`/AppleScript), dismiss it with a real synthesized mouse click (`cliclick`) — dismissing via the Accessibility API (`System Events click button "OK"`) can leave the game window unable to receive further synthesized keyboard input, which looks exactly like the game being frozen and is a significant time sink to rule out.
+- No Tiled GUI was available in this environment; `res/map/drawbridge_fixture.lua` was hand-written directly in STI's exported-Lua table shape rather than authored in Tiled and exported. It loads and plays correctly, but there's no `.tmx` source for it — re-author properly in Tiled if you have it available.
+
+## Status (as of this session)
+
+- **01 (reversible Timeline API): done.** Tested, no regressions.
+- **02 (closed drawbridge blocks): done.** Tested + manually verified in-game.
+- **03 (open on correct-side approach): in progress, paused.** Trigger/state-machine/solidity logic is implemented, unit-tested, and confirmed correct via a live debug readout — but a real, unexplained bug was found where the player stops moving partway across the open deck (not at a tile seam). See `issues/03-open-on-correct-side.md` for full details. **Paused to build `.scratch/integration-testing/` first**, so this class of bug gets a deterministic headless repro instead of manual screenshot-driven verification.
+- **04, 05: not started** (blocked on 03).
 
 ## Links
 

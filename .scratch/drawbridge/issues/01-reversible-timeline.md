@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Reversible Timeline/Sprite playback API
 
@@ -26,12 +26,16 @@ Headless `tests/*_test.lua` in the project's fast-regression style (no LÖVE lau
 
 ## Acceptance criteria
 
-- [ ] Public API: play forward, play reverse, reverse mid-playback, set/get direction, set/get speed.
-- [ ] Finish signal fires at the forward end and at the reverse end.
-- [ ] Frame index correct and in-bounds at both ends.
-- [ ] Existing forward-only animations are unaffected.
-- [ ] New tests registered in `tests/run.lua` and passing via `./test.sh`.
+- [x] Public API: play forward, play reverse, reverse mid-playback, set/get direction, set/get speed.
+- [x] Finish signal fires at the forward end and at the reverse end.
+- [x] Frame index correct and in-bounds at both ends.
+- [x] Existing forward-only animations are unaffected.
+- [x] New tests registered in `tests/run.lua` and passing via `./test.sh`.
 
 ## Blocked by
 
 None — can start immediately.
+
+## Implementation notes
+
+Delivered as `Timeline:playForward()` / `:playReverse()` / `:reverseFromCurrent()` / `:getDirection()` / `:setDirection()` / `:getSpeed()` / `:setSpeed()` / `:isPlaying()`, mirrored on `Sprite` (which also syncs `frameNum` immediately so a draw right after triggering shows the correct frame without waiting a tick). `tests/timeline_reverse_test.lua`, 7 tests, all green; full suite green aside from a pre-existing unrelated flaky camera test (confirmed flaky on `main` before this feature too).

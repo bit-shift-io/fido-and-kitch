@@ -8,6 +8,8 @@ local defaultTestFiles = {
 	'tests/flash_test.lua',
 	'tests/ground_support_test.lua',
 	'tests/camera_test.lua',
+	'tests/timeline_reverse_test.lua',
+	'tests/drawbridge_test.lua',
 }
 
 local tests = {}
