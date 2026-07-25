@@ -203,3 +203,15 @@
 **Definition** — The deterministic forcing of a pushable's x to a tile's centre. Occurs only on two events: the prop's centre-x passing over an unsupported tile (it snaps and falls straight in) and a prop coming to rest on a pressure switch (it snaps on push-release when within tolerance). See ADR 0001.
 
 **Boundary** — Not the normal resting behaviour: props otherwise rest at whatever x they were left at, and the player can push a prop back out of a snapped position.
+
+## Drawbridge
+
+**Definition** — A single-tile, one-way crossing entity placed in Tiled over a real gap. It starts closed (the gap exposed; it blocks passage like a wall so no one falls by bumping it) and lowers into solid, walkable ground only when an *eligible* entity — a player by default, per a Tiled property that can also allow enemies — approaches from its designer-set *correct side* (a `facing` property that mirrors the sprite and trigger). While open it is solid to everyone from either direction; it stays open while any entity overlaps its tile and raises (the open animation played in reverse) once the last one leaves, reversing in place if re-triggered mid-close. Resets to closed on level restart.
+
+**Boundary** — A local directional crossing, not a switch: it never drives a remote `target`/`:switch()`. Eligibility gates *opening* only — an opened deck is solid to all. Single tile, horizontal, over a designer-authored gap (it neither creates the pit nor the hazard). Not grid-locked movement and not a multi-tile bridge.
+
+## Reversible timeline
+
+**Definition** — The bidirectional playback capability on the `Timeline`/`Sprite` components: an animation can be played forward from the start, played in reverse from the end, or reversed from the current frame mid-playback, with a finish signal that fires at both the forward and the reverse end. Lets one authored animation serve an open/close pair (first used by the drawbridge).
+
+**Boundary** — A playback/timing capability only; it plays existing frames in either direction and does not generate or transform art. Forward-only consumers are unaffected. Ping-pong looping is enabled by the API but not used by any shipped entity yet.
