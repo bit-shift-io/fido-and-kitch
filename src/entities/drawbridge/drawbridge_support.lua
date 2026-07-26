@@ -22,16 +22,20 @@
 -- is no entity-type eligibility.
 local DrawbridgeSupport = {}
 
--- how far ahead of the bridge tile (in tiles) the arrival-side trigger
--- sensor sits, so the deck is already solid before an entity reaches the gap.
--- crossingDirection names the direction of travel the bridge permits: a
--- leftToRight bridge is arrived at from the left, so the trigger sits to
--- the left; an unrecognised or missing value falls back to leftToRight.
-function DrawbridgeSupport.triggerOffsetX(crossingDirection, tileWidth)
+-- centre-offset (from the bridge tile's own centre) for the arrival-side
+-- trigger sensor, positioned flush against the gap's edge -- not a full
+-- tile out -- so the deck visibly starts lowering only once the player is
+-- right at the edge (reads as "pushing the gate down"), not by tripping a
+-- remote sensor a whole tile away. crossingDirection names the direction of
+-- travel the bridge permits: a leftToRight bridge is arrived at from the
+-- left, so the trigger sits to the left; an unrecognised or missing value
+-- falls back to leftToRight.
+function DrawbridgeSupport.triggerOffsetX(crossingDirection, tileWidth, triggerWidth)
+	local flushOffset = tileWidth / 2 + triggerWidth / 2
 	if crossingDirection == 'rightToLeft' then
-		return tileWidth
+		return flushOffset
 	end
-	return -tileWidth
+	return -flushOffset
 end
 
 -- Maps crossingDirection to the sprite's mirror flag. The art is a tower

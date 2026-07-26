@@ -4,17 +4,23 @@
 Class = Class or require('lib.hump.class')
 local DrawbridgeSupport = require('src.entities.drawbridge.drawbridge_support')
 
-test('leftToRight places the trigger sensor one tile to the left (arrival side)', function()
-	assertEqual(-32, DrawbridgeSupport.triggerOffsetX('leftToRight', 32))
+-- The trigger is a thin strip flush against the gap's edge (not a full
+-- tile out) -- so the deck visibly starts lowering only once the player is
+-- right at the edge, reading as "pushing the gate down" rather than
+-- tripping a remote sensor a whole tile away.
+test('leftToRight places the trigger sensor flush against the gap, on the left (arrival side)', function()
+	-- tileWidth=32, triggerWidth=8: trigger's right edge (offset + half its
+	-- own width) must land exactly on the deck's left edge (half the tile)
+	assertEqual(-20, DrawbridgeSupport.triggerOffsetX('leftToRight', 32, 8))
 end)
 
-test('rightToLeft places the trigger sensor one tile to the right (arrival side)', function()
-	assertEqual(32, DrawbridgeSupport.triggerOffsetX('rightToLeft', 32))
+test('rightToLeft places the trigger sensor flush against the gap, on the right (arrival side)', function()
+	assertEqual(20, DrawbridgeSupport.triggerOffsetX('rightToLeft', 32, 8))
 end)
 
 test('an unrecognised or missing crossingDirection falls back to leftToRight', function()
-	assertEqual(-32, DrawbridgeSupport.triggerOffsetX('sideways', 32))
-	assertEqual(-32, DrawbridgeSupport.triggerOffsetX(nil, 32))
+	assertEqual(-20, DrawbridgeSupport.triggerOffsetX('sideways', 32, 8))
+	assertEqual(-20, DrawbridgeSupport.triggerOffsetX(nil, 32, 8))
 end)
 
 test('leftToRight renders unmirrored -- tower on the left, deck lowering rightward over the gap', function()

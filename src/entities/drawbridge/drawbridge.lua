@@ -37,9 +37,9 @@ function Drawbridge:init(object)
 		image = 'res/img/entity_drawbridge.png',
 		frames = 4,
 		-- fast enough that the deck finishes lowering while the entity that
-		-- triggered it (walking from the lead-in sensor, one tile away) is
-		-- still on or approaching the tile, not long after they've already
-		-- crossed and left
+		-- triggered it (walking from the thin lead-in sensor flush against
+		-- the gap) is still on or approaching the tile, not long after
+		-- they've already crossed and left
 		duration = 0.3,
 		loop = false,
 		playing = false,
@@ -68,14 +68,19 @@ function Drawbridge:init(object)
 
 	-- lead-in sensor on the arrival side, part of the continuous hold zone
 	-- (see checkHeld) -- kept as a sensor purely so the zone still draws
-	-- under drawphysics; its enter event no longer drives state directly
-	self.triggerOffsetX = DrawbridgeSupport.triggerOffsetX(self.crossingDirection, self.rect.width)
+	-- under drawphysics; its enter event no longer drives state directly.
+	-- Thin and flush against the gap's edge (not a full tile out) so the
+	-- deck visibly starts lowering only once the player is right at the
+	-- edge -- reads as pushing the gate down, not tripping a remote sensor.
+	self.triggerWidth = self.rect.width * 0.25
+	local triggerOffsetX = DrawbridgeSupport.triggerOffsetX(self.crossingDirection, self.rect.width, self.triggerWidth)
+	self.triggerCentre = position + Vector(triggerOffsetX, 0)
 	self.trigger = self:addComponent(Collider{
 		shape_type = 'rectangle',
-		shape_arguments = shape_arguments,
+		shape_arguments = {0, 0, self.triggerWidth, self.rect.height},
 		body_type = 'static',
 		sensor = true,
-		position = position + Vector(self.triggerOffsetX, 0),
+		position = self.triggerCentre,
 	})
 end
 
@@ -105,8 +110,8 @@ local OCCUPANCY_HEIGHT_MARGIN = 200
 -- trigger may break a closed bridge -- see the file header.
 function Drawbridge:checkHeld()
 	local triggerBounds = {
-		left = self.rect.x + self.triggerOffsetX,
-		right = self.rect.x + self.triggerOffsetX + self.rect.width,
+		left = self.triggerCentre.x - self.triggerWidth / 2,
+		right = self.triggerCentre.x + self.triggerWidth / 2,
 		top = self.rect.y - OCCUPANCY_HEIGHT_MARGIN,
 		bottom = self.rect.y + self.rect.height,
 	}
