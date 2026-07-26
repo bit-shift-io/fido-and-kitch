@@ -16,25 +16,25 @@ return {
   layers = {
     {
       type = "imagelayer",
-      image = "../img/backgrounds/background_night_sky.png",
+      image = "../img/backgrounds/background_mushroom_cave.png",
       id = 2,
-      name = "cave_bg",
+      name = "background",
       class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
       offsety = 0,
-      parallaxx = 0,
-      parallaxy = 0,
-      repeatx = true,
+      parallaxx = 0.1,
+      parallaxy = 0.1,
+      repeatx = false,
       repeaty = false,
       properties = {}
     },
     {
       type = "imagelayer",
-      image = "../img/backgrounds/midground_night_mountains.png",
+      image = "../img/backgrounds/foreground_mushroom_cave.png",
       id = 3,
-      name = "cave_walls",
+      name = "foreground",
       class = "",
       visible = true,
       opacity = 1,
@@ -42,7 +42,7 @@ return {
       offsety = 0,
       parallaxx = 0.8,
       parallaxy = 0.8,
-      repeatx = true,
+      repeatx = false,
       repeaty = false,
       properties = {}
     }

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="1">
-  <imagelayer id="2" name="cave_bg" offsetx="0" offsety="0" parallaxx="0" parallaxy="0" repeatx="true" repeaty="false">
-    <image source="../img/backgrounds/background_night_sky.png" width="1207" height="161"/>
-  </imagelayer>
-  <imagelayer id="3" name="cave_walls" offsetx="0" offsety="0" parallaxx="0.8" parallaxy="0.8" repeatx="true" repeaty="false">
-    <image source="../img/backgrounds/midground_night_mountains.png" width="1206" height="157"/>
-  </imagelayer>
-</map>
