@@ -371,8 +371,7 @@ return {
           opacity = 1,
           visible = true,
           properties = {
-            ["facing"] = "left",
-            ["allowEnemies"] = false
+            ["crossingDirection"] = "leftToRight"
           }
         },
         {

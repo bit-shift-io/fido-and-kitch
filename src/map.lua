@@ -39,7 +39,8 @@ function Map:new(path, world, debug)
 
 	self.typeIgnores = {'', 'spawn'}
 	self.searchPaths = {
-		'src.entities.'
+		'src.entities.?',    -- src/entities/foo.lua
+		'src.entities.?.?',  -- src/entities/foo/foo.lua
 	}
 
 	--local mmeta = getmetatable(map)
@@ -249,10 +250,12 @@ function Map:loadEntity(entityName, layer, object)
 	local in_ignore_list = tbl.findIndexEq(self.typeIgnores, entityName)
 	if in_ignore_list == nil then
 		-- move to a util function with option to supress error
-		for k, v in pairs(self.searchPaths) do
-			local ok, err = pcall(require, v .. entityName) 
+		local lastErr
+		for k, pattern in pairs(self.searchPaths) do
+			local path = pattern:gsub('%?', entityName)
+			local ok, err = pcall(require, path)
 			if not ok then
-				print('Entity Error: ' .. err)
+				lastErr = err
 			else
 				local entity = err(object)
 				entity.mapData = object -- store the map data in the entity
@@ -261,6 +264,7 @@ function Map:loadEntity(entityName, layer, object)
 				return entity
 			end
 		end
+		print('Entity Error: ' .. tostring(lastErr))
 	end
 
 	return nil

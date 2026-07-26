@@ -18,8 +18,9 @@ local Capture = require('tests.support.capture')
 local FakeInput = FakeInputModule.FakeInput
 local MAP = 'res/map/drawbridge_fixture.lua'
 
--- The fixture's lone spawn point sits on the bridge's correct (facing =
--- 'left') side; walking right from there approaches the gap correctly.
+-- The fixture's lone spawn point sits on the bridge's arrival
+-- (crossingDirection = 'leftToRight') side; walking right from there
+-- approaches the gap correctly.
 -- Comfortably past the gap (tiles 4/5, x=128..160) and onto the far-side
 -- ground (tiles 5-8, x=160..288).
 local FAR_SIDE_X = 220
@@ -209,6 +210,89 @@ test('the bridge closes once the last occupant leaves, and a re-trigger mid-clos
 
 	assertTrue(reopened, 'expected re-entering the bridge mid-close to reverse it back to opening')
 	Capture.capture('06_reopened')
+
+	-- the regression this scenario exists to pin: a bridge that has reopened
+	-- after starting to close must still be able to close again once
+	-- cleared, not get stuck open for the rest of the level
+	controller:press('right')
+	local clearedAgain = false
+	for _ = 1, MAX_APPROACH_FRAMES do
+		FrameStepper.step(game, 1)
+		assertFalse(Queries.playerIsDead(player), 'player must never fall while crossing clear a second time')
+		if Queries.playerPositionV(player).x >= CLEAR_OF_FOOTPRINT_X then
+			clearedAgain = true
+			break
+		end
+	end
+	controller:release('right')
+	assertTrue(clearedAgain, 'expected the player to cross clear of the footprint a second time')
+
+	local closedAgain = false
+	for _ = 1, MAX_APPROACH_FRAMES do
+		FrameStepper.step(game, 1)
+		if Queries.drawbridgeState(bridge) == 'closed' then
+			closedAgain = true
+			break
+		end
+	end
+	assertTrue(closedAgain, 'expected the reopened bridge to close again once cleared a second time (it must never get stuck open)')
+	Capture.capture('07_closed_again')
+end)
+
+test('turning back before ever reaching the deck still raises the bridge again, not stuck open', function()
+	-- This is the actual free-play repro for the stuck-down bug (DECISIONS.md
+	-- Q3): the trigger tile (arrival side, one tile before the deck) is far
+	-- enough from the deck that a player can enter it, open the bridge, and
+	-- retreat entirely -- never once overlapping the deck tile itself. Under
+	-- the old model the deck-only occupancy check never observed the player
+	-- and the animation-finish transition to 'open' is unconditional, so the
+	-- bridge got permanently stuck open with nothing ever holding it.
+	local game = GameHarness.startGame(MAP, {real = true})
+	local controller = FakeInput.new()
+
+	FrameStepper.step(game, 30) -- let the player land and settle
+
+	local ingame = game.fsm.currentState
+	local player = ingame.players[1]
+	local bridge = Queries.findEntityByType(map, 'drawbridge')
+
+	assertEqual('closed', Queries.drawbridgeState(bridge), 'expected the bridge to start closed')
+
+	-- walk right just far enough to enter the trigger tile and start opening,
+	-- stopping well short of the deck (GAP_START_X=128)
+	controller:press('right')
+	local startedOpening = false
+	for _ = 1, MAX_APPROACH_FRAMES do
+		FrameStepper.step(game, 1)
+		local x = Queries.playerPositionV(player).x
+		assertTrue(x < GAP_START_X, 'expected to catch the open transition before ever reaching the deck')
+		if Queries.drawbridgeState(bridge) ~= 'closed' then
+			startedOpening = true
+			break
+		end
+	end
+	controller:release('right')
+	assertTrue(startedOpening, 'expected entering the trigger tile to start opening the bridge')
+	assertTrue(Queries.playerPositionV(player).x < GAP_START_X, 'expected the player to still be short of the deck')
+
+	-- retreat fully back toward spawn, clear of the trigger tile too, without
+	-- ever having touched the deck
+	controller:press('left')
+	FrameStepper.step(game, 60)
+	controller:release('left')
+
+	-- give the bridge every chance to settle: long enough for the open
+	-- animation to finish and, if the fix is in place, to close again
+	local closedAgain = false
+	for _ = 1, MAX_APPROACH_FRAMES do
+		FrameStepper.step(game, 1)
+		if Queries.drawbridgeState(bridge) == 'closed' then
+			closedAgain = true
+			break
+		end
+	end
+
+	assertTrue(closedAgain, 'expected the bridge to raise again once genuinely unheld -- it must never get stuck open')
 end)
 
 test('a second player follows the first across while it holds the bridge open', function()

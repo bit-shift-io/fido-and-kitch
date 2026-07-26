@@ -218,9 +218,15 @@
 
 ## Drawbridge
 
-**Definition** — A single-tile, one-way crossing entity placed in Tiled over a real gap. It starts closed (the gap exposed; it blocks passage like a wall so no one falls by bumping it) and lowers into solid, walkable ground only when an *eligible* entity — a player by default, per a Tiled property that can also allow enemies — approaches from its designer-set *correct side* (a `facing` property that mirrors the sprite and trigger). While open it is solid to everyone from either direction; it stays open while any entity overlaps its tile and raises (the open animation played in reverse) once the last one leaves, reversing in place if re-triggered mid-close. Resets to closed on level restart.
+**Definition** — A single-tile, one-way crossing entity placed in Tiled over a real gap. It starts closed, leaving the gap fully exposed — there is no barrier, so approaching from the wrong side means falling in, like any other pit. It lowers into solid, walkable ground while it is *held*, and raises (the open animation played in reverse) once it is not. Its `crossingDirection` property names the direction of travel it permits — `leftToRight` or `rightToLeft` — and places the lead-in trigger tile on the arrival side accordingly. While open it is solid to everyone from either direction. Resets to closed on level restart. It occupies one tile in Tiled and one tile of collision, but *draws* 3×3 tiles centred on that tile, so the art can overlap its neighbours and key into the surrounding environment.
 
-**Boundary** — A local directional crossing, not a switch: it never drives a remote `target`/`:switch()`. Eligibility gates *opening* only — an opened deck is solid to all. Single tile, horizontal, over a designer-authored gap (it neither creates the pit nor the hazard). Not grid-locked movement and not a multi-tile bridge.
+**Boundary** — A local directional crossing, not a switch: it never drives a remote `target`/`:switch()`. The 3×3 draw area is purely visual — only the single deck tile is standable and only the single trigger tile is a lead-in. Direction gates *where the hold zone's lead-in tile sits*, not who may use the bridge — there is no entity-type eligibility at all, and an opened deck is solid to all. Single tile, horizontal, over a designer-authored gap (it neither creates the pit nor the hazard). Not grid-locked movement and not a multi-tile bridge.
+
+## Hold zone (drawbridge)
+
+**Definition** — The union of a drawbridge's lead-in trigger tile and its own deck tile. Any entity overlapping either one *holds* the bridge, which lowers while held and raises while not; an interruption in either direction reverses the animation from the current frame rather than snapping. Anything counts — players, enemies, pushed boxes — so a box shoved into the trigger opens the bridge exactly as a player would.
+
+**Boundary** — Presence, not events: it is evaluated every frame from overlap, so an entity that has triggered a bridge but not yet walked onto the deck is still holding it. Not an eligibility filter (nothing is excluded) and not a memory of past use (the bridge has no notion of having been used before). One asymmetry survives: only the trigger tile can break a *closed* bridge — deck-tile overlap alone cannot, or a wide collider grazing the deck's far edge from the wrong side would pre-emptively solidify the gap for it. Once the bridge is moving, either zone governs every other transition.
 
 ## Reversible timeline
 

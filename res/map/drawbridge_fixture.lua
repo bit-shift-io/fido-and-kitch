@@ -3,9 +3,9 @@
 -- you have it, otherwise edit this Lua directly and keep it STI-shaped).
 --
 -- Layout: solid ground on both sides of a single 1-tile gap at tile x=4
--- (pixels x=128..160), a drawbridge over the gap (facing 'left', matching
--- the correct side the lone spawn point sits on), and a kill zone in the pit
--- below so falling in has a real consequence.
+-- (pixels x=128..160), a drawbridge over the gap (crossingDirection
+-- 'leftToRight', matching the arrival side the lone spawn point sits on),
+-- and a kill zone in the pit below so falling in has a real consequence.
 return {
   version = "1.11",
   luaversion = "5.1",
@@ -123,8 +123,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["facing"] = "left",
-            ["allowEnemies"] = false
+            ["crossingDirection"] = "leftToRight"
           }
         },
         {

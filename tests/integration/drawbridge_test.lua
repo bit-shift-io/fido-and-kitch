@@ -1,13 +1,14 @@
--- Eligibility (players vs opted-in enemies), enemy-follow-across, and
+-- Anything-holds-it (no entity-type eligibility), enemy-follow-across, and
 -- reset-on-restart, driven through the real Game/Map/World stack. The
 -- spatial "no fall" / "wrong side blocked" acceptance criteria already have
 -- headed coverage in tests/e2e/drawbridge_test.lua; this file covers what
 -- doesn't need real rendering.
 --
--- No enemy entity class exists in this project yet -- eligibility only
--- cares about collider.entity.type, so a bare dynamic collider tagged
--- {type = 'enemy'} stands in for one, mirroring the fake-collider
--- convention in tests/unit/kill_zone_test.lua.
+-- No enemy entity class exists in this project yet -- holding the bridge
+-- only cares about collider.entity being set to something other than the
+-- bridge itself, so a bare dynamic collider tagged {type = 'enemy'} stands
+-- in for one, mirroring the fake-collider convention in
+-- tests/unit/kill_zone_test.lua.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
@@ -62,25 +63,12 @@ local function walk(game, enemy, vx, frames)
 	end
 end
 
-test('an enemy cannot open the bridge by default (players-only)', function()
+test('anything overlapping the trigger opens the bridge -- an enemy, with no eligibility to opt into', function()
 	local game = GameHarness.startGame(MAP)
 	FrameStepper.step(game, 10)
 
 	local bridge = Queries.findEntityByType(map, 'drawbridge')
-	assertFalse(bridge.allowEnemies, 'expected the fixture bridge to default to players-only')
-
-	local enemy = spawnEnemy(80)
-	walk(game, enemy, 97, 120) -- well past the trigger and onto the tile
-
-	assertEqual('closed', Queries.drawbridgeState(bridge), 'an ineligible enemy must never open the bridge')
-end)
-
-test('an enemy can open the bridge once opted in via allowEnemies', function()
-	local game = GameHarness.startGame(MAP)
-	FrameStepper.step(game, 10)
-
-	local bridge = Queries.findEntityByType(map, 'drawbridge')
-	bridge.allowEnemies = true
+	assertEqual('closed', Queries.drawbridgeState(bridge))
 
 	local enemy = spawnEnemy(80)
 
@@ -96,16 +84,15 @@ test('an enemy can open the bridge once opted in via allowEnemies', function()
 		end
 	end
 
-	assertTrue(opened, 'expected the opted-in enemy to open the bridge from the correct side')
+	assertTrue(opened, 'expected the enemy to open the bridge from the correct side -- nothing is ineligible')
 end)
 
-test('once open, an enemy can cross the deck without falling, regardless of eligibility', function()
+test('once open, an enemy can cross the deck without falling', function()
 	local game = GameHarness.startGame(MAP)
 	FrameStepper.step(game, 10)
 
 	local bridge = Queries.findEntityByType(map, 'drawbridge')
-	-- allowEnemies stays false (default): eligibility gates *opening* only,
-	-- so bypass the approach and set up the "already open" precondition
+	-- bypass the approach and set up the "already open" precondition
 	-- directly -- only the crossing itself is under test here
 	bridge:setState('open')
 
