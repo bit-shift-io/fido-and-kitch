@@ -93,6 +93,19 @@ function Map:new(path, world, debug)
 
 	self:resize()
 
+	-- Load background map if specified in map properties
+	local bgName = self.map.properties.background
+	if bgName and type(bgName) == 'string' and bgName ~= '' then
+		self.backgroundName = bgName
+		self.backgroundMap = sti('res/backgrounds/' .. bgName .. '.lua')
+		-- Force horizontal tiling on all image layers
+		for _, layer in ipairs(self.backgroundMap.layers) do
+			if layer.type == 'imagelayer' then
+				layer.repeatx = true
+			end
+		end
+	end
+
 	return self
 end
 
@@ -323,6 +336,36 @@ function Map:draw2(tx, ty, sx, sy)
 	lg.push()
 	lg.origin()
 	lg.setColor(1, 1, 1, 1)
+
+	-- Draw background map with parallax (before main map layers)
+	if self.backgroundMap then
+		for _, layer in ipairs(self.backgroundMap.layers) do
+			if layer.visible and layer.type == 'imagelayer' and layer.image then
+				local parallaxx = layer.parallaxx or 1
+				local parallaxy = layer.parallaxy or 1
+				local px = math.floor(tx * parallaxx) + (layer.offsetx or 0)
+				local py = math.floor(ty * parallaxy) + (layer.offsety or 0)
+				local img = layer.image
+				if type(img) == 'string' then
+					img = lg.newImage(img)
+					layer.image = img -- cache
+				end
+				if img then
+					local imgW = img:getWidth()
+					local mapW = self.map.width * self.map.tilewidth
+					if layer.repeatx then
+						-- Tile horizontally to cover map width
+						local repeats = math.ceil(mapW / imgW) + 1
+						for i = -1, repeats do
+							lg.draw(img, px + i * imgW, py)
+						end
+					else
+						lg.draw(img, px, py)
+					end
+				end
+			end
+		end
+	end
 
 	for _, layer in ipairs(self.layers) do
 		if layer.visible and layer.opacity > 0 then

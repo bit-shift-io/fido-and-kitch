@@ -1,0 +1,50 @@
+return {
+  version = "1.11",
+  luaversion = "5.1",
+  tiledversion = "1.12.2",
+  class = "",
+  orientation = "orthogonal",
+  renderorder = "right-down",
+  width = 30,
+  height = 20,
+  tilewidth = 32,
+  tileheight = 32,
+  nextlayerid = 4,
+  nextobjectid = 1,
+  properties = {},
+  tilesets = {},
+  layers = {
+    {
+      type = "imagelayer",
+      image = "../img/backgrounds/background_night_sky.png",
+      id = 2,
+      name = "cave_bg",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 0,
+      parallaxy = 0,
+      repeatx = true,
+      repeaty = false,
+      properties = {}
+    },
+    {
+      type = "imagelayer",
+      image = "../img/backgrounds/midground_night_mountains.png",
+      id = 3,
+      name = "cave_walls",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 0.8,
+      parallaxy = 0.8,
+      repeatx = true,
+      repeaty = false,
+      properties = {}
+    }
+  }
+}
