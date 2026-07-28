@@ -233,3 +233,27 @@
 **Definition** — The bidirectional playback capability on the `Timeline`/`Sprite` components: an animation can be played forward from the start, played in reverse from the end, or reversed from the current frame mid-playback, with a finish signal that fires at both the forward and the reverse end. Lets one authored animation serve an open/close pair (first used by the drawbridge).
 
 **Boundary** — A playback/timing capability only; it plays existing frames in either direction and does not generate or transform art. Forward-only consumers are unaffected. Ping-pong looping is enabled by the API but not used by any shipped entity yet.
+
+## Story entity
+
+**Definition** — A Tiled-placed entity of type `story` with a `text` custom property (supports `\n` newlines). When a player overlaps it and presses the use key (P1: right-shift, P2: Q), a speech bubble appears above the entity showing the text. The bubble follows the entity on screen, auto-dismisses when the player moves away (overlap ends), and has a short re-trigger cooldown. Player retains full control while the bubble is visible.
+
+**Boundary** — Single-bubble, non-branching narrative delivery. Not a cutscene (no camera take, no input lock, no animation sequence). Not a quest tracker. Configured entirely via Tiled object properties; no code changes needed per instance.
+
+## Speech bubble
+
+**Definition** — A transient UI overlay rendered above a story entity while its dialogue is active. Draws the entity's `text` property in a styled bubble anchored to the entity's screen position, updating each frame to follow the entity through camera pan/zoom. Auto-hides when the triggering player's overlap ends.
+
+**Boundary** — Pure visual feedback; no gameplay effect, no input consumption, no pause. Distinct from HUD (lives, keys) and menus (Slab). One bubble max per story entity; multiple entities can show bubbles simultaneously (one per player per entity).
+
+## Sound component
+
+**Definition** — An entity component that loads WAV audio files on initialization and plays them by name with a configurable random pitch variation (±10% by default). Attached to entities requiring sound effects (player, coin, drawbridge, switch, key, cage, exit door, jump pad, enemies, kill zone, teleport, ladder, pressure switch, story). API: `init(props.sounds, props.pitchVariation)`, `play(name)`, `destroy()`.
+
+**Boundary** — SFX only; no music, ambience, spatial audio, mixing, or pooling. Creates a new `love.audio.Source` per play; GC handles cleanup. Distinct from `love.audio.Source` (the LÖVE object) and from any future audio manager.
+
+## SFX (sound effect)
+
+**Definition** — A short, non-looping audio clip triggered by a discrete gameplay event (jump, pickup, death, switch toggle). Format: WAV, loaded as static source. Distinguished from music (streamed, looping, crossfaded) and ambience (layered, continuous).
+
+**Boundary** — Not a music track, not an ambience layer, not a spatial audio emitter. Purely event-driven playback via Sound component.
