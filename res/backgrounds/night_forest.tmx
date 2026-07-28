@@ -6,10 +6,10 @@
  <imagelayer id="2" name="background" offsetx="-512" offsety="0" parallaxx="0" parallaxy="0">
   <image source="../img/backgrounds/background_night_sky.png" width="1207" height="161"/>
  </imagelayer>
- <imagelayer id="3" name="midground" offsetx="-512" offsety="128" parallaxx="0" parallaxy="0">
+ <imagelayer id="3" name="midground" offsetx="-512" offsety="128" parallaxx="0.5" parallaxy="0.5">
   <image source="../img/backgrounds/midground_night_mountains.png" width="1206" height="157"/>
  </imagelayer>
- <imagelayer id="4" name="foreground" offsetx="-512" offsety="256" parallaxx="0" parallaxy="0">
+ <imagelayer id="4" name="foreground" offsetx="-512" offsety="256" parallaxx="1" parallaxy="1">
   <image source="../img/backgrounds/foreground_night_forest.png" width="1206" height="372"/>
  </imagelayer>
 </map>

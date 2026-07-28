@@ -3,11 +3,11 @@
  <editorsettings>
   <export target="sandbox.lua" format="lua"/>
  </editorsettings>
-<tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
-<properties>
-    <property name="background" type="string" value="night_forest"/>
-  </properties>
-  <layer id="1" name="ground" width="20" height="20">
+ <properties>
+  <property name="background" type="string" value="night_forest"/>
+ </properties>
+ <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
+ <layer id="1" name="ground" width="20" height="20">
   <properties>
    <property name="collision" type="bool" value="false"/>
   </properties>

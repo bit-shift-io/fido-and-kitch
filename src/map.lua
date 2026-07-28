@@ -1,4 +1,5 @@
 local sti = require('lib.sti')
+local mapParallax = require('src.map_parallax')
 local lg    =  love.graphics
 
 local Map   = {}
@@ -95,15 +96,9 @@ function Map:new(path, world, debug)
 
 	-- Load background map if specified in map properties
 	local bgName = self.map.properties.background
-	if bgName and type(bgName) == 'string' and bgName ~= '' then
+	if type(bgName) == 'string' and bgName ~= '' then
 		self.backgroundName = bgName
 		self.backgroundMap = sti('res/backgrounds/' .. bgName .. '.lua')
-		-- Force horizontal tiling on all image layers
-		for _, layer in ipairs(self.backgroundMap.layers) do
-			if layer.type == 'imagelayer' then
-				layer.repeatx = true
-			end
-		end
 	end
 
 	return self
@@ -337,32 +332,40 @@ function Map:draw2(tx, ty, sx, sy)
 	lg.origin()
 	lg.setColor(1, 1, 1, 1)
 
-	-- Draw background map with parallax (before main map layers)
+	-- Draw background map with parallax (before main map layers). STI already
+	-- resolves layer.image to a cached love.Image at load time (see
+	-- lib/sti/init.lua's addCustomLayer), so it's always usable directly here.
+	-- The repeat loop below tiles against the *main* map's width rather than
+	-- delegating to backgroundMap:drawImageLayer, because a background preset
+	-- declares its own (usually much smaller) map width in Tiled -- it needs
+	-- to cover whatever level it's attached to, not its own declared bounds.
 	if self.backgroundMap then
+		local screenW, screenH = lg.getWidth(), lg.getHeight()
+		local cx, cy = mapParallax.computeCameraCenter(tx, ty, sx, sy, screenW, screenH)
+
 		for _, layer in ipairs(self.backgroundMap.layers) do
-			if layer.visible and layer.type == 'imagelayer' and layer.image then
+			if layer.visible and layer.type == 'imagelayer' and layer.image and layer.opacity > 0 then
 				local parallaxx = layer.parallaxx or 1
 				local parallaxy = layer.parallaxy or 1
-				local px = math.floor(tx * parallaxx) + (layer.offsetx or 0)
-				local py = math.floor(ty * parallaxy) + (layer.offsety or 0)
+				local px, py = mapParallax.computeLayerOffset(
+					cx, cy, parallaxx, parallaxy, layer.offsetx, layer.offsety)
+
+				lg.setColor(1, 1, 1, layer.opacity)
+
 				local img = layer.image
-				if type(img) == 'string' then
-					img = lg.newImage(img)
-					layer.image = img -- cache
-				end
-				if img then
-					local imgW = img:getWidth()
-					local mapW = self.map.width * self.map.tilewidth
-					if layer.repeatx then
-						-- Tile horizontally to cover map width
-						local repeats = math.ceil(mapW / imgW) + 1
-						for i = -1, repeats do
-							lg.draw(img, px + i * imgW, py)
-						end
-					else
-						lg.draw(img, px, py)
+				local imgW = img:getWidth()
+				local mapW = self.map.width * self.map.tilewidth
+				if layer.repeatx then
+					-- Tile horizontally to cover the main map's width
+					local repeats = math.ceil(mapW / imgW) + 1
+					for i = -1, repeats do
+						lg.draw(img, px + i * imgW, py)
 					end
+				else
+					lg.draw(img, px, py)
 				end
+
+				lg.setColor(1, 1, 1, 1)
 			end
 		end
 	end

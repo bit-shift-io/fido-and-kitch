@@ -10,11 +10,8 @@ local defaultTestFiles = {
 	'tests/unit/camera_test.lua',
 	'tests/unit/timeline_reverse_test.lua',
 	'tests/unit/drawbridge_test.lua',
+	'tests/unit/map_parallax_test.lua',
 }
-
--- lib/sti is a directory module (lib/sti/init.lua); luajit/lua package.path
--- doesn't search local init.lua by default, so add it.
-package.path = './?/init.lua;' .. package.path
 
 local tests = {}
 local failures = {}
