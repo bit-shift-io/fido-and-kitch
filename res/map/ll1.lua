@@ -1,7 +1,8 @@
 return {
-  version = "1.5",
+  version = "1.10",
   luaversion = "5.1",
-  tiledversion = "1.5.0",
+  tiledversion = "1.12.2",
+  class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 36,
@@ -10,11 +11,14 @@ return {
   tileheight = 32,
   nextlayerid = 6,
   nextobjectid = 31,
-  properties = {},
+  properties = {
+    ["background"] = "mushroom_cave"
+  },
   tilesets = {
     {
       name = "generic_platformer_tiles",
       firstgid = 1,
+      class = "",
       tilewidth = 32,
       tileheight = 32,
       spacing = 0,
@@ -25,6 +29,8 @@ return {
       imageheight = 576,
       transparentcolor = "#000000",
       objectalignment = "unspecified",
+      tilerendersize = "tile",
+      fillmode = "stretch",
       tileoffset = {
         x = 0,
         y = 0
@@ -49,6 +55,7 @@ return {
       height = 22,
       id = 1,
       name = "ground",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -66,6 +73,7 @@ return {
       draworder = "topdown",
       id = 4,
       name = "ladder",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -86,6 +94,7 @@ return {
           width = 32,
           height = 192,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -99,6 +108,7 @@ return {
           width = 32,
           height = 192,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -112,6 +122,7 @@ return {
           width = 32,
           height = 192,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -125,6 +136,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -138,6 +150,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -151,6 +164,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -164,6 +178,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -177,6 +192,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -190,6 +206,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         },
@@ -203,6 +220,7 @@ return {
           width = 32,
           height = 128,
           rotation = 0,
+          opacity = 1,
           visible = true,
           properties = {}
         }
@@ -213,6 +231,7 @@ return {
       draworder = "topdown",
       id = 3,
       name = "game",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -231,6 +250,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {}
@@ -245,6 +265,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -261,6 +282,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -277,6 +299,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -293,6 +316,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 113,
           visible = true,
           properties = {
@@ -310,6 +334,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -327,6 +352,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -344,6 +370,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -361,6 +388,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {}
@@ -375,6 +403,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {}
@@ -389,6 +418,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {}
@@ -403,6 +433,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -419,6 +450,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -435,6 +467,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -451,6 +484,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {
@@ -467,6 +501,7 @@ return {
           width = 32,
           height = 32,
           rotation = 0,
+          opacity = 1,
           gid = 123,
           visible = true,
           properties = {}
@@ -478,6 +513,7 @@ return {
       draworder = "topdown",
       id = 5,
       name = "waypoints",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -496,6 +532,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },
@@ -527,6 +564,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },
@@ -559,6 +597,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },
@@ -591,6 +630,7 @@ return {
           width = 0,
           height = 0,
           rotation = 0,
+          opacity = 1,
           visible = true,
           polyline = {
             { x = 0, y = 0 },

@@ -1,97 +1,109 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    // Uses tomblind.local-lua-debugger-vscode ("lua-local").
+    // The extension puts its debugger on LUA_PATH and sets LOCAL_LUA_DEBUGGER_VSCODE=1;
+    // src/main.lua calls require('lldebugger').start() when the `debug` arg is present.
     "version": "0.2.0",
     "configurations": [
         {
             "type": "lua-local",
             "request": "launch",
-            "name": "Debug (map=sandbox.lua)",
-            "program":
-            {
+            "name": "Run Game",
+            "cwd": "${workspaceFolder}",
+            "scriptRoots": ["${workspaceFolder}"],
+            "program": {
                 "command": "love"
             },
-            "args": 
-            [
-                "${workspaceFolder}",
-                "debug",
-                "drawphysics",
-                "map=sandbox.lua"
-            ],
+            "args": [
+                "${workspaceFolder}"
+            ]
         },
         {
             "type": "lua-local",
             "request": "launch",
-            "name": "Debug (map=ll1.lua)",
-            "program":
-            {
+            "name": "Run Game (pick map)",
+            "cwd": "${workspaceFolder}",
+            "scriptRoots": ["${workspaceFolder}"],
+            "program": {
                 "command": "love"
             },
-            "args": 
-            [
+            "args": [
                 "${workspaceFolder}",
-                "debug",
-                "drawphysics",
-                "map=ll1.lua"
-            ],
-        },
-        {
-            "type": "lua-local",
-            "request": "launch",
-            "name": "Debug (map=ll2.lua)",
-            "program":
-            {
-                "command": "love"
-            },
-            "args": 
-            [
-                "${workspaceFolder}",
-                "debug",
-                "drawphysics",
-                "map=ll2.lua"
-            ],
+                "map=${input:map}"
+            ]
         },
         {
             "type": "lua-local",
             "request": "launch",
             "name": "Debug",
-            "program":
-            {
+            "cwd": "${workspaceFolder}",
+            "scriptRoots": ["${workspaceFolder}"],
+            "program": {
                 "command": "love"
             },
-            "args": 
-            [
+            "args": [
                 "${workspaceFolder}",
                 "debug"
-            ],
+            ]
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
+            "name": "Debug (pick map)",
+            "cwd": "${workspaceFolder}",
+            "scriptRoots": ["${workspaceFolder}"],
+            "program": {
+                "command": "love"
+            },
+            "args": [
+                "${workspaceFolder}",
+                "debug",
+                "drawphysics",
+                "map=${input:map}"
+            ]
+        },
+        {
+            "type": "lua-local",
+            "request": "launch",
+            "name": "Debug (map=sandbox.lua)",
+            "cwd": "${workspaceFolder}",
+            "scriptRoots": ["${workspaceFolder}"],
+            "program": {
+                "command": "love"
+            },
+            "args": [
+                "${workspaceFolder}",
+                "debug",
+                "drawphysics",
+                "map=sandbox.lua"
+            ]
         },
         {
             "type": "lua-local",
             "request": "launch",
             "name": "Profile",
-            "program":
-            {
+            "cwd": "${workspaceFolder}",
+            "scriptRoots": ["${workspaceFolder}"],
+            "program": {
                 "command": "love"
             },
-            "args": 
-            [
+            "args": [
                 "${workspaceFolder}",
                 "profile"
-            ],
-        },
+            ]
+        }
+    ],
+    "inputs": [
         {
-            "type": "lua-local",
-            "request": "launch",
-            "name": "Game",
-            "program":
-            {
-                "command": "love"
-            },
-            "args": 
-            [
-                "${workspaceFolder}",
-            ],
-        },
+            "id": "map",
+            "type": "pickString",
+            "description": "Map to load from res/map/",
+            "default": "sandbox.lua",
+            "options": [
+                "sandbox.lua",
+                "ll1.lua",
+                "ll2.lua",
+                "drawbridge_fixture.lua"
+            ]
+        }
     ]
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="1">
+ <editorsettings>
+  <export target="mushroom_cave.lua" format="lua"/>
+ </editorsettings>
+ <imagelayer id="2" name="background" parallaxx="0.1" parallaxy="0.1">
+  <image source="../img/backgrounds/background_mushroom_cave.png" width="1344" height="768"/>
+ </imagelayer>
+ <imagelayer id="3" name="foreground" parallaxx="0.8" parallaxy="0.8">
+  <image source="../img/backgrounds/foreground_mushroom_cave.png" width="1344" height="768"/>
+ </imagelayer>
+</map>

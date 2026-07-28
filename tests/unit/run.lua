@@ -10,6 +10,7 @@ local defaultTestFiles = {
 	'tests/unit/camera_test.lua',
 	'tests/unit/timeline_reverse_test.lua',
 	'tests/unit/drawbridge_test.lua',
+	'tests/unit/map_parallax_test.lua',
 }
 
 local tests = {}

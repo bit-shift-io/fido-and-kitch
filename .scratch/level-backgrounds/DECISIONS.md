@@ -1,67 +1,53 @@
-# Level Backgrounds — Decision Log
+# Level Backgrounds — Decision Log (Tiled Background Map)
 
-Grill session 2026-07-10.
+Grill session 2026-07-10, revised 2026-07-26 for Tiled background map approach.
 
-### Q1: Scrolling camera / parallax in scope?
-**Decision:** Self-moving backgrounds only; design for parallax later via a `depth` property on every background element. No camera work in this feature.
-- **Why:** The game currently draws the whole map to a fit-to-screen canvas with no scrolling camera (the hump Camera instance is never used for drawing), so classic parallax has nothing to scroll against. A camera/auto-zoom rework is planned separately and will change core rendering for all levels.
-- **Implication:** `depth` is stored and plumbed but visually inert. When the camera lands, parallax becomes a multiply of `depth` into the draw offset — no redesign.
-- **Alternatives considered:** Bundling the camera rework into this feature — rejected as it doubles the scope and risk of a decoration feature; user agreed with the recommendation to keep them separate.
+### Q1: How are backgrounds authored?
+**Decision:** Tiled image layers in a separate background map (`res/backgrounds/<name>.tmx`), exported to `.lua`. Map property `background = "name"` selects it.
+- **Why:** User already created `night_forest.tmx` with 3 image layers and parallax properties. Tiled is the level editor — authoring backgrounds there is natural. STI natively parses `parallaxx`/`parallaxy`/`offsetx`/`offsety`/`repeatx`. No custom preset format needed.
+- **Implication:** Background = data, not code. New background = new `.tmx`/`.lua` pair. Map property selects it.
 
-### Q2: How are backgrounds authored in the map?
-**Decision:** Objects in a `background` objectgroup layer, spawned through the existing `Map:loadEntity` pipeline. Props are **tile objects from Tiled templates backed by the `props` image-collection tileset**.
-- **Why:** User wanted "objects — good and simple" and asked whether the editor could show a texture per object. It can: the existing templates (teleport, cage, coin) are already tile objects (`gid` set), and `res/tilesets/props.tsx` is already an image-collection tileset containing `tree_1.png`. Referencing props.tsx tiles from templates shows the actual art at actual size in Tiled.
-- **Implication:** New PNGs (cloud, bush) are added as tiles to props.tsx; one `.tx` template per prop with predefined type and default properties. Level authors drag templates and tweak properties — no code changes per placement.
-- **Alternatives considered:** Tiled-native image layers for clouds/backdrops (idiomatic in other Tiled games, STI parses them) — rejected in favour of a single uniform object mechanism; map-level properties for everything — rejected except where noted below.
+### Q2: How is the background map loaded and drawn?
+**Decision:** Load as second STI map in `Map:new`. Draw its layers in `Map:draw2` before main layers, using STI's parallax formula with `tx`/`ty` from the camera transform.
+- **Why:** STI already has parallax logic. The game's `Map:draw2` has the camera transform (`tx`, `ty`). Reusing STI's formula is minimal code. Background map is completely separate from gameplay map — no collision, no entities.
+- **Implication:** ~30 lines of code in `Map:new` + `Map:draw2`. No new entity types, no components.
 
-### Q3: How is the sky gradient defined?
-**Decision:** A rect object with `type=gradient`, colour properties (`colorTop`, `colorBottom`), and a `coverMap` boolean.
-- **Why:** Consistent with "objects for everything". Tiled has no native gradient concept, so it can't be previewed either way; the object just carries data. `coverMap=true` removes the need to size the rect exactly.
-- **Implication:** Multiple gradient regions are possible (coverMap=false rects), though full-map is the expected use.
-- **Alternatives considered:** Map custom properties (`skyColorTop`/`skyColorBottom`) — recommended by Claude for being un-losable, but user preferred the object with a cover-map checkbox.
+### Q3: Parallax — how does it work without a camera system?
+**Decision:** Use the existing draw transform (`tx`, `ty`) from `Map:draw2`. Parallax offset = `tx * parallaxx`. At `parallaxx=0`, layer draws at world position (scrolls with map). At `parallaxx=1`, layer draws at `tx` offset (fixed to screen). At `0.5`, half-speed parallax.
+- **Why:** The game already computes `tx`, `ty` to center/scale the map to screen. This IS the camera position. Parallax is just a multiplier on that offset. No camera rework needed.
+- **Implication:** Parallax works immediately. Future camera system will unify this but no changes required to background logic.
 
-### Q4: How do clouds work?
-**Decision:** A `cloud_spawner` rect object that populates its region with clouds drawn from a **pool of Tiled templates** (via `file` properties pointing at `.tx` files); spawned clouds drift and **wrap around the map edges**.
-- **Why:** User wanted less manual placement than per-cloud objects, plus the ability to feed the spawner a template (or pool) of what to spawn.
-- **Implication:** Stable population — the spawner seeds `count` clouds at load with randomized template/position/speed/scale; wrap-around means no despawn/respawn logic. The template-pool mechanism generalizes to future spawners.
-- **Alternatives considered:** Individually placed clouds with wrap (max author control, more placement work); continuous spawn/despawn at edges (more code, population drift).
+### Q4: How are background images handled?
+**Decision:** Background map's `.lua` references images as `../img/backgrounds/...` relative to `res/backgrounds/`. STI resolves from the map file's directory. Enable `repeatx = true` on all layers for horizontal tiling.
+- **Why:** User provided layered PNGs (sky, mountains, forest) — 1200px wide. Maps can be wider. Horizontal tiling covers any map width. STI's `repeatx` handles the draw loop.
+- **Implication:** No gradient entity. Full-map coverage via image tiling.
 
-### Q5: How do props animate (single-frame art)?
-**Decision:** Both options, composable per prop: procedural motion (sine sway for trees; triggered shake/squash for bush rustle) and frame animation via the existing Sprite + Timeline components.
-- **Why:** Procedural works with the single-frame art we have today; frame animation unlocks richer art later; user explicitly wanted the ability to use one or both together.
-- **Implication:** Motion is parameterized (strength, speed) and wind-driven; frame animation is opt-in via template/object properties.
+### Q5: What about props, motion, proximity?
+**Decision:** Out of scope. User said "strip out all the animation, swaying and fluff. Just parallax layers that move with the camera."
+- **Why:** Keep code minimal and self-contained. Props/motion/proximity can be added later as a separate feature.
+- **Implication:** No entity files, no motion component, no proximity component, no prop templates/art.
 
-### Q6: How is "player runs past the bush" detected?
-**Decision:** A generic **proximity component** in the components directory, configured with a radius; it monitors player distance and fires enter/exit signals the prop reacts to.
-- **Why:** User framed it as "like a component?" — matches the existing entity/component architecture. One mechanism reused by any future reactive prop.
-- **Implication:** Uses the established player-position/world-query patterns (cf. `checkForUsables`, `queryLadder`) read-only; background props still create no colliders.
-- **Alternatives considered:** Bespoke detection per entity type — rejected; every new reactive prop would need new detection code.
+### Q6: Content scope
+**Decision:** Sandbox only. Convert sandbox to background map system (set `background = "night_forest"`, remove `sky`/`trees` tile layers). Other maps adopt later. Each implementation slice updates sandbox so it's demoable.
+- **Why:** Sandbox is the proving ground; keeps feature focused on the system.
 
-### Q7: Wind — global or per-object?
-**Decision:** Global per-map wind (custom property, e.g. `windX`) × per-object multiplier (`windScale`), **with a code default when the map defines nothing**.
-- **Why:** One value retunes a whole level (calm ↔ stormy) while keeping per-object variety; the default means backgrounds work with zero map configuration.
-- **Implication:** Wind drives both cloud drift velocity and sway strength, so the level feels coherent.
+### Q7: Art assets
+**Decision:** User provided `night_forest.tmx` + 3 PNGs in `res/img/backgrounds/`. Create `cave` and `sky` background maps as simple variants.
+- **Why:** Keeps feature demoable end-to-end; real art already provided.
 
-### Q8: Content scope
-**Decision:** Sandbox only. Convert sandbox to the new system (replace its `sky`/`trees` tile layers); ll1 and other maps adopt it later as content work. **Each implementation issue updates the sandbox map as part of its slice** (user directive at sign-off).
-- **Why:** Sandbox is the proving ground; keeps the feature focused on the system.
-- **Implication:** Every slice is demoable in sandbox as it lands; the dual-file rule (edit Tiled source + re-export Lua) applies to every issue.
+## Key Assumptions
 
-### Q9: Art assets
-**Decision:** Create simple placeholder PNGs in-repo (cloud shapes, a bush); reuse `tree_1.png`.
-- **Why:** Keeps the feature demoable end-to-end; real art swaps in later without code changes (templates/tileset entries just point at new files).
+- STI's parsed background map exposes layers with `parallaxx`, `parallaxy`, `offsetx`, `offsety`, `repeatx`, `image` fields.
+- The background map's layer draw order (as declared in TMX) is correct for depth (sky → mountains → forest).
+- `Map:draw2`'s `tx`/`ty` are the camera offsets needed for parallax math.
+- STI's `repeatx` draws the image repeated horizontally when enabled.
 
-## Key assumptions
+## Trade-offs Explicitly Considered
 
-- STI's parsed object data exposes template-resolved properties and `gid` tile references well enough to spawn props (the existing template-based entities — teleport, cage — already rely on this).
-- Tiled `file` properties are a workable way to reference `.tx` templates from a spawner object; the game resolves them to prop definitions at load.
-- The `background` objectgroup being first in layer order is sufficient for correct draw order under the current renderer (layer order = render order; players drawn after the map).
+- **Tiled background map vs Lua presets**: Tiled map wins — authoring in-editor, STI native parallax, user already did it. Lua presets would duplicate STI's capabilities.
+- **Separate STI map vs extra layers in main map**: Separate map wins — clean separation (no collision, no entities), reusable across maps, own file. Extra layers in main map would need `collision`/`ladder` properties false and clutter the main map.
+- **Parallax via draw transform vs camera rework**: Draw transform wins — minimal, works now. Camera rework is a separate, larger feature.
 
-## Trade-offs explicitly considered
+## CONTEXT.md entries added/updated
 
-- **Uniform object mechanism vs Tiled-native image layers**: image layers get parallax/repeat for free in Tiled but split authoring across two mechanisms; uniformity won.
-- **Depth-now/parallax-later** carries a small risk the future camera design invalidates the depth semantics; accepted because the property is one number and cheap to migrate.
-
-## CONTEXT.md entries added
-
-- **Background prop**, **Gradient object**, **Cloud spawner**, **Wind**, **Depth**, **Proximity component** — see `CONTEXT.md` for definitions and boundaries.
+- **Background map**, **Image layer**, **Parallax factor**, **Tiling** — see `CONTEXT.md` for definitions and boundaries.

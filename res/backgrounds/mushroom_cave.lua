@@ -1,0 +1,50 @@
+return {
+  version = "1.11",
+  luaversion = "5.1",
+  tiledversion = "1.12.2",
+  class = "",
+  orientation = "orthogonal",
+  renderorder = "right-down",
+  width = 30,
+  height = 20,
+  tilewidth = 32,
+  tileheight = 32,
+  nextlayerid = 4,
+  nextobjectid = 1,
+  properties = {},
+  tilesets = {},
+  layers = {
+    {
+      type = "imagelayer",
+      image = "../img/backgrounds/background_mushroom_cave.png",
+      id = 2,
+      name = "background",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 0.1,
+      parallaxy = 0.1,
+      repeatx = false,
+      repeaty = false,
+      properties = {}
+    },
+    {
+      type = "imagelayer",
+      image = "../img/backgrounds/foreground_mushroom_cave.png",
+      id = 3,
+      name = "foreground",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 0.8,
+      parallaxy = 0.8,
+      repeatx = false,
+      repeaty = false,
+      properties = {}
+    }
+  }
+}
