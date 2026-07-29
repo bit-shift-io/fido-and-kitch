@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # 06: Key Pickup Sound
 

@@ -1,4 +1,9 @@
-Status: pending
+Status: blocked
+
+Skipped: no Spider or Robot entity exists in this codebase yet. They're planned
+separately under `.scratch/enemies/` (all 6 issues there are still
+`Status: pending` as of this pass) -- building them is that feature's scope,
+not sound-component's. Revisit this issue once `.scratch/enemies/` lands.
 
 # 10: Enemy Sounds (Spider/Robot)
 

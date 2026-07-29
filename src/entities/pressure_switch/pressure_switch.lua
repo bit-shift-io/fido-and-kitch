@@ -54,6 +54,15 @@ function PressureSwitch:init(object)
 	if object.properties and object.properties.target then
 		self.target = map:getObjectById(object.properties.target.id)
 	end
+
+	-- no assets yet at res/snd/entity_pressure_{press,release}.wav;
+	-- Sound:play warns and skips until they're added
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			press = 'res/snd/entity_pressure_press.wav',
+			release = 'res/snd/entity_pressure_release.wav',
+		}
+	})
 end
 
 function PressureSwitch:isActive()
@@ -105,6 +114,7 @@ function PressureSwitch:update(dt)
 	end
 
 	self.state = isActive and 'on' or 'off'
+	self.sound:play(isActive and 'press' or 'release')
 	self:driveTarget()
 end
 

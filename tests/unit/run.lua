@@ -13,6 +13,7 @@ local defaultTestFiles = {
 	'tests/unit/map_parallax_test.lua',
 	'tests/unit/pushable_support_test.lua',
 	'tests/unit/pressure_switch_test.lua',
+	'tests/unit/sound_test.lua',
 }
 
 local tests = {}

@@ -27,6 +27,14 @@ function Switch:init(object)
 		use=utils.forwardFunc(self.use, self)
 	})
 
+	-- only one toggle sound asset exists (res/snd/); both directions share it
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			on = 'res/snd/entity_switch_toggle.wav',
+			off = 'res/snd/entity_switch_toggle.wav',
+		}
+	})
+
 	self.target = map:getObjectById(object.properties.target.id)
 end
 
@@ -44,6 +52,7 @@ function Switch:use(user)
 		self.state = 'off'
 	end
 	self.sprite:setFrameNum(frameNum)
+	self.sound:play(self.state)
 
 	if self.target.entity then
 		if self.target.entity.switch then

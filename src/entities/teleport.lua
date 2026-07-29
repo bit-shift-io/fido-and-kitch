@@ -27,6 +27,14 @@ function Teleport:init(object)
 		entity=self,
 		use=utils.func(self.use, self)
 	})
+
+	-- only one teleport sound asset exists (res/snd/); both directions share it
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			['in'] = 'res/snd/entity_teleport.wav',
+			out = 'res/snd/entity_teleport.wav',
+		}
+	})
 end
 
 function Teleport:contact(other)
@@ -36,6 +44,8 @@ end
 
 function Teleport:use(user)
 	if self.target then
+		self.sound:play('in')
+
 		-- center the player in the teleporter
 		local user_bounds = user.collider:getBounds()
 
@@ -45,6 +55,10 @@ function Teleport:use(user)
 		local x = t_x
 		local y = t_y - user_bounds.height * 0.5
 		user.collider:setPosition(x, y)
+
+		if self.target.entity then
+			self.target.entity.sound:play('out')
+		end
 	end
 end
 

@@ -1,6 +1,8 @@
-Status: pending
+Status: done
 
 # 16: Unit Tests for Sound Component
+
+Note: folded into issue 01 — coverage lives in `tests/unit/sound_test.lua` (project convention, not `tests/unit/components/sound.unit.test.lua`), which covers all 5 required cases (init/path, play+pitch, unknown name, pitch=0, destroy).
 
 ## What to build
 Comprehensive unit tests for Sound component covering init, play, pitch variation, error handling.

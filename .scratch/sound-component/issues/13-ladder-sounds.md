@@ -1,4 +1,10 @@
-Status: pending
+Status: done
+
+Note: only the mount sound is implemented. LadderState in
+src/player/player_states.lua has no horizontal-slide mechanic (it only moves
+vertically along the ladder) -- there's nothing to hook a 'slide' sound into
+without inventing a new movement mechanic, which is out of scope for the
+sound-component feature.
 
 # 13: Ladder Mount/Slide Sounds
 

@@ -30,6 +30,12 @@ function Key:init(object)
 		collider=self.collider,
 		entity=self
 	})
+
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			pickup = 'res/snd/entity_key_collect.wav'
+		}
+	})
 end
 
 return Key

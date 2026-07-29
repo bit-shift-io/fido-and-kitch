@@ -82,6 +82,13 @@ function Drawbridge:init(object)
 		sensor = true,
 		position = self.triggerCentre,
 	})
+
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			open = 'res/snd/entity_drawbridge_open.wav',
+			close = 'res/snd/entity_drawbridge_close.wav',
+		}
+	})
 end
 
 -- flip solidity to match the new state
@@ -136,12 +143,14 @@ function Drawbridge:checkHeld()
 		else
 			self.sprite:playReverse() -- fresh close from the fully-open end
 		end
+		self.sound:play('close')
 	elseif nextState == 'opening' then
 		if self.state == 'closing' then
 			self.sprite:reverseFromCurrent() -- reverse in place, no snap
 		else
 			self.sprite:playForward() -- fresh open from the fully-closed end
 		end
+		self.sound:play('open')
 	end
 
 	self:setState(nextState)

@@ -121,6 +121,17 @@ function LoveMock.new()
 		load = function(path)
 			return loadfile(path)
 		end,
+		-- real LÖVE returns a FileInfo table when the file exists relative to
+		-- the game's source, nil otherwise; checking the real repo file is
+		-- enough for headless tests since res/ paths are real on disk
+		getInfo = function(path)
+			local file = io.open(path, 'rb')
+			if file == nil then
+				return nil
+			end
+			file:close()
+			return {}
+		end,
 	}
 
 	love.data = {
@@ -140,6 +151,21 @@ function LoveMock.new()
 		newBezierCurve = newFakeBezierCurve,
 		isConvex = function() return true end,
 		triangulate = function(vertices) return {vertices} end,
+		random = function() return 0.5 end,
+	}
+
+	state.audio = {created = {}}
+
+	love.audio = {
+		newSource = function(path, kind)
+			local source = {path = path, kind = kind, pitch = 1, playing = false}
+			function source:setPitch(pitch) self.pitch = pitch end
+			function source:play() self.playing = true end
+			function source:stop() self.playing = false end
+			function source:isPlaying() return self.playing end
+			table.insert(state.audio.created, source)
+			return source
+		end,
 	}
 
 	love.graphics = {

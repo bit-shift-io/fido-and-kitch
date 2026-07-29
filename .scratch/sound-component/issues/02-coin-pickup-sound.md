@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # 02: Coin Pickup Sound
 

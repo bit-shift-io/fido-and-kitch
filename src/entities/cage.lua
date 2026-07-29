@@ -36,6 +36,12 @@ function Cage:init(object)
 		requiredItem=string.format('key_%s', color)
 	})
 
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			open = 'res/snd/entity_cage_open.wav'
+		}
+	})
+
 	-- spawn the prisoner!
 	if object.properties.path == nil then
 		print('Cage has no path property setup for the actor to follow when released')
@@ -50,6 +56,7 @@ function Cage:use(user)
 	print('Cage has been used')
 	self:removeComponent(self.lockSprite)
 	self.sprite.timeline:play()
+	self.sound:play('open')
 
 	if self.actor == nil then
 		return

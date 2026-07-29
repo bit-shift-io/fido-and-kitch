@@ -30,11 +30,18 @@ function JumpPad:init(object)
 		use=utils.func(self.use, self)
 	})
 
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			launch = 'res/snd/entity_jump_pad_launch.wav'
+		}
+	})
+
 	self.pathObject = map:getObjectById(object.properties.path.id)
 
 end
 
 function JumpPad:use(user)
+	self.sound:play('launch')
 
 	if user.pathFollow then
 		user.pathFollow:finish()

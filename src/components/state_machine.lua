@@ -12,6 +12,7 @@ function StateMachine:init(props)
             local instance = s{props}
             instance.fsm = self
             instance.entity = props.entity
+            instance.name = n
             self.states[n] = instance
         end
     end
@@ -51,7 +52,7 @@ function StateMachine:setState(name)
     end
 
     if (nextState ~= nil and nextState.enter ~= nil) then
-      nextState:enter();
+      nextState:enter(prevState);
     end
 
     self.currentState = nextState;

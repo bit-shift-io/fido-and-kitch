@@ -40,6 +40,14 @@ function ExitDoor:init(object)
 		event=utils.func(self.event, self)
 	})
 
+	-- no asset yet at res/snd/entity_exit_door_open.wav; Sound:play warns and
+	-- skips until one is added
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			open = 'res/snd/entity_exit_door_open.wav'
+		}
+	})
+
 	self.entitysWaiting = {}
 	self.enableUsableOnOpen = false
 end
@@ -90,6 +98,7 @@ function ExitDoor:open()
 	print('all objectives achived, open door for player to exit')
 	self.enableUsableOnOpen = true
 	self.desiredState = 'open'
+	self.sound:play('open')
 	self:updateState('open')
 end
 

@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # 08: Exit Door Open Sound
 

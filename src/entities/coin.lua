@@ -31,6 +31,12 @@ function Coin:init(object)
 		collider=self.collider,
 		entity=self
 	})
+
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			pickup = 'res/snd/entity_coin_collect.wav'
+		}
+	})
 end
 
 return Coin

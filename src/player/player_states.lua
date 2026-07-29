@@ -8,6 +8,7 @@ function LadderState:enter()
 	player:setAnimation('climb')
 	player.collider:setType('kinematic')
 	player.collider:setGravityScale(0)
+	player.sound:play('mount')
 end
 
 function LadderState:exit()
@@ -75,9 +76,17 @@ local WalkIdleState = Class{}
 function WalkIdleState:init(props)
 end
 
-function WalkIdleState:enter()
+-- step-sound cadence while walking; see DECISIONS.md Q17
+local STEP_INTERVAL = 0.3
+
+function WalkIdleState:enter(prevState)
 	local player = self.entity
 	player:setAnimation('idle')
+	player.stepTimer = 0
+
+	if prevState ~= nil and prevState.name == 'FallState' then
+		player.sound:play('land')
+	end
 end
 
 function WalkIdleState:exit(name)
@@ -121,6 +130,16 @@ function WalkIdleState:update(dt)
 		player:setFacing(decision.facing)
 	end
 	player:setAnimation(decision.animation)
+
+	if decision.animation == 'walk' then
+		player.stepTimer = player.stepTimer + dt
+		if player.stepTimer >= STEP_INTERVAL then
+			player.stepTimer = player.stepTimer - STEP_INTERVAL
+			player.sound:play('step')
+		end
+	else
+		player.stepTimer = 0
+	end
 end
 
 
@@ -142,6 +161,7 @@ function FallState:enter()
 	player:setAnimation('fall')
     local v_x, v_y = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(0, v_y)
+	player.sound:play('jump')
 end
 
 function FallState:update(dt)
@@ -166,6 +186,7 @@ local DEATH_FADE_DURATION = DEATH_FLASH_INTERVAL * DEATH_FLASH_BLINKS
 function DeadState:enter()
 	local player = self.entity
 
+	player.sound:play('death')
 	player.collider:setLinearVelocity(0, 0)
 	player.collider:setType('kinematic')
 	player.collider:setGravityScale(0)

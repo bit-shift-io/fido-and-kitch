@@ -17,6 +17,18 @@ local defaultTestFiles = {
 	'tests/integration/boulder_test.lua',
 	'tests/integration/pressure_switch_test.lua',
 	'tests/integration/pushable_reset_test.lua',
+	'tests/integration/coin_test.lua',
+	'tests/integration/player_sound_test.lua',
+	'tests/integration/drawbridge_sound_test.lua',
+	'tests/integration/switch_sound_test.lua',
+	'tests/integration/key_test.lua',
+	'tests/integration/cage_sound_test.lua',
+	'tests/integration/exit_door_sound_test.lua',
+	'tests/integration/jump_pad_sound_test.lua',
+	'tests/integration/kill_zone_sound_test.lua',
+	'tests/integration/teleport_sound_test.lua',
+	'tests/integration/ladder_sound_test.lua',
+	'tests/integration/pressure_switch_sound_test.lua',
 }
 
 local tests = {}

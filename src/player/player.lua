@@ -95,6 +95,19 @@ function Player:init(props)
 
 	self.inventory = self:addComponent(Inventory{})
 
+	-- no assets yet at res/snd/entity_player_{jump,land,step,death}.wav;
+	-- Sound:play warns and skips until they're added
+	self.sound = self:addComponent(Sound{
+		sounds = {
+			jump = 'res/snd/entity_player_jump.wav',
+			land = 'res/snd/entity_player_land.wav',
+			step = 'res/snd/entity_player_step.wav',
+			death = 'res/snd/entity_player_death.wav',
+			mount = 'res/snd/entity_ladder_climb.wav',
+		}
+	})
+	self.stepTimer = 0
+
 	self.fsm = self:addComponent(StateMachine{
 		stateClasses=PlayerStates,
 		entity=self,
@@ -161,6 +174,7 @@ function Player:update(dt)
 	if not self:isDead() then
 		local killZone = self:queryKillZone()
 		if killZone then
+			killZone.sound:play(killZone.deathType)
 			self:die(killZone.deathType)
 		end
 	end
@@ -320,6 +334,10 @@ end
 function Player:pickup(pickup)
 	local entity = pickup.entity
 	print('player picked up a ' .. pickup.itemName)
+	local sound = entity:getComponentByType(Sound)
+	if sound ~= nil then
+		sound:play('pickup')
+	end
 	self.inventory:addItems(pickup.itemName, pickup.itemCount)
 	entity:queueDestroy()
 end
