@@ -1,0 +1,57 @@
+diff --git a/lib/sti/init.lua b/lib/sti/init.lua
+index 646a224..90b0ded 100644
+--- a/lib/sti/init.lua
++++ b/lib/sti/init.lua
+@@ -20,6 +20,7 @@ local ceil  = math.ceil
+ local floor = math.floor
+ local lg    = require(cwd .. "graphics")
+ local atlas = require(cwd .. "atlas")
++local ExternalTileset = require("src.map.external_tileset")
+ local Map   = {}
+ Map.__index = Map
+ 
+@@ -91,12 +92,27 @@ function Map:init(path, plugins, ox, oy)
+ 	-- Set tiles, images
+ 	local gid = 1
+ 	for i, tileset in ipairs(self.tilesets) do
+-		assert(not tileset.filename, "STI does not support external Tilesets.\nYou need to embed all Tilesets.")
++        if tileset.filename then
++            -- External tileset (.tsx): resolve it to the same shape STI
++            -- builds for an embedded tileset. The resolved `image`/tile
++            -- image paths are relative to the .tsx file's own directory
++            -- (already normalized to be relative to the project root by
++            -- external_tileset), not to this map's directory, so the
++            -- caching below must not prepend `path` again for these.
++            local tsxPath = utils.format_path(path .. tileset.filename)
++            local resolved = ExternalTileset.resolve(tsxPath, tileset.firstgid)
++
++            for key, value in pairs(resolved) do
++                tileset[key] = value
++            end
++        end
+ 
+         if tileset.image then
+             -- Cache images
+             if lg.isCreated then
+-                local formatted_path = utils.format_path(path .. tileset.image)
++                local formatted_path = tileset.filename
++                    and utils.format_path(tileset.image)
++                    or utils.format_path(path .. tileset.image)
+ 
+                 if not STI.cache[formatted_path] then
+                     utils.fix_transparent_color(tileset, formatted_path)
+@@ -692,7 +708,13 @@ function Map:setObjectSpriteBatches(layer)
+ 	end
+ 
+ 	for _, object in ipairs(layer.objects) do
+-		if object.gid then
++		-- Newer Tiled versions (1.12+) emit `gid = 0` on every rectangle
++		-- object, not just tile objects; gid 0 means "not a tile object" in
++		-- Tiled's own format (gids start at 1), so it must be excluded here
++		-- the same way Map:setTileData already excludes gid 0 tile-layer
++		-- cells. Pre-existing STI gap, surfaced by sandbox.tmx's fresh
++		-- 1.12.2 export -- unrelated to external tileset resolution.
++		if object.gid and object.gid > 0 then
+ 			local tile    = self.tiles[object.gid] or self:setFlippedGID(object.gid)
+ 			local tileset = tile.tileset
+ 			local image   = self.tilesets[tileset].image

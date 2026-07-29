@@ -38,6 +38,10 @@ git clone --depth 1 https://github.com/karai17/Simple-Tiled-Implementation.git
 mv Simple-Tiled-Implementation/sti .
 rm -rf Simple-Tiled-Implementation
 
+# xml2lua (vendored for external-tileset .tsx parsing, see src/map/external_tileset.lua)
+git clone --depth 1 https://github.com/manoelcampos/xml2lua.git
+rm -rf xml2lua/.git
+
 # Hump, Tween, Slab, Bump
 git clone --depth 1 https://github.com/vrld/hump.git
 git clone --depth 1 https://github.com/kikito/tween.lua.git tween
@@ -46,5 +50,11 @@ git clone --depth 1 https://github.com/kikito/bump.lua.git bump
 
 # 4. Safely return to the project root
 cd ..
+
+# 5. Apply local patches to vendored libraries (lib/ is gitignored, so these
+# fixes can't just live as edits to the cloned files -- see patches/*.patch)
+echo "🩹 Applying local patches to vendored libraries..."
+git apply patches/sti.patch
+git apply patches/xml2lua.patch
 
 echo "✅ Install complete! Your environment is ready."

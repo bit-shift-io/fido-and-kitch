@@ -16,6 +16,7 @@ local defaultTestFiles = {
 	'tests/unit/sound_test.lua',
 	'tests/unit/enemy_brain_test.lua',
 	'tests/unit/web_test.lua',
+	'tests/unit/external_tileset_test.lua',
 }
 
 local tests = {}

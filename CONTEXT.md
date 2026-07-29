@@ -257,3 +257,9 @@
 **Definition** — A short, non-looping audio clip triggered by a discrete gameplay event (jump, pickup, death, switch toggle). Format: WAV, loaded as static source. Distinguished from music (streamed, looping, crossfaded) and ambience (layered, continuous).
 
 **Boundary** — Not a music track, not an ambience layer, not a spatial audio emitter. Purely event-driven playback via Sound component.
+
+## External tileset
+
+**Definition** — A Tiled tileset saved to its own `.tsx` file and referenced from a map rather than embedded in it (Tiled's default, recommended workflow since 1.0). The vendored map loader resolves a referenced `.tsx` at load time — parsing its XML and producing a tileset table shaped identically to an embedded tileset — covering both a single shared image on a grid (e.g. `generic_platformer_tiles.tsx`) and an image-collection tileset with one (optionally cropped) image per tile (e.g. `props.tsx`).
+
+**Boundary** — A loading-time concern only; once resolved, an external tileset is indistinguishable from an embedded one to every downstream consumer (tile rendering, animation, `Map:getTileProperties`). Per-tile collision-editor shapes resolve for parity but are not consumed by this project's collision model, which comes entirely from map-level object layers. Distinct from an object **template** (`.tx` file), a separate Tiled feature that already resolves correctly regardless of embedding.

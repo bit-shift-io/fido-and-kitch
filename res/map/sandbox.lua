@@ -1,5 +1,5 @@
 return {
-  version = "1.11",
+  version = "1.10",
   luaversion = "5.1",
   tiledversion = "1.12.2",
   class = "",
@@ -10,7 +10,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 20,
-  nextobjectid = 87,
+  nextobjectid = 89,
   properties = {
     ["background"] = "night_forest"
   },
@@ -18,188 +18,10 @@ return {
     {
       name = "generic_platformer_tiles",
       firstgid = 1,
-      class = "",
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 8,
-      image = "../img/generic_platformer_tiles.png",
-      imagewidth = 256,
-      imageheight = 576,
-      transparentcolor = "#000000",
-      objectalignment = "unspecified",
-      tilerendersize = "tile",
-      fillmode = "stretch",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 144,
-      tiles = {}
-    },
-    {
-      name = "props",
-      firstgid = 145,
-      class = "",
-      tilewidth = 1000,
-      tileheight = 1000,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tilerendersize = "tile",
-      fillmode = "stretch",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 1,
-        height = 1
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 10,
-      tiles = {
-        {
-          id = 0,
-          image = "../img/default.png",
-          width = 32,
-          height = 32
-        },
-        {
-          id = 1,
-          image = "../img/pushable_crate_wood.png",
-          width = 256,
-          height = 256
-        },
-        {
-          id = 2,
-          image = "../img/ladder.png",
-          x = 96,
-          y = 0,
-          width = 32,
-          height = 32
-        },
-        {
-          id = 3,
-          image = "../img/switch.png",
-          x = 0,
-          y = 0,
-          width = 162,
-          height = 162
-        },
-        {
-          id = 4,
-          image = "../img/key_blue.png",
-          width = 32,
-          height = 32
-        },
-        {
-          id = 5,
-          image = "../img/door.png",
-          x = 0,
-          y = 0,
-          width = 64,
-          height = 64
-        },
-        {
-          id = 6,
-          image = "../img/coins.png",
-          x = 0,
-          y = 0,
-          width = 20,
-          height = 20
-        },
-        {
-          id = 8,
-          image = "../img/teleporter_1.png",
-          width = 1000,
-          height = 1000
-        },
-        {
-          id = 9,
-          image = "../img/cage/cage.png",
-          x = 0,
-          y = 0,
-          width = 380,
-          height = 370
-        },
-        {
-          id = 10,
-          image = "../img/spring/Spring - 1.png",
-          width = 31,
-          height = 26
-        }
-},
-        {
-          id = 82,
-          name = "push_box",
-          type = "push_box",
-          shape = "rectangle",
-          x = 140,
-          y = 160,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["allowPushWhenStoodOn"] = false
-          }
-        },
-        {
-          id = 83,
-          name = "push_box_spawn",
-          type = "push_box",
-          shape = "rectangle",
-          x = 160,
-          y = 160,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["allowPushWhenStoodOn"] = false
-          }
-        },
-        {
-          id = 200,
-          name = "robot",
-          type = "robot",
-          shape = "rectangle",
-          x = 320,
-          y = 176,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 201,
-          name = "spider",
-          type = "spider",
-          shape = "rectangle",
-          x = 96,
-          y = 176,
-          width = 32,
-          height = 32,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        }
-      }
-    },
-layers = {
+      filename = "../tilesets/generic_platformer_tiles.tsx"
+    }
+  },
+  layers = {
     {
       type = "tilelayer",
       x = 0,
@@ -351,7 +173,7 @@ layers = {
         {
           id = 86,
           name = "drawbridge",
-          type = "drawbridge",
+          type = "",
           shape = "rectangle",
           x = 352,
           y = 192,
@@ -359,6 +181,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
+          gid = 0,
           visible = true,
           properties = {
             ["crossingDirection"] = "leftToRight"
@@ -375,7 +198,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 153,
+          gid = 0,
           visible = true,
           properties = {
             ["image"] = "../img/teleporter_1.png",
@@ -385,7 +208,7 @@ layers = {
         {
           id = 36,
           name = "coin",
-          type = "coin",
+          type = "",
           shape = "rectangle",
           x = 480,
           y = 352,
@@ -393,7 +216,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 151,
+          gid = 0,
           visible = true,
           properties = {
             ["image"] = "../img/coins.png"
@@ -402,7 +225,7 @@ layers = {
         {
           id = 38,
           name = "spawn",
-          type = "spawn",
+          type = "",
           shape = "rectangle",
           x = 96,
           y = 192,
@@ -410,14 +233,14 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 145,
+          gid = 0,
           visible = true,
           properties = {}
         },
         {
           id = 41,
           name = "red_cage",
-          type = "cage",
+          type = "",
           shape = "rectangle",
           x = 32,
           y = 384,
@@ -425,7 +248,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 154,
+          gid = 0,
           visible = true,
           properties = {
             ["color"] = "red",
@@ -436,7 +259,7 @@ layers = {
         {
           id = 43,
           name = "exit",
-          type = "exit_door",
+          type = "",
           shape = "rectangle",
           x = 416,
           y = 192,
@@ -444,7 +267,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 150,
+          gid = 0,
           visible = true,
           properties = {
             ["actor_count"] = 2
@@ -453,7 +276,7 @@ layers = {
         {
           id = 44,
           name = "switch",
-          type = "switch",
+          type = "",
           shape = "rectangle",
           x = 288,
           y = 192,
@@ -461,7 +284,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 148,
+          gid = 0,
           visible = true,
           properties = {
             ["image"] = "../img/switch.png",
@@ -471,7 +294,7 @@ layers = {
         {
           id = 62,
           name = "red_key",
-          type = "key",
+          type = "",
           shape = "rectangle",
           x = 96,
           y = 384,
@@ -479,7 +302,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 149,
+          gid = 0,
           visible = true,
           properties = {
             ["color"] = "red",
@@ -497,7 +320,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 153,
+          gid = 0,
           visible = true,
           properties = {
             ["image"] = "../img/teleporter_1.png",
@@ -507,7 +330,7 @@ layers = {
         {
           id = 68,
           name = "jump_pad",
-          type = "jump_pad",
+          type = "",
           shape = "rectangle",
           x = 192,
           y = 384,
@@ -515,7 +338,7 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 155,
+          gid = 0,
           visible = true,
           properties = {
             ["image"] = "../img/spring/Spring - 1.png",
@@ -560,7 +383,7 @@ layers = {
         {
           id = 81,
           name = "push_box",
-          type = "push_box",
+          type = "",
           shape = "rectangle",
           x = 160,
           y = 192,
@@ -568,12 +391,40 @@ layers = {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 146,
+          gid = 0,
           visible = true,
           properties = {
             ["allowPushWhenStoodOn"] = false,
             ["image"] = "../img/pushable_crate_wood.png"
           }
+        },
+        {
+          id = 87,
+          name = "robot",
+          type = "robot",
+          shape = "rectangle",
+          x = 29.9128,
+          y = 480.308,
+          width = 32,
+          height = 30.2203,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 88,
+          name = "spider",
+          type = "spider",
+          shape = "rectangle",
+          x = 416.205,
+          y = 317.467,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          opacity = 1,
+          visible = true,
+          properties = {}
         }
       }
     },
@@ -691,8 +542,8 @@ layers = {
           name = "",
           type = "",
           shape = "rectangle",
-          x = 96,
-          y = 192,
+          x = 95.1102,
+          y = 191.11,
           width = 256,
           height = 32,
           rotation = 0,

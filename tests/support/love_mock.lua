@@ -33,6 +33,7 @@ end
 local function newFakeSpriteBatch()
 	local batch = {}
 	function batch:add() end
+	function batch:set() end
 	function batch:clear() end
 	function batch:setColor() end
 	return batch
@@ -131,6 +132,15 @@ function LoveMock.new()
 			end
 			file:close()
 			return {}
+		end,
+		read = function(path)
+			local file = io.open(path, 'r')
+			if file == nil then
+				return nil
+			end
+			local contents = file:read('*a')
+			file:close()
+			return contents
 		end,
 	}
 
