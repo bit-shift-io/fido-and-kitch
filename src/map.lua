@@ -1,9 +1,45 @@
 local sti = require('lib.sti')
 local mapParallax = require('src.map_parallax')
+local Tmx = require('src.map.tmx')
 local lg    =  love.graphics
 
 local Map   = {}
 Map.__index = Map
+
+-- .tmx is parsed directly and handed to STI as a pre-built table; .lua
+-- (Tiled's own export, or a hand-authored fixture) loads exactly as before.
+-- Both map-construction sites below route through this, so levels and
+-- background presets behave identically. See docs/adr/0004-direct-tmx-loading.md.
+local function loadSti(path, plugins)
+	if path:sub(-4) == '.tmx' then
+		return sti(Tmx.parse(path), plugins)
+	end
+	return sti(path, plugins)
+end
+
+local function fileExists(path)
+	if love and love.filesystem and love.filesystem.getInfo then
+		return love.filesystem.getInfo(path) ~= nil
+	end
+
+	local file = io.open(path, 'r')
+	if file then
+		file:close()
+		return true
+	end
+	return false
+end
+
+--- Resolves `basePath` (no extension) to its .tmx source if one exists,
+-- falling back to its .lua export/fixture otherwise -- lets both formats
+-- coexist during the .tmx migration (see docs/adr/0004-direct-tmx-loading.md)
+-- without every caller needing to know which one a given map uses.
+local function resolveMapFile(basePath)
+	if fileExists(basePath .. '.tmx') then
+		return basePath .. '.tmx'
+	end
+	return basePath .. '.lua'
+end
 
 
 local function getColliderFromShape(obj)
@@ -34,7 +70,7 @@ function Map:new(path, world, debug)
 	_G.map = self
 
 	-- https://stackoverflow.com/questions/68771724/lua-inheritance-on-existing-object
-	local map = sti(path, { "box2d" })
+	local map = loadSti(path, { "box2d" })
 	self.map = map
 	utils.proxyClass(self, self.map)
 
@@ -99,7 +135,7 @@ function Map:new(path, world, debug)
 	local bgName = self.map.properties.background
 	if type(bgName) == 'string' and bgName ~= '' then
 		self.backgroundName = bgName
-		self.backgroundMap = sti('res/backgrounds/' .. bgName .. '.lua')
+		self.backgroundMap = loadSti(resolveMapFile('res/backgrounds/' .. bgName))
 	end
 
 	return self

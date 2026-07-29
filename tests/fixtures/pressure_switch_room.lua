@@ -12,7 +12,7 @@
 --
 -- The target is a real `ladder` carrying a `switchOn` event snippet
 -- (`entity:grow(2)`), which is the project's own way for a switch to have a
--- visible effect (see res/map/ll2.lua). Driving the plate therefore grows the
+-- visible effect (see res/map/ll2.tmx). Driving the plate therefore grows the
 -- ladder for real -- the test observes the effect rather than mocking the call.
 return {
   version = "1.11",

@@ -32,6 +32,18 @@ local function dirname(path)
 	return dir and (dir .. '/') or ''
 end
 
+local function deepCopy(value)
+	if type(value) ~= 'table' then
+		return value
+	end
+
+	local copy = {}
+	for k, v in pairs(value) do
+		copy[k] = deepCopy(v)
+	end
+	return copy
+end
+
 local function toNumber(value, default)
 	if value == nil then
 		return default
@@ -160,6 +172,11 @@ local function resolveShapeUncached(tsxPath, deps)
 	local attrs = tilesetXml._attr
 
 	local tileset = {
+		-- A .tmx's <tileset source="..."> carries no name -- it lives only
+		-- in the .tsx -- but STI uses tileset.name as the image-collection
+		-- atlas cache key, and the .tmx parser needs it to populate the
+		-- tileset entry it emits (see src/map/tmx.lua).
+		name       = attrs.name,
 		tilewidth  = toNumber(attrs.tilewidth),
 		tileheight = toNumber(attrs.tileheight),
 		spacing    = toNumber(attrs.spacing, 0),
@@ -250,10 +267,13 @@ function ExternalTileset.resolve(tsxPath, firstgid, deps)
 		resolvedShapeCache[tsxPath] = shape
 	end
 
-	local tileset = {}
-	for key, value in pairs(shape) do
-		tileset[key] = value
-	end
+	-- Deep-copy: a shallow copy would leave `tiles` (and each tile's own
+	-- `properties`/`animation`/`objectGroup`) shared by reference with the
+	-- cache and every other map using this tileset. Nothing mutates them
+	-- today, but tile custom-property lookups read through these
+	-- references, so aliasing them is a latent bug waiting for a future
+	-- mutation to turn live.
+	local tileset = deepCopy(shape)
 	tileset.firstgid = firstgid
 
 	return tileset

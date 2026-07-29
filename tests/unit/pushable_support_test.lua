@@ -7,7 +7,7 @@ local PushableSupport = require('src.components.pushable.pushable_support')
 
 -- A plain rectangle object (no gid) is top-anchored: Tiled's y is the top
 -- edge. This is the shape the hand-edited push_box objects already in
--- res/map/sandbox.lua have.
+-- res/map/sandbox.tmx have.
 test('a gid-less object is top-anchored -- its centre is half a tile below its y', function()
 	local centreX, centreY = PushableSupport.spawnCentre({x = 160, y = 192, width = 32, height = 32})
 

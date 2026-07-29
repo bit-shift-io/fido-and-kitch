@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Load image layers and the parallax background presets
 

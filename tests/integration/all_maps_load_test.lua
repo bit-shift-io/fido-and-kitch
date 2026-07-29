@@ -7,7 +7,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 
 local function listMapFiles()
 	local files = {}
-	local pipe = io.popen('ls res/map/*.lua 2>/dev/null')
+	local pipe = io.popen('ls res/map/*.lua res/map/*.tmx 2>/dev/null')
 	for path in pipe:lines() do
 		table.insert(files, path)
 	end
@@ -18,7 +18,12 @@ end
 
 test('every real map under res/map/ loads and steps a few frames without error', function()
 	local files = listMapFiles()
-	assertTrue(#files > 0, 'expected to find at least one map under res/map/')
+	-- Asserted explicitly, not just "> 0": a glob that silently starts
+	-- returning zero files (e.g. a typo'd pattern after some future
+	-- reorganisation) would otherwise still pass every per-map assertion
+	-- below, covering nothing while looking green.
+	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (ll1, ll2, sandbox, tiny .tmx + drawbridge_fixture .lua), found:\n'
+		.. table.concat(files, '\n'))
 
 	local failures = {}
 

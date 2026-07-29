@@ -64,7 +64,7 @@
         {
             "type": "lua-local",
             "request": "launch",
-            "name": "Debug (map=sandbox.lua)",
+            "name": "Debug (map=sandbox.tmx)",
             "cwd": "${workspaceFolder}",
             "scriptRoots": ["${workspaceFolder}"],
             "program": {
@@ -74,7 +74,7 @@
                 "${workspaceFolder}",
                 "debug",
                 "drawphysics",
-                "map=sandbox.lua"
+                "map=sandbox.tmx"
             ]
         },
         {
@@ -97,11 +97,12 @@
             "id": "map",
             "type": "pickString",
             "description": "Map to load from res/map/",
-            "default": "sandbox.lua",
+            "default": "sandbox.tmx",
             "options": [
-                "sandbox.lua",
-                "ll1.lua",
-                "ll2.lua",
+                "sandbox.tmx",
+                "ll1.tmx",
+                "ll2.tmx",
+                "tiny.tmx",
                 "drawbridge_fixture.lua"
             ]
         }

@@ -1,3 +1,5 @@
+local Tmx = require('src.map.tmx')
+
 local MapList = Class{}
 
 local THUMBNAIL_WIDTH = 360
@@ -31,7 +33,7 @@ local ENTITY_COLORS = {
 }
 
 local function baseName(file)
-	return file:gsub('%.lua$', '')
+	return file:gsub('%.lua$', ''):gsub('%.tmx$', '')
 end
 
 local function titleFromFile(file)
@@ -177,11 +179,17 @@ function MapList:init(props)
 	table.sort(files)
 
 	for _, file in ipairs(files) do
-		if str.endsWith(file, '.lua') then
+		if str.endsWith(file, '.lua') or str.endsWith(file, '.tmx') then
 			local path = self.dir .. '/' .. file
-			local ok, chunk = pcall(love.filesystem.load, path)
-			local mapData = ok and chunk and chunk()
-			if mapData then
+			local ok, mapData
+			if str.endsWith(file, '.tmx') then
+				ok, mapData = pcall(Tmx.parse, path)
+			else
+				local loadOk, chunk = pcall(love.filesystem.load, path)
+				ok = loadOk and chunk ~= nil
+				mapData = ok and chunk()
+			end
+			if ok and mapData then
 				local canvas = love.graphics.newCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
 				local previousCanvas = love.graphics.getCanvas()
 				love.graphics.setCanvas(canvas)

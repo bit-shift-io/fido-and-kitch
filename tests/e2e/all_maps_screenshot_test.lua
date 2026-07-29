@@ -10,7 +10,7 @@ local Capture = require('tests.support.capture')
 
 local function listMapFiles()
 	local files = {}
-	local pipe = io.popen('ls res/map/*.lua 2>/dev/null')
+	local pipe = io.popen('ls res/map/*.lua res/map/*.tmx 2>/dev/null')
 	for path in pipe:lines() do
 		table.insert(files, path)
 	end
@@ -20,12 +20,14 @@ local function listMapFiles()
 end
 
 local function captureNameFor(path)
-	return path:match('([^/]+)%.lua$') or path
+	return path:match('([^/]+)%.lua$') or path:match('([^/]+)%.tmx$') or path
 end
 
 test('every real map under res/map/ loads and captures a screenshot', function()
 	local files = listMapFiles()
-	assertTrue(#files > 0, 'expected to find at least one map under res/map/')
+	-- Asserted explicitly, not just "> 0" -- see all_maps_load_test.lua.
+	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (ll1, ll2, sandbox, tiny .tmx + drawbridge_fixture .lua), found:\n'
+		.. table.concat(files, '\n'))
 
 	local failures = {}
 

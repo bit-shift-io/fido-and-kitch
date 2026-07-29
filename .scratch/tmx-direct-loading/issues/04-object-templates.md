@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Resolve object templates — the bug this feature exists to fix
 

@@ -30,6 +30,8 @@ local defaultTestFiles = {
 	'tests/integration/ladder_sound_test.lua',
 	'tests/integration/pressure_switch_sound_test.lua',
 	'tests/integration/external_tileset_test.lua',
+	'tests/integration/tmx_test.lua',
+	'tests/integration/tmx_golden_test.lua',
 }
 
 local tests = {}

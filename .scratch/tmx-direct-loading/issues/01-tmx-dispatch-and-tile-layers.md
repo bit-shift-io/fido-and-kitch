@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Load a `.tmx` map with a tile layer end-to-end
 

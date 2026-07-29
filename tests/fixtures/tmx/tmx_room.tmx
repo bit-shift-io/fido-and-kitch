@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="5" height="3" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="3">
+ <tileset firstgid="1" source="tmx_room.tsx"/>
+ <layer id="1" name="ground" width="5" height="3">
+  <data encoding="base64">
+   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAABAAAA
+  </data>
+ </layer>
+ <objectgroup id="2" name="collision">
+  <properties>
+   <property name="collision" type="bool" value="true"/>
+  </properties>
+  <object id="1" x="0" y="96" width="160" height="32"/>
+ </objectgroup>
+ <objectgroup id="3" name="game">
+  <object id="2" name="spawn" type="spawn" x="32" y="64" width="32" height="32"/>
+ </objectgroup>
+</map>

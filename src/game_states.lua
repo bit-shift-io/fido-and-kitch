@@ -134,7 +134,7 @@ function InGameState:load(props)
 	--end
 	--print(love.filesystem.isFused())
 
-	self.currentMap = props.map or 'res/map/sandbox.lua'
+	self.currentMap = props.map or 'res/map/sandbox.tmx'
 
 	world = World:new(0, 90.81, true)
 	map = Map:new(self.currentMap, world, true)
@@ -335,7 +335,7 @@ function GameOverState:enter()
 end
 
 function GameOverState:load(props)
-	self.map = props and props.map or 'res/map/sandbox.lua'
+	self.map = props and props.map or 'res/map/sandbox.tmx'
 end
 
 function GameOverState:exit()

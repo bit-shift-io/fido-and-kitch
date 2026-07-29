@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Cut over to `.tmx` as the source of truth
 
