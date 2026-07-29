@@ -1,6 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "opencode-auto-continue"
+  ],
   "permission": {
+    "todowrite": "allow",
     "read": {
       "*": "allow",
       "data": "allow",
