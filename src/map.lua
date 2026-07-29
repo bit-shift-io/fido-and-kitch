@@ -136,6 +136,21 @@ function Map:new(path, world, debug)
 	if type(bgName) == 'string' and bgName ~= '' then
 		self.backgroundName = bgName
 		self.backgroundMap = loadSti(resolveMapFile('res/backgrounds/' .. bgName))
+
+		-- Pre-compute scale-to-cover constants for each background image layer
+		local mapW = self.map.width * self.map.tilewidth
+		local mapH = self.map.height * self.map.tileheight
+
+		for _, layer in ipairs(self.backgroundMap.layers) do
+			if layer.type == 'imagelayer' and layer.image then
+				local imgW, imgH = layer.image:getWidth(), layer.image:getHeight()
+				local s = math.max(mapW / imgW, mapH / imgH)
+				layer._bgScale = s
+				layer._bgDrawW, layer._bgDrawH = imgW * s, imgH * s
+				layer._bgBaseX = (mapW - layer._bgDrawW) / 2
+				layer._bgBaseY = (mapH - layer._bgDrawH) / 2
+			end
+		end
 	end
 
 	return self
@@ -375,10 +390,6 @@ function Map:draw2(tx, ty, sx, sy)
 	-- Draw background map with parallax (before main map layers). STI already
 	-- resolves layer.image to a cached love.Image at load time (see
 	-- lib/sti/init.lua's addCustomLayer), so it's always usable directly here.
-	-- The repeat loop below tiles against the *main* map's width rather than
-	-- delegating to backgroundMap:drawImageLayer, because a background preset
-	-- declares its own (usually much smaller) map width in Tiled -- it needs
-	-- to cover whatever level it's attached to, not its own declared bounds.
 	if self.backgroundMap then
 		local screenW, screenH = lg.getWidth(), lg.getHeight()
 		local cx, cy = mapParallax.computeCameraCenter(tx, ty, sx, sy, screenW, screenH)
@@ -393,17 +404,11 @@ function Map:draw2(tx, ty, sx, sy)
 				lg.setColor(1, 1, 1, layer.opacity)
 
 				local img = layer.image
-				local imgW = img:getWidth()
-				local mapW = self.map.width * self.map.tilewidth
-				if layer.repeatx then
-					-- Tile horizontally to cover the main map's width
-					local repeats = math.ceil(mapW / imgW) + 1
-					for i = -1, repeats do
-						lg.draw(img, px + i * imgW, py)
-					end
-				else
-					lg.draw(img, px, py)
-				end
+				-- Scale-to-cover: use pre-computed constants
+				local dx = px + (layer._bgBaseX or 0)
+				local dy = py + (layer._bgBaseY or 0)
+				local s = layer._bgScale or 1
+				lg.draw(img, dx, dy, 0, s, s)
 
 				lg.setColor(1, 1, 1, 1)
 			end
