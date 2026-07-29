@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="1">
   <imagelayer id="2" name="sky" offsetx="0" offsety="-200" parallaxx="0" parallaxy="0" repeatx="true" repeaty="false">
-    <image source="../img/backgrounds/background_night_sky.png" width="1207" height="161"/>
+    <image source="../img/backgrounds/background_night_sky.png" width="1920" height="1080"/>
   </imagelayer>
 </map>

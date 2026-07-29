@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="3">
  <imagelayer id="2" name="background" offsetx="-512" offsety="0" parallaxx="0" parallaxy="0">
-  <image source="../img/backgrounds/background_night_sky.png" width="1207" height="161"/>
+  <image source="../img/backgrounds/background_night_sky.png" width="1920" height="1080"/>
  </imagelayer>
  <imagelayer id="3" name="midground" offsetx="-512" offsety="128" parallaxx="0.5" parallaxy="0.5">
-  <image source="../img/backgrounds/midground_night_mountains.png" width="1206" height="157"/>
+  <image source="../img/backgrounds/midground_night_mountains.png" width="1920" height="1080"/>
  </imagelayer>
  <imagelayer id="4" name="foreground" offsetx="-512" offsety="256" parallaxx="1" parallaxy="1">
-  <image source="../img/backgrounds/foreground_night_forest.png" width="1206" height="372"/>
+  <image source="../img/backgrounds/foreground_night_forest.png" width="1920" height="1080"/>
  </imagelayer>
 </map>
