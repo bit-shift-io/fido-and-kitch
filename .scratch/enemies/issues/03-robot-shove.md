@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Robot shoves overlapping players
 

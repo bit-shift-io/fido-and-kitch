@@ -76,6 +76,14 @@ function World:newCollider(collider_type, shape_arguments, table_to_use)
    return o
 end
 
+-- true when `collider` has opted out of solidity against `other`'s entity
+-- type (e.g. an enemy that is solid vs. world geometry but a sensor vs.
+-- players -- see src/enemy/enemy.lua)
+function World.ignoresEntity(collider, other)
+	local entityType = other.entity and other.entity.type
+	return collider.nonSolidEntityTypes ~= nil and entityType ~= nil and collider.nonSolidEntityTypes[entityType] == true
+end
+
 function World.colFilter(a, b)
 	-- allow a and b to go through each other
 	if (a.sensor or b.sensor) then
@@ -91,6 +99,10 @@ function World.colFilter(a, b)
    if (a.bodyType == 'kinematic') then
       return 'cross'
    end
+
+	if World.ignoresEntity(a, b) or World.ignoresEntity(b, a) then
+		return 'cross'
+	end
 
 	return 'slide'
 end

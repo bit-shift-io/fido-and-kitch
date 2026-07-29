@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Harassment bans and wander state
 

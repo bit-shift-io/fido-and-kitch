@@ -2,6 +2,7 @@ local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
 local Flash = require('src.components.flash')
 local GroundSupport = require('src.player.ground_support')
+local Web = require('src.enemy.web')
 
 local Player = Class{__includes = Entity}
 
@@ -188,6 +189,10 @@ function Player:draw()
 		love.graphics.setColor(1, 1, 1, self.alpha)
 		Entity.draw(self)
 		love.graphics.setColor(1, 1, 1, 1)
+
+		if self.web then
+			self.web:draw(self.collider:getBounds())
+		end
 	end
 
 	if conf.drawphysics then
@@ -197,6 +202,16 @@ end
 
 function Player:isDead()
 	return self.fsm.currentState == self.fsm.states.DeadState
+end
+
+-- head-stomp counterplay bounce (DECISIONS Q10): a jump-like upward impulse.
+-- Falling into FallState is already the natural next transition, same as a
+-- normal jump, so no explicit state change is needed here.
+local DEFAULT_BOUNCE_FORCE = 220
+
+function Player:bounce(force)
+	local v_x, v_y = self.collider:getLinearVelocity()
+	self.collider:setLinearVelocity(v_x, -(force or DEFAULT_BOUNCE_FORCE))
 end
 
 -- kills the player: locks movement, flashes, then signals InGameState to
@@ -214,6 +229,16 @@ end
 -- listening (InGameState owns the shared lives pool)
 function Player:resolveDeath()
 	self.deathSignal:emit(self, self.deathType)
+end
+
+-- caught by a spider's web (DECISIONS Q8); ignored if already wrapped or dead
+function Player:wrap(duration)
+	if self.wrapped or self:isDead() then
+		return
+	end
+
+	self.web = Web{duration = duration}
+	self.fsm:setState('WrappedState')
 end
 
 function Player:respawn()

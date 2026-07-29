@@ -170,6 +170,32 @@ return {
           properties = {
             ["allowPushWhenStoodOn"] = false
           }
+        },
+        {
+          id = 200,
+          name = "robot",
+          type = "robot",
+          shape = "rectangle",
+          x = 320,
+          y = 176,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 201,
+          name = "spider",
+          type = "spider",
+          shape = "rectangle",
+          x = 96,
+          y = 176,
+          width = 32,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {}
         }
       }
     },

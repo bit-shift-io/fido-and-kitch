@@ -1,4 +1,5 @@
 local motion = require('src.physics.bump.motion')
+local World = require('src.physics.bump.world')
 
 test('gravity increases downward velocity', function()
 	local velocityY = 10
@@ -53,4 +54,19 @@ test('cross/sensor contact does not cancel velocity', function()
 	local nextVelocityX, nextVelocityY = motion.resolveCollisions(velocityX, velocityY, cols)
 	assertEqual(100, nextVelocityX)
 	assertEqual(100, nextVelocityY)
+end)
+
+test('an enemy collider marked non-solid to players crosses a player collider', function()
+	local enemyCollider = { nonSolidEntityTypes = {player = true}, bodyType = 'dynamic', groupIndex = 1 }
+	local playerCollider = { entity = {type = 'player'}, bodyType = 'dynamic', groupIndex = -1 }
+
+	assertEqual('cross', World.colFilter(enemyCollider, playerCollider))
+	assertEqual('cross', World.colFilter(playerCollider, enemyCollider))
+end)
+
+test('an enemy collider marked non-solid to players still collides with world geometry', function()
+	local enemyCollider = { nonSolidEntityTypes = {player = true}, bodyType = 'dynamic', groupIndex = 1 }
+	local wallCollider = { bodyType = 'static', groupIndex = 2 }
+
+	assertEqual('slide', World.colFilter(enemyCollider, wallCollider))
 end)

@@ -73,16 +73,16 @@ A shared **harassment ban** keeps them from being oppressive: once an enemy has 
 
 ## Acceptance Criteria
 
-- [ ] A `spider` / `robot` Tiled object of any count spawns working enemies at level load.
-- [ ] Enemies chase the nearest valid player at ~70% player speed, with gravity and wall collision, and can fall off edges.
-- [ ] An enemy overlapping a ladder climbs it toward a target that is above/below.
-- [ ] Spider overlap with a valid target wraps that player: frozen, input ignored, web drawn, frees after ~20s with a fade; wrapped player remains camera-framed and hazard-killable.
-- [ ] After wrapping, the spider is banned from that player for ~30s and immediately retargets the other player.
-- [ ] Robot overlap shoves the player sideways (gentle, never a direct kill); after ~10s pursuing one target it is banned from them for ~30s.
-- [ ] Wrapped players cannot be shoved by the robot.
-- [ ] With no valid target, enemies wander/patrol near their current position.
-- [ ] Landing on an enemy from above stuns it ~10s and bounces the player.
-- [ ] `./test.sh` passes, including new headless tests for targeting, bans, movement decisions, and wrap/stun timing.
+- [x] A `spider` / `robot` Tiled object of any count spawns working enemies at level load.
+- [x] Enemies chase the nearest valid player at ~70% player speed, with gravity and wall collision, and can fall off edges.
+- [x] An enemy overlapping a ladder climbs it toward a target that is above/below.
+- [x] Spider overlap with a valid target wraps that player: frozen, input ignored, web drawn, frees after ~20s with a fade; wrapped player remains camera-framed and hazard-killable.
+- [x] After wrapping, the spider is banned from that player for ~30s and immediately retargets the other player.
+- [x] Robot overlap shoves the player sideways (gentle, never a direct kill); after ~10s pursuing one target it is banned from them for ~30s.
+- [x] Wrapped players cannot be shoved by the robot.
+- [x] With no valid target, enemies wander/patrol near their current position.
+- [x] Landing on an enemy from above stuns it ~10s and bounces the player.
+- [x] `./test-unit.sh` passes (the doc's original `./test.sh` is stale -- this repo's runner is `test-unit.sh`/`test-integration.sh`/`test-e2e.sh`/`test-all.sh`), including new headless tests for targeting, bans, movement decisions, and wrap/stun timing.
 
 ## References
 

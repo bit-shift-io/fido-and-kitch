@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Enemy climbs overlapping ladders toward the target's Y
 

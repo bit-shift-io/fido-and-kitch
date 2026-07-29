@@ -216,4 +216,43 @@ function DeadState:update(dt)
 end
 
 
-return {LadderState = LadderState, WalkIdleState = WalkIdleState, FallState = FallState, DeadState = DeadState}
+-- spider web wrap (DECISIONS Q8): input ignored, gravity still settles the
+-- player to the ground, hazards/camera framing are untouched since those
+-- read the collider/FSM directly rather than this state. Entered via
+-- Player:wrap(duration), never a direct fsm:setState call, so the duration
+-- can be threaded through (see Player:wrap).
+local WrappedState = Class{}
+
+function WrappedState:enter()
+	local player = self.entity
+	player.wrapped = true
+	player:setAnimation('idle')
+end
+
+function WrappedState:exit()
+	local player = self.entity
+	player.wrapped = false
+	player.web = nil
+end
+
+function WrappedState:update(dt)
+	local player = self.entity
+
+	-- frozen horizontally; gravity (already applied by the collider) keeps
+	-- settling them onto the ground, mirroring FallState's per-frame reset
+	local v_x, v_y = player.collider:getLinearVelocity()
+	player.collider:setLinearVelocity(0, v_y)
+
+	player.web:update(dt)
+	if player.web:isExpired() then
+		player.fsm:setState('WalkIdleState')
+	end
+end
+
+return {
+	LadderState = LadderState,
+	WalkIdleState = WalkIdleState,
+	FallState = FallState,
+	DeadState = DeadState,
+	WrappedState = WrappedState,
+}
