@@ -136,21 +136,6 @@ function Map:new(path, world, debug)
 	if type(bgName) == 'string' and bgName ~= '' then
 		self.backgroundName = bgName
 		self.backgroundMap = loadSti(resolveMapFile('res/backgrounds/' .. bgName))
-
-		-- Pre-compute scale-to-cover constants for each background image layer
-		local mapW = self.map.width * self.map.tilewidth
-		local mapH = self.map.height * self.map.tileheight
-
-		for _, layer in ipairs(self.backgroundMap.layers) do
-			if layer.type == 'imagelayer' and layer.image then
-				local imgW, imgH = layer.image:getWidth(), layer.image:getHeight()
-				local s = math.max(mapW / imgW, mapH / imgH)
-				layer._bgScale = s
-				layer._bgDrawW, layer._bgDrawH = imgW * s, imgH * s
-				layer._bgBaseX = (mapW - layer._bgDrawW) / 2
-				layer._bgBaseY = (mapH - layer._bgDrawH) / 2
-			end
-		end
 	end
 
 	return self
@@ -387,34 +372,7 @@ function Map:draw2(tx, ty, sx, sy)
 	lg.origin()
 	lg.setColor(1, 1, 1, 1)
 
-	-- Draw background map with parallax (before main map layers). STI already
-	-- resolves layer.image to a cached love.Image at load time (see
-	-- lib/sti/init.lua's addCustomLayer), so it's always usable directly here.
-	if self.backgroundMap then
-		local screenW, screenH = lg.getWidth(), lg.getHeight()
-		local cx, cy = mapParallax.computeCameraCenter(tx, ty, sx, sy, screenW, screenH)
-
-		for _, layer in ipairs(self.backgroundMap.layers) do
-			if layer.visible and layer.type == 'imagelayer' and layer.image and layer.opacity > 0 then
-				local parallaxx = layer.parallaxx or 1
-				local parallaxy = layer.parallaxy or 1
-				local px, py = mapParallax.computeLayerOffset(
-					cx, cy, parallaxx, parallaxy, layer.offsetx, layer.offsety)
-
-				lg.setColor(1, 1, 1, layer.opacity)
-
-				local img = layer.image
-				-- Scale-to-cover: use pre-computed constants
-				local dx = px + (layer._bgBaseX or 0)
-				local dy = py + (layer._bgBaseY or 0)
-				local s = layer._bgScale or 1
-				lg.draw(img, dx, dy, 0, s, s)
-
-				lg.setColor(1, 1, 1, 1)
-			end
-		end
-	end
-
+	-- Draw main map layers only (background drawn in screen space below)
 	for _, layer in ipairs(self.layers) do
 		if layer.visible and layer.opacity > 0 then
 			self:drawLayer(layer)
@@ -423,9 +381,47 @@ function Map:draw2(tx, ty, sx, sy)
 
 	lg.pop()
 
-	-- Draw canvas at 0,0; this fixes scissoring issues
-	-- Map is scaled to correct scale so the right section is shown
-	
+	-- Draw background in screen space, covering the full screen
+	if self.backgroundMap then
+		local screenW, screenH = lg.getWidth(), lg.getHeight()
+		local cx, cy = mapParallax.computeCameraCenter(tx, ty, sx, sy, screenW, screenH)
+
+		lg.setCanvas(current_canvas)
+		lg.origin()
+		lg.setColor(1, 1, 1, 1)
+
+		-- Map's on-screen bounds (where the map canvas will be drawn)
+		local mapDrawW = self.map.width * self.map.tilewidth * sx
+		local mapDrawH = self.map.height * self.map.tileheight * sy
+
+		for _, layer in ipairs(self.backgroundMap.layers) do
+			if layer.visible and layer.type == 'imagelayer' and layer.image and layer.opacity > 0 then
+				local parallaxx = layer.parallaxx or 1
+				local parallaxy = layer.parallaxy or 1
+
+				-- Parallax: interpolate between screen center (parallax=0) and map on-screen center (parallax=1)
+				local mapCenterX = tx + mapDrawW * 0.5
+				local mapCenterY = ty + mapDrawH * 0.5
+				local offsetX = (1 - parallaxx) * screenW * 0.5 + parallaxx * mapCenterX + (layer.offsetx or 0) * sx
+				local offsetY = (1 - parallaxy) * screenH * 0.5 + parallaxy * mapCenterY + (layer.offsety or 0) * sy
+
+				-- Scale image to cover the SCREEN (fit-to-cover on screenW/screenH)
+				local imgW, imgH = layer.image:getWidth(), layer.image:getHeight()
+				local s = math.max(screenW / imgW, screenH / imgH)
+				local drawW, drawH = imgW * s, imgH * s
+
+				-- offsetX/offsetY are the screen-space center positions
+				local drawX = offsetX - drawW * 0.5
+				local drawY = offsetY - drawH * 0.5
+
+				lg.setColor(1, 1, 1, layer.opacity)
+				lg.draw(layer.image, drawX, drawY, 0, s, s)
+				lg.setColor(1, 1, 1, 1)
+			end
+		end
+	end
+
+	-- Draw map canvas on top of background
 	lg.push()
 	lg.origin()
 	lg.translate(math.floor(tx or 0), math.floor(ty or 0))

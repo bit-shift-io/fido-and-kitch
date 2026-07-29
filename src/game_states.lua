@@ -288,6 +288,9 @@ function InGameState:resize(w, h)
 
 	if self.camera then
 		self.camera:setScreenSize(w, h)
+		local mapW = map.map.width * map.map.tilewidth
+		local mapH = map.map.height * map.map.tileheight
+		self.camera:setMapSize(mapW, mapH)
 	end
 end
 
