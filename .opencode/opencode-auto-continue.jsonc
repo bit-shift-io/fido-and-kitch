@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  // Wait 10 seconds after an error state before reconnecting
+  "delayMs": 10000,
+  // 0 enables infinite consecutive retries
+  "maxConsecutive": 0,
+  // Minimum delay between auto-continue attempts
+  "throttleMs": 5000,
+
+  "errorPatterns": [
+    // Exact UI error string
+    "Streaming response failed",
+
+    // Broad catch-alls for free-tier stream drops
+    "stream",
+    "timeout",
+    "503",
+    "502",
+    "429",
+    "fetcherror",
+    "terminated",
+    "econnreset",
+    "idle timeout"
+  ]
+}

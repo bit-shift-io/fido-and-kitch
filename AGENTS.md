@@ -17,7 +17,7 @@ Fido and Kitch is a LÖVE 2D (12.0) puzzle-platformer with local couch co-op: tw
 Useful run flags (parsed in `src/main.lua` / `Game:init`):
 
 ```sh
-love . debug drawphysics map=sandbox.lua
+love . debug drawphysics map=sandbox
 ```
 
 - `debug` — starts lldebugger, sets `conf.debug`

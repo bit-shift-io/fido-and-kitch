@@ -1,5 +1,6 @@
 
 local GameStates = require('src.game_states')
+local Map = require('src.map')
 
 local Game = Class{}
 
@@ -10,7 +11,7 @@ function Game:init()
 		currentState='MenuState'
 	}
 
-    -- Look for map=somemap.lua and then load straight into that map
+    -- Look for map=somemap and then load straight into that map
     local fn = function(e)
         return str.startsWith(e, 'map=')
     end
@@ -18,7 +19,8 @@ function Game:init()
     if (mapArg) then
         local split = str.split(mapArg, '=')
         local mapName = split[2]
-        self.fsm.currentState:startGame({map='res/map/'..mapName})
+        local mapPath = Map.resolveMapFile('res/map/' .. mapName)
+        self.fsm.currentState:startGame({map=mapPath})
     end
 end
 

@@ -34,12 +34,19 @@ end
 -- falling back to its .lua export/fixture otherwise -- lets both formats
 -- coexist during the .tmx migration (see docs/adr/0004-direct-tmx-loading.md)
 -- without every caller needing to know which one a given map uses.
+-- Also accepts a path that already has an extension (.tmx or .lua) and returns it as-is.
 local function resolveMapFile(basePath)
+	-- If the path already has an extension, use it as-is
+	if basePath:match('%.tmx$') or basePath:match('%.lua$') then
+		return basePath
+	end
 	if fileExists(basePath .. '.tmx') then
 		return basePath .. '.tmx'
 	end
 	return basePath .. '.lua'
 end
+
+Map.resolveMapFile = resolveMapFile
 
 
 local function getColliderFromShape(obj)
