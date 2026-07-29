@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Pressure switch: weight-activated, drives a target
 

@@ -6,7 +6,11 @@ local GroundSupport = {}
 
 local DEFAULT_MARGIN = 6
 
-local function hasGroundAt(world, x, top, bottom)
+-- Is there something standable directly under this single x, in the vertical
+-- band top..bottom? Public because pushable props probe support the same way
+-- (under their centre-x, see ADR 0001) and duplicating the walkable/sensor
+-- rules is exactly how the two would drift apart.
+function GroundSupport.hasGroundAt(world, x, top, bottom)
 	local probe = {left = x - 2, right = x + 2, top = top, bottom = bottom}
 	local colls = world:queryBounds(probe)
 	for _, c in ipairs(colls) do
@@ -26,8 +30,8 @@ function GroundSupport.isFullySupported(world, bounds, margin)
 	local top = bounds.bottom + 4
 	local bottom = bounds.bottom + 5
 
-	return hasGroundAt(world, bounds.left + margin, top, bottom)
-		and hasGroundAt(world, bounds.right - margin, top, bottom)
+	return GroundSupport.hasGroundAt(world, bounds.left + margin, top, bottom)
+		and GroundSupport.hasGroundAt(world, bounds.right - margin, top, bottom)
 end
 
 return GroundSupport

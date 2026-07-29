@@ -16,6 +16,22 @@ function Queries.findEntityByType(mapInstance, entityType)
 	return nil
 end
 
+-- Object `name` rather than `type`, for fixtures that place several entities
+-- of the same type and need to address a specific one. Entity load order
+-- within a layer is not something a test should depend on.
+function Queries.findEntityByName(mapInstance, name)
+	for _, layer in ipairs(mapInstance.layers) do
+		if layer.type == 'objectgroup' and layer.entities then
+			for _, entity in pairs(layer.entities) do
+				if entity.name == name then
+					return entity
+				end
+			end
+		end
+	end
+	return nil
+end
+
 function Queries.playerPositionV(player)
 	return player.collider:getPositionV()
 end
@@ -30,6 +46,10 @@ end
 
 function Queries.playerIsDead(player)
 	return player:isDead()
+end
+
+function Queries.pressureSwitchIsActive(plate)
+	return plate:isActive()
 end
 
 function Queries.drawbridgeState(bridge)

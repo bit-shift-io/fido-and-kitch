@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Pushable component: continuous slide + push gating
 

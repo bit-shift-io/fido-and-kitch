@@ -11,6 +11,8 @@ local defaultTestFiles = {
 	'tests/unit/timeline_reverse_test.lua',
 	'tests/unit/drawbridge_test.lua',
 	'tests/unit/map_parallax_test.lua',
+	'tests/unit/pushable_support_test.lua',
+	'tests/unit/pressure_switch_test.lua',
 }
 
 local tests = {}

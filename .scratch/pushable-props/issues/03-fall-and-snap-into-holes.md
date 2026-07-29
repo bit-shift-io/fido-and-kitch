@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Fall-and-snap: boxes drop into and fill holes
 

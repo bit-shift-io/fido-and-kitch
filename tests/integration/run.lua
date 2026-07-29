@@ -7,16 +7,16 @@
 -- add it -- real LÖVE resolves requires differently and never hits this gap.
 package.path = './?/init.lua;' .. package.path
 
--- pressure_switch_test.lua (issue 03) is deferred: it needs
--- src/entities/pressure_switch.lua, which belongs to the separate, still-
--- pending pushable-props feature (see .scratch/integration-testing/issues/
--- 03-pressure-switch-mechanic-test.md). Add it back once that entity lands.
 local defaultTestFiles = {
 	'tests/integration/harness_smoke_test.lua',
 	'tests/integration/movement_test.lua',
 	'tests/integration/all_maps_load_test.lua',
 	'tests/integration/capture_guard_test.lua',
 	'tests/integration/drawbridge_test.lua',
+	'tests/integration/pushable_test.lua',
+	'tests/integration/boulder_test.lua',
+	'tests/integration/pressure_switch_test.lua',
+	'tests/integration/pushable_reset_test.lua',
 }
 
 local tests = {}

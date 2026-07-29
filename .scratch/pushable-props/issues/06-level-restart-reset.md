@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Props reset to spawn on level restart (not on death)
 
