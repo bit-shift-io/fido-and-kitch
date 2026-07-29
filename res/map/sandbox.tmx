@@ -7,6 +7,7 @@
   <property name="background" value="night_forest"/>
  </properties>
  <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
+ <tileset firstgid="145" source="../tilesets/props.tsx"/>
  <layer id="1" name="ground" width="20" height="20">
   <properties>
    <property name="collision" type="bool" value="false"/>

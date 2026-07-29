@@ -1,5 +1,5 @@
 diff --git a/lib/sti/init.lua b/lib/sti/init.lua
-index 646a224..90b0ded 100644
+index 646a224..8b2af8b 100644
 --- a/lib/sti/init.lua
 +++ b/lib/sti/init.lua
 @@ -20,6 +20,7 @@ local ceil  = math.ceil
@@ -40,7 +40,22 @@ index 646a224..90b0ded 100644
  
                  if not STI.cache[formatted_path] then
                      utils.fix_transparent_color(tileset, formatted_path)
-@@ -692,7 +708,13 @@ function Map:setObjectSpriteBatches(layer)
+@@ -111,7 +127,13 @@ function Map:init(path, plugins, ox, oy)
+             -- Build atlas for image collection
+             local files, ids = {}, {}
+             for j = 1, #tileset.tiles do
+-                files[ j ] = utils.format_path(path .. tileset.tiles[j].image)
++                -- Same as the single-image branch above: an externally
++                -- resolved tile's `image` is already relative to the
++                -- project root (see external_tileset), not to this map's
++                -- directory, so `path` must not be prepended again here.
++                files[ j ] = tileset.filename
++                    and utils.format_path(tileset.tiles[j].image)
++                    or utils.format_path(path .. tileset.tiles[j].image)
+                 ids[ j ] = tileset.tiles[j].id
+             end
+ 
+@@ -692,7 +714,13 @@ function Map:setObjectSpriteBatches(layer)
  	end
  
  	for _, object in ipairs(layer.objects) do

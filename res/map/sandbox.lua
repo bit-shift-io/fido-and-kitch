@@ -19,6 +19,11 @@ return {
       name = "generic_platformer_tiles",
       firstgid = 1,
       filename = "../tilesets/generic_platformer_tiles.tsx"
+    },
+    {
+      name = "props",
+      firstgid = 145,
+      filename = "../tilesets/props.tsx"
     }
   },
   layers = {
@@ -173,7 +178,7 @@ return {
         {
           id = 86,
           name = "drawbridge",
-          type = "",
+          type = "drawbridge",
           shape = "rectangle",
           x = 352,
           y = 192,
@@ -198,7 +203,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 153,
           visible = true,
           properties = {
             ["image"] = "../img/teleporter_1.png",
@@ -208,7 +213,7 @@ return {
         {
           id = 36,
           name = "coin",
-          type = "",
+          type = "coin",
           shape = "rectangle",
           x = 480,
           y = 352,
@@ -216,7 +221,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 151,
           visible = true,
           properties = {
             ["image"] = "../img/coins.png"
@@ -225,7 +230,7 @@ return {
         {
           id = 38,
           name = "spawn",
-          type = "",
+          type = "spawn",
           shape = "rectangle",
           x = 96,
           y = 192,
@@ -233,14 +238,14 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 145,
           visible = true,
           properties = {}
         },
         {
           id = 41,
           name = "red_cage",
-          type = "",
+          type = "cage",
           shape = "rectangle",
           x = 32,
           y = 384,
@@ -248,7 +253,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 154,
           visible = true,
           properties = {
             ["color"] = "red",
@@ -259,7 +264,7 @@ return {
         {
           id = 43,
           name = "exit",
-          type = "",
+          type = "exit_door",
           shape = "rectangle",
           x = 416,
           y = 192,
@@ -267,7 +272,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 150,
           visible = true,
           properties = {
             ["actor_count"] = 2
@@ -276,7 +281,7 @@ return {
         {
           id = 44,
           name = "switch",
-          type = "",
+          type = "switch",
           shape = "rectangle",
           x = 288,
           y = 192,
@@ -284,7 +289,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 148,
           visible = true,
           properties = {
             ["image"] = "../img/switch.png",
@@ -294,7 +299,7 @@ return {
         {
           id = 62,
           name = "red_key",
-          type = "",
+          type = "key",
           shape = "rectangle",
           x = 96,
           y = 384,
@@ -302,7 +307,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 149,
           visible = true,
           properties = {
             ["color"] = "red",
@@ -320,7 +325,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 153,
           visible = true,
           properties = {
             ["image"] = "../img/teleporter_1.png",
@@ -330,7 +335,7 @@ return {
         {
           id = 68,
           name = "jump_pad",
-          type = "",
+          type = "jump_pad",
           shape = "rectangle",
           x = 192,
           y = 384,
@@ -338,7 +343,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 155,
           visible = true,
           properties = {
             ["image"] = "../img/spring/Spring - 1.png",
@@ -383,7 +388,7 @@ return {
         {
           id = 81,
           name = "push_box",
-          type = "",
+          type = "push_box",
           shape = "rectangle",
           x = 160,
           y = 192,
@@ -391,7 +396,7 @@ return {
           height = 32,
           rotation = 0,
           opacity = 1,
-          gid = 0,
+          gid = 146,
           visible = true,
           properties = {
             ["allowPushWhenStoodOn"] = false,
