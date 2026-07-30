@@ -55,6 +55,11 @@ function setupConf(args)
 	conf.args = args
     conf.drawphysics = tbl.includes(conf.args, 'drawphysics')
 	conf.debug = tbl.includes(conf.args, 'debug')
+    conf.ipc_enabled = tbl.includes(conf.args, 'ipc')
+    local portArg = tbl.find(conf.args, function(e) return str.startsWith(e, 'ipc_port=') end)
+    if portArg then
+        conf.ipc_port = tonumber(str.split(portArg, '=')[2]) or 8080
+    end
 end
 
 -- e2e=<path/to/scenario_test.lua>, following the same launch-argument style
@@ -85,9 +90,17 @@ function love.load(args)
 	Slab.Initialize(args)
 	--u = urutora:new()
 	game = Game()
+
+	if conf.ipc_enabled then
+		ipc = require('src.ipc.init')
+		ipc.start(conf.ipc_port or 8080)
+	end
 end
 
 function love.update(dt)
+	if ipc then
+		ipc.update(dt)
+	end
 	game:update(dt)
 end
 
@@ -126,6 +139,12 @@ function love.textinput(t)
 	game:textinput(t)
 	--print(t)
 	--console_toggle(t)
+end
+
+function love.quit()
+	if ipc then
+		ipc.stop()
+	end
 end
 
 
