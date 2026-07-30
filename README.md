@@ -68,6 +68,7 @@ Available commands (sent via TCP to 127.0.0.1:8081):
 | `MOVE_PLAYER <1\|2> <dx> <dy>` | Move player by delta |
 | `INPUT <1\|2> <action> <down\|up>` | Simulate key press/release (actions: left, right, up, down, use) |
 | `HOLD_KEY <1\|2> <action> <duration>` | Hold key for N seconds |
+| `TOGGLE_CAMERA` | Toggle camera overview mode |
 | `GET_STATE` | Full state snapshot |
 | `GET_PLAYER_POS <1\|2>` | Single player position |
 | `RESTART_LEVEL` | Reload current map |
@@ -83,6 +84,7 @@ OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `move_player` — Direct position change
 - `restart_level` — Reload current map
 - `go_to_menu` — Return to main menu
+- `toggle_camera` — Toggle camera overview mode
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port.
 

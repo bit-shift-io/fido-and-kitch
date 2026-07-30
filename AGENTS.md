@@ -190,6 +190,7 @@ love . ipc ipc_port=9000 map=ll1 # custom port/map
 | `MOVE_PLAYER` | `<1\|2> <dx> <dy>` | `OK: Player N at X,Y` |
 | `INPUT` | `<1\|2> <action> <down\|up>` | `OK: Injected action=...` |
 | `HOLD_KEY` | `<1\|2> <action> <seconds>` | `OK: Held action for Ns` |
+| `TOGGLE_CAMERA` | — | `OK: Camera overview toggled` |
 | `GET_STATE` | — | `p1x=X p1y=Y p2x=X p2y=Y w=W h=H map=NAME` |
 | `GET_PLAYER_POS` | `<1\|2>` | `Player N at X,Y` |
 | `RESTART_LEVEL` | — | `OK: Level restarted` |
@@ -207,6 +208,7 @@ love . ipc ipc_port=9000 map=ll1 # custom port/map
 | `move_player` | Direct position change |
 | `restart_level` | Reload current map |
 | `go_to_menu` | Return to main menu |
+| `toggle_camera` | Toggle camera overview mode |
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port (default 8081).
 

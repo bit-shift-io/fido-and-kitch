@@ -202,4 +202,22 @@ function GameAPI.goToMenu()
 	return 'OK: Returned to menu'
 end
 
+function GameAPI.toggleCamera()
+	if not game or not game.fsm or not game.fsm.currentState then
+		return nil, 'Game not loaded'
+	end
+
+	local state = game.fsm.currentState
+	if state.__class and state.__class.name ~= 'InGameState' then
+		return nil, 'Not in game'
+	end
+
+	if state.camera and state.camera.toggleOverview then
+		state.camera:toggleOverview()
+		return 'OK: Camera overview toggled'
+	end
+
+	return nil, 'Camera not available'
+end
+
 return GameAPI

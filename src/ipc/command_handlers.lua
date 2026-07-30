@@ -97,6 +97,11 @@ function CommandHandler:registerBuiltins()
 		if not duration or duration <= 0 then return nil, 'Duration must be a positive number' end
 		return self.gameAPI.holdKey(idx, action, duration)
 	end)
+
+	self:register('TOGGLE_CAMERA', function(args)
+		if #args ~= 0 then return nil, 'Usage: TOGGLE_CAMERA (no arguments)' end
+		return self.gameAPI.toggleCamera()
+	end)
 end
 
 function CommandHandler:register(name, fn)

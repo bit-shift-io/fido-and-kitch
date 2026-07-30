@@ -254,3 +254,12 @@ export const go_to_menu = tool({
         return parseResponse(response);
     },
 });
+
+export const toggle_camera = tool({
+    description: "Toggle camera overview mode (zooms out to full map view)",
+    args: {},
+    async execute() {
+        const response = await sendCommand("TOGGLE_CAMERA");
+        return parseResponse(response);
+    },
+});
