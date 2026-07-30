@@ -270,6 +270,30 @@
 
 **Boundary** — `.tmx` is the sole source of truth for anything authored in Tiled: both levels and parallax background presets. It is not exported to `.lua`; there is no derived artefact and no export step. Hand-authored `.lua` maps remain permanently supported for test fixtures maintained without a Tiled round-trip, chosen by file extension at load time. Loading is confined to the constructs this project uses plus grouped layers and ellipse/point objects; anything else (CSV tile data, infinite or chunked maps, unrecognised layer types) fails loudly at load time naming the file and the construct, rather than loading a partial map.
 
+## IPC Server
+
+**Definition** — A non-blocking TCP server embedded in the LÖVE game that listens on localhost (127.0.0.1) and accepts simple text commands from external tools (e.g., OpenCode). Enables programmatic control: resize window, move players, query state, restart level, return to menu.
+
+**Boundary** — Opt-in via `ipc` launch flag; disabled by default. One command per connection (short-lived). Plain text protocol, line-delimited. No authentication (localhost trust model). Not a WebSocket, HTTP, or persistent connection server.
+
+## CommandHandler
+
+**Definition** — Module that parses incoming command lines, dispatches to registered handler functions, and formats responses (`OK: ...` or `ERROR: ...`). Delegates game operations to GameAPI.
+
+**Boundary** — Pure Lua, no LÖVE dependencies. Stateless per-command. Unknown commands and malformed args return ERROR without crashing.
+
+## GameAPI
+
+**Definition** — Module exposing safe game operations to IPC commands: `resize(w, h)`, `movePlayer(idx, dx, dy)`, `getState()`, `getPlayerPos(idx)`, `restartLevel()`, `goToMenu()`. Operates on global game state (`game`, `map`, `world`, `love`).
+
+**Boundary** — Only functional in `InGameState` (returns error in `MenuState`). Direct position manipulation (not input simulation). Read-only queries for state. No entity spawning or physics modification.
+
+## OpenCode Tools
+
+**Definition** — TypeScript tool definitions in `.opencode/tools/fido-kitch-ipc.ts` that expose IPC commands as callable functions to the OpenCode agent. Each tool connects via TCP to the game, sends a command, parses the response, and returns typed results.
+
+**Boundary** — Project-local (not global plugin). Uses `@opencode-ai/plugin` `tool()` factory. Configurable port via `FIDO_KITCH_IPC_PORT` env var. One TCP connection per tool call.
+
 ## Object template
 
 **Definition** — A Tiled `.tx` file declaring a reusable object — its class/type, name, size, tile image and default custom properties — which maps then place instances of. Nearly every interactive prop in this project is placed this way. An instance inherits everything from its template and may override any attribute; custom properties merge with the instance winning; and the template's tile reference is remapped from the template's own tileset numbering into the map's.

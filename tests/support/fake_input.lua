@@ -80,6 +80,109 @@ local function holdFor(game, controller, key, seconds)
 	controller:release(key)
 end
 
+-- Window control methods for AI agents
+local WindowControl = {}
+WindowControl.__index = WindowControl
+
+function WindowControl.new(controller)
+	return setmetatable({controller = controller}, WindowControl)
+end
+
+function WindowControl:maximize()
+	love.window.maximize()
+end
+
+function WindowControl:minimize()
+	love.window.minimize()
+end
+
+function WindowControl:restore()
+	love.window.restore()
+end
+
+function WindowControl:setFullscreen(fullscreen, fullscreentype)
+	return love.window.setFullscreen(fullscreen, fullscreentype)
+end
+
+function WindowControl:getFullscreen()
+	return love.window.getFullscreen()
+end
+
+function WindowControl:toggleFullscreen()
+	local fs = love.window.getFullscreen()
+	love.window.setFullscreen(not fs)
+	return not fs
+end
+
+function WindowControl:setDimensions(width, height)
+	love.window.setDimensions(width, height)
+end
+
+function WindowControl:getDimensions()
+	return love.window.getDimensions()
+end
+
+function WindowControl:setPosition(x, y)
+	love.window.setPosition(x, y)
+end
+
+function WindowControl:getPosition()
+	return love.window.getPosition()
+end
+
+function WindowControl:setTitle(title)
+	love.window.setTitle(title)
+end
+
+function WindowControl:getTitle()
+	return love.window.getTitle()
+end
+
+function WindowControl:setMode(width, height, flags)
+	return love.window.setMode(width, height, flags)
+end
+
+function WindowControl:getMode()
+	return love.window.getMode()
+end
+
+function WindowControl:isMaximized()
+	return love.window.isMaximized()
+end
+
+function WindowControl:isMinimized()
+	return love.window.isMinimized()
+end
+
+function WindowControl:setVSync(vsync)
+	love.window.setVSync(vsync)
+end
+
+function WindowControl:getVSync()
+	return love.window.getVSync()
+end
+
+function WindowControl:setResizable(resizable)
+	love.window.setResizable(resizable)
+end
+
+function WindowControl:isResizable()
+	return love.window.isResizable()
+end
+
+function WindowControl:setBorderless(borderless)
+	love.window.setBorderless(borderless)
+end
+
+function WindowControl:isBorderless()
+	return love.window.isBorderless()
+end
+
+-- Attach window control to FakeInput instances
+function FakeInput:window()
+	return WindowControl.new(self)
+end
+
 -- steps frames until predicate() is true, or fails the test if maxFrames is
 -- exhausted without it becoming true.
 local function runUntil(game, predicate, maxFrames)

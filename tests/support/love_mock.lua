@@ -209,6 +209,154 @@ function LoveMock.new()
 		getHeight = function() return 600 end,
 	}
 
+	-- Window state for mock
+	local windowState = {
+		fullscreen = false,
+		fullscreentype = 'desktop',
+		maximized = false,
+		minimized = false,
+		width = 800,
+		height = 600,
+		x = 100,
+		y = 100,
+		title = 'Fido & Kitch',
+		displayindex = 1,
+		vsync = 1,
+		msaa = 0,
+		resizable = true,
+		borderless = false,
+	}
+
+	love.window = {
+		-- Fullscreen
+		setFullscreen = function(fullscreen, fullscreentype)
+			windowState.fullscreen = fullscreen == true
+			if fullscreentype then windowState.fullscreentype = fullscreentype end
+			return true
+		end,
+		getFullscreen = function()
+			return windowState.fullscreen, windowState.fullscreentype
+		end,
+
+		-- Maximize/minimize/restore
+		maximize = function()
+			windowState.maximized = true
+			windowState.minimized = false
+		end,
+		minimize = function()
+			windowState.minimized = true
+			windowState.maximized = false
+		end,
+		restore = function()
+			windowState.maximized = false
+			windowState.minimized = false
+		end,
+		isMaximized = function()
+			return windowState.maximized
+		end,
+		isMinimized = function()
+			return windowState.minimized
+		end,
+
+		-- Dimensions/position
+		getDimensions = function()
+			return windowState.width, windowState.height
+		end,
+		setDimensions = function(w, h)
+			windowState.width = w
+			windowState.height = h
+		end,
+		getPosition = function()
+			return windowState.x, windowState.y
+		end,
+		setPosition = function(x, y)
+			windowState.x = x
+			windowState.y = y
+		end,
+
+		-- Title
+		getTitle = function()
+			return windowState.title
+		end,
+		setTitle = function(title)
+			windowState.title = title
+		end,
+
+		-- Display
+		getDisplayIndex = function()
+			return windowState.displayindex
+		end,
+		setDisplayIndex = function(index)
+			windowState.displayindex = index
+		end,
+
+		-- VSync/MSAA
+		getVSync = function()
+			return windowState.vsync
+		end,
+		setVSync = function(vsync)
+			windowState.vsync = vsync
+		end,
+
+		getMSAA = function()
+			return windowState.msaa
+		end,
+
+		-- Properties
+		isResizable = function()
+			return windowState.resizable
+		end,
+		setResizable = function(resizable)
+			windowState.resizable = resizable
+		end,
+		isBorderless = function()
+			return windowState.borderless
+		end,
+		setBorderless = function(borderless)
+			windowState.borderless = borderless
+		end,
+
+		-- Mode (for love.window.getMode / setMode)
+		getMode = function()
+			return {
+				width = windowState.width,
+				height = windowState.height,
+				fullscreen = windowState.fullscreen,
+				fullscreentype = windowState.fullscreentype,
+				vsync = windowState.vsync,
+				msaa = windowState.msaa,
+				resizable = windowState.resizable,
+				borderless = windowState.borderless,
+				display = windowState.displayindex,
+				highdpi = false,
+				minwidth = 1,
+				minheight = 1,
+				x = windowState.x,
+				y = windowState.y,
+			}
+		end,
+		setMode = function(width, height, flags)
+			flags = flags or {}
+			windowState.width = width
+			windowState.height = height
+			if flags.fullscreen ~= nil then windowState.fullscreen = flags.fullscreen end
+			if flags.fullscreentype then windowState.fullscreentype = flags.fullscreentype end
+			if flags.vsync ~= nil then windowState.vsync = flags.vsync end
+			if flags.msaa ~= nil then windowState.msaa = flags.msaa end
+			if flags.resizable ~= nil then windowState.resizable = flags.resizable end
+			if flags.borderless ~= nil then windowState.borderless = flags.borderless end
+			if flags.display ~= nil then windowState.displayindex = flags.display end
+			if flags.minwidth then windowState.minwidth = flags.minwidth end
+			if flags.minheight then windowState.minheight = flags.minheight end
+			if flags.x then windowState.x = flags.x end
+			if flags.y then windowState.y = flags.y end
+			return true
+		end,
+
+		-- Icon
+		setIcon = function(image) end,
+	}
+
 	love._state = state
 	return love
 end

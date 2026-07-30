@@ -29,6 +29,71 @@ Every command is dependency-free and exits non-zero if any test fails. Pass a sp
 - **`tests/fixtures/`** — shared fixture maps (small, dedicated Tiled maps authored for tests, never shipped).
 - **`tests/screenshots/`** — capture output from the e2e tier, gitignored. Organised per test so a run's output is easy to find and clear.
 
+## AI Agent Control Layer
+
+The test infrastructure doubles as a programmable control layer for AI agents. Any agent can drive the game by requiring the test support modules:
+
+```lua
+local GameHarness = require('tests.support.game_harness')
+local FakeInput = require('tests.support.fake_input').FakeInput
+local FrameStepper = require('tests.support.frame_stepper')
+local holdFor = require('tests.support.fake_input').holdFor
+local Capture = require('tests.support.capture')  -- e2e tier only
+
+-- Start game (headless integration: omit {real=true}; headed e2e: include it)
+local game = GameHarness.startGame('res/map/level1.lua', {real = true})
+local controller = FakeInput.new()
+
+-- Keyboard input (P1 uses arrow keys + rshift; P2 uses WASD + Q)
+controller:press('right')
+holdFor(game, controller, 'right', 2)  -- hold for 2 seconds
+controller:release('right')
+
+-- Gamepad input (P1 = index 1, P2 = index 2)
+local joy = controller:assignJoystick(1)
+joy:setAxes(1, 0)      -- right stick X axis
+joy:setButtonDown(1, true)  -- button 1 (use)
+
+-- Window control (via controller:window() in e2e tier; direct love.window in integration)
+local win = controller:window()
+win:maximize()
+win:minimize()
+win:restore()
+win:setFullscreen(true, 'desktop')   -- fullscreen
+win:setFullscreen(false)             -- windowed
+win:setMode(1024, 768)               -- resize window
+
+-- Direct love.window calls (also work in e2e)
+love.window.setFullscreen(true, 'desktop')
+love.window.maximize()
+love.window.minimize()
+love.window.restore()
+love.window.setMode(1024, 768)
+
+-- Step simulation at fixed 1/60s timestep
+FrameStepper.step(game, 60)  -- advance 60 frames
+
+-- Frame capture (e2e tier only)
+local path = Capture.capture('my_screenshot')  -- writes to tests/screenshots/<test>/my_screenshot.png
+```
+
+**Tiers:**
+| Tier | Command | Window | Rendering | Frame Capture |
+|------|---------|--------|-----------|---------------|
+| Integration | `./test-integration.sh` | Mock (no window) | No | No |
+| E2E | `./test-e2e.sh` / `love . e2e=...` | Real | Yes | Yes |
+
+E2E flags: `--paced` (1 sim frame = 1 real frame, watchable), `--filmstrip` / `--filmstrip=N` (capture every N frames).
+
+Key files:
+- `tests/support/fake_input.lua` — `FakeInput` API (`press`, `release`, `assignJoystick`, `holdFor`, `runUntil`, `window()`)
+- `tests/support/game_harness.lua` — boots real game stack
+- `tests/support/frame_stepper.lua` — fixed-timestep frame advancement
+- `tests/support/capture.lua` — frame capture (e2e only)
+- `tests/integration/key_test.lua` — minimal working example
+
+No special prompts needed — the test infrastructure *is* the control layer.
+
 ## Writing an e2e test
 
 An e2e test file looks exactly like an integration test — same `test()`/`assert*` surface, same `GameHarness`/`FrameStepper`/`FakeInput`/`Queries` helpers — with two differences:
