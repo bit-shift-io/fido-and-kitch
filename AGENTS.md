@@ -113,6 +113,103 @@ Key files:
 
 No special prompts needed — the test infrastructure *is* the control layer.
 
+## AI Agent Control
+
+The test infrastructure doubles as a programmable control layer for AI agents. Any agent can drive the game by requiring the test support modules:
+
+```lua
+local GameHarness = require('tests.support.game_harness')
+local FakeInput = require('tests.support.fake_input').FakeInput
+local FrameStepper = require('tests.support.frame_stepper')
+local holdFor = require('tests.support.fake_input').holdFor
+local Capture = require('tests.support.capture')  -- e2e tier only
+
+-- Start game (headless integration: omit {real=true}; headed e2e: include it)
+local game = GameHarness.startGame('res/map/level1.lua', {real = true})
+local controller = FakeInput.new()
+
+-- Keyboard input (P1 uses arrow keys + rshift; P2 uses WASD + Q)
+controller:press('right')
+holdFor(game, controller, 'right', 2)  -- hold for 2 seconds
+controller:release('right')
+
+-- Gamepad input (P1 = index 1, P2 = index 2)
+local joy = controller:assignJoystick(1)
+joy:setAxes(1, 0)      -- right stick X axis
+joy:setButtonDown(1, true)  -- button 1 (use)
+
+-- Step simulation at fixed 1/60s timestep
+FrameStepper.step(game, 60)  -- advance 60 frames
+
+-- Window control (e2e tier only; requires real LÖVE window)
+-- These call through to love.window in e2e, no-op in headless integration
+love.window.setFullscreen(true, 'desktop')   -- fullscreen
+love.window.setFullscreen(false)             -- windowed
+love.window.maximize()                       -- maximize
+love.window.minimize()                       -- minimize
+love.window.restore()                        -- restore from minimized/maximized
+love.window.setMode(1024, 768)               -- resize window
+
+-- Frame capture (e2e tier only)
+local path = Capture.capture('my_screenshot')  -- writes to tests/screenshots/<test>/my_screenshot.png
+```
+
+**Tiers:**
+| Tier | Command | Window | Rendering | Frame Capture |
+|------|---------|--------|-----------|---------------|
+| Integration | `./test-integration.sh` | Mock (no window) | No | No |
+| E2E | `./test-e2e.sh` / `love . e2e=...` | Real | Yes | Yes |
+
+E2E flags: `--paced` (1 sim frame = 1 real frame, watchable), `--filmstrip` / `--filmstrip=N` (capture every N frames).
+
+Key files:
+- `tests/support/fake_input.lua` — `FakeInput` API (`press`, `release`, `assignJoystick`, `holdFor`, `runUntil`)
+- `tests/support/game_harness.lua` — boots real game stack
+- `tests/support/frame_stepper.lua` — fixed-timestep frame advancement
+- `tests/support/capture.lua` — frame capture (e2e only)
+- `tests/integration/key_test.lua` — minimal working example
+
+No special prompts needed — the test infrastructure *is* the control layer.
+
+## IPC Server (OpenCode Tools)
+
+The game includes a TCP-based IPC server for programmatic control via OpenCode (or any TCP client).
+
+**Launch with IPC:**
+```bash
+love . ipc map=sandbox           # default port 8081
+love . ipc ipc_port=9000 map=ll1 # custom port/map
+```
+
+**Protocol:** Plain TCP, line-delimited commands, responses end with newline.
+
+**Commands:**
+| Command | Args | Response |
+|---------|------|----------|
+| `RESIZE` | `<w> <h>` | `OK: Resized to WxH` |
+| `MOVE_PLAYER` | `<1\|2> <dx> <dy>` | `OK: Player N at X,Y` |
+| `INPUT` | `<1\|2> <action> <down\|up>` | `OK: Injected action=...` |
+| `HOLD_KEY` | `<1\|2> <action> <seconds>` | `OK: Held action for Ns` |
+| `GET_STATE` | — | `p1x=X p1y=Y p2x=X p2y=Y w=W h=H map=NAME` |
+| `GET_PLAYER_POS` | `<1\|2>` | `Player N at X,Y` |
+| `RESTART_LEVEL` | — | `OK: Level restarted` |
+| `MENU` | — | `OK: Returned to menu` |
+
+**OpenCode Tools** (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
+| Tool | Description |
+|------|-------------|
+| `launch_game` | Start game with IPC, waits until ready |
+| `get_game_state` | Full state string |
+| `get_player_pos` | Single player position |
+| `resize_window` | Resize window |
+| `press_key` / `release_key` | Simulate key press/release |
+| `hold_key` | Hold key for duration |
+| `move_player` | Direct position change |
+| `restart_level` | Reload current map |
+| `go_to_menu` | Return to main menu |
+
+Set `FIDO_KITCH_IPC_PORT` env var for custom port (default 8081).
+
 ## Gotchas
 
 - CI workflows reference `./install.sh`, which doesn't exist — the script is `setup.sh`.
