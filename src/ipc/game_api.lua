@@ -6,7 +6,41 @@ local injectedInput = {
 	p2 = {}
 }
 
+-- Override love.keyboard.isDown to check injected input
+local overrideInstalled = false
+
+local function installOverride()
+    if overrideInstalled then return end
+    overrideInstalled = true
+    local originalIsDown = _G.love and _G.love.keyboard and _G.love.keyboard.isDown or function() return false end
+    function _G.love.keyboard.isDown(key)
+        -- Check P1 injected input
+        for action, down in pairs(injectedInput.p1) do
+            local p1Keys = {left='left', right='right', up='up', down='down', use='rshift'}
+            if p1Keys[action] == key and down then
+                return true
+            end
+        end
+        -- Check P2 injected input
+        for action, down in pairs(injectedInput.p2) do
+            local p2Keys = {left='a', right='d', up='w', down='s', use='q'}
+            if p2Keys[action] == key and down then
+                return true
+            end
+        end
+        return originalIsDown(key)
+    end
+end
+
+-- Ensure override is installed when needed
+local function ensureOverride()
+    if not overrideInstalled and _G.love and _G.love.keyboard then
+        installOverride()
+    end
+end
+
 function GameAPI.injectInput(playerIdx, action, down)
+	ensureOverride()
 	local keys = {}
 	if playerIdx == 1 then
 		keys = {
@@ -43,6 +77,9 @@ function GameAPI.holdKey(playerIdx, action, duration)
 	local frames = math.floor(duration * 60)
 	for i = 1, frames do
 		if game and game.fsm and game.fsm.currentState then
+			if inputManager and inputManager.update then
+				inputManager:update(1/60)
+			end
 			game.fsm.currentState:update(1/60)
 			if world and world.update then
 				world:update(1/60)
@@ -56,31 +93,11 @@ function GameAPI.holdKey(playerIdx, action, duration)
 	return 'OK: Held ' .. action .. ' for player ' .. playerIdx .. ' for ' .. duration .. 's'
 end
 
--- Override love.keyboard.isDown to check injected input
-local originalIsDown = love.keyboard.isDown
-function love.keyboard.isDown(key)
-	-- Check P1 injected input
-	for action, down in pairs(injectedInput.p1) do
-		local p1Keys = {left='left', right='right', up='up', down='down', use='rshift'}
-		if p1Keys[action] == key and down then
-			return true
-		end
-	end
-	-- Check P2 injected input
-	for action, down in pairs(injectedInput.p2) do
-		local p2Keys = {left='a', right='d', up='w', down='s', use='q'}
-		if p2Keys[action] == key and down then
-			return true
-		end
-	end
-	return originalIsDown(key)
-end
-
 function GameAPI.resize(w, h)
-	if not love or not love.window then
+	if not _G.love or not _G.love.window then
 		return nil, 'love.window not available'
 	end
-	love.window.setMode(w, h)
+	_G.love.window.setMode(w, h)
 	return 'OK: Resized to ' .. w .. 'x' .. h
 end
 
@@ -129,8 +146,8 @@ function GameAPI.getState()
 	local p1 = players[1]
 	local p2 = players[2]
 
-	local w = love.graphics.getWidth()
-	local h = love.graphics.getHeight()
+	local w = _G.love.graphics.getWidth()
+	local h = _G.love.graphics.getHeight()
 
 	local mapName = state.currentMap or 'unknown'
 	if type(mapName) == 'string' then
@@ -189,7 +206,7 @@ function GameAPI.restartLevel()
 	end
 
 	game:setGameState('InGameState')
-	game:load({map = map})
+	game:load{map = map}
 	return 'OK: Level restarted'
 end
 
@@ -200,6 +217,24 @@ function GameAPI.goToMenu()
 
 	game:setGameState('MenuState')
 	return 'OK: Returned to menu'
+end
+
+function GameAPI.setJoystickNonGamepad(idx, forced)
+	if not inputManager then
+		return nil, 'InputManager not available'
+	end
+	
+	-- Store the preference in InputManager to apply when joystick is assigned
+	inputManager.forcedNonGamepadPreferences = inputManager.forcedNonGamepadPreferences or {}
+	inputManager.forcedNonGamepadPreferences[idx] = forced
+	
+	-- If joystick is already assigned, apply immediately
+	if inputManager.players[idx] and inputManager.players[idx].joystick then
+		inputManager.forcedNonGamepad = inputManager.forcedNonGamepad or {}
+		inputManager.forcedNonGamepad[inputManager.players[idx].joystick] = forced
+	end
+	
+	return 'OK: Player ' .. idx .. ' joystick forced to non-gamepad mode: ' .. tostring(forced)
 end
 
 function GameAPI.toggleCamera()

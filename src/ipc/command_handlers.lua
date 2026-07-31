@@ -46,13 +46,30 @@ function CommandHandler:registerBuiltins()
 		return self.gameAPI.goToMenu()
 	end)
 
+	-- Map gamepad button names to game actions
+local GAMEPAD_BUTTON_MAP = {
+	a = 'use',
+	b = 'use',
+	start = 'start',
+	back = 'back',
+	guide = 'back',
+}
+
+local function resolveAction(action)
+	return GAMEPAD_BUTTON_MAP[action] or action
+end
+
+local function validateAction(action)
+	local validActions = {left=true, right=true, up=true, down=true, use=true, start=true, back=true}
+	return validActions[action] ~= nil
+end
+
 	self:register('INPUT', function(args)
-		if #args ~= 3 then return nil, 'Usage: INPUT <1|2> <left|right|up|down|use> <down|up>' end
+		if #args ~= 3 then return nil, 'Usage: INPUT <1|2> <left|right|up|down|use|start|back|a|b> <down|up>' end
 		local idx = tonumber(args[1])
 		if not idx or (idx ~= 1 and idx ~= 2) then return nil, 'Player index must be 1 or 2' end
-		local action = args[2]:lower()
-		local validActions = {left=true, right=true, up=true, down=true, use=true}
-		if not validActions[action] then return nil, 'Action must be: left, right, up, down, or use' end
+		local action = resolveAction(args[2]:lower())
+		if not validateAction(action) then return nil, 'Action must be: left, right, up, down, use, start, back, a, or b' end
 		local down = args[3]:lower() == 'down'
 		return self.gameAPI.injectInput(idx, action, down)
 	end)
@@ -67,32 +84,29 @@ function CommandHandler:registerBuiltins()
 	end)
 
 	self:register('PRESS_KEY', function(args)
-		if #args ~= 2 then return nil, 'Usage: PRESS_KEY <1|2> <left|right|up|down|use>' end
+		if #args ~= 2 then return nil, 'Usage: PRESS_KEY <1|2> <left|right|up|down|use|start|back|a|b>' end
 		local idx = tonumber(args[1])
 		if not idx or (idx ~= 1 and idx ~= 2) then return nil, 'Player index must be 1 or 2' end
-		local action = args[2]:lower()
-		local validActions = {left=true, right=true, up=true, down=true, use=true}
-		if not validActions[action] then return nil, 'Action must be: left, right, up, down, or use' end
+		local action = resolveAction(args[2]:lower())
+		if not validateAction(action) then return nil, 'Action must be: left, right, up, down, use, start, back, a, or b' end
 		return self.gameAPI.injectInput(idx, action, true)
 	end)
 
 	self:register('RELEASE_KEY', function(args)
-		if #args ~= 2 then return nil, 'Usage: RELEASE_KEY <1|2> <left|right|up|down|use>' end
+		if #args ~= 2 then return nil, 'Usage: RELEASE_KEY <1|2> <left|right|up|down|use|start|back|a|b>' end
 		local idx = tonumber(args[1])
 		if not idx or (idx ~= 1 and idx ~= 2) then return nil, 'Player index must be 1 or 2' end
-		local action = args[2]:lower()
-		local validActions = {left=true, right=true, up=true, down=true, use=true}
-		if not validActions[action] then return nil, 'Action must be: left, right, up, down, or use' end
+		local action = resolveAction(args[2]:lower())
+		if not validateAction(action) then return nil, 'Action must be: left, right, up, down, use, start, back, a, or b' end
 		return self.gameAPI.injectInput(idx, action, false)
 	end)
 
 	self:register('HOLD_KEY', function(args)
-		if #args ~= 3 then return nil, 'Usage: HOLD_KEY <1|2> <left|right|up|down|use> <duration>' end
+		if #args ~= 3 then return nil, 'Usage: HOLD_KEY <1|2> <left|right|up|down|use|start|back|a|b> <duration>' end
 		local idx = tonumber(args[1])
 		if not idx or (idx ~= 1 and idx ~= 2) then return nil, 'Player index must be 1 or 2' end
-		local action = args[2]:lower()
-		local validActions = {left=true, right=true, up=true, down=true, use=true}
-		if not validActions[action] then return nil, 'Action must be: left, right, up, down, or use' end
+		local action = resolveAction(args[2]:lower())
+		if not validateAction(action) then return nil, 'Action must be: left, right, up, down, use, start, back, a, or b' end
 		local duration = tonumber(args[3])
 		if not duration or duration <= 0 then return nil, 'Duration must be a positive number' end
 		return self.gameAPI.holdKey(idx, action, duration)
@@ -101,6 +115,14 @@ function CommandHandler:registerBuiltins()
 	self:register('TOGGLE_CAMERA', function(args)
 		if #args ~= 0 then return nil, 'Usage: TOGGLE_CAMERA (no arguments)' end
 		return self.gameAPI.toggleCamera()
+	end)
+
+	self:register('SET_JOYSTICK_NON_GAMEPAD', function(args)
+		if #args ~= 2 then return nil, 'Usage: SET_JOYSTICK_NON_GAMEPAD <1|2> <true|false>' end
+		local idx = tonumber(args[1])
+		if not idx or (idx ~= 1 and idx ~= 2) then return nil, 'Player index must be 1 or 2' end
+		local forced = args[2]:lower() == 'true'
+		return self.gameAPI.setJoystickNonGamepad(idx, forced)
 	end)
 end
 

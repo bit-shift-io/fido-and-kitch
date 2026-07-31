@@ -237,60 +237,32 @@ function MapList:next()
 end
 
 function MapList:update(dt)
-	self.inputCooldown = math.max(0, self.inputCooldown - dt)
+  self.inputCooldown = math.max(0, self.inputCooldown - dt)
 
-	if self.inputCooldown > 0 then
-		return nil
-	end
+  if self.inputCooldown > 0 then
+    return nil
+  end
 
-	local joysticks = love.joystick.getJoysticks()
-	local joystick = joysticks[1]
-	if joystick then
-		local x = 0
-		if joystick:isGamepad() then
-			x = joystick:getGamepadAxis('leftx') or 0
-		else
-			x = joystick:getAxis(1) or 0
-		end
+  -- Use InputManager for navigation (player 1)
+  if inputManager:isDown(1, 'left') or inputManager:wasPressed(1, 'left') then
+    self:previous()
+    self.inputCooldown = 0.25
+  elseif inputManager:isDown(1, 'right') or inputManager:wasPressed(1, 'right') then
+    self:next()
+    self.inputCooldown = 0.25
+  end
 
-		if x < -0.55 then
-			self:previous()
-			self.inputCooldown = 0.25
-		elseif x > 0.55 then
-			self:next()
-			self.inputCooldown = 0.25
-		end
-	end
-
-	return nil
+  return nil
 end
 
 function MapList:gamepadpressed(button)
-	if button == 'dpleft' or button == 'leftshoulder' then
-		self:previous()
-	elseif button == 'dpright' or button == 'rightshoulder' then
-		self:next()
-	elseif button == 'a' or button == 'start' then
-		return 'start'
-	elseif button == 'b' then
-		return 'back'
-	end
-
-	return nil
+  -- Now handled via InputManager in MenuState:update
+  return nil
 end
 
 function MapList:joystickpressed(button)
-	if button == 1 then
-		return 'start'
-	elseif button == 2 then
-		return 'back'
-	elseif button == 5 then
-		self:previous()
-	elseif button == 6 then
-		self:next()
-	end
-
-	return nil
+  -- Now handled via InputManager in MenuState:update
+  return nil
 end
 
 function MapList:pressed(x, y)

@@ -368,58 +368,7 @@ function Player:pickup(pickup)
 end
 
 function Player:isDown(action)
-	local actionMap = {}
-
-	local joysticks = love.joystick.getJoysticks()
-	local joystick = joysticks[self.index]
-
-	if (self.index == 1) then
-		actionMap = {
-			left='left',
-			right='right',
-			up='up',
-			down='down',
-			use='rshift'
-		}
-	end
-
-	if (self.index == 2) then
-		actionMap = {
-			left='a',
-			right='d',
-			up='w',
-			down='s',
-			use='q'
-		}
-	end
-
-	if (joystick) then
-		local deadzone = 0.2
-		local hor, vert = joystick:getAxes()
-
-		if (action == 'left') then
-			return hor < -deadzone
-		end
-
-		if (action == 'right') then
-			return hor > deadzone
-		end
-
-		if (action == 'up') then
-			return vert < -deadzone
-		end
-
-		if (action == 'down') then
-			return vert > deadzone
-		end
-
-		if (action == 'use') then
-			return joystick:isDown(1)
-		end
-	end
-
-	local key = actionMap[action]
-	return love.keyboard.isDown(key)
+  return inputManager:isDown(self.index, action)
 end
 
 

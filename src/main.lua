@@ -47,6 +47,7 @@ Map = require('src.map')
 AutoCamera = require('src.camera')
 Player = require('src.player.player')
 Game = require('src.game')
+InputManager = require('src.input.input_manager')
 
 
 -- local includes only accessible to this file
@@ -90,6 +91,7 @@ function love.load(args)
 	Slab.Initialize(args)
 	--u = urutora:new()
 	game = Game()
+	inputManager = InputManager()
 
 	if conf.ipc_enabled then
 		ipc = require('src.ipc.init')
@@ -101,6 +103,7 @@ function love.update(dt)
 	if ipc then
 		ipc.update(dt)
 	end
+	inputManager:update(dt)
 	game:update(dt)
 end
 
@@ -114,6 +117,14 @@ end
 
 function love.keypressed(k)
 	game:keypressed(k)
+end
+
+function love.joystickadded(joystick)
+	inputManager:joystickadded(joystick)
+end
+
+function love.joystickremoved(joystick)
+	inputManager:joystickremoved(joystick)
 end
 
 function love.gamepadpressed(joystick, button)

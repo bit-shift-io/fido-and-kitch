@@ -44,18 +44,28 @@ function MenuState:startGame(props)
 end
 
 function MenuState:update(dt)
-	Entity.update(self, dt)
+  Entity.update(self, dt)
 
-	local action = self.mapList:update(dt)
-	if action == 'start' then
-		self:startGame{map=self.mapList.selectedFile}
-	elseif action == 'back' then
-		love.event.push('quit')
-	end
+  -- Use InputManager for navigation from any connected player
+  for i = 1, 4 do
+    if inputManager:wasPressed(i, 'left') then
+      self.mapList:previous()
+      break
+    elseif inputManager:wasPressed(i, 'right') then
+      self.mapList:next()
+      break
+    elseif inputManager:wasPressed(i, 'start') or inputManager:wasPressed(i, 'use') then
+      self:startGame{map=self.mapList.selectedFile}
+      break
+    elseif inputManager:wasPressed(i, 'back') then
+      love.event.push('quit')
+      break
+    end
+  end
 end
 
 function MenuState:draw()
-	self.mapList:draw()
+  self.mapList:draw()
 end
 
 function MenuState:resize(w, h)
@@ -68,30 +78,20 @@ function MenuState:keypressed(k)
     if k == 'return' or k == 'space' then
         self:startGame{map=self.mapList.selectedFile}
     elseif k == 'left' or k == 'a' then
-		self.mapList:previous()
+        self.mapList:previous()
     elseif k == 'right' or k == 'd' then
-		self.mapList:next()
+        self.mapList:next()
     elseif k == 'escape' then
-		love.event.push('quit')
-	end
+        love.event.push('quit')
+    end
 end
 
 function MenuState:gamepadpressed(joystick, button)
-	local action = self.mapList:gamepadpressed(button)
-	if action == 'start' then
-		self:startGame{map=self.mapList.selectedFile}
-	elseif action == 'back' then
-		love.event.push('quit')
-	end
+    -- Handled via InputManager in update()
 end
 
 function MenuState:joystickpressed(joystick, button)
-	local action = self.mapList:joystickpressed(button)
-	if action == 'start' then
-		self:startGame{map=self.mapList.selectedFile}
-	elseif action == 'back' then
-		love.event.push('quit')
-	end
+    -- Handled via InputManager in update()
 end
 
 function MenuState:mousepressed(x, y, button)
@@ -259,19 +259,24 @@ function InGameState:updateDeathFramingTargets()
 end
 
 function InGameState:update(dt)
-	map:update(dt)
-	world:update(dt)
+    map:update(dt)
+    world:update(dt)
 
-	if self.gameOverTimer then
-		self.gameOverTimer = self.gameOverTimer - dt
-		self.camera:update(dt, self:collectPlayerTargets())
-		if self.gameOverTimer <= 0 then
-			self:transitionToGameOver()
-		end
-	else
-		self:updateDeathFramingTargets()
-		self.camera:update(dt, self:collectPlayerTargets())
-	end
+    if self.gameOverTimer then
+        self.gameOverTimer = self.gameOverTimer - dt
+        self.camera:update(dt, self:collectPlayerTargets())
+        if self.gameOverTimer <= 0 then
+            self:transitionToGameOver()
+        end
+    else
+        self:updateDeathFramingTargets()
+        self.camera:update(dt, self:collectPlayerTargets())
+    end
+
+    -- Use InputManager for camera toggle (back button = camera overview)
+    if inputManager:wasPressed(1, 'back') then
+        self.camera:toggleOverview()
+    end
 end
 
 function InGameState:draw()
@@ -304,9 +309,7 @@ function InGameState:keypressed(k)
 end
 
 function InGameState:gamepadpressed(joystick, button)
-	if button == 'back' then
-		self.camera:toggleOverview()
-	end
+    -- Handled via InputManager in update()
 end
 
 function InGameState:joystickpressed(joystick, button)
@@ -345,6 +348,19 @@ function GameOverState:exit()
 end
 
 function GameOverState:update(dt)
+    -- Use InputManager for navigation from any connected player
+    for i = 1, 4 do
+        if inputManager:wasPressed(i, 'up') then
+            self:moveSelection(-1)
+            break
+        elseif inputManager:wasPressed(i, 'down') then
+            self:moveSelection(1)
+            break
+        elseif inputManager:wasPressed(i, 'start') or inputManager:wasPressed(i, 'use') then
+            self:activateSelected()
+            break
+        end
+    end
 end
 
 function GameOverState:moveSelection(delta)
@@ -422,25 +438,11 @@ function GameOverState:keypressed(k)
 end
 
 function GameOverState:gamepadpressed(joystick, button)
-	if button == 'dpup' or button == 'leftshoulder' then
-		self:moveSelection(-1)
-	elseif button == 'dpdown' or button == 'rightshoulder' then
-		self:moveSelection(1)
-	elseif button == 'a' or button == 'start' then
-		self:activateSelected()
-	end
+    -- Handled via InputManager in update()
 end
 
 function GameOverState:joystickpressed(joystick, button)
-	if button == 1 then
-		self:activateSelected()
-	elseif button == 2 then
-		-- no back action on this screen
-	elseif button == 5 then
-		self:moveSelection(-1)
-	elseif button == 6 then
-		self:moveSelection(1)
-	end
+    -- Handled via InputManager in update()
 end
 
 function GameOverState:mousepressed(x, y, button)

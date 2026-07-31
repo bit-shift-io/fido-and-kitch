@@ -47,9 +47,11 @@ F12 - screenshot
 
 P1
 Arrow keys + right shift
+Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 
 P2
 WASD + left shift
+Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 
 ## IPC Server (AI Agent Control)
 

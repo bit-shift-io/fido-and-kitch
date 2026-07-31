@@ -56,6 +56,7 @@ local function bootGlobals(isReal)
 	Map = require('src.map')
 	AutoCamera = require('src.camera')
 	Player = require('src.player.player')
+	InputManager = require('src.input.input_manager')
 end
 
 -- Fresh love mock per game so keyboard/joystick state never leaks between
@@ -66,9 +67,12 @@ function GameHarness.startGame(mapPath, opts)
 	opts = opts or {}
 
 	if not opts.real then
-		love = LoveMock.new()
+		_G.love = LoveMock.new()
 	end
 	bootGlobals(opts.real)
+
+	-- Create InputManager instance (same as main.lua)
+	inputManager = InputManager()
 
 	local GameStates = require('src.game_states')
 	local game = {}
@@ -83,6 +87,7 @@ function GameHarness.startGame(mapPath, opts)
 	end
 
 	function game:update(dt)
+		inputManager:update(dt)
 		self.fsm:update(dt)
 	end
 
