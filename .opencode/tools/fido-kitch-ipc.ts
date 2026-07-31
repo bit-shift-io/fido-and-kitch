@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 const DEFAULT_PORT = parseInt(process.env.FIDO_KITCH_IPC_PORT || "8081", 10);
 const HOST = "127.0.0.1";
 
-const GAME_COMMAND = process.env.FIDO_KITCH_BIN || "love";
+const GAME_COMMAND = process.env.FIDO_KITCH_BIN || "./run.sh";
 const GAME_ARGS = process.env.FIDO_KITCH_ARGS ? process.env.FIDO_KITCH_ARGS.split(" ") : [".", "ipc", "map=sandbox"];
 
 const execAsync = promisify(exec);
@@ -90,7 +90,7 @@ async function requireGameRunning(): Promise<void> {
     if (!(await isServerUp())) {
         throw new Error(
             `Game not running on port ${DEFAULT_PORT}. ` +
-            `Call launch_game first, or start manually with: love . ipc map=sandbox`
+            `Call launch_game first, or start manually with: ./run.sh ipc map=sandbox`
         );
     }
 }
@@ -234,6 +234,15 @@ export const get_player_pos = tool({
     async execute({ player }) {
         const response = await sendCommand(`GET_PLAYER_POS ${player}`);
         return parseResponse(response); // "Player N at X,Y"
+    },
+});
+
+export const get_entities = tool({
+    description: "Get all entities in the game (players, colliders, items, etc.) as JSON",
+    args: {},
+    async execute() {
+        const response = await sendCommand("GET_ENTITIES");
+        return parseResponse(response); // Returns JSON string with entities array
     },
 });
 

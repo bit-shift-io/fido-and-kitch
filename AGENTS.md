@@ -177,8 +177,8 @@ The game includes a TCP-based IPC server for programmatic control via OpenCode (
 
 **Launch with IPC:**
 ```bash
-love . ipc map=sandbox           # default port 8081
-love . ipc ipc_port=9000 map=ll1 # custom port/map
+./run.sh ipc map=sandbox           # default port 8081
+./run.sh ipc ipc_port=9000 map=ll1 # custom port/map
 ```
 
 **Protocol:** Plain TCP, line-delimited commands, responses end with newline.
@@ -193,6 +193,7 @@ love . ipc ipc_port=9000 map=ll1 # custom port/map
 | `TOGGLE_CAMERA` | — | `OK: Camera overview toggled` |
 | `GET_STATE` | — | `p1x=X p1y=Y p2x=X p2y=Y w=W h=H map=NAME` |
 | `GET_PLAYER_POS` | `<1\|2>` | `Player N at X,Y` |
+| `GET_ENTITIES` | — | JSON: `{ok, count, entities[]}` |
 | `RESTART_LEVEL` | — | `OK: Level restarted` |
 | `MENU` | — | `OK: Returned to menu` |
 
@@ -202,6 +203,7 @@ love . ipc ipc_port=9000 map=ll1 # custom port/map
 | `launch_game` | Start game with IPC, waits until ready |
 | `get_game_state` | Full state string |
 | `get_player_pos` | Single player position |
+| `get_entities` | All entities as JSON (players, items, colliders, etc.) |
 | `resize_window` | Resize window |
 | `press_key` / `release_key` | Simulate key press/release |
 | `hold_key` | Hold key for duration |

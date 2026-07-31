@@ -1,5 +1,6 @@
 local Enemy = require('src.enemy.enemy')
 local EnemyBrain = require('src.enemy.enemy_brain')
+local Sprite = require('src.components.sprite')
 
 local Spider = Class{__includes = Enemy}
 
@@ -9,6 +10,19 @@ function Spider:init(object)
 	Enemy.init(self, object, {color = {0.15, 0.15, 0.15, 1}})
 	self.type = 'spider'
 	self.wrapDuration = (object.properties and object.properties.wrapDuration) or DEFAULT_WRAP_DURATION
+
+	local shape_arguments = {0, 0, object.width, object.height}
+	self.sprite = self:addComponent(Sprite{
+		image = 'res/img/enemy_spider.png',
+		frames = 1,
+		duration = 1.0,
+		loop = false,
+		shape_arguments = shape_arguments,
+	})
+end
+
+function Spider:draw()
+	Entity.draw(self)
 end
 
 function Spider:update(dt)

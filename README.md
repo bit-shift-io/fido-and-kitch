@@ -59,8 +59,8 @@ The game includes a TCP-based IPC server for programmatic control via OpenCode t
 
 Start the game with IPC enabled:
 ```bash
-love . ipc map=sandbox      # default port 8081
-love . ipc ipc_port=9000 map=ll1  # custom port/map
+./run.sh ipc map=sandbox      # default port 8081
+./run.sh ipc ipc_port=9000 map=ll1  # custom port/map
 ```
 
 Available commands (sent via TCP to 127.0.0.1:8081):
@@ -73,6 +73,7 @@ Available commands (sent via TCP to 127.0.0.1:8081):
 | `TOGGLE_CAMERA` | Toggle camera overview mode |
 | `GET_STATE` | Full state snapshot |
 | `GET_PLAYER_POS <1\|2>` | Single player position |
+| `GET_ENTITIES` | All entities as JSON (players, items, colliders, etc.) |
 | `RESTART_LEVEL` | Reload current map |
 | `MENU` | Return to main menu |
 
@@ -80,6 +81,7 @@ OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `launch_game` — Start game with IPC (blocks until ready)
 - `get_game_state` — Full state as string
 - `get_player_pos` — Single player position
+- `get_entities` — All entities as JSON
 - `resize_window` — Resize window
 - `press_key` / `release_key` — Simulate key press/release
 - `hold_key` — Hold key for duration
@@ -89,22 +91,3 @@ OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `toggle_camera` — Toggle camera overview mode
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port.
-
-## Contribute
-
-Looking for things to do, look here: https://github.com/bit-shift-io/fido-and-kitch/projects
-
-## Assets
-
-Here are a list of assets we use in the game and their source of origin.
-
-* Cat & Dog - https://opengameart.org/content/cat-dog-free-sprites
-* Platformer tiles - https://opengameart.org/content/generic-platformer-tiles
-* Keys - https://opengameart.org/content/key-icons
-* Teleporter - https://opengameart.org/content/4-summoning-circles
-* Cage - https://opengameart.org/content/cage
-* Switch/lever - https://forums.tigsource.com/index.php?topic=59695.0
-* Door - https://opengameart.org/content/heavy-slamdoor-0
-* Bird - https://opengameart.org/content/cartooney-bird-01
-* Pushable Wood Crate - https://opengameart.org/content/pixel-wooden-crate
-* Pushable Stone Block - https://opengameart.org/content/block-with-a-face

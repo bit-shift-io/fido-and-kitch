@@ -1,4 +1,5 @@
 local GameAPI = {}
+local json = require('lib.dkjson')
 
 -- Input injection system (simulates player keyboard input)
 local injectedInput = {
@@ -253,6 +254,169 @@ function GameAPI.toggleCamera()
 	end
 
 	return nil, 'Camera not available'
+end
+
+local function getColliderInfo(collider)
+	if not collider then return nil end
+	local bounds = collider.getBounds and collider:getBounds() or nil
+	if not bounds then return nil end
+	return {
+		x = math.floor(bounds.left),
+		y = math.floor(bounds.top),
+		w = math.floor(bounds.width),
+		h = math.floor(bounds.height),
+		sensor = collider.isSensor and collider:isSensor() or false,
+		walkable = collider.walkable == true,
+		bodyType = collider.bodyType or collider.getType and collider:getType() or 'unknown'
+	}
+end
+
+local function getEntityBaseInfo(entity)
+	if not entity then return nil end
+	local info = {
+		type = entity.type or 'unknown',
+		name = entity.name or entity.type or 'unnamed',
+	}
+	
+	-- Position from collider or object
+	if entity.collider and entity.collider.getPositionV then
+		local pos = entity.collider:getPositionV()
+		if entity.collider.getBounds then
+			local bounds = entity.collider:getBounds()
+			info.x = math.floor(bounds.left)
+			info.y = math.floor(bounds.top)
+			info.w = math.floor(bounds.width)
+			info.h = math.floor(bounds.height)
+		else
+			info.x = math.floor(pos.x)
+			info.y = math.floor(pos.y)
+			info.w = 0
+			info.h = 0
+		end
+	elseif entity.object then
+		info.x = math.floor(entity.object.x)
+		info.y = math.floor(entity.object.y)
+		info.w = math.floor(entity.object.width or 0)
+		info.h = math.floor(entity.object.height or 0)
+	end
+	
+	-- Collider info
+	info.collider = getColliderInfo(entity.collider)
+	info.hasCollider = entity.collider ~= nil
+	
+	return info
+end
+
+local function getPlayerInfo(player, index)
+	local base = getEntityBaseInfo(player)
+	base.type = 'player'
+	base.name = 'player'
+	base.index = index
+	
+	-- Player-specific fields
+	if player.fsm and player.fsm.currentState then
+		base.state = player.fsm.currentState.name or tostring(player.fsm.currentState)
+	end
+	if player.collider and player.collider.getLinearVelocity then
+		local vx, vy = player.collider:getLinearVelocity()
+		base.velocity = {x = math.floor(vx or 0), y = math.floor(vy or 0)}
+	end
+	base.grounded = player.queryFullySupported and player:queryFullySupported() or false
+	base.facing = player.facing or 'right'
+	base.dead = player.isDead and player:isDead() or false
+	
+	return base
+end
+
+local function getDrawbridgeInfo(entity)
+	local base = getEntityBaseInfo(entity)
+	if entity.state then
+		base.bridgeState = entity.state
+	end
+	if entity.crossingDirection then
+		base.crossingDirection = entity.crossingDirection
+	end
+	-- Drawbridge has two colliders: deck (walkable) and trigger (sensor)
+	base.colliders = {}
+	if entity.deck then
+		local deckInfo = getColliderInfo(entity.deck)
+		if deckInfo then deckInfo.name = 'deck' end
+		table.insert(base.colliders, deckInfo)
+	end
+	if entity.trigger then
+		local triggerInfo = getColliderInfo(entity.trigger)
+		if triggerInfo then triggerInfo.name = 'trigger' end
+		table.insert(base.colliders, triggerInfo)
+	end
+	base.hasCollider = true
+	-- For backward compat, use deck as primary collider
+	base.collider = getColliderInfo(entity.deck)
+	return base
+end
+
+function GameAPI.getEntities()
+	if not game or not game.fsm or not game.fsm.currentState then
+		return nil, 'Game not loaded'
+	end
+
+	local state = game.fsm.currentState
+	if state.__class and state.__class.name ~= 'InGameState' then
+		return nil, 'Not in game'
+	end
+
+	local entities = {}
+	
+	-- Add players
+	if state.players then
+		for i, player in ipairs(state.players) do
+			table.insert(entities, getPlayerInfo(player, i))
+		end
+	end
+	
+	-- Add map entities from layers
+	if map and map.layers then
+		for _, layer in ipairs(map.layers) do
+			if layer.entities then
+				for _, entity in ipairs(layer.entities) do
+					if entity and not entity.remove_from_map_flag then
+						local info = nil
+						if entity.type == 'player' then
+							-- Already added from state.players
+						elseif entity.type == 'drawbridge' then
+							info = getDrawbridgeInfo(entity)
+						else
+							info = getEntityBaseInfo(entity)
+							-- Add entity-specific fields
+							if entity.state then
+								info.entityState = entity.state
+							end
+							if entity.itemName then
+								info.itemName = entity.itemName
+							end
+							if entity.isLadder then
+								info.isLadder = true
+							end
+							if entity.isKillZone then
+								info.isKillZone = true
+								info.deathType = entity.deathType
+							end
+						end
+						if info then
+							table.insert(entities, info)
+						end
+					end
+				end
+			end
+		end
+	end
+
+	-- Encode to JSON
+	local result = {
+		ok = true,
+		count = #entities,
+		entities = entities
+	}
+	return json.encode(result)
 end
 
 return GameAPI

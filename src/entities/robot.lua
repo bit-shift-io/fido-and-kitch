@@ -1,5 +1,6 @@
 local Enemy = require('src.enemy.enemy')
 local EnemyBrain = require('src.enemy.enemy_brain')
+local Sprite = require('src.components.sprite')
 
 local Robot = Class{__includes = Enemy}
 
@@ -12,6 +13,19 @@ function Robot:init(object)
 	self.shoveSpeed = (object.properties and object.properties.shoveSpeed) or DEFAULT_SHOVE_SPEED
 	self.chaseBanTime = (object.properties and object.properties.chaseBanTime) or DEFAULT_CHASE_BAN_TIME
 	self.chaseTimer = {target = nil, elapsed = 0}
+
+	local shape_arguments = {0, 0, object.width, object.height}
+	self.sprite = self:addComponent(Sprite{
+		image = 'res/img/enemy_blob.png',
+		frames = 1,
+		duration = 1.0,
+		loop = false,
+		shape_arguments = shape_arguments,
+	})
+end
+
+function Robot:draw()
+	Entity.draw(self)
 end
 
 function Robot:update(dt)

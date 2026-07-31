@@ -36,6 +36,11 @@ function CommandHandler:registerBuiltins()
 		return self.gameAPI.getPlayerPos(idx)
 	end)
 
+	self:register('GET_ENTITIES', function(args)
+		if #args ~= 0 then return nil, 'Usage: GET_ENTITIES (no arguments)' end
+		return self.gameAPI.getEntities()
+	end)
+
 	self:register('RESTART_LEVEL', function(args)
 		if #args ~= 0 then return nil, 'Usage: RESTART_LEVEL (no arguments)' end
 		return self.gameAPI.restartLevel()
