@@ -2,8 +2,12 @@
   "$schema": "https://opencode.ai/config.json",
   "provider": {
     "options": {
-      "timeout": 600000,
-      "chunkTimeout": 60000
+      // 30 mins
+        "timeout": 1800000,
+        "chunkTimeout": 120000
+        // 10 mins
+ //     "timeout": 600000,
+ //     "chunkTimeout": 60000
     }
   },
   "plugin": [
