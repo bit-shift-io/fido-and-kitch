@@ -2,7 +2,7 @@ local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
 local Flash = require('src.components.flash')
 local GroundSupport = require('src.player.ground_support')
-local Web = require('src.enemy.web')
+local Web = require('src.npc.web')
 
 local Player = Class{__includes = Entity}
 

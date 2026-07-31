@@ -1,4 +1,4 @@
-local Web = require('src.enemy.web')
+local Web = require('src.npc.web')
 
 test('a fresh web is not expired', function()
 	local web = Web{duration = 20}
