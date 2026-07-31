@@ -1,5 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "options": {
+      "timeout": 600000,
+      "chunkTimeout": 60000
+    }
+  },
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git",
     "opencode-auto-continue@https://github.com/developing-today/opencode-auto-continue/archive/refs/tags/latest.tar.gz"

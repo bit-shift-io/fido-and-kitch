@@ -280,9 +280,26 @@ function InGameState:update(dt)
 end
 
 function InGameState:draw()
+	local lg = love.graphics
 	local tx, ty, sx, sy = self.camera:getDrawParams()
 	map:draw2(tx, ty, sx, sy)
-	--world:draw()
+	
+	-- Draw entities in screen space (after map, at camera scale)
+	lg.push()
+	lg.origin()
+	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
+	lg.scale(sx or 1, sy or sx or 1)
+	
+	for _, layer in ipairs(map.layers) do
+		if layer.type == "objectgroup" and layer.entities then
+			for _, entity in ipairs(layer.entities) do
+				entity:draw()
+			end
+		end
+	end
+	
+	lg.pop()
+	
 	self.livesHud:draw()
 end
 

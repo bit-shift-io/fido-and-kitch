@@ -333,7 +333,6 @@ end
 function Map:resize(w, h)
 	local windowOpen = love.window and love.window.isOpen and love.window.isOpen()
 	if windowOpen or lg.isCreated then
-		-- scale map to fit the screen
 		w = w or lg.getWidth()
 		h = h or lg.getHeight()
 
@@ -352,9 +351,6 @@ function Map:resize(w, h)
 		local ty = (h - (mh * self.sy)) / 2
 		self.tx = tx
 		self.ty = ty
-
-		self.map.canvas = lg.newCanvas(mw, mh)
-		self.map.canvas:setFilter('linear', 'linear')
 	end
 end
 
@@ -369,31 +365,12 @@ function Map:draw()
 end
 
 function Map:draw2(tx, ty, sx, sy)
-	local current_canvas = lg.getCanvas()
-	lg.setCanvas(self.canvas)
-	lg.clear()
-
-	-- Scale map to 1.0 to draw onto canvas, this fixes tearing issues
-	-- Map is translated to correct position so the right section is drawn
-	lg.push()
-	lg.origin()
-	lg.setColor(1, 1, 1, 1)
-
-	-- Draw main map layers only (background drawn in screen space below)
-	for _, layer in ipairs(self.layers) do
-		if layer.visible and layer.opacity > 0 then
-			self:drawLayer(layer)
-		end
-	end
-
-	lg.pop()
-
+	local screenW, screenH = lg.getWidth(), lg.getHeight()
+	
 	-- Draw background in screen space, covering the full screen
 	if self.backgroundMap then
-		local screenW, screenH = lg.getWidth(), lg.getHeight()
 		local cx, cy = mapParallax.computeCameraCenter(tx, ty, sx, sy, screenW, screenH)
 
-		lg.setCanvas(current_canvas)
 		lg.origin()
 		lg.setColor(1, 1, 1, 1)
 
@@ -428,15 +405,19 @@ function Map:draw2(tx, ty, sx, sy)
 		end
 	end
 
-	-- Draw map canvas on top of background
+	-- Draw main map layers in screen space (at camera scale)
 	lg.push()
 	lg.origin()
 	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
 	lg.scale(sx or 1, sy or sx or 1)
-
-	lg.setCanvas(current_canvas)
 	lg.setColor(1, 1, 1, 1)
-	lg.draw(self.canvas)
+
+	-- Draw tile layers and image layers only (object layers with entities drawn separately in InGameState)
+	for _, layer in ipairs(self.layers) do
+		if layer.visible and layer.opacity > 0 and (layer.type == 'tilelayer' or layer.type == 'imagelayer') then
+			self:drawLayer(layer)
+		end
+	end
 
 	if (conf.drawphysics) then
 		world:draw()
