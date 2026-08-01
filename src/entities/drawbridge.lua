@@ -52,13 +52,13 @@ local function spriteFacing(crossingDirection)
 	return 'right'
 end
 
--- the sprite draws 3x the object's own tile dimensions, centred on the
--- object tile -- one tile of bleed in every direction so the art can key
+-- the sprite draws 2x the object's own tile dimensions, centred on the
+-- object tile -- half a tile of bleed in every direction so the art can key
 -- into the surrounding environment. Derived from the object's own size
 -- rather than a hard-coded pixel value so it survives a tile-size change.
 -- Purely visual: the deck and trigger colliders stay one tile each.
 local function spriteBoxDimensions(objectWidth, objectHeight)
-	return objectWidth * 3, objectHeight * 3
+	return objectWidth * 2, objectHeight * 2
 end
 
 local function isDeckSolid(state)

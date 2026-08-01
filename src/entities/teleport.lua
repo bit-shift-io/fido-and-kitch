@@ -9,7 +9,7 @@ function Teleport:init(object, map)
 	-- visual footprint only -- the collider below stays the map's 1x1 tile;
 	-- the bigger sprite is purely decorative bleed so the art can extend
 	-- beyond the tile the teleporter sits on
-	local sprite_shape_arguments = Rect.shapeArgs(object.width * 3, object.height * 3)
+	local sprite_shape_arguments = Rect.shapeArgs(object.width * 2, object.height * 2)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/entity_teleporter.png',
 		frames=1,
