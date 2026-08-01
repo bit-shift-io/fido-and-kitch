@@ -6,8 +6,8 @@
 local Camera = {}
 Camera.__index = Camera
 
-local DEFAULT_MARGIN_TILES = 5
-local DEFAULT_MIN_VIEW_TILES = 5
+local DEFAULT_MARGIN_TILES = 6
+local DEFAULT_MIN_VIEW_TILES = 6
 local DEFAULT_TILE_SIZE = 32
 -- exponential decay rate; ~5 half-lives (1 - e^-6 ~= 0.9975) settle inside 0.5s
 local DEFAULT_DECAY = 12
