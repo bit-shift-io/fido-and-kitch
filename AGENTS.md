@@ -30,12 +30,26 @@ love . debug drawphysics map=sandbox
 
 - `main.lua` / `conf.lua` — entrypoint (requires `src.main`) and LÖVE config; `t.physics` selects the physics backend (currently `bump`)
 - `src/main.lua` — bootstraps globals (`conf`, `utils`, `Vector`, `Class`, `Camera`, `Tween`, `Slab`, `World`, `Entity`, `Map`, `Player`, `Game`, …) and LÖVE callbacks
-- `src/game.lua`, `src/game_states.lua` — top-level game object and menu/in-game/game-over state FSM
-- `src/map.lua` — STI map wrapper; loads Tiled object layers into runtime entities, collision/ladders
+- `src/game.lua` — top-level game object
+- `src/states/` — game state FSM modules (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`)
+- `src/map.lua` — thin wrapper delegating to `src/map/init.lua`
+- `src/map/` — map system modules:
+  - `init.lua` — Map class, STI loading, public API, background map
+  - `entity_factory.lua` — Tiled object layer → runtime entity instantiation
+  - `collision_builder.lua` — static bodies, ladder sensors, map boundaries
+  - `parallax_renderer.lua` — background image layers, parallax math, screen-space draw
+  - `tmx.lua`, `tmx_template.lua`, `tmx_xml.lua`, `external_tileset.lua` — TMX parsing
 - `src/camera.lua` — shared auto-zoom camera framing all players
 - `src/entity.lua`, `src/components/` — base entity with component lifecycle; components like `Collider`, `Sprite`, `StateMachine`, `Inventory`, `Pickup`, `Usable`
 - `src/entities/` — map entity implementations; Tiled object `type` must match a filename here (`key` → `src/entities/key.lua`)
-- `src/player/` — player entity, movement/ladder/fall states, lives, safe-position respawn
+- `src/player/` — player entity and subsystems:
+  - `player.lua` — bootstrap: components, signals, animation FSM, movement FSM
+  - `player_sensors.lua` — `queryKillZone`, `queryLadder`, `queryLadderBelow`, `queryOnGround`, `queryFullySupported`
+  - `player_movement.lua` — horizontal movement math, jump/climb velocity, bounce, edge cases
+  - `player_states.lua` — FSM states (WalkIdle, Fall, Ladder, Dead, Wrapped)
+  - `safe_position.lua` — safe position tracking
+  - `ground_support.lua` — `isFullySupported`
+  - `lives.lua` — lives management
 - `src/physics/` — swappable backends (`bump`, `love`/Box2D) behind `Collider`/`World`
 - `src/ui/` — Slab menu UI, map list, lives HUD
 - `res/map/` — Tiled `.tmx` sources and exported `.lua` maps (STI loads only the `.lua`; tilesets must be embedded)
@@ -48,6 +62,8 @@ love . debug drawphysics map=sandbox
 - **Components** attach via `self:addComponent(Component{...})`; `Entity:update/draw` forward to components. Use `queueRemove()`/`queueDestroy()` instead of removing entities mid-iteration.
 - **State machines** (`src/components/state_machine.lua`) accept `states` (instances) or `stateClasses` (instantiated and wired to `entity`); unknown method calls proxy to `currentState`.
 - **New map entity** = new `src/entities/<type>.lua` + Tiled object with matching `type`. `Map.typeIgnores = {'', 'spawn'}` skips those types. Tiled object properties may contain executable Lua event snippets (`object:exec`) — treat map code as trusted, don't feed it user input. An entity that needs more than one file gets a directory named after the entity type instead (`src/entities/<type>/<type>.lua` + siblings, real filenames kept, no `init.lua`) — stay flat until you need a second file. See ADR 0003 (`docs/adr/0003-multi-file-entity-directories.md`).
+- **Player entity** is split across `src/player/player.lua` (bootstrap), `src/player/player_sensors.lua` (spatial queries), `src/player/player_movement.lua` (movement math), and `src/player/player_states.lua` (FSM states). New sensor/movement logic goes in the respective module.
+- **Game states** live in `src/states/` — one file per state (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`).
 - **Physics:** go through `Collider`/`World`, not a backend directly, unless the task is backend-specific. The bump backend emulates Box2D-ish semantics; keep the two backends' APIs aligned when changing shared behavior. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
 - Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `game_states.lua`.
 
