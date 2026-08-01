@@ -214,7 +214,8 @@ function Player:die(deathType)
 end
 
 function Player:resolveDeath()
-    self.deathSignal:emit(self, self.deathType)
+    local EventBus = require('src.utils.event_bus')
+    EventBus.emit('player_died', self, self.deathType)
 end
 
 function Player:wrap(duration)

@@ -1,7 +1,7 @@
 local ParallaxRenderer = {}
 ParallaxRenderer.__index = ParallaxRenderer
 
-local mapParallax = require('src.map_parallax')
+local mapParallax = require('src.map.map_parallax')
 local lg = love.graphics
 
 function ParallaxRenderer:new()

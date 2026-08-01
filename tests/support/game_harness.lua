@@ -74,9 +74,11 @@ function GameHarness.startGame(mapPath, opts)
 	-- Create InputManager instance (same as main.lua)
 	inputManager = InputManager()
 
-	local GameStates = require('src.game_states')
+	local MenuState = require('src.states.menu_state')
+	local InGameState = require('src.states.ingame_state')
+	local GameOverState = require('src.states.game_over_state')
 	local game = {}
-	game.fsm = StateMachine{stateClasses = GameStates, entity = game, currentState = 'InGameState'}
+	game.fsm = StateMachine{stateClasses = {MenuState = MenuState, InGameState = InGameState, GameOverState = GameOverState}, entity = game, currentState = 'InGameState'}
 
 	function game:setGameState(name)
 		self.fsm:setState(name)

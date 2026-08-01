@@ -51,10 +51,14 @@ love . debug drawphysics map=sandbox
   - `ground_support.lua` — `isFullySupported`
   - `lives.lua` — lives management
 - `src/physics/` — swappable backends (`bump`, `love`/Box2D) behind `Collider`/`World`
-- `src/ui/` — Slab menu UI, map list, lives HUD
+- `src/ui/` — Slab menu UI, map list, lives HUD, debug overlay
 - `src/utils/` — utility modules:
   - `asset_manager.lua` — texture caching (`getImage`, `clear`, `getTextureCount`)
   - `event_bus.lua` — global event bus (`emit`, `on`, `off`, `clear`)
+- `src/input/` — input management:
+  - `input_manager.lua` — keyboard/joystick handling, persistent config
+  - `input_config.lua` — persistent key bindings (save/load to `love.filesystem`)
+  - `action_map.lua` — action to key/button mappings
 - `res/map/` — Tiled `.tmx` sources and exported `.lua` maps (STI loads only the `.lua`; tilesets must be embedded)
 - `tests/` — three test tiers (unit, integration, e2e) plus shared support/fixtures (see `tests/README.md`)
 
@@ -68,6 +72,8 @@ love . debug drawphysics map=sandbox
 - **Player entity** is split across `src/player/player.lua` (bootstrap), `src/player/player_sensors.lua` (spatial queries), `src/player/player_movement.lua` (movement math), and `src/player/player_states.lua` (FSM states). New sensor/movement logic goes in the respective module.
 - **Game states** live in `src/states/` — one file per state (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`).
 - **Physics:** go through `Collider`/`World`, not a backend directly, unless the task is backend-specific. The bump backend emulates Box2D-ish semantics; keep the two backends' APIs aligned when changing shared behavior. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
+- **Sound:** `Sound.silentMode = not (love and love.audio)` suppresses missing file warnings in headless tests — no need to add dummy WAV files.
+- **Debug overlay:** when `conf.drawphysics` is active, `DebugOverlay:draw(world, map, players, camera)` renders hitboxes, ladder sensors, kill zones, safe positions, camera framing bounds, and NPC paths in a single pass.
 - Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `game_states.lua`.
 
 ## Validation

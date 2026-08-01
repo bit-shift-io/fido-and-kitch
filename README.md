@@ -53,6 +53,19 @@ P2
 WASD + left shift
 Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 
+## Key Features
+
+**Debug Overlay** (enabled with `drawphysics` flag):
+- Hitboxes, ladder sensors, kill zones, safe positions
+- Camera framing bounds, NPC paths
+
+**Persistent Input Config**:
+- Custom key bindings saved to `love.filesystem`
+- Survives restarts, per-player settings
+
+**Sound System**:
+- `Sound.silentMode` auto-enabled in headless tests (no dummy WAVs needed)
+
 ## IPC Server (AI Agent Control)
 
 The game includes a TCP-based IPC server for programmatic control via OpenCode tools.

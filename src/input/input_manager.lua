@@ -1,10 +1,8 @@
 local Class = require('lib.hump.class')
 local actionMap = require('src.input.action_map')
+local InputConfig = require('src.input.input_config')
 
 local InputManager = Class{}
-
--- Track joysticks that should be forced to non-gamepad mode
-local forcedNonGamepad = {}
 
 function InputManager:init()
   if love and love.joystick and love.joystick.loadGamepadMappings then
@@ -12,6 +10,10 @@ function InputManager:init()
     local success, err = love.joystick.loadGamepadMappings('res/gamecontrollerdb.txt')
     print("[InputManager] loadGamepadMappings:", success, err)
   end
+  
+  -- Load persistent input configuration
+  self.config = InputConfig:new()
+  
   self.players = {}
   self.actionState = {}
   self.prevActionState = {}
@@ -39,7 +41,8 @@ end
 
 function InputManager:ensurePlayer(idx)
   if not self.players[idx] then
-    self.players[idx] = {joystick = nil, deadzone = 0.2, keyboardMap = actionMap.KEYBOARD_MAPS[idx] or {}}
+    local km = self.config:getKeyboardMap(idx)
+    self.players[idx] = {joystick = nil, deadzone = self.config:getDeadzone(idx), keyboardMap = km}
   end
   if not self.actionState[idx] then self.actionState[idx] = {} end
   if not self.prevActionState[idx] then self.prevActionState[idx] = {} end
@@ -131,6 +134,14 @@ function InputManager:joystickadded(joystick)
   for i = 1, 4 do
     if not self.players[i].joystick then
       self.players[i].joystick = joystick
+      
+      -- Apply saved forced non-gamepad preference
+      if self.config:isForcedNonGamepad(i) then
+        self.forcedNonGamepad = self.forcedNonGamepad or {}
+        self.forcedNonGamepad[joystick] = true
+        print("[InputManager] Applied forced non-gamepad mode for player", i)
+      end
+      
       print("[InputManager] Assigned joystick to player", i)
       break
     end
@@ -164,6 +175,18 @@ end
 function InputManager:setDeadzone(idx, dz)
   self:ensurePlayer(idx)
   self.players[idx].deadzone = dz
+  self.config:setDeadzone(idx, dz)
+end
+
+function InputManager:setForcedNonGamepad(idx, forced)
+  self.config:setForcedNonGamepad(idx, forced)
+  
+  -- Apply immediately if joystick is already assigned
+  if self.players[idx] and self.players[idx].joystick then
+    self.forcedNonGamepad = self.forcedNonGamepad or {}
+    self.forcedNonGamepad[self.players[idx].joystick] = forced
+    print("[InputManager] Applied forced non-gamepad mode for player", idx, ":", forced)
+  end
 end
 
 function InputManager:getAssignedJoystick(idx)

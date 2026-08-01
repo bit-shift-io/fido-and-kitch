@@ -1,6 +1,8 @@
 local Lives = require('src.player.lives')
 local LivesHud = require('src.ui.lives_hud')
 local AutoCamera = require('src.camera')
+local EventBus = require('src.utils.event_bus')
+local DebugOverlay = require('src.ui.debug_overlay')
 
 local InGameState = Class{}
 
@@ -36,6 +38,9 @@ function InGameState:load(props)
     local ingame = self
     self.livesHud = LivesHud{getLives=function() return ingame.lives end}
 
+    -- Debug overlay
+    self.debugOverlay = DebugOverlay:new()
+
     self.players = {}
     local playerCount = 2
     local index = 1
@@ -46,7 +51,6 @@ function InGameState:load(props)
                     for i = 1, playerCount, 1 do
                         local entity = Player{object=object, index=index}
                         entity.destroySignal:connect(utils.func(InGameState.onPlayerDestroyed, self))
-                        entity.deathSignal:connect(utils.func(InGameState.onPlayerDied, self))
                         entity:startSpawnFlash()
                         table.insert(layer.entities, entity)
                         table.insert(self.players, entity)
@@ -56,6 +60,9 @@ function InGameState:load(props)
             end
         end
     end
+
+    -- Listen for player deaths via EventBus
+    EventBus.on('player_died', utils.func(InGameState.onPlayerDied, self))
 
     if profile then
         profile.stop()
@@ -171,6 +178,13 @@ function InGameState:draw()
     end
 
     lg.pop()
+
+    -- Debug overlay (hitboxes, ladders, kill zones, safe positions, etc.)
+    if conf.drawphysics and self.debugOverlay then
+        local targets = self:collectPlayerTargets()
+        local cameraFramingBounds = self.camera:computeTargetView(targets)
+        self.debugOverlay:draw(world, map, self.players, tx, ty, sx, sy, cameraFramingBounds)
+    end
 
     self.livesHud:draw()
 end

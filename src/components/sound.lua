@@ -10,7 +10,13 @@ function Sound:init(props)
 	self.sources = {}
 end
 
+local function isHeadless()
+	return not (love and love.audio)
+end
+
 function Sound:play(name)
+	if isHeadless() then return end
+	
 	local path = self.sounds[name]
 	if path == nil then
 		print('Sound not found: ' .. tostring(name))

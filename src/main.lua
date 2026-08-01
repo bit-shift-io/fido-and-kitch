@@ -10,7 +10,7 @@ if tbl.includes(arg, 'debug') then
 end
 
 if tbl.includes(arg, 'profile') then
-	profile = require('src.profile')
+	profile = require('src.utils.profile')
 end
 
 -- includes
@@ -44,7 +44,6 @@ Usable = require('src.components.usable')
 Variable = require('src.components.variable')
 Sound = require('src.components.sound')
 Map = require('src.map')
-AutoCamera = require('src.camera')
 Player = require('src.player.player')
 Game = require('src.game')
 InputManager = require('src.input.input_manager')
@@ -128,11 +127,15 @@ function love.keypressed(k)
 end
 
 function love.joystickadded(joystick)
-	inputManager:joystickadded(joystick)
+	if inputManager then
+		inputManager:joystickadded(joystick)
+	end
 end
 
 function love.joystickremoved(joystick)
-	inputManager:joystickremoved(joystick)
+	if inputManager then
+		inputManager:joystickremoved(joystick)
+	end
 end
 
 function love.gamepadpressed(joystick, button)

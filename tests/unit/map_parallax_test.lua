@@ -1,7 +1,7 @@
 -- Pure math for background-layer parallax offsets. Pulled out of src/map.lua
 -- so it can be unit tested without lib.sti/love.graphics -- see
 -- src/map_parallax.lua for the derivation.
-local parallax = require('src.map_parallax')
+local parallax = require('src.map.map_parallax')
 
 local SCREEN_W = 800
 local SCREEN_H = 600
