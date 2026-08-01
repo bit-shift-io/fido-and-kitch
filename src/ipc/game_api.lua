@@ -256,6 +256,172 @@ function GameAPI.toggleCamera()
 	return nil, 'Camera not available'
 end
 
+function GameAPI.loadMap(mapName)
+	if not mapName then
+		return nil, 'Map name required'
+	end
+	
+	if not game or not game.fsm then
+		return nil, 'Game not loaded'
+	end
+	
+	local Map = require('src.map')
+	local mapPath = Map.resolveMapFile('res/map/' .. mapName)
+	
+	if game.fsm.currentState and game.fsm.currentState.__class and game.fsm.currentState.__class.name == 'InGameState' then
+		game:setGameState('InGameState')
+		game:load{map = mapPath}
+	else
+		game:setGameState('InGameState')
+		game:load{map = mapPath}
+	end
+	
+	return 'OK: Loaded ' .. mapName
+end
+
+function GameAPI.takeScreenshot(filename)
+	if not _G.love or not _G.love.graphics then
+		return nil, 'love.graphics not available'
+	end
+	
+	local cwd = love.filesystem.getWorkingDirectory() .. '/' .. filename .. '.png'
+	love.filesystem.setIdentity("screenshot_ipc")
+	love.graphics.captureScreenshot(cwd)
+	
+	return 'OK: Screenshot saved to ' .. cwd
+end
+
+function GameAPI.getTileGrid()
+	if not map or not map.map then
+		return nil, 'No map loaded'
+	end
+	
+	local tileWidth = map.map.tilewidth
+	local tileHeight = map.map.tileheight
+	local mapWidth = map.map.width
+	local mapHeight = map.map.height
+	
+	local grid = {}
+	for y = 1, mapHeight do
+		grid[y] = {}
+		for x = 1, mapWidth do
+			grid[y][x] = 0 -- 0 = empty
+		end
+	end
+	
+	-- Check tile layers for solid tiles
+	for _, layer in ipairs(map.map.layers) do
+		if layer.type == 'tilelayer' and layer.data then
+			for y, row in pairs(layer.data) do
+				for x, cell in pairs(row) do
+					if cell and cell.gid and cell.gid > 0 then
+						grid[y][x] = 1 -- 1 = solid terrain
+					end
+				end
+			end
+		end
+	end
+	
+	-- Check object layers for ladders and killzones
+	for _, layer in ipairs(map.map.layers) do
+		if layer.type == 'objectgroup' and layer.objects then
+			for _, obj in ipairs(layer.objects) do
+				if obj.properties then
+					local tileX = math.floor(obj.x / tileWidth) + 1
+					local tileY = math.floor(obj.y / tileHeight) + 1
+					
+					if obj.properties.ladder then
+						if grid[tileY] and grid[tileY][tileX] then
+							grid[tileY][tileX] = 2 -- 2 = ladder
+						end
+					elseif obj.properties.killzone then
+						if grid[tileY] and grid[tileY][tileX] then
+							grid[tileY][tileX] = 3 -- 3 = killzone
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	return json.encode({ok = true, grid = grid, width = mapWidth, height = mapHeight})
+end
+
+function GameAPI.spawnEntity(entityType, x, y, props)
+	if not game or not game.fsm or not game.fsm.currentState then
+		return nil, 'Game not loaded'
+	end
+	
+	local state = game.fsm.currentState
+	if state.__class and state.__class.name ~= 'InGameState' then
+		return nil, 'Not in game'
+	end
+	
+	if not map or not map.layers then
+		return nil, 'No map loaded'
+	end
+	
+	-- Find the first object group layer to add the entity to
+	local targetLayer = nil
+	for _, layer in ipairs(map.layers) do
+		if layer.type == 'objectgroup' and layer.entities then
+			targetLayer = layer
+			break
+		end
+	end
+	
+	if not targetLayer then
+		return nil, 'No suitable layer found for entity'
+	end
+	
+	-- Create a mock object for the entity factory
+	local mockObject = {
+		type = entityType,
+		name = entityType,
+		x = x,
+		y = y,
+		width = props.width or 32,
+		height = props.height or 32,
+		properties = props,
+		layer = targetLayer
+	}
+	
+	-- Use the map's entity factory to create the entity
+	local entity = map:loadEntity(entityType, targetLayer, mockObject)
+	
+	if not entity then
+		return nil, 'Failed to spawn entity: ' .. entityType
+	end
+	
+	return 'OK: Spawned ' .. entityType .. ' at ' .. x .. ',' .. y
+end
+
+function GameAPI.stepFrames(count)
+	if not game or not game.fsm or not game.fsm.currentState then
+		return nil, 'Game not loaded'
+	end
+	
+	local state = game.fsm.currentState
+	if state.__class and state.__class.name ~= 'InGameState' then
+		return nil, 'Not in game'
+	end
+	
+	local dt = 1/60
+	for i = 1, count do
+		if inputManager and inputManager.update then
+			inputManager:update(dt)
+		end
+		if state and state.update then
+			state:update(dt)
+		end
+		if world and world.update then
+			world:update(dt)
+		end
+	end
+	
+	return 'OK: Stepped ' .. count .. ' frames'
+end
+
 local function getColliderInfo(collider)
 	if not collider then return nil end
 	local bounds = collider.getBounds and collider:getBounds() or nil

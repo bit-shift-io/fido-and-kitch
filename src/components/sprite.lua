@@ -1,3 +1,5 @@
+local AssetManager = require('src.utils.asset_manager')
+
 local Sprite = Class{}
 
 local function setImageFilter(image, filter)
@@ -25,14 +27,14 @@ function Sprite:init(props)
 	if type(frames) == 'table' then
 		local newFrames = {}
 		for i = 1, frames, 1 do
-			newFrames[i] = love.graphics.newImage(frames[i])
+			newFrames[i] = AssetManager.getImage(frames[i])
 			setImageFilter(newFrames[i], filter)
 		end
 		frames = newFrames
 	end
 
 	if type(frames) == 'number' then
-		image = love.graphics.newImage(image)
+		image = AssetManager.getImage(image)
 		setImageFilter(image, filter)
 
 		local width = image:getWidth()
@@ -53,7 +55,7 @@ function Sprite:init(props)
 		local frameCount = props.frameCount
 		for i = 1, frameCount, 1 do
 			local str = frames:gsub('${i}', tostring(i))
-			newFrames[i] = love.graphics.newImage(str)
+			newFrames[i] = AssetManager.getImage(str)
 			setImageFilter(newFrames[i], filter)
 		end
 		frames = newFrames

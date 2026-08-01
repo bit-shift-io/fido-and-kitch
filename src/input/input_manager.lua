@@ -171,17 +171,4 @@ function InputManager:getAssignedJoystick(idx)
   return self.players[idx].joystick
 end
 
--- Track which joysticks are forced to non-gamepad mode
-function InputManager:isForcedNonGamepad(joystick)
-  return self.forcedNonGamepad and self.forcedNonGamepad[joystick] == true
-end
-
-function InputManager:isForcedNonGamepad(joystick)
-  return false  -- Always support both modes simultaneously
-end
-
-function InputManager:setForcedNonGamepad(joystick, forced)
-  -- No-op: we now support both modes simultaneously
-end
-
 return InputManager

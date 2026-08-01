@@ -122,6 +122,43 @@ end
 		return self.gameAPI.toggleCamera()
 	end)
 
+	self:register('LOAD_MAP', function(args)
+		if #args < 1 then return nil, 'Usage: LOAD_MAP <map_name>' end
+		return self.gameAPI.loadMap(args[1])
+	end)
+
+	self:register('TAKE_SCREENSHOT', function(args)
+		local filename = args[1] or 'screenshot_' .. os.time()
+		return self.gameAPI.takeScreenshot(filename)
+	end)
+
+	self:register('GET_TILE_GRID', function(args)
+		if #args ~= 0 then return nil, 'Usage: GET_TILE_GRID (no arguments)' end
+		return self.gameAPI.getTileGrid()
+	end)
+
+	self:register('SPAWN_ENTITY', function(args)
+		if #args < 3 then return nil, 'Usage: SPAWN_ENTITY <type> <x> <y> [props_json]' end
+		local entityType = args[1]
+		local x = tonumber(args[2])
+		local y = tonumber(args[3])
+		if not x or not y then return nil, 'x and y must be numbers' end
+		local props = {}
+		if args[4] then
+			local ok, parsed = pcall(require('lib.dkjson').decode, args[4])
+			if not ok then return nil, 'Invalid props JSON' end
+			props = parsed
+		end
+		return self.gameAPI.spawnEntity(entityType, x, y, props)
+	end)
+
+	self:register('STEP_FRAMES', function(args)
+		if #args ~= 1 then return nil, 'Usage: STEP_FRAMES <count>' end
+		local count = tonumber(args[1])
+		if not count or count <= 0 then return nil, 'Count must be a positive number' end
+		return self.gameAPI.stepFrames(count)
+	end)
+
 	self:register('SET_JOYSTICK_NON_GAMEPAD', function(args)
 		if #args ~= 2 then return nil, 'Usage: SET_JOYSTICK_NON_GAMEPAD <1|2> <true|false>' end
 		local idx = tonumber(args[1])

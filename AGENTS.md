@@ -52,6 +52,9 @@ love . debug drawphysics map=sandbox
   - `lives.lua` — lives management
 - `src/physics/` — swappable backends (`bump`, `love`/Box2D) behind `Collider`/`World`
 - `src/ui/` — Slab menu UI, map list, lives HUD
+- `src/utils/` — utility modules:
+  - `asset_manager.lua` — texture caching (`getImage`, `clear`, `getTextureCount`)
+  - `event_bus.lua` — global event bus (`emit`, `on`, `off`, `clear`)
 - `res/map/` — Tiled `.tmx` sources and exported `.lua` maps (STI loads only the `.lua`; tilesets must be embedded)
 - `tests/` — three test tiers (unit, integration, e2e) plus shared support/fixtures (see `tests/README.md`)
 
@@ -212,6 +215,11 @@ The game includes a TCP-based IPC server for programmatic control via OpenCode (
 | `GET_ENTITIES` | — | JSON: `{ok, count, entities[]}` |
 | `RESTART_LEVEL` | — | `OK: Level restarted` |
 | `MENU` | — | `OK: Returned to menu` |
+| `LOAD_MAP` | `<map_name>` | `OK: Loaded <map>` |
+| `TAKE_SCREENSHOT` | `[filename]` | `OK: Screenshot saved to ...` |
+| `GET_TILE_GRID` | — | JSON: 2D matrix (0=empty, 1=solid, 2=ladder, 3=killzone) |
+| `SPAWN_ENTITY` | `<type> <x> <y> [props_json]` | `OK: Spawned <type> at x,y` |
+| `STEP_FRAMES` | `<count>` | `OK: Stepped N frames` |
 
 **OpenCode Tools** (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 | Tool | Description |
@@ -227,6 +235,11 @@ The game includes a TCP-based IPC server for programmatic control via OpenCode (
 | `restart_level` | Reload current map |
 | `go_to_menu` | Return to main menu |
 | `toggle_camera` | Toggle camera overview mode |
+| `load_map` | Load specific map dynamically |
+| `take_screenshot` | Capture current game screen |
+| `get_tile_grid` | Get map tile grid as 2D matrix |
+| `spawn_entity` | Spawn entity into live game world |
+| `step_frames` | Advance simulation by N frames |
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port (default 8081).
 

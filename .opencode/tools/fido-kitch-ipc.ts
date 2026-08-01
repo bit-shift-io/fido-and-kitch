@@ -272,3 +272,61 @@ export const toggle_camera = tool({
         return parseResponse(response);
     },
 });
+
+export const load_map = tool({
+    description: "Load a specific map dynamically",
+    args: {
+        map: tool.schema.string().describe("Map name (e.g., 'sandbox', 'll1', 'll2')"),
+    },
+    async execute({ map }) {
+        const response = await sendCommand(`LOAD_MAP ${map}`);
+        return parseResponse(response);
+    },
+});
+
+export const take_screenshot = tool({
+    description: "Capture the current game screen to a file",
+    args: {
+        filename: tool.schema.string().optional().describe("Filename (without extension). Defaults to timestamp."),
+    },
+    async execute({ filename }) {
+        const cmd = filename ? `TAKE_SCREENSHOT ${filename}` : "TAKE_SCREENSHOT";
+        const response = await sendCommand(cmd);
+        return parseResponse(response);
+    },
+});
+
+export const get_tile_grid = tool({
+    description: "Get the map tile grid as a 2D matrix (0=empty, 1=solid, 2=ladder, 3=killzone)",
+    args: {},
+    async execute() {
+        const response = await sendCommand("GET_TILE_GRID");
+        return parseResponse(response); // Returns JSON string
+    },
+});
+
+export const spawn_entity = tool({
+    description: "Spawn an entity into the live game world",
+    args: {
+        type: tool.schema.string().describe("Entity type (e.g., 'push_box', 'coin', 'key')"),
+        x: tool.schema.number().describe("X position"),
+        y: tool.schema.number().describe("Y position"),
+        props: tool.schema.record(tool.schema.unknown()).optional().describe("Optional properties as JSON object"),
+    },
+    async execute({ type, x, y, props }) {
+        const propsJson = props ? JSON.stringify(props) : "";
+        const response = await sendCommand(`SPAWN_ENTITY ${type} ${x} ${y} ${propsJson}`);
+        return parseResponse(response);
+    },
+});
+
+export const step_frames = tool({
+    description: "Advance the simulation by N fixed timesteps (1/60s each)",
+    args: {
+        count: tool.schema.number().describe("Number of frames to step"),
+    },
+    async execute({ count }) {
+        const response = await sendCommand(`STEP_FRAMES ${count}`);
+        return parseResponse(response);
+    },
+});

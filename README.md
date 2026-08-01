@@ -76,6 +76,11 @@ Available commands (sent via TCP to 127.0.0.1:8081):
 | `GET_ENTITIES` | All entities as JSON (players, items, colliders, etc.) |
 | `RESTART_LEVEL` | Reload current map |
 | `MENU` | Return to main menu |
+| `LOAD_MAP <map_name>` | Load specific map dynamically |
+| `TAKE_SCREENSHOT [filename]` | Capture current game screen |
+| `GET_TILE_GRID` | Get map tile grid as 2D matrix (0=empty, 1=solid, 2=ladder, 3=killzone) |
+| `SPAWN_ENTITY <type> <x> <y> [props_json]` | Spawn entity into live game world |
+| `STEP_FRAMES <count>` | Advance simulation by N fixed timesteps |
 
 OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `launch_game` — Start game with IPC (blocks until ready)
@@ -89,5 +94,10 @@ OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `restart_level` — Reload current map
 - `go_to_menu` — Return to main menu
 - `toggle_camera` — Toggle camera overview mode
+- `load_map` — Load specific map dynamically
+- `take_screenshot` — Capture current game screen
+- `get_tile_grid` — Get map tile grid as 2D matrix
+- `spawn_entity` — Spawn entity into live game world
+- `step_frames` — Advance simulation by N frames
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port.
