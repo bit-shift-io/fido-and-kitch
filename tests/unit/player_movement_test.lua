@@ -26,3 +26,125 @@ test('no horizontal input chooses zero velocity and idle animation', function()
 	assertEqual(nil, decision.facing)
 	assertEqual('idle', decision.animation)
 end)
+
+test('nearestLadderCentre returns the closest ladder centre-x to player centre-x', function()
+	local playerCentreX = 100
+	local ladderCentres = { 80, 120, 200 }
+	local centre = movement.nearestLadderCentre(playerCentreX, ladderCentres)
+
+	assertEqual(80, centre)
+end)
+
+test('nearestLadderCentre returns the only ladder when one provided', function()
+	local playerCentreX = 100
+	local ladderCentres = { 150 }
+	local centre = movement.nearestLadderCentre(playerCentreX, ladderCentres)
+
+	assertEqual(150, centre)
+end)
+
+test('nearestLadderCentre resolves ties deterministically (first encountered)', function()
+	local playerCentreX = 100
+	local ladderCentres = { 80, 120 }
+	local centre = movement.nearestLadderCentre(playerCentreX, ladderCentres)
+
+	assertEqual(80, centre)
+end)
+
+test('isCentred returns true when player is within one slide-step of centre', function()
+	local slideSpeed = 100
+	local dt = 1/60
+	local slideStep = slideSpeed * dt
+	local result = movement.isCentred(100, 100 + slideStep * 0.5, slideSpeed, dt)
+
+	assertTrue(result)
+end)
+
+test('isCentred returns true when player is exactly at centre', function()
+	local slideSpeed = 100
+	local dt = 1/60
+	local result = movement.isCentred(100, 100, slideSpeed, dt)
+
+	assertTrue(result)
+end)
+
+test('isCentred returns false when player is beyond one slide-step from centre', function()
+	local slideSpeed = 100
+	local dt = 1/60
+	local slideStep = slideSpeed * dt
+	local result = movement.isCentred(100, 100 + slideStep * 2, slideSpeed, dt)
+
+	assertFalse(result)
+end)
+
+test('resolveActiveAxis switches to horizontal when horizontal newly pressed while vertical held', function()
+	local axis = movement.resolveActiveAxis({
+		verticalHeld = true,
+		horizontalHeld = true,
+		verticalNewlyPressed = false,
+		horizontalNewlyPressed = true,
+		previousAxis = 'vertical'
+	})
+
+	assertEqual('horizontal', axis)
+end)
+
+test('resolveActiveAxis switches to vertical when vertical newly pressed while horizontal held', function()
+	local axis = movement.resolveActiveAxis({
+		verticalHeld = true,
+		horizontalHeld = true,
+		verticalNewlyPressed = true,
+		horizontalNewlyPressed = false,
+		previousAxis = 'horizontal'
+	})
+
+	assertEqual('vertical', axis)
+end)
+
+test('resolveActiveAxis stays on current axis when no new press', function()
+	local axis = movement.resolveActiveAxis({
+		verticalHeld = true,
+		horizontalHeld = true,
+		verticalNewlyPressed = false,
+		horizontalNewlyPressed = false,
+		previousAxis = 'vertical'
+	})
+
+	assertEqual('vertical', axis)
+end)
+
+test('resolveActiveAxis falls back to held axis when active axis released', function()
+	local axis = movement.resolveActiveAxis({
+		verticalHeld = true,
+		horizontalHeld = false,
+		verticalNewlyPressed = false,
+		horizontalNewlyPressed = false,
+		previousAxis = 'horizontal'
+	})
+
+	assertEqual('vertical', axis)
+end)
+
+test('resolveActiveAxis returns nil when no axis held', function()
+	local axis = movement.resolveActiveAxis({
+		verticalHeld = false,
+		horizontalHeld = false,
+		verticalNewlyPressed = false,
+		horizontalNewlyPressed = false,
+		previousAxis = 'vertical'
+	})
+
+	assertEqual(nil, axis)
+end)
+
+test('shouldFallOffLadder returns false when overlapping at least one ladder', function()
+	local result = movement.shouldFallOffLadder(true)
+
+	assertFalse(result)
+end)
+
+test('shouldFallOffLadder returns true when not overlapping any ladder', function()
+	local result = movement.shouldFallOffLadder(false)
+
+	assertTrue(result)
+end)

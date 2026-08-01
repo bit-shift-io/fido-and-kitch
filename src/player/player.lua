@@ -80,7 +80,15 @@ function Player:init(props)
     self.object = object
     self.speed = 100;
     self.climbSpeed = 100;
+    self.slideSpeed = 60; -- slow slide speed for on-ladder horizontal movement
     self.facing = 'right'
+
+    -- Per-axis edge tracking for last-pressed arbitration
+    self.verticalHeld = false
+    self.horizontalHeld = false
+    self.verticalNewlyPressed = false
+    self.horizontalNewlyPressed = false
+    self.previousLadderAxis = 'vertical'
 
     self.collider = self:addComponent(Collider{
         shape_type='rectangle',

@@ -50,6 +50,22 @@ function PlayerSensors.queryLadderBelow(world, collider, topOffset, bottomOffset
     return nil
 end
 
+function PlayerSensors.queryAllLadders(world, collider)
+    local bounds = collider:getBounds()
+    bounds.left = bounds.left + 4
+    bounds.right = bounds.right - 4
+
+    local colls = world:queryBounds(bounds)
+    local ladders = {}
+    for _, c in ipairs(colls) do
+        local entity = c.entity
+        if entity and entity.isLadder then
+            table.insert(ladders, entity)
+        end
+    end
+    return ladders
+end
+
 function PlayerSensors.queryOnGround(world, collider)
     local bounds = collider:getBounds()
     bounds.top = bounds.bottom + 4
@@ -72,6 +88,38 @@ end
 
 function PlayerSensors.queryFullySupported(world, bounds)
     return GroundSupport.isFullySupported(world, bounds)
+end
+
+-- Check for solid collision in horizontal direction (for ladder sliding)
+-- Returns true if there's a solid (non-sensor) collider blocking movement
+function PlayerSensors.queryHorizontalBlock(world, collider, direction)
+    local bounds = collider:getBounds()
+    local checkDist = 8 -- small distance ahead to check
+    
+    if direction == 'left' then
+        bounds.right = bounds.left
+        bounds.left = bounds.left - checkDist
+    elseif direction == 'right' then
+        bounds.left = bounds.right
+        bounds.right = bounds.right + checkDist
+    else
+        return false
+    end
+    
+    -- Also check vertical overlap slightly to catch platforms at same level
+    bounds.top = bounds.top + 2
+    bounds.bottom = bounds.bottom - 2
+    
+    local colls = world:queryBounds(bounds)
+    for _, c in ipairs(colls) do
+        local entity = c.entity
+        local other = c.other
+        -- Solid collision: entity-owned walkable colliders, or static world geometry (entity == nil)
+        if (entity == nil and not c.sensor) or (c.walkable and other and not other.sensor) then
+            return true
+        end
+    end
+    return false
 end
 
 return PlayerSensors
