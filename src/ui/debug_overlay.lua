@@ -41,12 +41,22 @@ function DebugOverlay:draw(world, map, players, tx, ty, sx, sy, cameraFramingBou
 				
 				-- Show sensor vs solid
 				if collider.sensor then
-					lg.setColor(1, 0, 0, 0.8)
+					lg.setColor(1, 0.5, 0, 0.8)
 					lg.rectangle('line', b.left, b.top, b.width, b.height)
 				end
 				lg.setColor(1, 1, 1, 0.5)
 			end
 		end
+	end
+
+	-- Draw query rectangles (player sensor zones - ladder, ground, killzone checks)
+	if self.showHitboxes and world and world.queryRects then
+		lg.setColor(1, 0, 0, 0.8)
+		for _, q in ipairs(world.queryRects) do
+			lg.rectangle('line', q.x, q.y, q.width, q.height)
+		end
+		-- Clear after drawing so they don't accumulate across frames
+		world.queryRects = {}
 	end
 
 	-- Draw ladder sensors
@@ -55,14 +65,9 @@ function DebugOverlay:draw(world, map, players, tx, ty, sx, sy, cameraFramingBou
 		for collider, _ in pairs(world.colliders) do
 			if collider.sensor and collider.entity and collider.entity.isLadder then
 				local b = collider:getBounds()
-				lg.setLineWidth(3 / math.max(sx, sy))
 				lg.rectangle('line', b.left, b.top, b.width, b.height)
-				lg.setColor(0, 1, 1, 0.3)
-				lg.rectangle('fill', b.left, b.top, b.width, b.height)
-				lg.setColor(0, 1, 1, 1)
 			end
 		end
-		lg.setLineWidth(2 / math.max(sx, sy))
 	end
 
 	-- Draw kill zones
@@ -71,14 +76,9 @@ function DebugOverlay:draw(world, map, players, tx, ty, sx, sy, cameraFramingBou
 		for collider, _ in pairs(world.colliders) do
 			if collider.entity and collider.entity.isKillZone then
 				local b = collider:getBounds()
-				lg.setLineWidth(3 / math.max(sx, sy))
 				lg.rectangle('line', b.left, b.top, b.width, b.height)
-				lg.setColor(1, 0, 1, 0.3)
-				lg.rectangle('fill', b.left, b.top, b.width, b.height)
-				lg.setColor(1, 0, 1, 1)
 			end
 		end
-		lg.setLineWidth(2 / math.max(sx, sy))
 	end
 
 	-- Draw player safe positions

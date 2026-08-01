@@ -59,6 +59,16 @@ Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 - Hitboxes, ladder sensors, kill zones, safe positions
 - Camera framing bounds, NPC paths
 
+**Debug Overlay Colors** (all 2px outlines, no fill):
+- **White** — Solid colliders (terrain, walls, static geometry)
+- **Orange** — Sensor colliders (ladders, kill zones, drawbridge triggers)
+- **Red** — Query rectangles (per-frame player sensor checks: ladder, ground, kill zone)
+- **Cyan** — Ladder sensors (entity-owned ladder colliders)
+- **Magenta** — Kill zones (entity-owned kill zone colliders)
+- **Green** — Player safe positions (crosshair)
+- **Yellow** — Camera framing bounds
+- **Orange** — NPC paths
+
 **Persistent Input Config**:
 - Custom key bindings saved to `love.filesystem`
 - Survives restarts, per-player settings
