@@ -148,3 +148,30 @@ test('shouldFallOffLadder returns true when not overlapping any ladder', functio
 
 	assertTrue(result)
 end)
+
+test('resolveLadderOverlap returns the direct overlaps unchanged when already overlapping', function()
+	local ladders = { 'ladderA' }
+	local result = movement.resolveLadderOverlap(ladders, true, 'ladderBelow')
+
+	assertEqual(1, #result)
+	assertEqual('ladderA', result[1])
+end)
+
+test('resolveLadderOverlap folds in a ladder below while descending onto it from flush above', function()
+	local result = movement.resolveLadderOverlap({}, true, 'ladderBelow')
+
+	assertEqual(1, #result)
+	assertEqual('ladderBelow', result[1])
+end)
+
+test('resolveLadderOverlap stays empty when descending but no ladder is below', function()
+	local result = movement.resolveLadderOverlap({}, true, nil)
+
+	assertEqual(0, #result)
+end)
+
+test('resolveLadderOverlap stays empty when not pressing down, even if a ladder is below', function()
+	local result = movement.resolveLadderOverlap({}, false, 'ladderBelow')
+
+	assertEqual(0, #result)
+end)

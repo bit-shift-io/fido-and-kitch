@@ -126,6 +126,29 @@ function PlayerMovement.shouldFallOffLadder(overlapsAnyLadder)
     return not overlapsAnyLadder
 end
 
+-- When descending onto a ladder that sits flush against the underside of a
+-- platform (no gap), the collider's bounds don't overlap the ladder's rect
+-- yet -- only the probe just below the feet does -- for as long as the
+-- player hasn't moved down into it. Without this, the per-frame "still on a
+-- ladder?" check sees no overlap and immediately falls off before the
+-- overlap has a chance to register, bouncing the player straight back onto
+-- the platform (which re-triggers the mount next frame, and repeats).
+-- Folding a ladder detected directly below into the overlap set while
+-- descending keeps mounting/aligning/descending continuous until real
+-- overlap begins.
+function PlayerMovement.resolveLadderOverlap(overlappingLadders, downPressed, ladderBelow)
+    if #overlappingLadders > 0 or not downPressed or not ladderBelow then
+        return overlappingLadders
+    end
+
+    local resolved = {}
+    for _, ladder in ipairs(overlappingLadders) do
+        table.insert(resolved, ladder)
+    end
+    table.insert(resolved, ladderBelow)
+    return resolved
+end
+
 function PlayerMovement.applyGravity(collider)
     local v_x, v_y = collider:getLinearVelocity()
     collider:setLinearVelocity(0, v_y)

@@ -28,6 +28,7 @@ local defaultTestFiles = {
 	'tests/integration/kill_zone_sound_test.lua',
 	'tests/integration/teleport_sound_test.lua',
 	'tests/integration/ladder_sound_test.lua',
+	'tests/integration/ladder_platform_mount_test.lua',
 	'tests/integration/pressure_switch_sound_test.lua',
 	'tests/integration/external_tileset_test.lua',
 	'tests/integration/tmx_test.lua',

@@ -48,8 +48,19 @@ end
 function LadderState:update(dt)
     local player = self.entity
 
-    -- Get all overlapping ladders
-    local ladders = PlayerSensors.queryAllLadders(world, player.collider)
+    local downPressed = player:isDown("down")
+
+    -- Get all overlapping ladders. When mounting/descending onto a ladder
+    -- flush against the underside of a platform, the collider can still be
+    -- touching (not yet overlapping) the ladder's top edge, so also count a
+    -- ladder detected directly below while descending -- see
+    -- PlayerMovement.resolveLadderOverlap.
+    local directLadders = PlayerSensors.queryAllLadders(world, player.collider)
+    local ladderBelowForOverlap = nil
+    if #directLadders == 0 and downPressed then
+        ladderBelowForOverlap = PlayerSensors.queryLadderBelow(world, player.collider)
+    end
+    local ladders = PlayerMovement.resolveLadderOverlap(directLadders, downPressed, ladderBelowForOverlap)
 
     -- Check if we should fall off (no ladder overlap at all)
     if PlayerMovement.shouldFallOffLadder(#ladders > 0) then
@@ -59,7 +70,6 @@ function LadderState:update(dt)
 
     -- Update per-axis edge tracking for last-pressed arbitration
     local upPressed = player:isDown("up")
-    local downPressed = player:isDown("down")
     local leftPressed = player:isDown("left")
     local rightPressed = player:isDown("right")
 
