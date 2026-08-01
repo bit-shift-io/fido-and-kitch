@@ -166,7 +166,6 @@ function NPC:checkForStomp()
 			local playerBounds = entity.collider:getBounds()
 			if NPCBrain.isStomp(playerVelocityY, playerBounds.bottom, bounds.top, bounds.height, STOMP_ZONE_RATIO) then
 				self:stun()
-				entity:bounce()
 				return
 			end
 		end

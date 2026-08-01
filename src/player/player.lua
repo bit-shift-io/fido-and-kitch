@@ -4,7 +4,6 @@ local Flash = require('src.components.flash')
 local GroundSupport = require('src.player.ground_support')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
-local PlayerMovement = require('src.player.player_movement')
 local Log = require('src.utils.log')
 
 local Player = Class{__includes = Entity}
@@ -207,10 +206,6 @@ end
 
 function Player:isDead()
     return self.fsm.currentState == self.fsm.states.DeadState
-end
-
-function Player:bounce(force)
-    PlayerMovement.applyBounce(self.collider, force)
 end
 
 function Player:die(deathType)

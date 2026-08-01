@@ -126,13 +126,6 @@ function PlayerMovement.shouldFallOffLadder(overlapsAnyLadder)
     return not overlapsAnyLadder
 end
 
-local DEFAULT_BOUNCE_FORCE = 220
-
-function PlayerMovement.applyBounce(collider, force)
-    local v_x, v_y = collider:getLinearVelocity()
-    collider:setLinearVelocity(v_x, -(force or DEFAULT_BOUNCE_FORCE))
-end
-
 function PlayerMovement.applyGravity(collider)
     local v_x, v_y = collider:getLinearVelocity()
     collider:setLinearVelocity(0, v_y)
