@@ -292,7 +292,7 @@ return {
           gid = 148,
           visible = true,
           properties = {
-            ["image"] = "../img/switch.png",
+            ["image"] = "../img/entity_switch.png",
             ["target"] = { id = 43 }
           }
         },

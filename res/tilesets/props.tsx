@@ -11,7 +11,7 @@
   <image source="../img/ladder.png" width="128" height="32"/>
  </tile>
  <tile id="3" x="0" y="0" width="162" height="162">
-  <image source="../img/switch.png" width="488" height="162"/>
+  <image source="../img/entity_switch.png" width="488" height="162"/>
  </tile>
  <tile id="4">
   <image source="../img/key_blue.png" width="32" height="32"/>

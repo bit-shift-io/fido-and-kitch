@@ -19,7 +19,7 @@ local PROPS_TSX = [[<?xml version="1.0" encoding="UTF-8"?>
   <image source="../img/ladder.png" width="128" height="32"/>
  </tile>
  <tile id="3" x="0" y="0" width="162" height="162">
-  <image source="../img/switch.png" width="488" height="162"/>
+  <image source="../img/entity_switch.png" width="488" height="162"/>
  </tile>
 </tileset>
 ]]
@@ -121,7 +121,7 @@ test('a cropped tile resolves its own sub-region rect, not the full source image
 
 	local switch = tileset.tiles[4]
 	assertEqual(3, switch.id)
-	assertEqual('res/img/switch.png', switch.image)
+	assertEqual('res/img/entity_switch.png', switch.image)
 	assertEqual(0, switch.x)
 	assertEqual(0, switch.y)
 	assertEqual(162, switch.width)

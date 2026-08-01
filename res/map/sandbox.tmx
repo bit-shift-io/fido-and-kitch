@@ -58,7 +58,7 @@
   </object>
   <object id="44" template="../templates/switch.tx" name="switch" x="288" y="192">
    <properties>
-    <property name="image" type="file" value="../img/switch.png"/>
+    <property name="image" type="file" value="../img/entity_switch.png"/>
    </properties>
   </object>
   <object id="62" template="../templates/key.tx" name="red_key" x="96" y="384">

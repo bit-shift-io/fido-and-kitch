@@ -53,7 +53,7 @@
   </object>
   <object id="23" template="../templates/switch.tx" name="switch" x="416" y="352">
    <properties>
-    <property name="image" type="file" value="../img/switch.png"/>
+    <property name="image" type="file" value="../img/entity_switch.png"/>
     <property name="target" type="object" value="9"/>
    </properties>
   </object>

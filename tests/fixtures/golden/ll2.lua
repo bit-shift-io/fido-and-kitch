@@ -365,7 +365,7 @@ return {
           gid = 123,
           visible = true,
           properties = {
-            ["image"] = "../img/switch.png",
+            ["image"] = "../img/entity_switch.png",
             ["target"] = { id = 9 }
           }
         }
