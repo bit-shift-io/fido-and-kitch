@@ -1,12 +1,18 @@
 
-local GameStates = require('src.game_states')
+local MenuState = require('src.states.menu_state')
+local InGameState = require('src.states.ingame_state')
+local GameOverState = require('src.states.game_over_state')
 local Map = require('src.map')
 
 local Game = Class{}
 
 function Game:init()
 	self.fsm = StateMachine{
-		stateClasses=GameStates,
+		stateClasses={
+			MenuState = MenuState,
+			InGameState = InGameState,
+			GameOverState = GameOverState,
+		},
 		entity=self,
 		currentState='MenuState'
 	}

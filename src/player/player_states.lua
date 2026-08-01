@@ -1,92 +1,77 @@
 local PlayerMovement = require('src.player.player_movement')
+local PlayerSensors = require('src.player.player_sensors')
 local Flash = require('src.components.flash')
+
 local LadderState = Class{}
 
 function LadderState:enter()
     print('ladder enter')
-	local player = self.entity
-	player:setAnimation('climb')
-	player.collider:setType('kinematic')
-	player.collider:setGravityScale(0)
-	player.sound:play('mount')
+    local player = self.entity
+    player:setAnimation('climb')
+    player.collider:setType('kinematic')
+    player.collider:setGravityScale(0)
+    player.sound:play('mount')
 end
 
 function LadderState:exit()
-	local player = self.entity
-	player.collider:setType('dynamic')
-	player.collider:setGravityScale(1)
+    local player = self.entity
+    player.collider:setType('dynamic')
+    player.collider:setGravityScale(1)
 end
 
 function LadderState:canTransition()
-	local player = self.entity
-	local ladder = player:queryLadder()
+    local player = self.entity
+    local ladder = PlayerSensors.queryLadder(world, player.collider)
 
-	if (player:isDown("up")) then
-		if (ladder) then
-			return true
-		end
-	end
+    if player:isDown("up") then
+        if ladder then
+            return true
+        end
+    end
 
-	if (player:isDown("down")) then
-		local ladderBelow = player:queryLadderBelow()
-		if (ladderBelow) then
-			return true
-		end
-	end
+    if player:isDown("down") then
+        local ladderBelow = PlayerSensors.queryLadderBelow(world, player.collider)
+        if ladderBelow then
+            return true
+        end
+    end
 
-	return false
+    return false
 end
 
 function LadderState:update(dt)
     local player = self.entity
 
-	local ladder = player:queryLadder()
-	local ladderBelow = player:queryLadderBelow()
+    local ladder = PlayerSensors.queryLadder(world, player.collider)
+    local ladderBelow = PlayerSensors.queryLadderBelow(world, player.collider)
 
-	local movingOnLadder = false
+    local decision = PlayerMovement.decideLadderMovement({
+        up = player:isDown("up"),
+        down = player:isDown("down"),
+    }, player.climbSpeed, ladder, ladderBelow)
 
-	-- in the ladder state, reset vertical velocity
-	player.collider:setLinearVelocity(0, 0)
+    if decision == nil then
+        player.fsm:setState('FallState')
+        return
+    end
 
-	if (player:isDown("up")) then
-		if (ladder) then
-			player.collider:setLinearVelocity(0, -100)
-			movingOnLadder = true
-		else
-			player.fsm:setState('FallState')
-		end
-	end
-
-	if (player:isDown("down")) then
-		if (ladderBelow) then
-			player.collider:setLinearVelocity(0, 100)
-			movingOnLadder = true
-		else
-			player.fsm:setState('FallState')
-		end
-	end
-
-	-- only play animation while moving up or down
-	player.animations.currentState.playing = movingOnLadder
+    player.collider:setLinearVelocity(decision.velocityX, decision.velocityY)
+    player.animations.currentState.playing = decision.movingOnLadder
 end
 
 
 local WalkIdleState = Class{}
 
-function WalkIdleState:init(props)
-end
-
--- step-sound cadence while walking; see DECISIONS.md Q17
 local STEP_INTERVAL = 0.3
 
 function WalkIdleState:enter(prevState)
-	local player = self.entity
-	player:setAnimation('idle')
-	player.stepTimer = 0
+    local player = self.entity
+    player:setAnimation('idle')
+    player.stepTimer = 0
 
-	if prevState ~= nil and prevState.name == 'FallState' then
-		player.sound:play('land')
-	end
+    if prevState ~= nil and prevState.name == 'FallState' then
+        player.sound:play('land')
+    end
 end
 
 function WalkIdleState:exit(name)
@@ -95,51 +80,41 @@ end
 function WalkIdleState:update(dt)
     local player = self.entity
 
-	-- is user falling?
-    if player.fsm:tryTransition('FallState') then 
-		return 
-	end
+    if player.fsm:tryTransition('FallState') then
+        return
+    end
 
-	if player.fsm:tryTransition('LadderState') then return end
+    if player.fsm:tryTransition('LadderState') then return end
 
-	local x = player.collider:getX()
-	local y = player.collider:getY()
-	local delta = player.speed * dt
-
-	local useDownLast = player.useDown
-	player.useDown = player:isDown('use')
-	if player.useDown == true and useDownLast == false then
-		player:checkForUsables()
-	end
-
-	-- reset horizontal velocity
     local v_x, v_y = player.collider:getLinearVelocity()
 
-	-- movement
-	-- https://github.com/jlett/Platformer-Tutorial
-	-- https://github.com/ohookins/mole/blob/master/mole.lua <-- climbing code
+    local useDownLast = player.useDown
+    player.useDown = player:isDown('use')
+    if player.useDown == true and useDownLast == false then
+        player:checkForUsables()
+    end
 
-	local input = {
-		right = player:isDown("right"),
-		left = player:isDown("left")
-	}
-	local decision = PlayerMovement.decideHorizontalMovement(input, player.speed, v_y)
+    local input = {
+        right = player:isDown("right"),
+        left = player:isDown("left")
+    }
+    local decision = PlayerMovement.decideHorizontalMovement(input, player.speed, v_y)
 
-	player.collider:setLinearVelocity(decision.velocityX, decision.velocityY)
-	if decision.facing then
-		player:setFacing(decision.facing)
-	end
-	player:setAnimation(decision.animation)
+    player.collider:setLinearVelocity(decision.velocityX, decision.velocityY)
+    if decision.facing then
+        player:setFacing(decision.facing)
+    end
+    player:setAnimation(decision.animation)
 
-	if decision.animation == 'walk' then
-		player.stepTimer = player.stepTimer + dt
-		if player.stepTimer >= STEP_INTERVAL then
-			player.stepTimer = player.stepTimer - STEP_INTERVAL
-			player.sound:play('step')
-		end
-	else
-		player.stepTimer = 0
-	end
+    if decision.animation == 'walk' then
+        player.stepTimer = player.stepTimer + dt
+        if player.stepTimer >= STEP_INTERVAL then
+            player.stepTimer = player.stepTimer - STEP_INTERVAL
+            player.sound:play('step')
+        end
+    else
+        player.stepTimer = 0
+    end
 end
 
 
@@ -147,33 +122,32 @@ local FallState = Class{}
 
 function FallState:canTransition()
     local player = self.entity
-	local onGround = player:queryOnGround()
+    local onGround = PlayerSensors.queryOnGround(world, player.collider)
     if onGround then
-		return false
-	else
-		return true
-	end
+        return false
+    else
+        return true
+    end
 end
 
 function FallState:enter()
     print('fall enter')
     local player = self.entity
-	player:setAnimation('fall')
+    player:setAnimation('fall')
     local v_x, v_y = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(0, v_y)
-	player.sound:play('jump')
+    player.sound:play('jump')
 end
 
 function FallState:update(dt)
     local player = self.entity
 
-	local v_x, v_y = player.collider:getLinearVelocity()
-    player.collider:setLinearVelocity(0, v_y)
-	
-	local onGround = player:queryOnGround()
-	if (onGround) then
-		player.fsm:setState('WalkIdleState')
-	end
+    PlayerMovement.applyGravity(player.collider)
+
+    local onGround = PlayerSensors.queryOnGround(world, player.collider)
+    if onGround then
+        player.fsm:setState('WalkIdleState')
+    end
 end
 
 
@@ -184,75 +158,66 @@ local DEATH_FLASH_BLINKS = 8
 local DEATH_FADE_DURATION = DEATH_FLASH_INTERVAL * DEATH_FLASH_BLINKS
 
 function DeadState:enter()
-	local player = self.entity
+    local player = self.entity
 
-	player.sound:play('death')
-	player.collider:setLinearVelocity(0, 0)
-	player.collider:setType('kinematic')
-	player.collider:setGravityScale(0)
-	player:setAnimation('idle')
+    player.sound:play('death')
+    player.collider:setLinearVelocity(0, 0)
+    player.collider:setType('kinematic')
+    player.collider:setGravityScale(0)
+    player:setAnimation('idle')
 
-	player.alpha = 1
-	player.fadeTween = Tween.new(DEATH_FADE_DURATION, player, {alpha = 0})
+    player.alpha = 1
+    player.fadeTween = Tween.new(DEATH_FADE_DURATION, player, {alpha = 0})
 
-	player.flash = player:addComponent(Flash{
-		target = player,
-		property = 'visible',
-		interval = DEATH_FLASH_INTERVAL,
-		blinks = DEATH_FLASH_BLINKS,
-		onComplete = utils.forwardFunc(player.resolveDeath, player)
-	})
+    player.flash = player:addComponent(Flash{
+        target = player,
+        property = 'visible',
+        interval = DEATH_FLASH_INTERVAL,
+        blinks = DEATH_FLASH_BLINKS,
+        onComplete = utils.forwardFunc(player.resolveDeath, player)
+    })
 end
 
 function DeadState:exit()
-	local player = self.entity
-	player.collider:setType('dynamic')
-	player.collider:setGravityScale(1)
+    local player = self.entity
+    player.collider:setType('dynamic')
+    player.collider:setGravityScale(1)
 end
 
--- input and movement are intentionally ignored while dead; the flash
--- component already ticks via Entity:update's normal component loop
 function DeadState:update(dt)
 end
 
 
--- spider web wrap (DECISIONS Q8): input ignored, gravity still settles the
--- player to the ground, hazards/camera framing are untouched since those
--- read the collider/FSM directly rather than this state. Entered via
--- Player:wrap(duration), never a direct fsm:setState call, so the duration
--- can be threaded through (see Player:wrap).
 local WrappedState = Class{}
 
 function WrappedState:enter()
-	local player = self.entity
-	player.wrapped = true
-	player:setAnimation('idle')
+    local player = self.entity
+    player.wrapped = true
+    player:setAnimation('idle')
 end
 
 function WrappedState:exit()
-	local player = self.entity
-	player.wrapped = false
-	player.web = nil
+    local player = self.entity
+    player.wrapped = false
+    player.web = nil
 end
 
 function WrappedState:update(dt)
-	local player = self.entity
+    local player = self.entity
 
-	-- frozen horizontally; gravity (already applied by the collider) keeps
-	-- settling them onto the ground, mirroring FallState's per-frame reset
-	local v_x, v_y = player.collider:getLinearVelocity()
-	player.collider:setLinearVelocity(0, v_y)
+    local v_x, v_y = player.collider:getLinearVelocity()
+    player.collider:setLinearVelocity(0, v_y)
 
-	player.web:update(dt)
-	if player.web:isExpired() then
-		player.fsm:setState('WalkIdleState')
-	end
+    player.web:update(dt)
+    if player.web:isExpired() then
+        player.fsm:setState('WalkIdleState')
+    end
 end
 
 return {
-	LadderState = LadderState,
-	WalkIdleState = WalkIdleState,
-	FallState = FallState,
-	DeadState = DeadState,
-	WrappedState = WrappedState,
+    LadderState = LadderState,
+    WalkIdleState = WalkIdleState,
+    FallState = FallState,
+    DeadState = DeadState,
+    WrappedState = WrappedState,
 }

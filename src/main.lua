@@ -103,20 +103,28 @@ function love.update(dt)
 	if ipc then
 		ipc.update(dt)
 	end
-	inputManager:update(dt)
-	game:update(dt)
+	if game then
+		inputManager:update(dt)
+		game:update(dt)
+	end
 end
 
 function love.draw()
-	game:draw()
+	if game then
+		game:draw()
+	end
 end
 
 function love.resize(w, h)
-	game:resize(w, h)
+	if game then
+		game:resize(w, h)
+	end
 end
 
 function love.keypressed(k)
-	game:keypressed(k)
+	if game then
+		game:keypressed(k)
+	end
 end
 
 function love.joystickadded(joystick)
@@ -128,28 +136,36 @@ function love.joystickremoved(joystick)
 end
 
 function love.gamepadpressed(joystick, button)
-	game:gamepadpressed(joystick, button)
+	if game then
+		game:gamepadpressed(joystick, button)
+	end
 end
 
 function love.joystickpressed(joystick, button)
 	if joystick:isGamepad() then
 		return
 	end
-	game:joystickpressed(joystick, button)
+	if game then
+		game:joystickpressed(joystick, button)
+	end
 end
 
 function love.mousepressed(x, y, button)
-	game:mousepressed(x, y, button)
+	if game then
+		game:mousepressed(x, y, button)
+	end
 end
 
 function love.touchpressed(id, x, y)
-	game:touchpressed(id, x, y)
+	if game then
+		game:touchpressed(id, x, y)
+	end
 end
 
 function love.textinput(t)
-	game:textinput(t)
-	--print(t)
-	--console_toggle(t)
+	if game then
+		game:textinput(t)
+	end
 end
 
 function love.quit()
