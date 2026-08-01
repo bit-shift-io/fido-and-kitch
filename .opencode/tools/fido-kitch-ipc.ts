@@ -210,10 +210,8 @@ export const hold_key = tool({
         duration: tool.schema.number().describe("Duration in seconds"),
     },
     async execute({ player, action, duration }) {
-        await sendCommand(`INPUT ${player} ${action} down`);
-        await new Promise((r) => setTimeout(r, duration * 1000));
-        await sendCommand(`INPUT ${player} ${action} up`);
-        return `Held ${action} for player ${player} for ${duration}s`;
+        const response = await sendCommand(`HOLD_KEY ${player} ${action} ${duration}`);
+        return parseResponse(response);
     },
 });
 
@@ -222,7 +220,7 @@ export const get_game_state = tool({
     args: {},
     async execute() {
         const response = await sendCommand("GET_STATE");
-        return parseResponse(response); // Returns string: "p1x=X p1y=Y p2x=X p2y=Y w=W h=H map=NAME"
+        return response; // GET_STATE returns formatted string directly without "OK: " prefix
     },
 });
 
@@ -233,7 +231,7 @@ export const get_player_pos = tool({
     },
     async execute({ player }) {
         const response = await sendCommand(`GET_PLAYER_POS ${player}`);
-        return parseResponse(response); // "Player N at X,Y"
+        return response; // GET_PLAYER_POS returns "Player N at X,Y" directly
     },
 });
 
@@ -242,7 +240,7 @@ export const get_entities = tool({
     args: {},
     async execute() {
         const response = await sendCommand("GET_ENTITIES");
-        return parseResponse(response); // Returns JSON string with entities array
+        return response; // Returns JSON string directly
     },
 });
 
@@ -301,7 +299,7 @@ export const get_tile_grid = tool({
     args: {},
     async execute() {
         const response = await sendCommand("GET_TILE_GRID");
-        return parseResponse(response); // Returns JSON string
+        return response; // Returns JSON string directly
     },
 });
 
@@ -311,7 +309,7 @@ export const spawn_entity = tool({
         type: tool.schema.string().describe("Entity type (e.g., 'push_box', 'coin', 'key')"),
         x: tool.schema.number().describe("X position"),
         y: tool.schema.number().describe("Y position"),
-        props: tool.schema.record(tool.schema.unknown()).optional().describe("Optional properties as JSON object"),
+        props: tool.schema.record(tool.schema.string(), tool.schema.unknown()).optional().describe("Optional properties as JSON object"),
     },
     async execute({ type, x, y, props }) {
         const propsJson = props ? JSON.stringify(props) : "";
