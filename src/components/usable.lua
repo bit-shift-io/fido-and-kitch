@@ -28,7 +28,7 @@ function Usable:canUse(user)
 
     if self.requiredItem then
         -- check the user has the required items in their inventory
-        local inventory = user:getComponentByType(Inventory)
+        local inventory = user:getComponent(Inventory)
         if (inventory) then
             local hasItems = inventory:hasItems(self.requiredItem, self.requiredItemCount)
             if hasItems == false then
@@ -46,7 +46,7 @@ function Usable:use(user)
     print('usable is being used')
 
     if self.requiredItem then
-        local inventory = user:getComponentByType(Inventory)
+        local inventory = user:getComponent(Inventory)
         if inventory then
             inventory:removeItems(self.requiredItem, self.requiredItemCount)
         end

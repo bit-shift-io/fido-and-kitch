@@ -19,6 +19,7 @@ local defaultTestFiles = {
 	'tests/unit/external_tileset_test.lua',
 	'tests/unit/tmx_test.lua',
 	'tests/unit/tmx_template_test.lua',
+	'tests/unit/entity_lifecycle_test.lua',
 }
 
 local tests = {}

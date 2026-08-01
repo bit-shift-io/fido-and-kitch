@@ -147,7 +147,7 @@ function Player:checkForUsables()
     for _, c in ipairs(colls) do
         local entity = c.entity
         if entity then
-            local usable = entity:getComponentByType(Usable)
+            local usable = entity:getComponent(Usable)
             if usable ~= nil then
                 print('found entity with usable', c.entity.name)
                 if usable:canUse(self) then
@@ -255,7 +255,7 @@ end
 function Player:pickup(pickup)
     local entity = pickup.entity
     print('player picked up a ' .. pickup.itemName)
-    local sound = entity:getComponentByType(Sound)
+    local sound = entity:getComponent(Sound)
     if sound ~= nil then
         sound:play('pickup')
     end
