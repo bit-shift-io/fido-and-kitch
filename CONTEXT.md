@@ -305,3 +305,27 @@
 **Definition** — A Tiled `.tx` file declaring a reusable object — its class/type, name, size, tile image and default custom properties — which maps then place instances of. Nearly every interactive prop in this project is placed this way. An instance inherits everything from its template and may override any attribute; custom properties merge with the instance winning; and the template's tile reference is remapped from the template's own tileset numbering into the map's.
 
 **Boundary** — Resolved by the map parser at load time, **not** by Tiled's Lua export plugin, which silently drops the template-derived class/type and so blanks the type on every template-placed object. Since entity construction selects a class purely from an object's type, that defect turned whole maps into inert scenery — including spawning zero players — which is the reason `.tmx` is loaded directly. A template's tileset is auto-registered if the map does not declare it, matching Tiled's own behaviour. Distinct from an [external tileset](#external-tileset) (`.tsx`), which describes tiles rather than objects.
+
+## NPC (Non-Player Character)
+
+**Definition** — A visual-only companion entity that follows players. Two types: Bird (flies freely, ignores all collision, raycast+steer navigation) and Rabbit (hops behind player, follows breadcrumb trail for reliable ladder/puzzle navigation). No gameplay interaction — no collision with players/enemies/tiles, no use action, no damage.
+
+**Boundary** — Purely cosmetic; never affects gameplay state, physics, or win conditions. Spawned from cages, persists until level exit.
+
+## Cage Spawn Type
+
+**Definition** — Tiled custom property `spawn_type` on cage objects determining which NPC spawns when unlocked. Values: `"bird"` | `"rabbit"` (default: `"bird"`). Set per-cage in Tiled.
+
+**Boundary** — Map authoring concern only; read once at cage unlock. No runtime mutation.
+
+## Breadcrumb Trail
+
+**Definition** — Timestamped position history recorded by Player (circular buffer, 120 frames = 2 seconds at 60Hz). Used by Rabbit NPC to follow the player's exact path through ladders and puzzles.
+
+**Boundary** — Player-internal state; exposed via `player:getPositionHistory()` for NPC consumption only. Not a replay system or network sync.
+
+## All Cages Unlocked Event
+
+**Definition** — Event bus signal (`all_cages_unlocked`) emitted when the last cage in a level is unlocked. Listened by exit door to become usable. Payload: `{totalCages=N}`.
+
+**Boundary** — One-way signal from `InGameState` to exit door. Level must have exit door entity; if missing, event fires but nothing consumes it (safe).
