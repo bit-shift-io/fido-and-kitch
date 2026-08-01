@@ -10,9 +10,47 @@
 -- before, the same approach src/entities/drawbridge uses: several weights
 -- therefore count as one activation and the plate releases only when the last
 -- of them leaves, with no bookkeeping to fall out of step.
-local PressureSwitchSupport = require('src.entities.pressure_switch.pressure_switch_support')
+--
+-- Single file, not the multi-file directory ADR 0003 originally called for:
+-- that split existed solely so the pure decision helpers below could be
+-- required from tests/unit/, which couldn't construct a Sprite/Collider-
+-- composing entity headless. tests/support/headless_bootstrap.lua now makes
+-- that construction possible directly (see ADR 0005, which reversed the
+-- drawbridge's identical split first), so the helpers stay private locals
+-- here instead of a separate _support module. See
+-- tests/unit/pressure_switch_test.lua for the entity-level tests this enables.
 
 local PressureSwitch = Class{__includes = Entity}
+
+-- How far a weight's centre-x may sit from the plate tile's centre and still
+-- count as being on it. "Substantially on it" (DECISIONS Q11): merely
+-- overlapping the plate is not enough -- a box resting with one edge barely
+-- over the plate is not standing on it, and neither is a player brushing past
+-- the edge. A quarter of a tile each way is generous enough to feel fair while
+-- still requiring the weight to be recognisably seated.
+local TOLERANCE = 8
+
+local function isWeightOn(weightCentreX, plateCentreX)
+	return math.abs(weightCentreX - plateCentreX) <= TOLERANCE
+end
+
+-- Whether the plate should be active next frame. The caller drives its target
+-- whenever this differs from the current state, which is all the momentary vs
+-- latching difference amounts to:
+--   * momentary (default) follows the weight, so it transitions twice -- on
+--     when the first weight arrives, off when the last one leaves -- and
+--     re-drives the target both times
+--   * latching never returns to off, so it transitions once and drives once
+-- Presence is recomputed fresh every frame from whatever is currently on the
+-- plate, so several weights count as one activation and it releases only when
+-- the last of them leaves, with no occupancy bookkeeping to get out of step.
+local function nextActivation(isActive, latching, weightPresent)
+	if isActive and latching then
+		return true
+	end
+
+	return weightPresent
+end
 
 -- tall enough to catch a weight resting on the plate -- feet on its top edge,
 -- body extending upward out of the plate's own depth -- mirroring the
@@ -71,7 +109,7 @@ end
 -- (see Pushable:seatOnPlate); the plate owns the tolerance so the prop never
 -- has to know what "substantially on it" means.
 function PressureSwitch:seatCentreX(propCentreX)
-	if PressureSwitchSupport.isWeightOn(propCentreX, self.plateCentreX) then
+	if isWeightOn(propCentreX, self.plateCentreX) then
 		return self.plateCentreX
 	end
 
@@ -91,7 +129,7 @@ function PressureSwitch:hasWeight()
 	for _, collider in ipairs(world:queryOverlap(bounds)) do
 		local entity = collider.entity
 		if entity and entity ~= self and (entity.type == 'player' or entity.isPushable) then
-			if PressureSwitchSupport.isWeightOn(collider:getX(), self.plateCentreX) then
+			if isWeightOn(collider:getX(), self.plateCentreX) then
 				return true
 			end
 		end
@@ -104,7 +142,7 @@ function PressureSwitch:update(dt)
 	Entity.update(self, dt)
 
 	local wasActive = self:isActive()
-	local isActive = PressureSwitchSupport.nextActivation(wasActive, self.latching, self:hasWeight())
+	local isActive = nextActivation(wasActive, self.latching, self:hasWeight())
 
 	if isActive == wasActive then
 		return
@@ -141,5 +179,14 @@ function PressureSwitch:draw()
 	)
 	love.graphics.setColor(r, g, b, a)
 end
+
+-- White-box seam for tests/unit/pressure_switch_test.lua only, mirroring
+-- Drawbridge._internal (see ADR 0005). Not for use by production code --
+-- reach for the real entity there.
+PressureSwitch._internal = {
+	TOLERANCE = TOLERANCE,
+	isWeightOn = isWeightOn,
+	nextActivation = nextActivation,
+}
 
 return PressureSwitch
