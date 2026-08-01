@@ -4,7 +4,6 @@ conf.ipc_port = 8081
 conf.ipc_enabled = false
 
 function love.conf(t)
-    t.physics = 'bump'                  -- Which physics engine to use. 'love' (aka box2d) or 'bump'
     t.graphics = t.graphics or {}       -- LÖVE 12 graphics startup options
 
     t.identity = nil                    -- The name of the save directory (string)

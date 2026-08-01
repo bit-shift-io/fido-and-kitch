@@ -17,11 +17,9 @@ local ALIGN_THRESHOLD = 4
 local STOMP_ZONE_RATIO = 0.5
 
 function NPC:init(object, props)
-	Entity.init(self)
+	Entity.init(self, object)
 	props = props or {}
 
-	self.object = object
-	self.name = object.name
 	self.speed = (object.properties and object.properties.speed) or DEFAULT_SPEED
 	self.banDuration = (object.properties and object.properties.banDuration) or DEFAULT_BAN_DURATION
 	self.wanderRange = (object.properties and object.properties.wanderRange) or DEFAULT_WANDER_RANGE
@@ -32,10 +30,8 @@ function NPC:init(object, props)
 	self.wanderDirection = 1
 	self.stunTimer = 0
 
-	local width = object.width
-	local height = object.height
-	local position = Vector(object.x + width * 0.5, object.y - height * 0.5)
-	local shape_arguments = {0, 0, width, height}
+	local position = Rect.centreOfMapObject(object)
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.homeX = position.x
 
 	local idle_image = props.idleImage or 'res/img/enemy_spider.png'
@@ -134,7 +130,7 @@ function NPC:findTarget()
 		table.insert(candidates, {
 			x = player.collider:getX(),
 			y = player.collider:getY(),
-			isDead = utils.func(player.isDead, player),
+			isDead = utils.bindSelf(player.isDead, player),
 			wrapped = player.wrapped,
 			entity = player,
 		})

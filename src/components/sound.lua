@@ -1,6 +1,8 @@
 -- Sound component
 -- attaches a table of named WAV sources to an entity; play(name) creates
 -- a fresh Source each time with random pitch variation (no pooling)
+local Log = require('src.utils.log')
+
 local Sound = Class{}
 
 function Sound:init(props)
@@ -19,12 +21,12 @@ function Sound:play(name)
 	
 	local path = self.sounds[name]
 	if path == nil then
-		print('Sound not found: ' .. tostring(name))
+		Log.warn('Sound not found: ' .. tostring(name))
 		return
 	end
 
 	if love.filesystem.getInfo(path) == nil then
-		print('Sound file not found: ' .. path)
+		Log.warn('Sound file not found: ' .. path)
 		return
 	end
 

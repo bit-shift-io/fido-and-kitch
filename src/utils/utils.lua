@@ -58,19 +58,38 @@ function utils.loadCode(code, environment)
    end
 end
 
--- TODO: now there is confusion around when to use forwardFunc or
--- func! 
-
--- forward a function call from oldSelf:fn(...) to newSelf:fn(...)
-function utils.forwardFunc(fn, newSelf)
+-- Wraps `fn` so it always runs as newSelf:fn(...), discarding whatever the
+-- caller invoked the wrapper with as an implicit leading self. Only correct
+-- when the call site genuinely invokes the wrapper as a colon/method call
+-- passing its own self first -- utils.proxyClass below is the one real case:
+-- a proxied method is called as stateMachine:someMethod(...), and
+-- stateMachine itself is the leading arg that needs discarding and
+-- replacing with the real target (e.g. the FSM's current state).
+--
+-- Do NOT reach for this for plain callback props -- Collider's enter/
+-- postSolve (invoked self.enterFunc(other), a plain call), Timeline/Flash's
+-- finish/onComplete (invoked with no args at all), Signal-based events
+-- (invoked signal:emit(...) with whatever args the emitter chose). Those
+-- callbacks have no leading self to discard, so this silently eats their
+-- first real argument. Use utils.bindSelf for those instead. (Previously
+-- named utils.forwardFunc -- several entity callback props were mixed up
+-- with utils.func this way, harmlessly only because nothing yet read the
+-- dropped argument.)
+function utils.dropCallerSelf(fn, newSelf)
    return function(oldSelf, ...)
       local function __NULL__() end
       return (fn or __NULL__)(newSelf, ...)
   end
 end
 
--- make a function fn(...) call newSelf:fn(...)
-function utils.func(fn, newSelf)
+-- Wraps `fn` so calling wrapper(...) calls newSelf:fn(...) -- the wrapper
+-- itself takes no incoming self, and every argument it's called with is
+-- forwarded straight through after newSelf. This is the right choice for
+-- plain callback props: Collider's enter/postSolve, Timeline/Flash's
+-- finish/onComplete, Signal-based events -- see utils.dropCallerSelf above
+-- for why those specifically need this one, not that one. (Previously
+-- named utils.func.)
+function utils.bindSelf(fn, newSelf)
    return function(...)
       local function __NULL__() end
       return (fn or __NULL__)(newSelf, ...)
@@ -93,7 +112,7 @@ function utils.proxyClass(from, to)
          end
 
          if type(forwardTo[func]) == 'function' then
-            return utils.forwardFunc(forwardTo[func], forwardTo)
+            return utils.dropCallerSelf(forwardTo[func], forwardTo)
          else
             return forwardTo[func]
          end

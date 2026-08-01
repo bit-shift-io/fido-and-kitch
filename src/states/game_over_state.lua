@@ -1,4 +1,7 @@
-local GameOverState = Class{}
+local BaseState = require('src.states.base_state')
+local Log = require('src.utils.log')
+
+local GameOverState = Class{__includes = BaseState}
 
 local GAME_OVER_OPTIONS = {
     {id='restart', label='Restart Level'},
@@ -6,7 +9,7 @@ local GAME_OVER_OPTIONS = {
 }
 
 function GameOverState:enter()
-    print('gameover enter')
+    Log.debug('gameover enter')
     self.selected = 1
     self.buttonRects = {}
     self.titleFont = love.graphics.newFont(30)
@@ -96,9 +99,6 @@ function GameOverState:draw()
     lg.setColor(1, 1, 1, 1)
 end
 
-function GameOverState:resize(w, h)
-end
-
 function GameOverState:keypressed(k)
     if k == 'up' or k == 'w' then
         self:moveSelection(-1)
@@ -109,12 +109,6 @@ function GameOverState:keypressed(k)
     end
 end
 
-function GameOverState:gamepadpressed(joystick, button)
-end
-
-function GameOverState:joystickpressed(joystick, button)
-end
-
 function GameOverState:mousepressed(x, y, button)
     if button ~= 1 then return end
     self:handlePress(x, y)
@@ -122,9 +116,6 @@ end
 
 function GameOverState:touchpressed(id, x, y)
     self:handlePress(x, y)
-end
-
-function GameOverState:textinput(t)
 end
 
 return GameOverState

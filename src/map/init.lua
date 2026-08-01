@@ -53,11 +53,7 @@ function Map:new(path, world, debug)
 		'src.entities.?.?',
 	}
 
-	if world and world.type == 'love' then
-		map:box2d_init(world._world)
-	end
-
-	self.entityFactory = EntityFactory:new(self.searchPaths, self.typeIgnores)
+	self.entityFactory = EntityFactory:new(self.searchPaths, self.typeIgnores, self)
 	self.collisionBuilder = CollisionBuilder:new()
 	self.parallaxRenderer = ParallaxRenderer:new()
 
@@ -90,14 +86,19 @@ function Map:update(dt)
 	self.map:update(dt)
 end
 
+-- Map size in pixels. Previously recomputed inline at each of its three call
+-- sites (here, and twice in src/states/ingame_state.lua for the camera).
+function Map:getPixelSize()
+	return self.map.width * self.map.tilewidth, self.map.height * self.map.tileheight
+end
+
 function Map:resize(w, h)
 	local windowOpen = love.window and love.window.isOpen and love.window.isOpen()
 	if windowOpen or lg.isCreated then
 		w = w or lg.getWidth()
 		h = h or lg.getHeight()
 
-		local mw = self.map.width * self.map.tilewidth
-		local mh = self.map.height * self.map.tileheight
+		local mw, mh = self:getPixelSize()
 
 		local sx = w / mw
 		local sy = h / mh
@@ -119,6 +120,27 @@ end
 
 function Map:draw2(tx, ty, sx, sy)
 	self.parallaxRenderer:draw(self, tx, ty, sx, sy)
+end
+
+-- Draws every object-layer entity in screen space, using the same tx/ty/sx/sy
+-- transform the camera computed for the background/parallax draw (Map:draw2).
+-- Kept as its own call (not folded into draw2) so InGameState can interleave
+-- the debug overlay and HUD, which draw in a different space.
+function Map:drawEntities(tx, ty, sx, sy)
+	lg.push()
+	lg.origin()
+	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
+	lg.scale(sx or 1, sy or sx or 1)
+
+	for _, layer in ipairs(self.map.layers) do
+		if layer.type == "objectgroup" and layer.entities then
+			for _, entity in ipairs(layer.entities) do
+				entity:draw()
+			end
+		end
+	end
+
+	lg.pop()
 end
 
 function Map:getObjectById(id)

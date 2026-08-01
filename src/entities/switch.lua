@@ -1,12 +1,12 @@
+local Log = require('src.utils.log')
+
 local Switch = Class{__includes = Entity}
 
-function Switch:init(object)
-	Entity.init(self)
-	self.name = object.name
-	self.type = 'switch'
+function Switch:init(object, map)
+	Entity.init(self, object, 'switch')
 	self.state = 'off'
-	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
-	local shape_arguments = {0, 0, object.width, object.height}
+	local position = Rect.centreOfMapObject(object)
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/switch.png',
 		frames=3,
@@ -24,7 +24,7 @@ function Switch:init(object)
 	})
 	self:addComponent(Usable{
 		entity=self,
-		use=utils.forwardFunc(self.use, self)
+		use=utils.bindSelf(self.use, self)
 	})
 
 	-- only one toggle sound asset exists (res/snd/); both directions share it
@@ -39,7 +39,7 @@ function Switch:init(object)
 end
 
 function Switch:use(user)
-	print('switch has been used')
+	Log.debug('switch has been used')
 
 	-- TODO: really we need a play and play({reverse=true}) method
 	-- added to the sprite

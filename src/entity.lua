@@ -4,8 +4,14 @@ local tbl = require('src.utils.tbl')
 local Entity = Class{}
 
 
-function Entity:init()
-	self.type = 'entity'
+-- object/type are optional: entities backed by a Tiled map object pass both
+-- so Entity.init(self, object, 'coin') covers the self.object/self.name/
+-- self.type preamble every map entity used to repeat by hand. Callers with
+-- nothing map-related (Player, game states) can still call Entity.init(self).
+function Entity:init(object, type)
+	self.type = type or 'entity'
+	self.object = object
+	self.name = object and object.name or nil
 	self.components = {}             -- Array for ordered update/draw iteration
 	self.componentsByType = {}       -- Table for O(1) type/name lookups
 	self.destroySignal = Signal{} -- is this better as a special component that detects destruction? making entity more light weight

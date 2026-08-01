@@ -1,9 +1,11 @@
 local MapList = require('src.ui.map_list')
+local BaseState = require('src.states.base_state')
+local Log = require('src.utils.log')
 
-local MenuState = Class{__includes = Entity}
+local MenuState = Class{__includes = {Entity, BaseState}}
 
 function MenuState:enter()
-    print('menu enter')
+    Log.debug('menu enter')
     self.mapList = MapList{dir='res/map'}
 end
 
@@ -40,12 +42,6 @@ function MenuState:draw()
     self.mapList:draw()
 end
 
-function MenuState:resize(w, h)
-end
-
-function MenuState:textinput(t)
-end
-
 function MenuState:keypressed(k)
     if k == 'return' or k == 'space' then
         self:startGame{map=self.mapList.selectedFile}
@@ -56,12 +52,6 @@ function MenuState:keypressed(k)
     elseif k == 'escape' then
         love.event.push('quit')
     end
-end
-
-function MenuState:gamepadpressed(joystick, button)
-end
-
-function MenuState:joystickpressed(joystick, button)
 end
 
 function MenuState:mousepressed(x, y, button)

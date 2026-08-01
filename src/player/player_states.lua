@@ -1,11 +1,12 @@
 local PlayerMovement = require('src.player.player_movement')
 local PlayerSensors = require('src.player.player_sensors')
 local Flash = require('src.components.flash')
+local Log = require('src.utils.log')
 
 local LadderState = Class{}
 
 function LadderState:enter()
-    print('ladder enter')
+    Log.debug('ladder enter')
     local player = self.entity
     player:setAnimation('climb')
     player.collider:setType('kinematic')
@@ -260,7 +261,7 @@ function FallState:canTransition()
 end
 
 function FallState:enter()
-    print('fall enter')
+    Log.debug('fall enter')
     local player = self.entity
     player:setAnimation('fall')
     local v_x, v_y = player.collider:getLinearVelocity()
@@ -303,7 +304,7 @@ function DeadState:enter()
         property = 'visible',
         interval = DEATH_FLASH_INTERVAL,
         blinks = DEATH_FLASH_BLINKS,
-        onComplete = utils.forwardFunc(player.resolveDeath, player)
+        onComplete = utils.bindSelf(player.resolveDeath, player)
     })
 end
 

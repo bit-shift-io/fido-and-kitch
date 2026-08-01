@@ -20,6 +20,7 @@ end
 conf = require('conf')
 str = require('src.utils.str')
 utils = require('src.utils.utils')
+Log = require('src.utils.log')
 
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
@@ -60,6 +61,9 @@ function setupConf(args)
     if portArg then
         conf.ipc_port = tonumber(str.split(portArg, '=')[2]) or 8080
     end
+    -- `love . debug` also turns on Log.debug's per-action gameplay chatter
+    -- (state enters, "X has been used", pickups, ...), silent otherwise
+    Log.level = conf.debug and 'debug' or 'info'
 end
 
 -- e2e=<path/to/scenario_test.lua>, following the same launch-argument style

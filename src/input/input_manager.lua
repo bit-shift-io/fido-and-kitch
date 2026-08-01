@@ -1,14 +1,15 @@
 local Class = require('lib.hump.class')
 local actionMap = require('src.input.action_map')
 local InputConfig = require('src.input.input_config')
+local Log = require('src.utils.log')
 
 local InputManager = Class{}
 
 function InputManager:init()
   if love and love.joystick and love.joystick.loadGamepadMappings then
-    print("[InputManager] Loading gamecontrollerdb.txt")
+    Log.info("[InputManager] Loading gamecontrollerdb.txt")
     local success, err = love.joystick.loadGamepadMappings('res/gamecontrollerdb.txt')
-    print("[InputManager] loadGamepadMappings:", success, err)
+    Log.info("[InputManager] loadGamepadMappings:", success, err)
   end
   
   -- Load persistent input configuration
@@ -22,7 +23,7 @@ function InputManager:init()
   -- Handle already-connected joysticks (joystickadded doesn't fire for already-connected)
   if love and love.joystick then
     local joysticks = love.joystick.getJoysticks()
-    print("[InputManager] Found", #joysticks, "already-connected joystick(s)")
+    Log.info("[InputManager] Found", #joysticks, "already-connected joystick(s)")
     for _, js in ipairs(joysticks) do
       self:joystickadded(js)
     end
@@ -32,7 +33,7 @@ end
 -- Force a joystick to be treated as non-gamepad (for generic controllers with bad mappings)
 function InputManager:forceNonGamepad(joystick)
   forcedNonGamepad[joystick] = true
-  print("[InputManager] Forced non-gamepad mode for:", joystick:getName())
+  Log.info("[InputManager] Forced non-gamepad mode for:", joystick:getName())
 end
 
 function InputManager:isForcedNonGamepad(joystick)
@@ -130,7 +131,7 @@ function InputManager:pollGamepad(idx, player)
 end
 
 function InputManager:joystickadded(joystick)
-  print("[InputManager] joystickadded:", joystick:getName(), "isGamepad:", joystick:isGamepad())
+  Log.info("[InputManager] joystickadded:", joystick:getName(), "isGamepad:", joystick:isGamepad())
   for i = 1, 4 do
     if not self.players[i].joystick then
       self.players[i].joystick = joystick
@@ -139,17 +140,17 @@ function InputManager:joystickadded(joystick)
       if self.config:isForcedNonGamepad(i) then
         self.forcedNonGamepad = self.forcedNonGamepad or {}
         self.forcedNonGamepad[joystick] = true
-        print("[InputManager] Applied forced non-gamepad mode for player", i)
+        Log.info("[InputManager] Applied forced non-gamepad mode for player", i)
       end
       
-      print("[InputManager] Assigned joystick to player", i)
+      Log.info("[InputManager] Assigned joystick to player", i)
       break
     end
   end
 end
 
 function InputManager:joystickremoved(joystick)
-  print("[InputManager] joystickremoved:", joystick:getName())
+  Log.info("[InputManager] joystickremoved:", joystick:getName())
   for i = 1, 4 do
     if self.players[i].joystick == joystick then
       self.players[i].joystick = nil
@@ -185,7 +186,7 @@ function InputManager:setForcedNonGamepad(idx, forced)
   if self.players[idx] and self.players[idx].joystick then
     self.forcedNonGamepad = self.forcedNonGamepad or {}
     self.forcedNonGamepad[self.players[idx].joystick] = forced
-    print("[InputManager] Applied forced non-gamepad mode for player", idx, ":", forced)
+    Log.info("[InputManager] Applied forced non-gamepad mode for player", idx, ":", forced)
   end
 end
 

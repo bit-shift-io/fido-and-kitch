@@ -3,13 +3,15 @@ local LivesHud = require('src.ui.lives_hud')
 local AutoCamera = require('src.camera')
 local EventBus = require('src.utils.event_bus')
 local DebugOverlay = require('src.ui.debug_overlay')
+local BaseState = require('src.states.base_state')
+local Log = require('src.utils.log')
 
-local InGameState = Class{}
+local InGameState = Class{__includes = BaseState}
 
 local GAME_OVER_ZOOM_DELAY = 0.6
 
 function InGameState:enter()
-    print('ingame enter')
+    Log.debug('ingame enter')
 end
 
 function InGameState:load(props)
@@ -22,8 +24,7 @@ function InGameState:load(props)
     _G.world = World:new(0, 90.81, true)
     _G.map = Map:new(self.currentMap, world, true)
 
-    local mapW = map.map.width * map.map.tilewidth
-    local mapH = map.map.height * map.map.tileheight
+    local mapW, mapH = map:getPixelSize()
     self.camera = AutoCamera.new{
         screenW = love.graphics.getWidth(),
         screenH = love.graphics.getHeight(),
@@ -50,7 +51,7 @@ function InGameState:load(props)
                 if object.type == 'spawn' then
                     for i = 1, playerCount, 1 do
                         local entity = Player{object=object, index=index}
-                        entity.destroySignal:connect(utils.func(InGameState.onPlayerDestroyed, self))
+                        entity.destroySignal:connect(utils.bindSelf(InGameState.onPlayerDestroyed, self))
                         entity:startSpawnFlash()
                         table.insert(layer.entities, entity)
                         table.insert(self.players, entity)
@@ -62,7 +63,7 @@ function InGameState:load(props)
     end
 
     -- Listen for player deaths via EventBus
-    EventBus.on('player_died', utils.func(InGameState.onPlayerDied, self))
+    EventBus.on('player_died', utils.bindSelf(InGameState.onPlayerDied, self))
 
     if profile then
         profile.stop()
@@ -98,13 +99,13 @@ function InGameState:transitionToGameOver()
 end
 
 function InGameState:onPlayerDestroyed(player)
-    print('player destroyed')
+    Log.debug('player destroyed')
     local idx = tbl.findIndexEq(self.players, player)
     table.remove(self.players, idx)
 
     local playerCount = #self.players
     if playerCount == 0 then
-        print('all players have left the map!')
+        Log.debug('all players have left the map!')
         local game = self.entity
         game:setGameState('MenuState')
     end
@@ -160,24 +161,9 @@ function InGameState:update(dt)
 end
 
 function InGameState:draw()
-    local lg = love.graphics
     local tx, ty, sx, sy = self.camera:getDrawParams()
     map:draw2(tx, ty, sx, sy)
-
-    lg.push()
-    lg.origin()
-    lg.translate(math.floor(tx or 0), math.floor(ty or 0))
-    lg.scale(sx or 1, sy or sx or 1)
-
-    for _, layer in ipairs(map.layers) do
-        if layer.type == "objectgroup" and layer.entities then
-            for _, entity in ipairs(layer.entities) do
-                entity:draw()
-            end
-        end
-    end
-
-    lg.pop()
+    map:drawEntities(tx, ty, sx, sy)
 
     -- Debug overlay (hitboxes, ladders, kill zones, safe positions, etc.)
     if conf.drawphysics and self.debugOverlay then
@@ -196,8 +182,7 @@ function InGameState:resize(w, h)
 
     if self.camera then
         self.camera:setScreenSize(w, h)
-        local mapW = map.map.width * map.map.tilewidth
-        local mapH = map.map.height * map.map.tileheight
+        local mapW, mapH = map:getPixelSize()
         self.camera:setMapSize(mapW, mapH)
     end
 end
@@ -209,21 +194,6 @@ function InGameState:keypressed(k)
     elseif k == 'space' then
         self.camera:toggleOverview()
     end
-end
-
-function InGameState:gamepadpressed(joystick, button)
-end
-
-function InGameState:joystickpressed(joystick, button)
-end
-
-function InGameState:mousepressed(x, y, button)
-end
-
-function InGameState:touchpressed(id, x, y)
-end
-
-function InGameState:textinput(t)
 end
 
 return InGameState

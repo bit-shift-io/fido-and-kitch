@@ -1,28 +1,25 @@
+local Log = require('src.utils.log')
+
 local EntityFactory = {}
 EntityFactory.__index = EntityFactory
 
-local function loadEntity(entityName, searchPaths, typeIgnores, object)
-	local in_ignore_list = tbl.findIndexEq(typeIgnores, entityName)
-	if in_ignore_list == nil then
-		local lastErr
-		for k, pattern in pairs(searchPaths) do
-			local path = pattern:gsub('%?', entityName)
-			local ok, err = pcall(require, path)
-			if not ok then
-				lastErr = err
-			else
-				local entity = err(object)
-				entity.mapData = object
-				object.entity = entity
-				return entity
-			end
-		end
-		print('Entity Error: ' .. tostring(lastErr))
-	end
-	return nil
+-- `map` (the owning Map instance) is threaded through to every constructed
+-- entity as a second constructor arg (see loadEntity below) instead of
+-- entities reaching for the `map` global themselves at construction time --
+-- lets a unit test construct e.g. Switch/Cage/Teleport directly against a
+-- stub map, without a whole Map/World stack running first.
+function EntityFactory:new(searchPaths, typeIgnores, map)
+	return setmetatable({
+		searchPaths = searchPaths,
+		typeIgnores = typeIgnores,
+		map = map,
+	}, EntityFactory)
 end
 
-local function createEntitiesFromObjectGroupLayers(map, searchPaths, typeIgnores, world)
+-- Walks every object layer, wiring update/draw and object:exec, and loads
+-- an entity for each object via self:loadEntity (which also appends it to
+-- layer.entities -- no separate insert needed here).
+function EntityFactory:createEntities(map, world)
 	for li, layer in ipairs(map.layers) do
 		if layer.type == "objectgroup" then
 			local objects = layer.objects
@@ -62,7 +59,7 @@ local function createEntitiesFromObjectGroupLayers(map, searchPaths, typeIgnores
 							eventStr = eventStr:gsub(string.format('%s:', k), sub)
 						end
 
-						print("exec script:", eventStr)
+						Log.debug("exec script:", eventStr)
 
 						local fn = utils.loadCode(eventStr, {
 							object = object,
@@ -72,24 +69,10 @@ local function createEntitiesFromObjectGroupLayers(map, searchPaths, typeIgnores
 					end
 				end
 
-				local entity = loadEntity(object.type, searchPaths, typeIgnores, object)
-				if entity then
-					table.insert(layer.entities, entity)
-				end
+				self:loadEntity(object.type, layer, object)
 			end
 		end
 	end
-end
-
-function EntityFactory:new(searchPaths, typeIgnores)
-	return setmetatable({
-		searchPaths = searchPaths,
-		typeIgnores = typeIgnores,
-	}, EntityFactory)
-end
-
-function EntityFactory:createEntities(map, world)
-	createEntitiesFromObjectGroupLayers(map, self.searchPaths, self.typeIgnores, world)
 end
 
 function EntityFactory:loadEntity(entityName, layer, object)
@@ -102,7 +85,7 @@ function EntityFactory:loadEntity(entityName, layer, object)
 			if not ok then
 				lastErr = err
 			else
-				local entity = err(object)
+				local entity = err(object, self.map)
 				entity.mapData = object
 				object.entity = entity
 				if layer and layer.entities then
@@ -111,7 +94,7 @@ function EntityFactory:loadEntity(entityName, layer, object)
 				return entity
 			end
 		end
-		print('Entity Error: ' .. tostring(lastErr))
+		Log.error('Entity Error: ' .. tostring(lastErr))
 	end
 	return nil
 end

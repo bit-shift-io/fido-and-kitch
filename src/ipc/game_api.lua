@@ -1,5 +1,45 @@
 local GameAPI = {}
 local json = require('lib.dkjson')
+local ActionMap = require('src.input.action_map')
+
+-- P1/P2 action->key maps for injected input, shared with the real input
+-- manager (src/input/action_map.lua) so this test/IPC surface can't drift
+-- from the actual keybindings.
+local P1_KEYS = ActionMap.KEYBOARD_MAPS[1]
+local P2_KEYS = ActionMap.KEYBOARD_MAPS[2]
+
+-- Shared guard for every command that only makes sense while a map is
+-- loaded and playable: returns the InGameState instance, or nil plus an
+-- error message. Used by the handful of commands with a custom message
+-- (movePlayer, toggleCamera) that build their own error text instead.
+-- Advances the game a fixed 1/60s at a time, `frames` times. Note:
+-- InGameState:update already calls world:update itself, so this must not
+-- call it again -- an earlier version of holdKey/stepFrames did, which
+-- silently double-stepped physics every frame driven over IPC.
+local FRAME_DT = 1 / 60
+local function stepFixed(frames)
+	for _ = 1, frames do
+		if game and game.fsm and game.fsm.currentState then
+			if inputManager and inputManager.update then
+				inputManager:update(FRAME_DT)
+			end
+			game.fsm.currentState:update(FRAME_DT)
+		end
+	end
+end
+
+local function inGameState()
+	if not game or not game.fsm or not game.fsm.currentState then
+		return nil, 'Game not loaded'
+	end
+
+	local state = game.fsm.currentState
+	if state.__class and state.__class.name ~= 'InGameState' then
+		return nil, 'Not in game'
+	end
+
+	return state
+end
 
 -- Input injection system (simulates player keyboard input)
 local injectedInput = {
@@ -17,15 +57,13 @@ local function installOverride()
     function _G.love.keyboard.isDown(key)
         -- Check P1 injected input
         for action, down in pairs(injectedInput.p1) do
-            local p1Keys = {left='left', right='right', up='up', down='down', use='rshift'}
-            if p1Keys[action] == key and down then
+            if P1_KEYS[action] == key and down then
                 return true
             end
         end
         -- Check P2 injected input
         for action, down in pairs(injectedInput.p2) do
-            local p2Keys = {left='a', right='d', up='w', down='s', use='q'}
-            if p2Keys[action] == key and down then
+            if P2_KEYS[action] == key and down then
                 return true
             end
         end
@@ -42,16 +80,9 @@ end
 
 function GameAPI.injectInput(playerIdx, action, down)
 	ensureOverride()
-	local keys = {}
 	if playerIdx == 1 then
-		keys = {
-			left = 'left', right = 'right', up = 'up', down = 'down', use = 'rshift'
-		}
 		injectedInput.p1[action] = down
 	else
-		keys = {
-			left = 'a', right = 'd', up = 'w', down = 's', use = 'q'
-		}
 		injectedInput.p2[action] = down
 	end
 	return 'OK: Injected ' .. action .. '=' .. (down and 'down' or 'up') .. ' for player ' .. playerIdx
@@ -75,19 +106,8 @@ function GameAPI.holdKey(playerIdx, action, duration)
 	GameAPI.injectInput(playerIdx, action, true)
 	
 	-- Step frames for the duration (60 fps)
-	local frames = math.floor(duration * 60)
-	for i = 1, frames do
-		if game and game.fsm and game.fsm.currentState then
-			if inputManager and inputManager.update then
-				inputManager:update(1/60)
-			end
-			game.fsm.currentState:update(1/60)
-			if world and world.update then
-				world:update(1/60)
-			end
-		end
-	end
-	
+	stepFixed(math.floor(duration * 60))
+
 	-- Release the key
 	GameAPI.injectInput(playerIdx, action, false)
 	
@@ -130,13 +150,9 @@ function GameAPI.movePlayer(idx, dx, dy)
 end
 
 function GameAPI.getState()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
+	local state, err = inGameState()
+	if not state then
+		return nil, err
 	end
 
 	local players = state.players
@@ -168,13 +184,9 @@ function GameAPI.getState()
 end
 
 function GameAPI.getPlayerPos(idx)
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
+	local state, err = inGameState()
+	if not state then
+		return nil, err
 	end
 
 	local players = state.players
@@ -192,13 +204,9 @@ function GameAPI.getPlayerPos(idx)
 end
 
 function GameAPI.restartLevel()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
+	local state, err = inGameState()
+	if not state then
+		return nil, err
 	end
 
 	local map = state.currentMap
@@ -253,16 +261,8 @@ function GameAPI.toggleCamera()
 end
 
 function GameAPI.getCamera()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil
-	end
-
-	return state.camera
+	local state = inGameState()
+	return state and state.camera
 end
 
 function GameAPI.loadMap(mapName)
@@ -357,15 +357,11 @@ function GameAPI.getTileGrid()
 end
 
 function GameAPI.spawnEntity(entityType, x, y, props)
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
+	local state, err = inGameState()
+	if not state then
+		return nil, err
 	end
-	
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
-	end
-	
+
 	if not map or not map.layers then
 		return nil, 'No map loaded'
 	end
@@ -406,28 +402,13 @@ function GameAPI.spawnEntity(entityType, x, y, props)
 end
 
 function GameAPI.stepFrames(count)
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
+	local state, err = inGameState()
+	if not state then
+		return nil, err
 	end
-	
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
-	end
-	
-	local dt = 1/60
-	for i = 1, count do
-		if inputManager and inputManager.update then
-			inputManager:update(dt)
-		end
-		if state and state.update then
-			state:update(dt)
-		end
-		if world and world.update then
-			world:update(dt)
-		end
-	end
-	
+
+	stepFixed(count)
+
 	return 'OK: Stepped ' .. count .. ' frames'
 end
 
@@ -530,13 +511,9 @@ local function getDrawbridgeInfo(entity)
 end
 
 function GameAPI.getEntities()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
+	local state, err = inGameState()
+	if not state then
+		return nil, err
 	end
 
 	local entities = {}

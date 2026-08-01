@@ -1,11 +1,11 @@
+local Log = require('src.utils.log')
+
 local Ladder = Class{__includes = Entity}
 
-function Ladder:init(object)
-	Entity.init(self)
-	self.object = object
-	self.name = object.name
-	self.type = 'ladder'
+function Ladder:init(object, map)
+	Entity.init(self, object, 'ladder')
 	self.isLadder = true
+	self.map = map
 	self.rect = Rect(object)
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle', 
@@ -13,8 +13,8 @@ function Ladder:init(object)
 		body_type='static',
 		sensor=true,
 		position=self.rect:centre(),
-		--enter=utils.forwardFunc(self.enter, self),
-		--exit=utils.forwardFunc(self.exit, self),
+		--enter=utils.bindSelf(self.enter, self),
+		--exit=utils.bindSelf(self.exit, self),
 		entity=self
 	})
 	self:createSprites()
@@ -24,15 +24,15 @@ function Ladder:init(object)
 end
 
 function Ladder:tileHeight()
-	return self.rect.height / map.tileheight
+	return self.rect.height / self.map.tileheight
 end
 
 -- if side is not supplied, top is the default
 function Ladder:resizeTileHeight(newTileHeight, side)
-	print('resize height to '..newTileHeight)
+	Log.debug('resize height to '..newTileHeight)
 
-	newHeight = (newTileHeight * map.tileheight)
-	heightDelta = newHeight - self.rect.height
+	local newHeight = (newTileHeight * self.map.tileheight)
+	local heightDelta = newHeight - self.rect.height
 	self.rect.height = newHeight
 	if side == nil or side == 'top' then -- move the top up
 		self.rect.y = self.rect.y - heightDelta
@@ -49,8 +49,8 @@ function Ladder:resizeTileHeight(newTileHeight, side)
 		body_type='static',
 		sensor=true,
 		position=self.rect:centre(),
-		--enter=utils.forwardFunc(self.enter, self),
-		--exit=utils.forwardFunc(self.exit, self),
+		--enter=utils.bindSelf(self.enter, self),
+		--exit=utils.bindSelf(self.exit, self),
 		entity=self
 	})
 
@@ -62,7 +62,7 @@ function Ladder:grow(tileHeight, side)
 end
 
 function Ladder:createSprites()
-	tileHeight = self:tileHeight()
+	local tileHeight = self:tileHeight()
 
 	-- TODO: handle resizing better
 	if self.sprites then
@@ -73,15 +73,15 @@ function Ladder:createSprites()
 
 	self.sprites = {}
 	for i = 0, (tileHeight - 1), 1 do
-		rect = Rect{x=self.rect.x, y=self.rect.y + (i * map.tileheight), width=map.tilewidth, height=map.tileheight}
-		sprite = self:addComponent(Sprite{
+		local rect = Rect{x=self.rect.x, y=self.rect.y + (i * self.map.tileheight), width=self.map.tilewidth, height=self.map.tileheight}
+		local sprite = self:addComponent(Sprite{
 			image='res/img/ladder.png',
 			frames=4,
 			duration=1.0,
 			loop=false,
 			position=rect:centre(),
 			shape_arguments=rect:colliderShapeArgs(),
-			--finish=utils.forwardFunc(ExitDoor.animFinished, self)
+			--finish=utils.bindSelf(ExitDoor.animFinished, self)
 		})
 		--sprite.timeline:resetReverse()
 		sprite.timeline:play()

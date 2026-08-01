@@ -14,6 +14,74 @@ local function cloneArray(arr)
 	return result
 end
 
+-- Sprite{} accepts three unrelated shapes for `frames`/`image`, dispatched
+-- on type below -- effectively three constructors sharing one prop table.
+-- Kept as one public Sprite{props} call (used ~identically at every call
+-- site) rather than three separate constructor functions, but decomposed
+-- here so each shape's frame-building logic reads on its own instead of
+-- three branches tangled through shared locals.
+
+-- frames is a table of image paths: one real image per frame, no shared
+-- sheet. Returns {frames}; image stays nil (drawn via draw_image_frames).
+local function framesFromFileList(paths, filter)
+	local frames = {}
+	for i = 1, #paths do
+		frames[i] = AssetManager.getImage(paths[i])
+		setImageFilter(frames[i], filter)
+	end
+	return frames
+end
+
+-- frames is a number: a single sprite-sheet image (props.image) cut into
+-- that many equal-width quads left to right. Returns {frames}, the loaded
+-- sheet image, and 'quad' to mark the draw mode (drawn via draw_quad_frames,
+-- since each frame is a Quad into the shared sheet, not its own Image).
+local function framesFromSheet(imagePath, frameCount, filter)
+	local image = AssetManager.getImage(imagePath)
+	setImageFilter(image, filter)
+
+	local textureWidth = image:getWidth() / frameCount
+	local h = image:getHeight()
+
+	local frames = {}
+	for i = 1, frameCount do
+		local xs = (i - 1) * textureWidth
+		frames[i] = love.graphics.newQuad(xs, 0, textureWidth, h, image:getDimensions())
+	end
+	return frames, image
+end
+
+-- frames is a string template ('res/img/dog/Idle (${i}).png'): frameCount
+-- real, separately-numbered image files. Returns {frames}; image stays nil.
+local function framesFromGlob(pattern, frameCount, filter)
+	local frames = {}
+	for i = 1, frameCount do
+		local path = pattern:gsub('${i}', tostring(i))
+		frames[i] = AssetManager.getImage(path)
+		setImageFilter(frames[i], filter)
+	end
+	return frames
+end
+
+-- Rescales/offsets the sprite so its art fills a shape_arguments box
+-- (width/height from an entity's Tiled object or collider), centred on the
+-- sprite's own origin. `frameImageWidth` is a single frame's width -- the
+-- full sheet's width divided by frame count for sheet mode, or just the
+-- frame's own width otherwise.
+local function fitToShapeArguments(shape_arguments, frameImageWidth, frameImageHeight, scale, offset)
+	local width = shape_arguments[3]
+	local height = shape_arguments[4]
+
+	local x_scale = width / frameImageWidth * scale.x
+	local y_scale = height / frameImageHeight * scale.y
+	local newScale = Vector(x_scale, y_scale)
+
+	local x_offset = frameImageWidth * 0.5 + (offset.x / x_scale)
+	local y_offset = frameImageHeight * 0.5 + (offset.y / y_scale)
+	local newOffset = Vector(x_offset, y_offset)
+
+	return newScale, newOffset
+end
 
 function Sprite:init(props)
 	self.type = 'sprite'
@@ -21,44 +89,17 @@ function Sprite:init(props)
 	local frames = props.frames
 	local image = props.image
 	local draw = Sprite.draw_image_frames
-
 	local filter = props.filter or 'linear'
+	local framesPerImage = 1 -- sheet mode's per-frame width divisor; 1 for the others
 
 	if type(frames) == 'table' then
-		local newFrames = {}
-		for i = 1, frames, 1 do
-			newFrames[i] = AssetManager.getImage(frames[i])
-			setImageFilter(newFrames[i], filter)
-		end
-		frames = newFrames
-	end
-
-	if type(frames) == 'number' then
-		image = AssetManager.getImage(image)
-		setImageFilter(image, filter)
-
-		local width = image:getWidth()
-		local textureWidth = width / frames
-
-		local newFrames = {}
-		for i = 1, frames, 1 do
-			local xs = (i - 1) * textureWidth
-			local h = image:getHeight()
-			newFrames[i] = love.graphics.newQuad(xs, 0, textureWidth, h, image:getDimensions())
-		end
-		frames = newFrames
+		frames = framesFromFileList(frames, filter)
+	elseif type(frames) == 'number' then
+		framesPerImage = frames
+		frames, image = framesFromSheet(image, frames, filter)
 		draw = Sprite.draw_quad_frames
-	end
-
-	if type(frames) == 'string' then
-		local newFrames = {}
-		local frameCount = props.frameCount
-		for i = 1, frameCount, 1 do
-			local str = frames:gsub('${i}', tostring(i))
-			newFrames[i] = AssetManager.getImage(str)
-			setImageFilter(newFrames[i], filter)
-		end
-		frames = newFrames
+	elseif type(frames) == 'string' then
+		frames = framesFromGlob(frames, props.frameCount, filter)
 	end
 
 	self.frames = cloneArray(frames)
@@ -72,31 +113,10 @@ function Sprite:init(props)
 	self.timeline = Timeline(props)
 
 	if props.shape_arguments then
-		-- calculate scale and offset
-		local width = props.shape_arguments[3]
-		local height = props.shape_arguments[4]
-
-		local f = 1
-		if (type(props.frames) == 'number') then
-			f = props.frames
-		end
-
-		local img
-		if (image) then
-			img = image
-		else
-			img = frames[1]
-		end
-		local img_height = img:getHeight()
-		local img_width = img:getWidth() / f
-
-		local x_scale = width / img_width * self.scale.x
-		local y_scale = height / img_height * self.scale.y
-		self.scale = Vector(x_scale, y_scale)
-
-		local x_offset = img_width * 0.5 + (self.offset.x / x_scale)
-		local y_offset = img_height * 0.5 + (self.offset.y / y_scale)
-		self.offset = Vector(x_offset, y_offset)
+		local frameImage = image or frames[1]
+		local frameImageWidth = frameImage:getWidth() / framesPerImage
+		local frameImageHeight = frameImage:getHeight()
+		self.scale, self.offset = fitToShapeArguments(props.shape_arguments, frameImageWidth, frameImageHeight, self.scale, self.offset)
 	end
 
 	self:setFacing(self.facing)

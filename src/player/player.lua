@@ -5,6 +5,7 @@ local GroundSupport = require('src.player.ground_support')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
 local PlayerMovement = require('src.player.player_movement')
+local Log = require('src.utils.log')
 
 local Player = Class{__includes = Entity}
 
@@ -93,7 +94,7 @@ function Player:init(props)
     self.collider = self:addComponent(Collider{
         shape_type='rectangle',
         shape_arguments=physics_arguments,
-        postSolve=utils.forwardFunc(self.contact, self),
+        postSolve=utils.bindSelf(self.contact, self),
         sprite=self.animations,
         position=position,
         entity=self,
@@ -145,7 +146,7 @@ function Player:setFacing(facing)
 end
 
 function Player:contact(other)
-    print('player has made contact with something!')
+    Log.debug('player has made contact with something!')
 end
 
 function Player:checkForUsables()
@@ -157,7 +158,7 @@ function Player:checkForUsables()
         if entity then
             local usable = entity:getComponent(Usable)
             if usable ~= nil then
-                print('found entity with usable', c.entity.name)
+                Log.debug('found entity with usable', c.entity.name)
                 if usable:canUse(self) then
                     usable:use(self)
                 end
@@ -263,7 +264,7 @@ end
 
 function Player:pickup(pickup)
     local entity = pickup.entity
-    print('player picked up a ' .. pickup.itemName)
+    Log.debug('player picked up a ' .. pickup.itemName)
     local sound = entity:getComponent(Sound)
     if sound ~= nil then
         sound:play('pickup')

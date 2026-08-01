@@ -3,6 +3,7 @@ local MenuState = require('src.states.menu_state')
 local InGameState = require('src.states.ingame_state')
 local GameOverState = require('src.states.game_over_state')
 local Map = require('src.map')
+local Log = require('src.utils.log')
 
 local Game = Class{}
 
@@ -59,14 +60,14 @@ function Game:keypressed(k)
     --suit.keypressed(key)
 
     if k == "f12" then
-        print('prnt')
+        Log.debug('screenshot')
         love.filesystem.setIdentity("screenshot_example")
         local cwd = love.filesystem.getWorkingDirectory() .. "/" .. os.time() .. ".png"
         love.graphics.captureScreenshot(cwd)
     end
 
     if k == "f1" then
-        print('toggle debug')
+        Log.debug('toggle debug')
 		conf.drawphysics = not conf.drawphysics
 	end
 
@@ -90,7 +91,7 @@ function Game:touchpressed(id, x, y)
 end
 
 function Game:endGame()
-    print("end the game peeps!")
+    Log.debug("end the game peeps!")
     self:setGameState('MenuState')
 end
 

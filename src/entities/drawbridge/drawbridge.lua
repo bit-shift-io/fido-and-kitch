@@ -16,10 +16,7 @@ local DrawbridgeSupport = require('src.entities.drawbridge.drawbridge_support')
 local Drawbridge = Class{__includes = Entity}
 
 function Drawbridge:init(object)
-	Entity.init(self)
-	self.type = 'drawbridge'
-	self.object = object
-	self.name = object.name
+	Entity.init(self, object, 'drawbridge')
 	self.state = 'closed'
 
 	self.rect = Rect(object)
@@ -46,7 +43,7 @@ function Drawbridge:init(object)
 		position = position,
 		shape_arguments = {0, 0, spriteBoxWidth, spriteBoxHeight},
 		facing = DrawbridgeSupport.spriteFacing(self.crossingDirection),
-		finish = utils.func(self.onAnimationFinish, self),
+		finish = utils.bindSelf(self.onAnimationFinish, self),
 	})
 
 	-- solid walkable ground while open/opening/closing, absent while closed

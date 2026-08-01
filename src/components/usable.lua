@@ -2,6 +2,8 @@
 -- an item the player (or entity) can use
 -- TODO: take a table of item/count pairs... or an Inventory component!? to allow for complex usage scenarios?
 
+local Log = require('src.utils.log')
+
 local Usable = Class{}
 
 function Usable:init(props)
@@ -32,7 +34,7 @@ function Usable:canUse(user)
         if (inventory) then
             local hasItems = inventory:hasItems(self.requiredItem, self.requiredItemCount)
             if hasItems == false then
-                print('cant use usable, missing '..self.requiredItemCount..'x '..self.requiredItem)
+                Log.warn('cant use usable, missing '..self.requiredItemCount..'x '..self.requiredItem)
                 return false
             end
         end
@@ -43,7 +45,7 @@ end
 
 
 function Usable:use(user)
-    print('usable is being used')
+    Log.debug('usable is being used')
 
     if self.requiredItem then
         local inventory = user:getComponent(Inventory)

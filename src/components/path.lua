@@ -1,16 +1,18 @@
 -- Path component
 -- just a somple path utility class
 
+local Log = require('src.utils.log')
+
 local Path = Class{}
 
 function Path:init(props)
 	self.type = 'path'
     if props.polyline == nil then
-        print('Bad object passed to Path! Pass an object that is a polyline')
+        Log.warn('Bad object passed to Path! Pass an object that is a polyline')
         return -- error!
     end
 
-    curveTable = {}
+    local curveTable = {}
     self.points = {}
 
     for i,p in ipairs(props.polyline) do

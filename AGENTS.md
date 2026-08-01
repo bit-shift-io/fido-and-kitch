@@ -28,7 +28,7 @@ love . debug drawphysics map=sandbox
 
 ## Layout
 
-- `main.lua` / `conf.lua` — entrypoint (requires `src.main`) and LÖVE config; `t.physics` selects the physics backend (currently `bump`)
+- `main.lua` / `conf.lua` — entrypoint (requires `src.main`) and LÖVE config
 - `src/main.lua` — bootstraps globals (`conf`, `utils`, `Vector`, `Class`, `Camera`, `Tween`, `Slab`, `World`, `Entity`, `Map`, `Player`, `Game`, …) and LÖVE callbacks
 - `src/game.lua` — top-level game object
 - `src/states/` — game state FSM modules (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`)
@@ -50,7 +50,7 @@ love . debug drawphysics map=sandbox
   - `safe_position.lua` — safe position tracking
   - `ground_support.lua` — `isFullySupported`
   - `lives.lua` — lives management
-- `src/physics/` — swappable backends (`bump`, `love`/Box2D) behind `Collider`/`World`
+- `src/physics/bump/` — the physics backend (bump.lua), behind `Collider`/`World`. A Box2D/love backend was removed for implementing too little of the Collider contract to actually run the game; re-add it as a real, fully-implemented backend if ever needed, not a partial one
 - `src/ui/` — Slab menu UI, map list, lives HUD, debug overlay
 - `src/utils/` — utility modules:
   - `asset_manager.lua` — texture caching (`getImage`, `clear`, `getTextureCount`)
@@ -71,7 +71,7 @@ love . debug drawphysics map=sandbox
 - **New map entity** = new `src/entities/<type>.lua` + Tiled object with matching `type`. `Map.typeIgnores = {'', 'spawn'}` skips those types. Tiled object properties may contain executable Lua event snippets (`object:exec`) — treat map code as trusted, don't feed it user input. An entity that needs more than one file gets a directory named after the entity type instead (`src/entities/<type>/<type>.lua` + siblings, real filenames kept, no `init.lua`) — stay flat until you need a second file. See ADR 0003 (`docs/adr/0003-multi-file-entity-directories.md`).
 - **Player entity** is split across `src/player/player.lua` (bootstrap), `src/player/player_sensors.lua` (spatial queries), `src/player/player_movement.lua` (movement math), and `src/player/player_states.lua` (FSM states). New sensor/movement logic goes in the respective module.
 - **Game states** live in `src/states/` — one file per state (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`).
-- **Physics:** go through `Collider`/`World`, not a backend directly, unless the task is backend-specific. The bump backend emulates Box2D-ish semantics; keep the two backends' APIs aligned when changing shared behavior. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
+- **Physics:** go through `Collider`/`World`, not `src.physics.bump` directly, unless the task is backend-specific. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
 - **Sound:** `Sound.silentMode = not (love and love.audio)` suppresses missing file warnings in headless tests — no need to add dummy WAV files.
 - **Debug overlay:** when `conf.drawphysics` is active, `DebugOverlay:draw(world, map, players, camera)` renders hitboxes, ladder sensors, kill zones, safe positions, camera framing bounds, and NPC paths in a single pass.
 - Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `game_states.lua`.

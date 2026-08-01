@@ -1,11 +1,11 @@
+local Log = require('src.utils.log')
+
 local JumpPad = Class{__includes = Entity}
 
-function JumpPad:init(object)
-	Entity.init(self)
-	self.type = 'jump_pad'
-	self.name = object.name
-	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
-	local shape_arguments = {0, 0, object.width, object.height}
+function JumpPad:init(object, map)
+	Entity.init(self, object, 'jump_pad')
+	local position = Rect.centreOfMapObject(object)
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/spring/Spring - 1.png',
 		frames=1,
@@ -27,7 +27,7 @@ function JumpPad:init(object)
 
 	self:addComponent(Usable{
 		entity=self,
-		use=utils.func(self.use, self)
+		use=utils.bindSelf(self.use, self)
 	})
 
 	self.sound = self:addComponent(Sound{
@@ -54,7 +54,7 @@ function JumpPad:use(user)
 			user:removeComponent(user.pathFollow)
 			user.pathFollow = nil
 		end
-		print('jump end delete path!')
+		Log.debug('jump end delete path!')
 	end
 
 	-- calc offset

@@ -16,4 +16,24 @@ function Rect:colliderShapeArgs()
     return {0, 0, self.width, self.height}
 end
 
+-- Centre of a Tiled map object authored as a tile object (dragged from a
+-- tileset/template, has a gid): Tiled anchors those at the BOTTOM edge, so
+-- the centre is half a height above object.y. This is the position formula
+-- most sprite-bearing entities use (coin, key, switch, teleport, cage,
+-- jump_pad, exit_door, ...). Zone/area entities authored as plain
+-- rectangles (no gid: ladder, kill_zone, drawbridge, pressure_switch) are
+-- TOP-anchored instead and use Rect(object):centre() -- the two are not
+-- interchangeable, see src/components/pushable/pushable_support.lua's
+-- PushableSupport.spawnCentre for the gid-aware version of this same split.
+function Rect.centreOfMapObject(object)
+    return Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
+end
+
+-- Collider shape_arguments for a rectangle of the given size, local-origin
+-- (matches Rect:colliderShapeArgs() for callers that only have raw
+-- width/height, not a full Rect instance).
+function Rect.shapeArgs(width, height)
+    return {0, 0, width, height}
+end
+
 return Rect

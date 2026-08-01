@@ -1,4 +1,5 @@
 local Class = require('lib.hump.class')
+local Log = require('src.utils.log')
 
 local IPCServer = Class{}
 
@@ -13,7 +14,7 @@ function IPCServer:start(port)
 	self.server = assert(socket.bind('127.0.0.1', port or 8081))
 	self.server:settimeout(0)
 	self.running = true
-	print('IPC Server listening on 127.0.0.1:' .. (port or 8081))
+	Log.info('IPC Server listening on 127.0.0.1:' .. (port or 8081))
 end
 
 function IPCServer:update(dt)
@@ -44,7 +45,7 @@ function IPCServer:close()
 		self.server:close()
 		self.server = nil
 		self.running = false
-		print('IPC Server stopped')
+		Log.info('IPC Server stopped')
 	end
 end
 

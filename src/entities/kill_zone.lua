@@ -1,10 +1,7 @@
 local KillZone = Class{__includes = Entity}
 
 function KillZone:init(object)
-	Entity.init(self)
-	self.object = object
-	self.name = object.name
-	self.type = 'kill_zone'
+	Entity.init(self, object, 'kill_zone')
 	self.isKillZone = true
 	self.deathType = object.properties.deathType or 'unknown'
 	self.rect = Rect(object)

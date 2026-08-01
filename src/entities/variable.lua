@@ -4,14 +4,11 @@
 local VariableEntity = Class{__includes = Entity}
 
 function VariableEntity:init(object)
-	Entity.init(self)
-	self.name = object.name
-    self.object = object
-	self.type = 'variable'
+	Entity.init(self, object, 'variable')
     self.variable = self:addComponent(Variable{
         initial=object.properties.initial,
 		entity=self,
-		event=utils.func(self.event, self)
+		event=utils.bindSelf(self.event, self)
 	})
 end
 

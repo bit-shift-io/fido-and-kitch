@@ -26,11 +26,8 @@ local PLATE_HEIGHT = 6
 local COLOUR_INACTIVE = {0.45, 0.45, 0.5}
 local COLOUR_ACTIVE = {0.35, 0.85, 0.45}
 
-function PressureSwitch:init(object)
-	Entity.init(self)
-	self.type = 'pressure_switch'
-	self.object = object
-	self.name = object.name
+function PressureSwitch:init(object, map)
+	Entity.init(self, object, 'pressure_switch')
 	self.state = 'off'
 	self.latching = (object.properties and object.properties.latching) or false
 	-- lets a pushable recognise this as something to seat itself on

@@ -1,17 +1,16 @@
 -- Exit for actors and players
 -- also includes a variable counter to allow counting down to zero when the door will open
 
+local Log = require('src.utils.log')
+
 local ExitDoor = Class{__includes = Entity}
 
 function ExitDoor:init(object)
-	Entity.init(self)
-	self.type = 'exit_door'
-	self.object = object
-	self.name = object.name
+	Entity.init(self, object, 'exit_door')
 	self.state = 'closed'
 	self.desiredState = 'closed'
-	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
-	local shape_arguments = {0, 0, object.width, object.height}
+	local position = Rect.centreOfMapObject(object)
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/door.png',
 		frames=5,
@@ -19,25 +18,25 @@ function ExitDoor:init(object)
 		loop=false,
 		position=position,
 		shape_arguments=shape_arguments,
-		finish=utils.forwardFunc(ExitDoor.animFinished, self)
+		finish=utils.bindSelf(ExitDoor.animFinished, self)
 	})
 	local collider = self:addComponent(Collider{
 		shape_type='rectangle', 
 		shape_arguments=shape_arguments,
 		body_type='static',
-		enter=utils.forwardFunc(ExitDoor.contact, self),
+		enter=utils.bindSelf(ExitDoor.contact, self),
 		sensor=true,
 		position=position
 	})
 	self.usable = self:addComponent(Usable{
 		entity=self,
-		use=utils.func(ExitDoor.use, self),
+		use=utils.bindSelf(ExitDoor.use, self),
 		enabled=false
 	})
 	self.variable = self:addComponent(Variable{
         initial=object.properties.actor_count,
 		entity=self,
-		event=utils.func(self.event, self)
+		event=utils.bindSelf(self.event, self)
 	})
 
 	-- no asset yet at res/snd/entity_exit_door_open.wav; Sound:play warns and
@@ -78,7 +77,7 @@ end
 -- call this function when an actor exits the scene straight away
 -- without going through this door
 function ExitDoor:exitInstant(entity)
-	print('some birdy left the map!')
+	Log.debug('some birdy left the map!')
 	entity:queueDestroy()
 	self:subtract(1)
 end
@@ -86,7 +85,7 @@ end
 -- let the given entity through and then destroy the entity
 -- reduce the counter
 function ExitDoor:exitThroughDoor(entity)
-	print('some birdy reached the exit!')
+	Log.debug('some birdy reached the exit!')
 	self:addWaitingEntity(entity)
 	self:updateState('openThenClose')
 	self:subtract(1)
@@ -95,7 +94,7 @@ end
 -- open the door for players to exit
 -- once opened it cannot be closed
 function ExitDoor:open()
-	print('all objectives achived, open door for player to exit')
+	Log.debug('all objectives achived, open door for player to exit')
 	self.enableUsableOnOpen = true
 	self.desiredState = 'open'
 	self.sound:play('open')

@@ -1,11 +1,9 @@
 local Teleport = Class{__includes = Entity}
 
-function Teleport:init(object)
-	Entity.init(self)
-	self.name = object.name
-	self.type = 'teleport'
-	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
-	local shape_arguments = {0, 0, object.width, object.height}
+function Teleport:init(object, map)
+	Entity.init(self, object, 'teleport')
+	local position = Rect.centreOfMapObject(object)
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.target = object.properties.target and map:getObjectById(object.properties.target.id)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/teleporter_1.png',
@@ -18,14 +16,14 @@ function Teleport:init(object)
 		shape_type='rectangle',
 		shape_arguments=shape_arguments,
 		body_type='static',
-		enter=utils.forwardFunc(Teleport.contact, self),
+		enter=utils.bindSelf(Teleport.contact, self),
 		sensor=true,
 		sprite=self.sprite,
 		position=position
 	})
 	self:addComponent(Usable{
 		entity=self,
-		use=utils.func(self.use, self)
+		use=utils.bindSelf(self.use, self)
 	})
 
 	-- only one teleport sound asset exists (res/snd/); both directions share it

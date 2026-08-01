@@ -33,6 +33,7 @@ local function bootGlobals(isReal)
 
 	str = require('src.utils.str')
 	utils = require('src.utils.utils')
+	Log = require('src.utils.log')
 
 	Vector = require('lib.hump.vector')
 	Class = require('lib.hump.class')

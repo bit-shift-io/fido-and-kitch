@@ -1,11 +1,12 @@
+local Log = require('src.utils.log')
+
 local Cage = Class{__includes = Entity}
 
-function Cage:init(object)
-	Entity.init(self)
-	self.type = 'cage'
+function Cage:init(object, map)
+	Entity.init(self, object, 'cage')
 	local color = object.properties.color
-	local position = Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
-	local shape_arguments = {0, 0, object.width, object.height}
+	local position = Rect.centreOfMapObject(object)
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/cage/cage.png',
 		frames=2,
@@ -32,7 +33,7 @@ function Cage:init(object)
 	
 	self:addComponent(Usable{
 		entity=self,
-		use=utils.forwardFunc(self.use, self),
+		use=utils.bindSelf(self.use, self),
 		requiredItem=string.format('key_%s', color)
 	})
 
@@ -44,7 +45,7 @@ function Cage:init(object)
 
 	-- spawn the prisoner!
 	if object.properties.path == nil then
-		print('Cage has no path property setup for the actor to follow when released')
+		Log.warn('Cage has no path property setup for the actor to follow when released')
 		return
 	end
 
@@ -53,7 +54,7 @@ function Cage:init(object)
 end
 
 function Cage:use(user)
-	print('Cage has been used')
+	Log.debug('Cage has been used')
 	self:removeComponent(self.lockSprite)
 	self.sprite.timeline:play()
 	self.sound:play('open')

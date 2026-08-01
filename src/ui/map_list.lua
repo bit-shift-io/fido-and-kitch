@@ -1,4 +1,5 @@
 local Tmx = require('src.map.tmx')
+local Log = require('src.utils.log')
 
 local MapList = Class{}
 
@@ -205,7 +206,7 @@ function MapList:init(props)
 					mapData=mapData,
 				})
 			else
-				print('Could not load map for menu: ' .. path)
+				Log.warn('Could not load map for menu: ' .. path)
 			end
 		end
 	end
