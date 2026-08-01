@@ -4,6 +4,8 @@
 local NPCBrain = require('src.npc.npc_brain')
 local NPCStates = require('src.npc.npc_states')
 local PushableSupport = require('src.components.pushable.pushable_support')
+local PlayerSensors = require('src.player.player_sensors')
+local DeathFlash = require('src.components.death_flash')
 local Sprite = require('src.components.sprite')
 local StateMachine = require('src.components.state_machine')
 
@@ -33,6 +35,10 @@ function NPC:init(object, props)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.homeX = position.x
+	self.homeY = position.y
+	self.homeFacing = 'right'
+	self.visible = true
+	self.alpha = 1
 
 	local idle_image = props.idleImage or 'res/img/enemy_spider.png'
 	local walk_image = props.walkImage or idle_image
@@ -172,8 +178,83 @@ function NPC:checkForStomp()
 	end
 end
 
+function NPC:draw()
+	if not self.visible then
+		return
+	end
+
+	-- headless (unit tier): no love.graphics to set color on, but component
+	-- draw() calls are themselves headless-safe no-ops -- see Sprite's
+	-- isHeadless -- so still forward to them.
+	if love and love.graphics then
+		love.graphics.setColor(1, 1, 1, self.alpha)
+	end
+
+	Entity.draw(self)
+
+	if love and love.graphics then
+		love.graphics.setColor(1, 1, 1, 1)
+	end
+end
+
+function NPC:isDead()
+	return self.fsm.currentState == self.fsm.states.DeadState
+end
+
+function NPC:die(deathType)
+	if self:isDead() then
+		return
+	end
+
+	self.deathType = deathType
+	self.fsm:setState('DeadState')
+end
+
+function NPC:respawn()
+	self.collider:setPosition(self.homeX, self.homeY)
+	self.stunTimer = 0
+	self.bans = {}
+
+	if self.animations.currentState.setFacing then
+		self.animations.currentState:setFacing(self.homeFacing)
+	end
+
+	self.fsm:setState('WanderState')
+	self:onRespawn()
+	DeathFlash.startSpawn(self)
+end
+
+-- No-op hooks for subclasses that need to react to their own death/respawn
+-- (e.g. Spider releasing a wrapped player on death, Robot clearing its
+-- chase-ban timer on respawn) without the shared DeadState/NPC:respawn
+-- knowing about any enemy-specific state.
+function NPC:onDeath()
+end
+
+function NPC:onRespawn()
+end
+
 function NPC:update(dt)
 	Entity.update(self, dt)
+
+	if self.fadeTween then
+		local finished = self.fadeTween:update(dt)
+		if finished then
+			self.fadeTween = nil
+		end
+	end
+
+	if self:isDead() then
+		return
+	end
+
+	local killZone = PlayerSensors.queryKillZone(world, self.collider)
+	if killZone then
+		killZone.sound:play(killZone.deathType)
+		self:die(killZone.deathType)
+		return
+	end
+
 	NPCBrain.tickBans(self.bans, dt)
 	self:checkForStomp()
 end

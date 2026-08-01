@@ -1,6 +1,6 @@
 local PlayerMovement = require('src.player.player_movement')
 local PlayerSensors = require('src.player.player_sensors')
-local Flash = require('src.components.flash')
+local DeathFlash = require('src.components.death_flash')
 local Log = require('src.utils.log')
 
 local LadderState = Class{}
@@ -301,10 +301,6 @@ end
 
 local DeadState = Class{}
 
-local DEATH_FLASH_INTERVAL = 0.15
-local DEATH_FLASH_BLINKS = 8
-local DEATH_FADE_DURATION = DEATH_FLASH_INTERVAL * DEATH_FLASH_BLINKS
-
 function DeadState:enter()
     local player = self.entity
 
@@ -314,16 +310,7 @@ function DeadState:enter()
     player.collider:setGravityScale(0)
     player:setAnimation('idle')
 
-    player.alpha = 1
-    player.fadeTween = Tween.new(DEATH_FADE_DURATION, player, {alpha = 0})
-
-    player.flash = player:addComponent(Flash{
-        target = player,
-        property = 'visible',
-        interval = DEATH_FLASH_INTERVAL,
-        blinks = DEATH_FLASH_BLINKS,
-        onComplete = utils.bindSelf(player.resolveDeath, player)
-    })
+    DeathFlash.startDeath(player, utils.bindSelf(player.resolveDeath, player))
 end
 
 function DeadState:exit()

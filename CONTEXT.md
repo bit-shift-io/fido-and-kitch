@@ -20,7 +20,7 @@
 
 ## Kill zone
 
-**Definition** — A designer-placed invisible volume, drawn as a rectangle on a Tiled object layer, that kills any player who touches it. Each kill zone carries a death type.
+**Definition** — A designer-placed invisible volume, drawn as a rectangle on a Tiled object layer, that kills any player or enemy who touches it. Each kill zone carries a death type.
 
 **Boundary** — Kill zones are gameplay volumes decoupled from visual tile layers (the drawn water is not the kill zone). They are instantly fatal; they are not damage sources, slow hazards, or per-tile collision.
 
@@ -160,7 +160,7 @@
 
 **Definition** — A Tiled-placed mobile entity (spider, robot) that hinders players by chasing the nearest valid (alive, unwrapped, un-banned) player at ~70% player speed under player-like physics, navigating by axis alignment: walk to close the X gap, and climb a ladder it already overlaps to close the Y gap. Wanders near its current position when no valid target exists.
 
-**Boundary** — A hindrance, never a direct killer: enemies cost time and control, not lives. Non-solid to players (overlap-based effects), solid to the world. No pathfinding — ladder use is strictly opportunistic. Invincible except for the head stomp.
+**Boundary** — A hindrance, never a direct killer of players: enemies cost time and control, not lives. Non-solid to players (overlap-based effects), solid to the world. No pathfinding — ladder use is strictly opportunistic. Immune to permanent harm except a kill zone, which kills it the same way it kills a player (see [[Enemy death and respawn]]); the head stomp only stuns.
 
 ## Harassment ban
 
@@ -179,6 +179,12 @@
 **Definition** — A player landing on an enemy from above stuns it for ~10s (frozen, visually indicated) and bounces the player upward. The players' only counterplay against enemies.
 
 **Boundary** — A stun, not a kill — enemies cannot be destroyed. Detected geometrically (falling player overlapping from above), since enemies are not solid to players. Does not start a harassment ban.
+
+## Enemy death and respawn
+
+**Definition** — An enemy that touches a kill zone dies using the same flash-and-fade sequence a player death uses, then stays gone (invisible, non-solid, no behaviour) for a fixed 30-second window before respawning at its original Tiled spawn position and facing with the same flash-and-fade-in a player respawn uses. Respawn is a full reset: no stun, chase target, or harassment ban carries over.
+
+**Boundary** — No lives, score, HUD, or camera-framing effect — scoped entirely to the enemy's own sprite, collider, and behaviour FSM. The 30-second gone-window is the player's payoff for the kill, not a checkpoint or damage system. Being stunned does not grant kill-zone immunity. If a spider dies while it has a player wrapped, the wrap ends immediately rather than waiting for the web's own expiry or the spider's respawn.
 
 ## Cage objective
 

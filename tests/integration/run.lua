@@ -26,6 +26,8 @@ local defaultTestFiles = {
 	'tests/integration/exit_door_sound_test.lua',
 	'tests/integration/jump_pad_sound_test.lua',
 	'tests/integration/kill_zone_sound_test.lua',
+	'tests/integration/npc_kill_zone_respawn_test.lua',
+	'tests/integration/spider_wrap_release_test.lua',
 	'tests/integration/teleport_sound_test.lua',
 	'tests/integration/ladder_sound_test.lua',
 	'tests/integration/ladder_platform_mount_test.lua',

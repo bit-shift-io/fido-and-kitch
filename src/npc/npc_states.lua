@@ -1,6 +1,7 @@
 -- NPC FSM states, wired onto the shared NPC base's StateMachine
 -- component (mirrors src/player/player_states.lua).
 local NPCBrain = require('src.npc.npc_brain')
+local DeathFlash = require('src.components.death_flash')
 
 local ChaseState = Class{}
 
@@ -142,9 +143,55 @@ function StunnedState:update(dt)
 	end
 end
 
+local DeadState = Class{}
+
+-- The payoff for killing an enemy: a stretch of level free of it. Not
+-- configurable per enemy/kill-zone/level -- one shared constant, mirroring
+-- how the flash timing itself isn't tuned per entity.
+local RESPAWN_DELAY = 30
+
+function DeadState:enter()
+	local npc = self.entity
+
+	npc.collider:setLinearVelocity(0, 0)
+	npc.collider:setType('kinematic')
+	npc.collider:setGravityScale(0)
+	npc.animations:setState('idle')
+
+	self.canRespawn = false
+	self.respawnTimer = 0
+
+	npc:onDeath()
+
+	DeathFlash.startDeath(npc, function()
+		self.canRespawn = true
+	end)
+end
+
+function DeadState:exit()
+	local npc = self.entity
+	npc.collider:setType('dynamic')
+	npc.collider:setGravityScale(1)
+end
+
+-- The 30s window only starts counting once the death flash-out has actually
+-- finished (self.canRespawn, set by DeathFlash's onComplete) -- it gates the
+-- *respawn*, not the ~1.2s flash itself; the two timers are independent.
+function DeadState:update(dt)
+	if not self.canRespawn then
+		return
+	end
+
+	self.respawnTimer = self.respawnTimer + dt
+	if self.respawnTimer >= RESPAWN_DELAY then
+		self.entity:respawn()
+	end
+end
+
 return {
 	ChaseState = ChaseState,
 	ClimbState = ClimbState,
 	WanderState = WanderState,
 	StunnedState = StunnedState,
+	DeadState = DeadState,
 }

@@ -1,16 +1,12 @@
 local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
-local Flash = require('src.components.flash')
+local DeathFlash = require('src.components.death_flash')
 local GroundSupport = require('src.player.ground_support')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
 local Log = require('src.utils.log')
 
 local Player = Class{__includes = Entity}
-
-local SPAWN_FLASH_INTERVAL = 0.15
-local SPAWN_FLASH_BLINKS = 8
-local SPAWN_FADE_DURATION = SPAWN_FLASH_INTERVAL * SPAWN_FLASH_BLINKS
 
 function Player:init(props)
     Entity.init(self)
@@ -231,6 +227,16 @@ function Player:wrap(duration)
     self.fsm:setState('WrappedState')
 end
 
+-- Force-ends a wrap immediately (e.g. the Spider that wrapped this player
+-- died), bypassing the web's own expiry timer -- unlike a normal expiry,
+-- this is a same-frame release rather than something WrappedState notices
+-- on its own next update.
+function Player:releaseWrap()
+    if self.fsm.currentState == self.fsm.states.WrappedState then
+        self.fsm:setState('WalkIdleState')
+    end
+end
+
 function Player:respawn()
     self.collider:setPosition(self.safePosition.x, self.safePosition.y)
     self.fsm:setState('WalkIdleState')
@@ -238,15 +244,7 @@ function Player:respawn()
 end
 
 function Player:startSpawnFlash()
-    self.alpha = 0
-    self.fadeTween = Tween.new(SPAWN_FADE_DURATION, self, {alpha = 1})
-
-    self.flash = self:addComponent(Flash{
-        target = self,
-        property = 'visible',
-        interval = SPAWN_FLASH_INTERVAL,
-        blinks = SPAWN_FLASH_BLINKS,
-    })
+    DeathFlash.startSpawn(self)
 end
 
 function Player:drawSafePositionMarker()

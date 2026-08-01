@@ -1,0 +1,66 @@
+-- End-to-end: a Robot falling into a real kill zone dies, stays gone, and
+-- respawns at its original spawn position -- driven through the real
+-- Game/Map/World stack. See tests/unit/npc_death_test.lua for the pure
+-- state-transition coverage (respawn delay gating, stun/ban reset) this
+-- doesn't repeat, and tests/integration/kill_zone_sound_test.lua for the
+-- player-side counterpart.
+local GameHarness = require('tests.support.game_harness')
+local FrameStepper = require('tests.support.frame_stepper')
+local Queries = require('tests.support.queries')
+
+local MAP = 'tests/fixtures/enemy_kill_zone_room.lua'
+
+local FLASH_INTERVAL = 0.15
+local FLASH_BLINKS = 8
+local RESPAWN_DELAY = 30
+local FIXED_DT = 1 / 60
+
+local function findRobot()
+	return Queries.findEntityByType(map, 'robot')
+end
+
+test('a Robot falling into a kill zone dies, becomes non-solid, and stops chasing/shoving', function()
+	local game = GameHarness.startGame(MAP)
+
+	FrameStepper.step(game, 90) -- fall from spawn straight into the kill zone
+
+	local robot = findRobot()
+	assertTrue(robot:isDead(), 'expected the Robot to have died in the kill zone')
+	assertEqual('kinematic', robot.collider.bodyType, 'expected a dead Robot to be non-solid/kinematic')
+end)
+
+test('a Robot stays gone for 30s after the death flash completes, then respawns at its original spawn position and facing', function()
+	local game = GameHarness.startGame(MAP)
+	FrameStepper.step(game, 90) -- fall into the kill zone and die
+
+	local robot = findRobot()
+	assertTrue(robot:isDead(), 'fixture check: expected the Robot to have died')
+	local originX, originY = robot.homeX, robot.homeY
+
+	-- run the ~1.2s flash-out to completion, then run out all but a few
+	-- seconds of the 30s window -- should still be gone
+	local flashFrames = math.ceil((FLASH_INTERVAL * FLASH_BLINKS) / FIXED_DT)
+	FrameStepper.step(game, flashFrames)
+	local shortOfWindowFrames = math.floor((RESPAWN_DELAY - 3) / FIXED_DT)
+	FrameStepper.step(game, shortOfWindowFrames)
+
+	assertTrue(robot:isDead(), 'expected the Robot to still be gone a few seconds short of the 30s window')
+
+	-- step forward frame-by-frame, stopping the instant it respawns -- once
+	-- respawned, Chase/WanderState resumes moving it (e.g. back toward the
+	-- kill zone it fell into), so this catches it right at the moment of
+	-- respawn rather than assuming a fixed frame count lands on it exactly
+	local respawned = false
+	for _ = 1, math.ceil(10 / FIXED_DT) do
+		FrameStepper.step(game, 1)
+		if not robot:isDead() then
+			respawned = true
+			break
+		end
+	end
+
+	assertTrue(respawned, 'expected the Robot to have respawned within a few seconds of crossing the 30s window')
+	assertNear(originX, robot.collider:getX(), 1)
+	assertNear(originY, robot.collider:getY(), 1)
+	assertEqual('right', robot.homeFacing)
+end)

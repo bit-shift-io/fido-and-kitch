@@ -18,18 +18,22 @@ function Robot:init(object)
 end
 
 function Robot:draw()
-	Entity.draw(self)
+	NPC.draw(self)
 end
 
 function Robot:update(dt)
 	NPC.update(self, dt)
 
-	if self:isStunned() then
+	if self:isDead() or self:isStunned() then
 		return
 	end
 
 	self:updateChaseBan(dt)
 	self:shoveOverlappingPlayers(dt)
+end
+
+function Robot:onRespawn()
+	self.chaseTimer = {target = nil, elapsed = 0}
 end
 
 function Robot:updateChaseBan(dt)
