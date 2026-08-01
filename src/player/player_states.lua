@@ -23,6 +23,14 @@ function LadderState:exit()
     local player = self.entity
     player.collider:setType('dynamic')
     player.collider:setGravityScale(1)
+
+    -- LadderState drives movement by setting velocity directly on a
+    -- kinematic body; without clearing it here, whatever velocity was set
+    -- on the last ladder frame (e.g. still climbing upward) carries into
+    -- the now gravity-affected dynamic body, so dismounting at the top of
+    -- a ladder would coast upward past the platform before gravity caught
+    -- up with it.
+    player.collider:setLinearVelocity(0, 0)
 end
 
 function LadderState:canTransition()
