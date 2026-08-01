@@ -2,6 +2,16 @@ local AssetManager = require('src.utils.asset_manager')
 
 local Sprite = Class{}
 
+-- Mirrors Sound.silentMode: headless tests have no love.graphics, so
+-- AssetManager.getImage already degrades to returning nil rather than
+-- loading a real texture. Sprite still needs to construct successfully in
+-- that case (an entity's other logic -- state machines, colliders -- may
+-- be under test even though nothing will ever draw), just without a real
+-- image to measure or a real Quad to cut.
+local function isHeadless()
+	return not (love and love.graphics)
+end
+
 local function setImageFilter(image, filter)
 	if image and image.setFilter then
 		image:setFilter(filter or 'linear', filter or 'linear')
@@ -38,6 +48,19 @@ end
 -- since each frame is a Quad into the shared sheet, not its own Image).
 local function framesFromSheet(imagePath, frameCount, filter)
 	local image = AssetManager.getImage(imagePath)
+	if not image then
+		-- headless: no texture to load or cut into real Quads, but
+		-- Timeline:getFrameIndex still indexes against #frames to drive
+		-- animation state (frameNum, direction, finish callbacks) -- logic
+		-- a headless test may well be exercising. Placeholder entries keep
+		-- the count right; draw_quad_frames itself is never reached
+		-- without love.graphics.
+		local placeholders = {}
+		for i = 1, frameCount do
+			placeholders[i] = false
+		end
+		return placeholders, nil
+	end
 	setImageFilter(image, filter)
 
 	local textureWidth = image:getWidth() / frameCount
@@ -112,8 +135,12 @@ function Sprite:init(props)
 	self.playingOnEnter = props.playing ~= false
 	self.timeline = Timeline(props)
 
-	if props.shape_arguments then
-		local frameImage = image or frames[1]
+	-- headless: no real texture loaded (image and frames[1] both nil), so
+	-- there's nothing to measure and no fit to compute -- self.scale/offset
+	-- stay at their props/default values. Nothing under headless test reads
+	-- them; only real rendering (never exercised outside e2e) would notice.
+	local frameImage = image or frames[1]
+	if props.shape_arguments and frameImage then
 		local frameImageWidth = frameImage:getWidth() / framesPerImage
 		local frameImageHeight = frameImage:getHeight()
 		self.scale, self.offset = fitToShapeArguments(props.shape_arguments, frameImageWidth, frameImageHeight, self.scale, self.offset)

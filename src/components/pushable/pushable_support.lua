@@ -3,7 +3,10 @@
 -- constructs nothing itself, but the props that use it evaluate
 -- Class{__includes = Entity} and build Sprite/Collider at require time, which
 -- tests/unit/ cannot load). Mirrors src/player/ground_support.lua and
--- src/entities/drawbridge/drawbridge_support.lua.
+-- src/entities/pressure_switch/pressure_switch_support.lua. (The drawbridge
+-- used to be a third example of this split; ADR 0005 merged it back into a
+-- single src/entities/drawbridge.lua once tests/support/headless_bootstrap.lua
+-- made constructing a full entity headless possible.)
 --
 -- Sits beside its component in src/components/pushable/ rather than inside any
 -- one prop's directory: the behaviour is shared by push_box and boulder, and

@@ -1,6 +1,6 @@
 # ADR 0003: Multi-file entities live in a directory named after the entity
 
-**Status:** Accepted
+**Status:** Accepted (drawbridge's own split reversed by ADR 0005; the directory convention documented here still applies to any other multi-file entity, e.g. pushable, pressure_switch)
 **Date:** 2026-07-26
 
 ## Context

@@ -1,6 +1,10 @@
 -- Pure decision helpers for the pressure switch, extracted so they're testable
 -- headless without the entity/component/world stack. Mirrors
--- src/entities/drawbridge/drawbridge_support.lua and src/player/ground_support.lua.
+-- src/player/ground_support.lua and src/components/pushable/pushable_support.lua.
+-- (The drawbridge used to be a third example of this split; ADR 0005 merged
+-- it back into a single src/entities/drawbridge.lua once
+-- tests/support/headless_bootstrap.lua made constructing a full entity
+-- headless possible.)
 local PressureSwitchSupport = {}
 
 -- How far a weight's centre-x may sit from the plate tile's centre and still
