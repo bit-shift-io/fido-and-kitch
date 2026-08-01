@@ -17,13 +17,13 @@
   <image source="../img/key_blue.png" width="32" height="32"/>
  </tile>
  <tile id="5" x="0" y="0" width="64" height="64">
-  <image source="../img/door.png" width="320" height="64"/>
+  <image source="../img/entity_door.png" width="320" height="64"/>
  </tile>
  <tile id="6" x="0" y="0" width="20" height="20">
   <image source="../img/coins.png" width="160" height="20"/>
  </tile>
  <tile id="8">
-  <image source="../img/teleporter_1.png" width="1000" height="1000"/>
+  <image source="../img/entity_teleporter.png" width="1000" height="1000"/>
  </tile>
  <tile id="9" x="0" y="0" width="380" height="370">
   <image source="../img/cage/cage.png" width="760" height="370"/>

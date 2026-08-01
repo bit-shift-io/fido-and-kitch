@@ -6,8 +6,8 @@ function Teleport:init(object, map)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.target = object.properties.target and map:getObjectById(object.properties.target.id)
 	self.sprite = self:addComponent(Sprite{
-		image='res/img/teleporter_1.png',
-		frames=1, 
+		image='res/img/entity_teleporter.png',
+		frames=1,
 		duration=1.0,
 		shape_arguments=shape_arguments,
 		loop=false

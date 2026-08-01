@@ -10,10 +10,11 @@ function ExitDoor:init(object)
 	self.state = 'closed'
 	self.desiredState = 'closed'
 	local position = Rect.centreOfMapObject(object)
-	local shape_arguments = Rect.shapeArgs(object.width, object.height)
+    local shape_arguments = Rect.shapeArgs(object.width, object.height)
+
 	self.sprite = self:addComponent(Sprite{
-		image='res/img/door.png',
-		frames=5,
+		image='res/img/entity_door.png',
+		frames=1,
 		duration=1.0,
 		loop=false,
 		position=position,
@@ -21,7 +22,7 @@ function ExitDoor:init(object)
 		finish=utils.bindSelf(ExitDoor.animFinished, self)
 	})
 	local collider = self:addComponent(Collider{
-		shape_type='rectangle', 
+		shape_type='rectangle',
 		shape_arguments=shape_arguments,
 		body_type='static',
 		enter=utils.bindSelf(ExitDoor.contact, self),
