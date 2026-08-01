@@ -8,15 +8,15 @@ function Switch:init(object, map)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
-		image='res/img/switch.png',
-		frames=3,
+		image='res/img/entity_switch.png',
+		frames=2,
 		position=position,
 		shape_arguments=shape_arguments,
 		duration=1.0,
 		loop=false
 	})
 	self.collider = self:addComponent(Collider{
-		shape_type='rectangle', 
+		shape_type='rectangle',
 		shape_arguments=shape_arguments,
 		body_type='static',
 		position=position,
@@ -45,7 +45,7 @@ function Switch:use(user)
 	-- added to the sprite
 	local frameNum = self.sprite.frameNum
 	if frameNum == 1 then
-		frameNum = 3
+		frameNum = 2
 		self.state = 'on'
 	else
 		frameNum = 1

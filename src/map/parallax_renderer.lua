@@ -57,10 +57,6 @@ function ParallaxRenderer:drawMainLayers(map, tx, ty, sx, sy)
 		end
 	end
 
-	if conf and conf.drawphysics and world then
-		world:draw()
-	end
-
 	lg.pop()
 end
 

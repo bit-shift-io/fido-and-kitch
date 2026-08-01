@@ -29,10 +29,11 @@ function DebugOverlay:draw(world, map, players, tx, ty, sx, sy, cameraFramingBou
 
 	lg.translate(math.floor(tx), math.floor(ty))
 	lg.scale(sx, sy)
+	lg.setLineWidth(2 / math.max(sx, sy))  -- keep line width consistent in world space
 
 	-- Draw world colliders (physics bodies)
 	if self.showHitboxes and world and world.colliders then
-		lg.setColor(1, 0, 0, 0.5)
+		lg.setColor(1, 1, 1, 0.5)
 		for collider, _ in pairs(world.colliders) do
 			if collider.getBounds then
 				local b = collider:getBounds()
@@ -40,38 +41,44 @@ function DebugOverlay:draw(world, map, players, tx, ty, sx, sy, cameraFramingBou
 				
 				-- Show sensor vs solid
 				if collider.sensor then
-					lg.setColor(1, 1, 0, 0.3)
-					lg.rectangle('fill', b.left, b.top, b.width, b.height)
+					lg.setColor(1, 0, 0, 0.8)
+					lg.rectangle('line', b.left, b.top, b.width, b.height)
 				end
-				lg.setColor(1, 0, 0, 0.5)
+				lg.setColor(1, 1, 1, 0.5)
 			end
 		end
 	end
 
 	-- Draw ladder sensors
 	if self.showLadders and world and world.colliders then
-		lg.setColor(0, 1, 1, 0.5)
+		lg.setColor(0, 1, 1, 1)
 		for collider, _ in pairs(world.colliders) do
 			if collider.sensor and collider.entity and collider.entity.isLadder then
 				local b = collider:getBounds()
+				lg.setLineWidth(3 / math.max(sx, sy))
 				lg.rectangle('line', b.left, b.top, b.width, b.height)
-				lg.setColor(0, 1, 1, 0.2)
+				lg.setColor(0, 1, 1, 0.3)
 				lg.rectangle('fill', b.left, b.top, b.width, b.height)
+				lg.setColor(0, 1, 1, 1)
 			end
 		end
+		lg.setLineWidth(2 / math.max(sx, sy))
 	end
 
 	-- Draw kill zones
 	if self.showKillZones and world and world.colliders then
-		lg.setColor(1, 0, 1, 0.5)
+		lg.setColor(1, 0, 1, 1)
 		for collider, _ in pairs(world.colliders) do
 			if collider.entity and collider.entity.isKillZone then
 				local b = collider:getBounds()
+				lg.setLineWidth(3 / math.max(sx, sy))
 				lg.rectangle('line', b.left, b.top, b.width, b.height)
-				lg.setColor(1, 0, 1, 0.2)
+				lg.setColor(1, 0, 1, 0.3)
 				lg.rectangle('fill', b.left, b.top, b.width, b.height)
+				lg.setColor(1, 0, 1, 1)
 			end
 		end
+		lg.setLineWidth(2 / math.max(sx, sy))
 	end
 
 	-- Draw player safe positions

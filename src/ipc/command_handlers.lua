@@ -159,6 +159,11 @@ end
 		return self.gameAPI.stepFrames(count)
 	end)
 
+	self:register('TOGGLE_DEBUG_DRAW', function(args)
+		if #args ~= 0 then return nil, 'Usage: TOGGLE_DEBUG_DRAW (no arguments)' end
+		return self.gameAPI.toggleDebugDraw()
+	end)
+
 	self:register('SET_JOYSTICK_NON_GAMEPAD', function(args)
 		if #args ~= 2 then return nil, 'Usage: SET_JOYSTICK_NON_GAMEPAD <1|2> <true|false>' end
 		local idx = tonumber(args[1])

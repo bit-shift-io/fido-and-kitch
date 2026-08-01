@@ -412,6 +412,11 @@ function GameAPI.stepFrames(count)
 	return 'OK: Stepped ' .. count .. ' frames'
 end
 
+function GameAPI.toggleDebugDraw()
+	conf.drawphysics = not conf.drawphysics
+	return 'OK: Debug draw ' .. (conf.drawphysics and 'enabled' or 'disabled')
+end
+
 local function getColliderInfo(collider)
 	if not collider then return nil end
 	local bounds = collider.getBounds and collider:getBounds() or nil

@@ -167,9 +167,12 @@ function InGameState:draw()
 
     -- Debug overlay (hitboxes, ladders, kill zones, safe positions, etc.)
     if conf.drawphysics and self.debugOverlay then
+        self.debugOverlay.enabled = true
         local targets = self:collectPlayerTargets()
         local cameraFramingBounds = self.camera:computeTargetView(targets)
         self.debugOverlay:draw(world, map, self.players, tx, ty, sx, sy, cameraFramingBounds)
+    else
+        self.debugOverlay.enabled = false
     end
 
     self.livesHud:draw()
