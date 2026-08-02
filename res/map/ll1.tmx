@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="36" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="31">
+<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="36" height="22" tilewidth="32" tileheight="32" infinite="0" nextlayerid="6" nextobjectid="31">
  <properties>
   <property name="background" value="mushroom_cave"/>
+  <property name="description" value="Lurid Land level 01"/>
+  <property name="name" value="LL1"/>
+  <property name="players" type="int" value="1"/>
  </properties>
  <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
  <layer id="1" name="ground" width="36" height="22">

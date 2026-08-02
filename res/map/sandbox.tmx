@@ -2,6 +2,9 @@
 <map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="89">
  <properties>
   <property name="background" value="night_forest"/>
+  <property name="description" value="A compact test level"/>
+  <property name="name" value="Sandbox"/>
+  <property name="players" type="int" value="1"/>
  </properties>
  <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
  <tileset firstgid="145" source="../tilesets/props.tsx"/>

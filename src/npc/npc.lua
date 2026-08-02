@@ -40,7 +40,7 @@ function NPC:init(object, props)
 	self.visible = true
 	self.alpha = 1
 
-	local idle_image = props.idleImage or 'res/img/enemy_spider.png'
+	local idle_image = props.idleImage or 'res/img/npc_spider.png'
 	local walk_image = props.walkImage or idle_image
 
 	local animations = {

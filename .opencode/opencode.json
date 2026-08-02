@@ -1,13 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "lsp": true,
   "provider": {
     "options": {
-      // 30 mins
-        "timeout": 1800000,
-        "chunkTimeout": 120000
-        // 10 mins
- //     "timeout": 600000,
- //     "chunkTimeout": 60000
+      "timeout": 1800000,
+      "chunkTimeout": 0
     }
   },
   "plugin": [

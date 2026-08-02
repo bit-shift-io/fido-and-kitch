@@ -9,7 +9,7 @@ local DEFAULT_CHASE_BAN_TIME = 10
 function Robot:init(object)
 	NPC.init(self, object, {
 		color = {0.55, 0.55, 0.6, 1},
-		idleImage = 'res/img/enemy_blob.png',
+		idleImage = 'res/img/npc_blob.png',
 	})
 	self.type = 'robot'
 	self.shoveSpeed = (object.properties and object.properties.shoveSpeed) or DEFAULT_SHOVE_SPEED

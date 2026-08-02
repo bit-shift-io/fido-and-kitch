@@ -8,7 +8,7 @@ local DEFAULT_WRAP_DURATION = 20
 function Spider:init(object)
 	NPC.init(self, object, {
 		color = {0.15, 0.15, 0.15, 1},
-		idleImage = 'res/img/enemy_spider.png',
+		idleImage = 'res/img/npc_spider.png',
 	})
 	self.type = 'spider'
 	self.wrapDuration = (object.properties and object.properties.wrapDuration) or DEFAULT_WRAP_DURATION

@@ -45,3 +45,4 @@ tests/fixtures/*.bin
 .vscode/
 .opencode/
 .zed/
+.agents/

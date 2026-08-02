@@ -45,10 +45,6 @@ end
 function MenuState:keypressed(k)
     if k == 'return' or k == 'space' then
         self:startGame{map=self.mapList.selectedFile}
-    elseif k == 'left' or k == 'a' then
-        self.mapList:previous()
-    elseif k == 'right' or k == 'd' then
-        self.mapList:next()
     elseif k == 'escape' then
         love.event.push('quit')
     end

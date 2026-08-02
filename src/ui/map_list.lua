@@ -6,21 +6,6 @@ local MapList = Class{}
 local THUMBNAIL_WIDTH = 360
 local THUMBNAIL_HEIGHT = 220
 
-local MAP_DETAILS = {
-	sandbox={
-		title='Sandbox',
-		description='A playground map for testing movement, teleporters, jump pads, keys, and other mechanics.'
-	},
-	ll1={
-		title='Ladder Lab 1',
-		description='A compact co-op puzzle with ladders, keys, cages, birds, and an exit objective.'
-	},
-	ll2={
-		title='Ladder Lab 2',
-		description='A wider puzzle space with layered platforms and more routes to coordinate.'
-	}
-}
-
 local ENTITY_COLORS = {
 	spawn={0.35, 0.85, 1.0, 1},
 	key={1.0, 0.85, 0.2, 1},
@@ -71,11 +56,6 @@ local function collectEntityTypes(mapData)
 end
 
 local function descriptionFor(file, mapData)
-	local details = MAP_DETAILS[baseName(file)]
-	if details and details.description then
-		return details.description
-	end
-
 	if mapData.properties and mapData.properties.description then
 		return mapData.properties.description
 	end
@@ -104,9 +84,8 @@ local function descriptionFor(file, mapData)
 end
 
 local function titleFor(file, mapData)
-	local details = MAP_DETAILS[baseName(file)]
-	if details and details.title then
-		return details.title
+	if mapData.properties and mapData.properties.name then
+		return mapData.properties.name
 	end
 
 	if mapData.properties and mapData.properties.title then
@@ -124,11 +103,15 @@ local function drawMapThumbnail(mapData)
 	local tx = (THUMBNAIL_WIDTH - (mapPixelWidth * scale)) * 0.5
 	local ty = (THUMBNAIL_HEIGHT - (mapPixelHeight * scale)) * 0.5
 
-	lg.clear(0, 0, 0, 0)
+	lg.clear(0.08, 0.09, 0.12, 1)
 
 	lg.push()
 	lg.translate(tx, ty)
 	lg.scale(scale, scale)
+
+	-- Draw a subtle grid background for the map bounds
+	lg.setColor(0.12, 0.14, 0.18, 1)
+	lg.rectangle('fill', 0, 0, mapPixelWidth, mapPixelHeight)
 
 	for _, layer in ipairs(mapData.layers or {}) do
 		if layer.type == 'tilelayer' and layer.visible ~= false and type(layer.data) == 'string' then
@@ -136,9 +119,9 @@ local function drawMapThumbnail(mapData)
 			if ok and decoded then
 				local isCollision = layer.properties and layer.properties.collision
 				if isCollision then
-					lg.setColor(1, 1, 1, 0.22)
+					lg.setColor(1, 1, 1, 0.45)
 				else
-					lg.setColor(1, 1, 1, 0.08)
+					lg.setColor(1, 1, 1, 0.25)
 				end
 
 				for y = 1, layer.height do
@@ -154,7 +137,7 @@ local function drawMapThumbnail(mapData)
 			for _, object in ipairs(layer.objects or {}) do
 				local color = ENTITY_COLORS[object.type]
 				if color then
-					lg.setColor(1, 1, 1, 0.32)
+					lg.setColor(color[1], color[2], color[3], 0.6)
 					local width = math.max(object.width or 16, 16)
 					local height = math.max(object.height or 16, 16)
 					lg.rectangle('fill', object.x or 0, (object.y or 0) - height, width, height)
@@ -179,37 +162,38 @@ function MapList:init(props)
 	local files = love.filesystem.getDirectoryItems(self.dir)
 	table.sort(files)
 
-	for _, file in ipairs(files) do
-		if str.endsWith(file, '.lua') or str.endsWith(file, '.tmx') then
-			local path = self.dir .. '/' .. file
-			local ok, mapData
-			if str.endsWith(file, '.tmx') then
-				ok, mapData = pcall(Tmx.parse, path)
-			else
-				local loadOk, chunk = pcall(love.filesystem.load, path)
-				ok = loadOk and chunk ~= nil
-				mapData = ok and chunk()
-			end
-			if ok and mapData then
-				local canvas = love.graphics.newCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
-				local previousCanvas = love.graphics.getCanvas()
-				love.graphics.setCanvas(canvas)
-				drawMapThumbnail(mapData)
-				love.graphics.setCanvas(previousCanvas)
+for _, file in ipairs(files) do
+ 		if str.endsWith(file, '.lua') or str.endsWith(file, '.tmx') then
+ 			local path = self.dir .. '/' .. file
+ 			local ok, mapData
+ 			if str.endsWith(file, '.tmx') then
+ 				ok, mapData = pcall(Tmx.parse, path)
+ 			else
+ 				local loadOk, chunk = pcall(love.filesystem.load, path)
+ 				ok = loadOk and chunk ~= nil
+ 				mapData = ok and chunk()
+ 			end
+ 			if ok and mapData then
+ 				local canvas = love.graphics.newCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
+ 				local previousCanvas = love.graphics.getCanvas()
+ 				love.graphics.setCanvas(canvas)
+ 				drawMapThumbnail(mapData)
+ 				love.graphics.setCanvas(previousCanvas)
 
-				table.insert(self.entries, {
+table.insert(self.entries, {
 					file=file,
 					path=path,
 					title=titleFor(file, mapData),
 					description=descriptionFor(file, mapData),
 					canvas=canvas,
 					mapData=mapData,
+					players=mapData.properties and mapData.properties.players or 1,
 				})
-			else
-				Log.warn('Could not load map for menu: ' .. path)
-			end
-		end
-	end
+ 			else
+ 				Log.warn('Could not load map for menu: ' .. path)
+ 			end
+ 		end
+ 	end
 
 	self:updateSelection()
 end
@@ -313,10 +297,6 @@ function MapList:draw()
 	lg.setColor(1, 1, 1, 1)
 	lg.printf('FIDO & KITCH', contentX, h * 0.12, contentW, 'center')
 
-	lg.setFont(self.smallFont)
-	lg.setColor(1, 1, 1, 0.45)
-	lg.printf('SELECT LEVEL', contentX, h * 0.12 + 42, contentW, 'center')
-
 	if not entry then
 		lg.setFont(self.bodyFont)
 		lg.setColor(1, 1, 1, 0.82)
@@ -344,11 +324,17 @@ function MapList:draw()
 	lg.setColor(1, 0.86, 0.22, 1)
 	lg.printf(entry.title:upper(), contentX, thumbY + thumbH + 54, contentW, 'center')
 
-	lg.setFont(self.bodyFont)
-	lg.setColor(1, 1, 1, 0.76)
-	lg.printf(entry.description, contentX + 32, thumbY + thumbH + 104, contentW - 64, 'center')
+lg.setFont(self.bodyFont)
+		lg.setColor(1, 1, 1, 0.76)
+		lg.printf(entry.description, contentX + 32, thumbY + thumbH + 104, contentW - 64, 'center')
 
-	local buttonY = math.min(h - 118, thumbY + thumbH + 180)
+		-- Recommended players
+		local players = entry.players or 1
+		lg.setFont(self.smallFont)
+		lg.setColor(1, 0.86, 0.22, 0.85)
+		lg.printf('players: ' .. players, contentX, thumbY + thumbH + 144, contentW, 'center')
+
+		local buttonY = math.min(h - 118, thumbY + thumbH + 180)
 	local sideButtonW = math.min(110, contentW * 0.24)
 	local startButtonW = math.min(220, contentW * 0.42)
 	local buttonH = 56

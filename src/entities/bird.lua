@@ -8,7 +8,7 @@ function Bird:init(object)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(32, 32) -- fixed sprite box, not object.width/height
 	self.sprite = self:addComponent(Sprite{
-        frames='res/img/character_bird_idle.png',
+        frames='res/img/npc_bird_idle.png',
         frameCount=1,
 		duration=1.0,
 		loop=true,
