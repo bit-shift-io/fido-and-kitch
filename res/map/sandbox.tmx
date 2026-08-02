@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="89">
+<map version="1.11" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="89">
  <properties>
   <property name="background" value="night_forest"/>
  </properties>
@@ -49,6 +49,7 @@
    <properties>
     <property name="image" type="file" value="../img/cage/cage.png"/>
     <property name="path" type="object" value="67"/>
+    <property name="spawn_type" value="bird"/>
    </properties>
   </object>
   <object id="43" template="../templates/exit.tx" name="exit" x="416" y="192">
@@ -81,6 +82,7 @@
    <properties>
     <property name="color" value="blue"/>
     <property name="path" type="object" value="77"/>
+    <property name="spawn_type" value="rabbit"/>
    </properties>
   </object>
   <object id="76" name="blue_key" type="key" gid="123" x="608" y="256" width="32" height="32">

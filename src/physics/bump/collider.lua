@@ -30,7 +30,9 @@ function Collider:init(props)
 
 	self.gravity = props.gravity or DEFAULT_GRAVITY
 	self.maxFallSpeed = props.maxFallSpeed or DEFAULT_MAX_FALL_SPEED
-	self:setGravityScale(1)
+	local gs = props.gravityScale
+	if gs == nil then gs = 1 end
+	self:setGravityScale(gs)
 	self:setLinearVelocity(0, 0)
 	self:setSensor(false)
 	self:setFixedRotation(false)

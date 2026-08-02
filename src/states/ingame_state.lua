@@ -62,6 +62,24 @@ function InGameState:load(props)
         end
     end
 
+    -- Make players globally accessible for NPC follow system
+    _G.players = self.players
+
+    -- Count total cages in level
+    local cages = map:getEntitiesByType('cage')
+    self.totalCages = #cages
+    self.unlockedCages = 0
+    Log.debug('Level has ' .. self.totalCages .. ' cages')
+
+    -- Set cage counts on each cage entity
+    for _, cage in ipairs(cages) do
+        cage.totalCages = self.totalCages
+        cage.unlockedCount = 0
+    end
+
+    -- Listen for cage unlock events
+    self.cageUnlockedHandler = EventBus.on('cage_unlocked', utils.bindSelf(InGameState.onCageUnlocked, self))
+
     -- Listen for player deaths via EventBus
     EventBus.on('player_died', utils.bindSelf(InGameState.onPlayerDied, self))
 
@@ -69,6 +87,16 @@ function InGameState:load(props)
         profile.stop()
         print('love.load profile:')
         print(profile.report(10))
+    end
+end
+
+function InGameState:onCageUnlocked(data)
+    self.unlockedCages = self.unlockedCages + 1
+    Log.debug('Cage unlocked! Total: ' .. self.totalCages .. ', Unlocked: ' .. self.unlockedCages)
+    
+    if self.unlockedCages >= self.totalCages then
+        Log.debug('All cages unlocked! Emitting all_cages_unlocked event')
+        EventBus.emit('all_cages_unlocked', {totalCages = self.totalCages})
     end
 end
 

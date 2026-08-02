@@ -118,6 +118,11 @@ function Player:init(props)
 
     self.safePosition = SafePosition.new(position.x, position.y)
 
+    -- Position history for NPC breadcrumb following (max 120 entries = 2 seconds at 60Hz)
+    self.positionHistory = {}
+    self.maxPositionHistory = 120
+    self.gameTime = 0
+
     self.visible = true
     self.alpha = 1
     self.deathSignal = Signal{}
@@ -147,10 +152,14 @@ end
 function Player:checkForUsables()
     local x = self.collider:getX()
     local y = self.collider:getY()
-    local colls = world:queryRectangleArea(x-1,y-1,x+1,y+1)
+    print("CHECK FOR USABLES at player pos: " .. x .. "," .. y)
+    local bounds = {left = x-1, top = y-1, right = x+1, bottom = y+1}
+    local colls = world:queryOverlap(bounds)
+    print("  Found " .. #colls .. " colliders in query area")
     for _, c in ipairs(colls) do
         local entity = c.entity
         if entity then
+            print("  Collider entity: " .. tostring(entity.name) .. " type=" .. tostring(entity.type))
             local usable = entity:getComponent(Usable)
             if usable ~= nil then
                 Log.debug('found entity with usable', c.entity.name)
@@ -182,6 +191,18 @@ function Player:update(dt)
 
     local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and PlayerSensors.queryFullySupported(world, self.collider:getBounds())
     self.safePosition:update(dt, grounded, self.collider:getX(), self.collider:getY())
+
+    -- Record position history for NPC breadcrumb following
+    self.gameTime = self.gameTime + dt
+    table.insert(self.positionHistory, {
+        x = self.collider:getX(),
+        y = self.collider:getY(),
+        t = self.gameTime
+    })
+    -- Keep buffer at max size (circular buffer)
+    while #self.positionHistory > self.maxPositionHistory do
+        table.remove(self.positionHistory, 1)
+    end
 end
 
 function Player:draw()
@@ -276,6 +297,15 @@ end
 
 function Player:isDown(action)
     return inputManager:isDown(self.index, action)
+end
+
+function Player:getPositionHistory()
+    -- Return a shallow copy to prevent external mutation
+    local copy = {}
+    for i, entry in ipairs(self.positionHistory) do
+        copy[i] = {x = entry.x, y = entry.y, t = entry.t}
+    end
+    return copy
 end
 
 return Player

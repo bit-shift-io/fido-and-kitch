@@ -2,6 +2,7 @@
 -- also includes a variable counter to allow counting down to zero when the door will open
 
 local Log = require('src.utils.log')
+local EventBus = require('src.utils.event_bus')
 
 local ExitDoor = Class{__includes = Entity}
 
@@ -54,6 +55,18 @@ function ExitDoor:init(object)
 
 	self.entitysWaiting = {}
 	self.enableUsableOnOpen = false
+	
+	-- Initially not usable until all cages are unlocked
+	self.cagesUnlocked = false
+	
+	-- Listen for all_cages_unlocked event
+	self.allCagesUnlockedHandler = EventBus.on('all_cages_unlocked', utils.bindSelf(ExitDoor.onAllCagesUnlocked, self))
+end
+
+function ExitDoor:onAllCagesUnlocked(data)
+    Log.debug('ExitDoor: all cages unlocked, enabling door')
+    self.cagesUnlocked = true
+    self:open()
 end
 
 function ExitDoor:contact(other)
@@ -169,6 +182,17 @@ end
 
 function ExitDoor:checkEndGame()
 	-- TODO: if all players have left the map, game over man!
+end
+
+function ExitDoor:destroy()
+    if self.allCagesUnlockedHandler then
+        EventBus.off('all_cages_unlocked', self.allCagesUnlockedHandler)
+        self.allCagesUnlockedHandler = nil
+    end
+    -- Call parent destroy if exists
+    if Entity.destroy then
+        Entity.destroy(self)
+    end
 end
 
 return ExitDoor

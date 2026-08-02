@@ -20,6 +20,7 @@
     "fetcherror",
     "terminated",
     "econnreset",
-    "idle timeout"
+    "idle timeout",
+    "<unk><unk><unk>",
   ]
 }

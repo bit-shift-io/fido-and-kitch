@@ -11,6 +11,7 @@ function Signal:connect(fn)
         return
     end
     table.insert(self.slots, fn)
+    return fn
 end
 
 function Signal:disconnect(fn)

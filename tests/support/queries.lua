@@ -16,6 +16,20 @@ function Queries.findEntityByType(mapInstance, entityType)
 	return nil
 end
 
+function Queries.findEntitiesByType(mapInstance, entityType)
+	local entities = {}
+	for _, layer in ipairs(mapInstance.layers) do
+		if layer.type == 'objectgroup' and layer.entities then
+			for _, entity in pairs(layer.entities) do
+				if entity.type == entityType then
+					table.insert(entities, entity)
+				end
+			end
+		end
+	end
+	return entities
+end
+
 -- Object `name` rather than `type`, for fixtures that place several entities
 -- of the same type and need to address a specific one. Entity load order
 -- within a layer is not something a test should depend on.

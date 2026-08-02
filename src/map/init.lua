@@ -147,6 +147,20 @@ function Map:getObjectById(id)
 	return self.map.objects[id]
 end
 
+function Map:getEntitiesByType(entityType)
+    local entities = {}
+    for _, layer in ipairs(self.map.layers) do
+        if layer.type == "objectgroup" and layer.entities then
+            for _, entity in ipairs(layer.entities) do
+                if entity.type == entityType then
+                    table.insert(entities, entity)
+                end
+            end
+        end
+    end
+    return entities
+end
+
 function Map:loadEntity(entityName, layer, object)
 	return self.entityFactory:loadEntity(entityName, layer, object)
 end
