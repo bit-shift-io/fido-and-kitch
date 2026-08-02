@@ -1,0 +1,210 @@
+local Tmx = require('src.map.tmx')
+local Log = require('src.utils.log')
+
+local MapCard = Class{}
+
+local THUMBNAIL_WIDTH = 360
+local THUMBNAIL_HEIGHT = 220
+
+local ENTITY_COLORS = {
+	spawn={0.35, 0.85, 1.0, 1},
+	key={1.0, 0.85, 0.2, 1},
+	cage={0.85, 0.45, 1.0, 1},
+	exit_door={0.25, 1.0, 0.35, 1},
+	teleport={0.35, 0.45, 1.0, 1},
+	jump_pad={1.0, 0.45, 0.25, 1},
+	coin={1.0, 0.75, 0.1, 1},
+	bird={1.0, 1.0, 1.0, 1},
+	ladder={0.75, 0.55, 0.3, 1},
+}
+
+local function baseName(file)
+	return file:gsub('%.lua$', ''):gsub('%.tmx$', '')
+end
+
+local function titleFromFile(file)
+	local title = baseName(file):gsub('_', ' '):gsub('-', ' ')
+	return (title:gsub('(%a)([%w_\']*)', function(first, rest)
+		return first:upper() .. rest:lower()
+	end))
+end
+
+local function readTile(data, index)
+	local i = ((index - 1) * 4) + 1
+	local b1, b2, b3, b4 = data:byte(i, i + 3)
+	if b4 == nil then
+		return 0
+	end
+	return (b1 + (b2 * 256) + (b3 * 65536) + (b4 * 16777216)) % 268435456
+end
+
+local function collectEntityTypes(mapData)
+	local types = {}
+	for _, layer in ipairs(mapData.layers or {}) do
+		if layer.type == 'objectgroup' then
+			for _, object in ipairs(layer.objects or {}) do
+				if object.type and object.type ~= '' and object.type ~= 'spawn' then
+					types[object.type] = true
+				end
+			end
+		end
+	end
+	return types
+end
+
+local function descriptionFor(file, mapData)
+	if mapData.properties and mapData.properties.description then
+		return mapData.properties.description
+	end
+
+	local labels = {}
+	local entityTypes = collectEntityTypes(mapData)
+	local ordered = {
+		{'key', 'keys'},
+		{'cage', 'cages'},
+		{'teleport', 'teleporters'},
+		{'jump_pad', 'jump pads'},
+		{'coin', 'coins'},
+		{'exit_door', 'an exit door'},
+	}
+	for _, item in ipairs(ordered) do
+		if entityTypes[item[1]] then
+			table.insert(labels, item[2])
+		end
+	end
+
+	if #labels == 0 then
+		return 'A bite-sized Fido and Kitch puzzle map.'
+	end
+
+	return 'A bite-sized puzzle featuring ' .. table.concat(labels, ', ') .. '.'
+end
+
+local function titleFor(file, mapData)
+	if mapData.properties and mapData.properties.name then
+		return mapData.properties.name
+	end
+
+	if mapData.properties and mapData.properties.title then
+		return mapData.properties.title
+	end
+
+	return titleFromFile(file)
+end
+
+local function drawMapThumbnail(mapData)
+	local lg = love.graphics
+	local mapPixelWidth = math.max(1, (mapData.width or 1) * (mapData.tilewidth or 32))
+	local mapPixelHeight = math.max(1, (mapData.height or 1) * (mapData.tileheight or 32))
+	local scale = math.min(THUMBNAIL_WIDTH / mapPixelWidth, THUMBNAIL_HEIGHT / mapPixelHeight)
+	local tx = (THUMBNAIL_WIDTH - (mapPixelWidth * scale)) * 0.5
+	local ty = (THUMBNAIL_HEIGHT - (mapPixelHeight * scale)) * 0.5
+
+	lg.clear(0.08, 0.09, 0.12, 1)
+
+	lg.push()
+	lg.translate(tx, ty)
+	lg.scale(scale, scale)
+
+	lg.setColor(0.12, 0.14, 0.18, 1)
+	lg.rectangle('fill', 0, 0, mapPixelWidth, mapPixelHeight)
+
+	for _, layer in ipairs(mapData.layers or {}) do
+		if layer.type == 'tilelayer' and layer.visible ~= false and type(layer.data) == 'string' then
+			local ok, decoded = pcall(love.data.decode, 'string', 'base64', layer.data)
+			if ok and decoded then
+				local isCollision = layer.properties and layer.properties.collision
+				if isCollision then
+					lg.setColor(1, 1, 1, 0.45)
+				else
+					lg.setColor(1, 1, 1, 0.25)
+				end
+
+				for y = 1, layer.height do
+					for x = 1, layer.width do
+						local gid = readTile(decoded, ((y - 1) * layer.width) + x)
+						if gid > 0 then
+							lg.rectangle('fill', (x - 1) * mapData.tilewidth, (y - 1) * mapData.tileheight, mapData.tilewidth, mapData.tileheight)
+						end
+					end
+				end
+			end
+		elseif layer.type == 'objectgroup' and layer.visible ~= false then
+			for _, object in ipairs(layer.objects or {}) do
+				local color = ENTITY_COLORS[object.type]
+				if color then
+					lg.setColor(color[1], color[2], color[3], 0.6)
+					local width = math.max(object.width or 16, 16)
+					local height = math.max(object.height or 16, 16)
+					lg.rectangle('fill', object.x or 0, (object.y or 0) - height, width, height)
+				end
+			end
+		end
+	end
+
+	lg.pop()
+end
+
+function MapCard:init(props)
+	self.file = props.file
+	self.path = props.path
+	self.title = props.title
+	self.description = props.description
+	self.players = props.players or 1
+	self.mapData = props.mapData
+
+	local canvas = love.graphics.newCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
+	local previousCanvas = love.graphics.getCanvas()
+	love.graphics.setCanvas(canvas)
+	drawMapThumbnail(self.mapData)
+	love.graphics.setCanvas(previousCanvas)
+	self.canvas = canvas
+end
+
+function MapCard:drawThumbnail(x, y, scale, alpha)
+	local lg = love.graphics
+	lg.setColor(1, 1, 1, alpha or 1)
+	lg.draw(self.canvas, x, y, 0, scale, scale)
+end
+
+function MapCard:getThumbnailBounds(x, y, scale)
+	local w = THUMBNAIL_WIDTH * scale
+	local h = THUMBNAIL_HEIGHT * scale
+	return {
+		x = x,
+		y = y,
+		w = w,
+		h = h
+	}
+end
+
+function MapCard:drawTitleAndInfo(x, y, w, fonts, colors)
+	local lg = love.graphics
+	lg.setFont(fonts.titleFont)
+	lg.setColor(colors.title[1], colors.title[2], colors.title[3], colors.title[4] or 1)
+	lg.printf(self.title:upper(), x, y, w, 'center')
+
+	lg.setFont(fonts.bodyFont)
+	lg.setColor(colors.body[1], colors.body[2], colors.body[3], colors.body[4] or 1)
+	lg.printf(self.description, x + 32, y + 40, w - 64, 'center')
+
+	lg.setFont(fonts.bodyFont)
+	lg.setColor(colors.players[1], colors.players[2], colors.players[3], colors.players[4] or 1)
+	lg.printf('players: ' .. self.players, x, y + 80, w, 'center')
+end
+
+function MapCard:hitTest(x, y, mx, my, scale)
+	local bounds = self:getThumbnailBounds(x, y, scale)
+	return mx >= bounds.x and mx <= bounds.x + bounds.w and
+	       my >= bounds.y and my <= bounds.y + bounds.h
+end
+
+MapCard.titleFor = titleFor
+MapCard.descriptionFor = descriptionFor
+MapCard.baseName = baseName
+MapCard.titleFromFile = titleFromFile
+MapCard.collectEntityTypes = collectEntityTypes
+MapCard.readTile = readTile
+MapCard.drawMapThumbnail = drawMapThumbnail
+
+return MapCard
