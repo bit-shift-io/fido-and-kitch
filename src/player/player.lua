@@ -101,11 +101,11 @@ function Player:init(props)
 
     self.sound = self:addComponent(Sound{
         sounds = {
-            jump = 'res/snd/entity_player_jump.wav',
-            land = 'res/snd/entity_player_land.wav',
-            step = 'res/snd/entity_player_step.wav',
-            death = 'res/snd/entity_player_death.wav',
-            mount = 'res/snd/entity_ladder_climb.wav',
+            jump = 'res/snd/character_jump.wav',
+            land = 'res/snd/character_land.wav',
+            step = 'res/snd/character_walk.wav',
+            death = 'res/snd/character_death.wav',
+            mount = 'res/snd/character_climb.wav',
         }
     })
     self.stepTimer = 0
