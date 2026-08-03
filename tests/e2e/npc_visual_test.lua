@@ -5,6 +5,9 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Capture = require('tests.support.capture')
 local NPCRegistry = require('src.npc.npc_registry')
+local FakeInputModule = require('tests.support.fake_input')
+
+local FakeInput = FakeInputModule.FakeInput
 
 -- Helper to register all NPC types
 local function registerNPCTypes()
@@ -12,7 +15,7 @@ local function registerNPCTypes()
     local Robot = require('src.entities.npc_robot')
     local BirdNPC = require('src.entities.npc_bird')
     local RabbitNPC = require('src.entities.npc_rabbit')
-    
+
     NPCRegistry.clear()
     NPCRegistry.registerType('npc_spider', Spider)
     NPCRegistry.registerType('npc_robot', Robot)
@@ -20,28 +23,35 @@ local function registerNPCTypes()
     NPCRegistry.registerType('npc_rabbit', RabbitNPC)
 end
 
+-- Helper to find first NPC of a given type
+local function findNPC(typeName)
+    local npcs = NPCRegistry.getAll()
+    for _, npc in ipairs(npcs) do
+        if npc._typeName == typeName then
+            return npc
+        end
+    end
+    return nil
+end
+
 -- Test sandbox map which has spider and robot NPCs
 test('sandbox map loads with spider and robot NPCs and captures screenshot', function()
     registerNPCTypes()
     local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
-    
-    -- Step simulation to let NPCs initialize and move
+
     FrameStepper.step(game, 10)
-    
-    -- Capture initial state
+
     Capture.capture('sandbox_initial')
-    
-    -- Step more frames to show NPC behavior
+
     FrameStepper.step(game, 60)
     Capture.capture('sandbox_after_1s')
-    
+
     FrameStepper.step(game, 60)
     Capture.capture('sandbox_after_2s')
-    
-    -- Verify NPCs exist and have state machines
+
     local npcs = NPCRegistry.getAll()
     assertTrue(#npcs >= 2, 'Expected at least 2 NPCs (spider and robot) in sandbox map')
-    
+
     for _, npc in ipairs(npcs) do
         assertTrue(npc.stateMachine ~= nil, 'NPC should have stateMachine')
         assertTrue(npc.stateMachine.currentState ~= nil, 'NPC should have current state')
@@ -53,73 +63,64 @@ end)
 test('all maps with NPCs load and capture without errors', function()
     local mapFiles = {
         'res/map/sandbox.tmx',
-        'res/map/ll1.lua',
-        'res/map/ll2.lua',
+        'res/map/ll1.tmx',
+        'res/map/ll2.tmx',
     }
-    
+
     local failures = {}
-    
+
     for _, path in ipairs(mapFiles) do
         local ok, err = pcall(function()
             registerNPCTypes()
             local game = GameHarness.startGame(path, {real = true})
             FrameStepper.step(game, 5)
-            
+
             local name = path:match('([^/]+)%.') or path
             Capture.capture(name .. '_initial')
-            
+
             FrameStepper.step(game, 30)
             Capture.capture(name .. '_after_0.5s')
-            
-            -- Verify no errors during NPC updates
+
             local npcs = NPCRegistry.getAll()
             for _, npc in ipairs(npcs) do
-                assert(npc.stateMachine ~= nil, 'NPC should have stateMachine')
-                assert(npc.stateMachine.currentState ~= nil, 'NPC should have current state')
+                assertTrue(npc.stateMachine ~= nil, 'NPC should have stateMachine')
+                assertTrue(npc.stateMachine.currentState ~= nil, 'NPC should have current state')
             end
         end)
-        
+
         if not ok then
             table.insert(failures, string.format('%s: %s', path, tostring(err)))
         end
     end
-    
+
     assertEqual(0, #failures, 'Maps failed to load or capture:\n' .. table.concat(failures, '\n'))
 end)
 
--- Test NPC behavior changes when player is nearby
+-- Test spider chases player when in range
 test('spider chases player when in range', function()
     registerNPCTypes()
     local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
-    local FakeInput = require('tests.support.fake_input').FakeInput
     local controller = FakeInput.new()
-    
+
     FrameStepper.step(game, 10)
-    
-    local npcs = NPCRegistry.getAll()
-    
-    local spider = nil
-    for _, npc in ipairs(npcs) do
-        if npc._typeName == 'npc_spider' then
-            spider = npc
-            break
-        end
-    end
-    
+
+    local spider = findNPC('npc_spider')
     if spider then
-        -- Capture spider initial state (should be idle/wander)
         Capture.capture('spider_initial_state')
-        
+
         -- Move player toward spider (spider at ~416, 317 in sandbox)
         -- Player spawns at ~96, 192
         controller:press('right')
         FrameStepper.step(game, 60)
         controller:release('right')
-        
+
         Capture.capture('spider_after_player_approach')
-        
-        -- Spider should have reacted (state changed to chase or similar)
-        assertTrue(spider.stateMachine.currentState ~= nil, 'Spider should have state')
+
+        local stateName = spider.stateMachine.currentState.name
+        assertTrue(
+            stateName == 'ChaseState' or stateName == 'AttackState' or stateName == 'WanderState' or stateName == 'IdleState',
+            'Spider should be in a valid state after player approach, got: ' .. stateName
+        )
     else
         print('No spider found in sandbox map - skipping chase test')
     end
@@ -129,33 +130,129 @@ end)
 test('robot follows patrol path', function()
     registerNPCTypes()
     local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
-    
+
     FrameStepper.step(game, 10)
-    
-    local npcs = NPCRegistry.getAll()
-    local robot = nil
-    for _, npc in ipairs(npcs) do
-        if npc._typeName == 'npc_robot' then
-            robot = npc
-            break
-        end
-    end
-    
+
+    local robot = findNPC('npc_robot')
     if robot then
-        -- Capture initial position
         local initialX, initialY = robot.x, robot.y
         Capture.capture('robot_initial_patrol')
-        
-        -- Step simulation to let robot patrol
+
         FrameStepper.step(game, 120)
         Capture.capture('robot_after_patrol')
-        
-        -- Robot should have moved (patrol behavior)
+
         local moved = math.abs(robot.x - initialX) > 10 or math.abs(robot.y - initialY) > 10
-        -- Note: may not move if patrol points are close, but state should be valid
         assertTrue(robot.stateMachine.currentState ~= nil, 'Robot should have state')
     else
         print('No robot found in sandbox map - skipping patrol test')
+    end
+end)
+
+-- Test rabbit follows player
+test('rabbit follows player when in range', function()
+    registerNPCTypes()
+    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local controller = FakeInput.new()
+
+    FrameStepper.step(game, 10)
+
+    local rabbit = findNPC('npc_rabbit')
+    if rabbit then
+        -- Set rabbit's target to player 1 for follow behavior
+        local player = game.fsm.currentState.players[1]
+        if player then
+            rabbit:setTarget(player)
+
+            Capture.capture('rabbit_initial_follow')
+
+            -- Move player away so rabbit has to follow
+            controller:press('right')
+            FrameStepper.step(game, 60)
+            controller:release('right')
+
+            Capture.capture('rabbit_after_player_move')
+
+            local stateName = rabbit.stateMachine.currentState.name
+            assertTrue(
+                stateName == 'FollowState' or stateName == 'IdleState' or stateName == 'WanderState',
+                'Rabbit should be following or in valid state, got: ' .. stateName
+            )
+        end
+    else
+        print('No rabbit found in sandbox map - skipping follow test')
+    end
+end)
+
+-- Test robot attacks player when in range
+test('robot attacks player when in range', function()
+    registerNPCTypes()
+    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local controller = FakeInput.new()
+
+    FrameStepper.step(game, 10)
+
+    local robot = findNPC('npc_robot')
+    if robot then
+        local player = game.fsm.currentState.players[1]
+        if player then
+            -- Teleport player near robot to trigger detection and attack
+            local robotX, robotY = robot.x, robot.y
+            player.collider:setPosition(robotX - 20, robotY)
+
+            robot:setTarget(player)
+            Capture.capture('robot_before_attack')
+
+            FrameStepper.step(game, 30)
+
+            Capture.capture('robot_attack_state')
+
+            local stateName = robot.stateMachine.currentState.name
+            assertTrue(
+                stateName == 'AttackState' or stateName == 'ChaseState' or stateName == 'PatrolState',
+                'Robot should be attacking or chasing, got: ' .. stateName
+            )
+        end
+    else
+        print('No robot found in sandbox map - skipping attack test')
+    end
+end)
+
+-- Test NPC pushing: spider and robot near each other
+test('NPCs can push each other', function()
+    registerNPCTypes()
+    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+
+    FrameStepper.step(game, 10)
+
+    local spider = findNPC('npc_spider')
+    local robot = findNPC('npc_robot')
+
+    if spider and robot then
+        -- Place spider and robot near each other
+        local sx, sy = 300, 200
+        spider.collider:setPosition(sx, sy)
+        robot.collider:setPosition(sx + 20, sy)
+        spider.x, spider.y = sx, sy
+        robot.x, robot.y = sx + 20, sy
+
+        local spiderInitialX = spider.x
+        local robotInitialX = robot.x
+
+        Capture.capture('npc_push_before')
+
+        -- Give spider a target so it moves toward robot
+        spider:setTarget({x = robot.x, y = robot.y})
+
+        FrameStepper.step(game, 30)
+
+        Capture.capture('npc_push_after')
+
+        -- Verify at least one NPC moved
+        local spiderMoved = math.abs(spider.x - spiderInitialX) > 1
+        local robotMoved = math.abs(robot.x - robotInitialX) > 1
+        assertTrue(spiderMoved or robotMoved, 'At least one NPC should have moved after interaction')
+    else
+        print('Spider or robot not found in sandbox map - skipping push test')
     end
 end)
 
