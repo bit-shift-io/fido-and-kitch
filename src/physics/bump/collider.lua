@@ -46,6 +46,9 @@ function Collider:init(props)
 		self:setSensor(true)
 	end
 
+	-- Provide world property for external access
+	self.world = nil  -- Will be set by World:newCollider
+
 
 	self.postSolveFunc = props.postSolve
 	self.preSolveFunc = props.preSolve
@@ -65,8 +68,8 @@ function Collider:init(props)
 	end
 
 	if self.enterFunc then
-		function self:enter(other)
-			self.enterFunc(other)
+		function self:enter(...)
+			self.enterFunc(...)
 		end
 	end
 
@@ -141,24 +144,6 @@ function Collider:destroy()
 	self._world.colliders[self] = nil
 end
 
-
---[[
-function Collider:collider_contacts()
-	local contacts = self:getContacts()
-	local colliders = {}
-	for i, contact in ipairs(contacts) do
-	   if contact:isTouching() then
-	  local f1, f2 = contact:getFixtures()
-	  if f1 == self.fixture then
-		 colliders[#colliders+1] = f2:getUserData()
-	  else
-		 colliders[#colliders+1] = f1:getUserData()
-	  end
-	   end
-	end
-	return colliders
-end
-]]--
 
 function Collider:isSensor()
 	return self.sensor
@@ -248,13 +233,12 @@ function Collider:worldUpdate(dt)
 
 	-- emulate the contact system
 	for i, contact in ipairs(cols) do
-		--[[
-		if (contact.other.entity) then
-			print("we collided with "..contact.other.entity.type)
-		end
-		]]--
 		if (contact.other and contact.other.enter) then
 			contact.other:enter(self, contact.other, contact)
+		end
+		if (self.enter) then
+			local otherRef = contact.other
+			self:enter(otherRef, self, contact, i)
 		end
 		if (contact.other and contact.other.postSolve) then
 			contact.other:postSolve(self, contact.other, contact)

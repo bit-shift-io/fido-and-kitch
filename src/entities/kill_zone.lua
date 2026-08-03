@@ -11,8 +11,8 @@ function KillZone:init(object)
 		body_type='static',
 		sensor=true,
 		position=self.rect:centre(),
-		entity=self
 	})
+	self.collider.entity = self
 
 	-- no assets yet at res/snd/entity_kill_*.wav; Sound:play warns and skips
 	-- until they're added

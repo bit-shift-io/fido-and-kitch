@@ -311,7 +311,7 @@ return {
           visible = true,
           properties = {
             ["color"] = "red",
-            ["image"] = "../img/key_yellow.png"
+            ["image"] = "../img/entity_key.png"
           }
         },
         {
@@ -346,7 +346,7 @@ return {
           gid = 155,
           visible = true,
           properties = {
-            ["image"] = "../img/spring/Spring - 1.png",
+            ["image"] = "../img/entity_jump_pad.png",
             ["path"] = { id = 73 }
           }
         },

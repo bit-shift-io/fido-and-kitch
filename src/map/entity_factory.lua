@@ -1,4 +1,5 @@
 local Log = require('src.utils.log')
+local NPCRegistry = require('src.npc.npc_registry')
 
 local EntityFactory = {}
 EntityFactory.__index = EntityFactory
@@ -76,6 +77,20 @@ function EntityFactory:createEntities(map, world)
 end
 
 function EntityFactory:loadEntity(entityName, layer, object)
+	-- Handle NPC types via registry first
+	if NPCRegistry._types[entityName] then
+		local props = object.properties or {}
+		local npc = NPCRegistry.spawn(entityName, object.x, object.y, props)
+		if npc then
+			npc.mapData = object
+			object.entity = npc
+			if layer and layer.entities then
+				table.insert(layer.entities, npc)
+			end
+			return npc
+		end
+	end
+	
 	local in_ignore_list = tbl.findIndexEq(self.typeIgnores, entityName)
 	if in_ignore_list == nil then
 		local lastErr

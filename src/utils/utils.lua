@@ -101,20 +101,34 @@ end
 -- on the fly. For example, a state machine proxies to the current state
 function utils.proxyClass(from, to)
    local mt = getmetatable(from)
-   setmetatable(from, {__index = function(_, func)
-         if mt and mt[func] then
-            return mt[func]
-         end
+   
+   -- If 'to' is a function, call it once before setting metatable to avoid recursion
+   local initialForwardTo = to
+   if type(to) == 'function' then
+      initialForwardTo = to(from)
+   end
+   
+setmetatable(from, {__index = function(_, func)
+          -- Check both metatable directly and its __index (class table for hump.class)
+          local mtIndex = mt and mt.__index
+          local hasMethod = mt and (mt[func] or (mtIndex and (type(mtIndex) == 'table' and mtIndex[func] or type(mtIndex) == 'function' and mtIndex(from, func))))
+          if hasMethod then
+             return mt[func] or (mtIndex and type(mtIndex) == 'table' and mtIndex[func]) or (mtIndex and type(mtIndex) == 'function' and mtIndex(from, func))
+          end
 
          local forwardTo = to
          if type(to) == 'function' then
-            forwardTo = to(from)
+            -- Use rawget to avoid triggering this __index again
+            forwardTo = rawget(from, 'currentState')
+            if forwardTo == nil then
+               forwardTo = initialForwardTo
+            end
          end
 
-         if type(forwardTo[func]) == 'function' then
+         if forwardTo and type(forwardTo[func]) == 'function' then
             return utils.dropCallerSelf(forwardTo[func], forwardTo)
          else
-            return forwardTo[func]
+            return forwardTo and forwardTo[func]
          end
    end})
 end

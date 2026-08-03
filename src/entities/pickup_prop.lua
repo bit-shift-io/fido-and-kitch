@@ -14,6 +14,7 @@ local PickupProp = {}
 --   pickupSound   res/snd path played on pickup
 --   itemName(object)      -> Inventory item name granted on pickup
 --   sprite(object, shape_arguments) -> Sprite{} constructor props
+--   components(object)      -> table of {ComponentName = props} to add
 function PickupProp.define(spec)
 	local Prop = Class{__includes = Entity}
 
@@ -46,6 +47,14 @@ function PickupProp.define(spec)
 				pickup = spec.pickupSound,
 			},
 		})
+
+		if spec.components then
+			local comps = spec.components(object)
+			for compName, compProps in pairs(comps) do
+				local Comp = require('src.components.' .. compName:lower())
+				self:addComponent(Comp(compProps))
+			end
+		end
 	end
 
 	return Prop

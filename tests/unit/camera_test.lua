@@ -103,7 +103,7 @@ test('a new camera starts at the full-map view', function()
 end)
 
 test('the camera converges toward the follow target within half a second of updates', function()
-	local camera = Camera.new{screenW = SCREEN_W, screenH = SCREEN_H, mapW = MAP_W, mapH = MAP_H, tileW = TILE}
+	local camera = Camera.new(opts{screenW = SCREEN_W, screenH = SCREEN_H, mapW = MAP_W, mapH = MAP_H, tileW = TILE})
 	local target = {playerRect(600, 500)}
 	local expected = Camera.computeFraming(target, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts())
 

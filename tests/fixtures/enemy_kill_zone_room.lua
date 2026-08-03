@@ -99,7 +99,7 @@ return {
         {
           id = 4,
           name = "robot1",
-          type = "robot",
+          type = "npc_robot",
           shape = "rectangle",
           x = 200,
           y = 128,

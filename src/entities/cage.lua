@@ -1,4 +1,5 @@
 local Log = require('src.utils.log')
+local EventBus = require('src.utils.event_bus')
 
 local Cage = Class{__includes = Entity}
 
@@ -54,7 +55,30 @@ function Cage:init(object, map)
 	end
 
 	local pathObj = map:getObjectById(object.properties.path.id)
-	self.actor = map:loadEntity(object.properties.actor or 'bird', object.layer, pathObj)
+	
+	-- Map spawn_type to NPC registry type names
+	local spawnTypeMap = {
+		bird = 'npc_bird',
+		rabbit = 'npc_rabbit',
+	}
+	local spawnType = object.properties.spawn_type or object.properties.actor or 'bird'
+	local npcType = spawnTypeMap[spawnType] or spawnType
+	
+	-- Provide proper dimensions for the NPC being spawned
+	local npcProps = {properties = {}}
+	if npcType == 'npc_bird' then
+		npcProps.width = 16
+		npcProps.height = 16
+	elseif npcType == 'npc_rabbit' then
+		npcProps.width = 16
+		npcProps.height = 16
+	end
+	
+	-- Merge path object position with NPC properties
+	npcProps.x = pathObj.x
+	npcProps.y = pathObj.y
+	
+	self.actor = map:loadEntity(npcType, object.layer, npcProps)
 end
 
 function Cage:use(user)
@@ -63,10 +87,15 @@ function Cage:use(user)
 	self.sprite.timeline:play()
 	self.sound:play('open')
 
+	EventBus.emit('cage_unlocked', {cage = self})
+
 	if self.actor == nil then
 		return
 	end
-	self.actor:trigger()
+	-- Set the NPC to follow the player who opened the cage
+	if self.actor.setTarget then
+		self.actor:setTarget(user)
+	end
 end
 
 return Cage

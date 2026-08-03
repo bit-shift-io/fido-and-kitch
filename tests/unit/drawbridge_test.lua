@@ -63,16 +63,16 @@ test('an unrecognised or missing crossingDirection renders unmirrored (matches t
 	assertEqual('right', D.spriteFacing(nil))
 end)
 
-test('the sprite box is 3x the object dimensions, centred on the object tile', function()
+test('the sprite box is 2x the object dimensions, centred on the object tile', function()
 	local width, height = D.spriteBoxDimensions(32, 32)
-	assertEqual(96, width)
-	assertEqual(96, height)
+	assertEqual(64, width)
+	assertEqual(64, height)
 end)
 
 test('the sprite box derives from the object dimensions, not a hard-coded size', function()
 	local width, height = D.spriteBoxDimensions(48, 64)
-	assertEqual(144, width)
-	assertEqual(192, height)
+	assertEqual(96, width)
+	assertEqual(128, height)
 end)
 
 test('closed state has no walkable deck (the gap is fully exposed, no barrier)', function()

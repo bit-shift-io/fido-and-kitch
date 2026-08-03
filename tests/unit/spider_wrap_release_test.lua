@@ -5,7 +5,7 @@
 -- this reuses unmodified), and tests/integration/spider_wrap_release_test.lua
 -- for the real-player, real-web end-to-end version of this.
 local HeadlessBootstrap = require('tests.support.headless_bootstrap')
-local Spider = require('src.entities.spider')
+local Spider = require('src.entities.npc_spider')
 
 local function makeSpider(x, y)
 	HeadlessBootstrap.resetWorld()

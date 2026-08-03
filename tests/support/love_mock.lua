@@ -164,6 +164,20 @@ function LoveMock.new()
 		random = function() return 0.5 end,
 	}
 
+	-- Timer module for dt tracking in headless tests
+	love.timer = {
+		_getTime = 0,
+		getDelta = function()
+			return 1/60  -- fixed dt for deterministic testing
+		end,
+		getTime = function()
+			love.timer._getTime = love.timer._getTime + 1/60
+			return love.timer._getTime
+		end,
+		sleep = function() end,
+		step = function() end,
+	}
+
 	state.audio = {created = {}}
 
 	love.audio = {

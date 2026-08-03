@@ -47,7 +47,7 @@ _G.inputManager = {
 -- Mock players for NPC following
 _G.players = {}
 
-local RabbitNPC = require('src.entities.rabbit_npc')
+local RabbitNPC = require('src.entities.npc_rabbit')
 
 -- Mock Tiled object
 local function createMockTiledObject(x, y)

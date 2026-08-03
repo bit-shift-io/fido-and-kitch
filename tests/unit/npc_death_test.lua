@@ -3,7 +3,7 @@
 -- for the established pattern). Robot stands in for the shared NPC behaviour
 -- issue 01 builds; Spider-specific wrap release is covered separately.
 local HeadlessBootstrap = require('tests.support.headless_bootstrap')
-local Robot = require('src.entities.robot')
+local Robot = require('src.entities.npc_robot')
 
 local FLASH_INTERVAL = 0.15 -- DeathFlash.FLASH_INTERVAL, mirrored to avoid a require just for a constant
 local FLASH_BLINKS = 8

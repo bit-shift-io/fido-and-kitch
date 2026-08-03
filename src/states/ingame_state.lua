@@ -19,6 +19,10 @@ function InGameState:load(props)
         profile.start()
     end
 
+    -- Clear NPC registry before loading new map to prevent accumulation across tests
+    local NPCRegistry = require('src.npc.npc_registry')
+    NPCRegistry.clear()
+
     self.currentMap = props.map or 'res/map/sandbox.tmx'
 
     _G.world = World:new(0, 90.81, true)
@@ -140,6 +144,7 @@ function InGameState:onPlayerDestroyed(player)
 end
 
 function InGameState:exit()
+    EventBus.clear()
 end
 
 function InGameState:collectPlayerTargets()

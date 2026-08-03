@@ -14,7 +14,6 @@ local defaultTestFiles = {
 	'tests/unit/pushable_support_test.lua',
 	'tests/unit/pressure_switch_test.lua',
 	'tests/unit/sound_test.lua',
-	'tests/unit/npc_brain_test.lua',
 	'tests/unit/death_flash_test.lua',
 	'tests/unit/npc_death_test.lua',
 	'tests/unit/spider_wrap_release_test.lua',

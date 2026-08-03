@@ -70,10 +70,10 @@ local function createMockMap()
     return {
         loadEntity = function(self, entityName, layer, object)
             if entityName == 'bird_npc' then
-                local BirdNPC = require('src.entities.bird_npc')
+                local BirdNPC = require('src.entities.npc_bird')
                 return BirdNPC(object)
             elseif entityName == 'rabbit_npc' then
-                local RabbitNPC = require('src.entities.rabbit_npc')
+                local RabbitNPC = require('src.entities.npc_rabbit')
                 return RabbitNPC(object)
             end
             return nil

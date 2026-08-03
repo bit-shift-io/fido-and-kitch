@@ -17,26 +17,17 @@ function Timeline:init(props)
         self.loop = props.loop
     end
 
+    self.bounce = false
+    if (props.bounce) then
+        self.bounce = props.bounce
+    end
+
+    self.hold = props.hold or 0
+    self._holdTimer = 0
+    self._bounceCount = 0
+
     self.events = {} -- pairs of time/Func's for firing off events
     self.finishSignal = Signal{}
-
-    --[[
-    if (props.start) then
-        table.insert(self.events, {
-            time=0.0,
-            fn=props.start 
-        })
-    end
-    ]]--
-
-    --[[
-    if (props.finish) then
-        table.insert(self.events, {
-            time=1.0,
-            fn=props.finish 
-        })
-    end
-    ]]--
 
     if (props.finish) then
         self.finishSignal:connect(props.finish)
@@ -62,6 +53,16 @@ function Timeline:update(dt)
     if type(dt) ~= 'number' then
         print("ERROR Timeline:update received non-number dt:", type(dt), dt)
         dt = 1/60  -- fallback
+    end
+
+    -- Hold at bounce endpoints: pause before reversing
+    if self._holdTimer > 0 then
+        self._holdTimer = self._holdTimer - dt
+        if self._holdTimer <= 0 then
+            self._holdTimer = 0
+            self.isReverse = not self.isReverse
+        end
+        return
     end
     
     local speed = self.speed
@@ -112,14 +113,42 @@ function Timeline:progress(dt, supressEvents)
     local endClock = self.tween.clock
     local etp = self:timePercent()
 
+    -- Check for bounce at end (forward) or start (reverse)
+    local bounced = false
     if dt > 0 and endClock == self.tween.duration then
-        if not self.loop then
+        if self.bounce and not self.isReverse then
+            -- Hit end going forward, bounce to reverse
+            self.tween:set(self.tween.duration)
+            self._bounceCount = self._bounceCount + 1
+            if self.hold > 0 then
+                self._holdTimer = self.hold
+            else
+                self.isReverse = true
+            end
+            bounced = true
+        elseif not self.loop then
             self.playing = false
         end
     end
 
     if dt < 0 and endClock == 0 then
-        if not self.loop then
+        if self.bounce and self.isReverse then
+            -- Hit start going reverse
+            if self.loop then
+                -- Loop mode: bounce back to forward
+                self.tween:reset()
+                self._bounceCount = self._bounceCount + 1
+                if self.hold > 0 then
+                    self._holdTimer = self.hold
+                else
+                    self.isReverse = false
+                end
+                bounced = true
+            else
+                -- Non-loop mode: completed one full bounce cycle (forward->reverse->forward), stop
+                self.playing = false
+            end
+        elseif not self.loop then
             self.playing = false
         end
     end
@@ -127,14 +156,14 @@ function Timeline:progress(dt, supressEvents)
     self:fireEvents(stp, etp)
 
     if dt > 0 and endClock == self.tween.duration then
-        if self.loop then
+        if self.loop and not bounced then
             self.tween:reset()
             self:progress(overflow, supressEvents)
         end
     end
 
     if dt < 0 and endClock == 0 then
-        if self.loop then
+        if self.loop and not bounced then
             self.tween:set(self.tween.duration)
             self:progress(overflow, supressEvents)
         end

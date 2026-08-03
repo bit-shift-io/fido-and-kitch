@@ -40,7 +40,7 @@ end
 
 
 function World:newCollider(collider_type, shape_arguments, table_to_use)
-   local o = table_to_use or {}
+    local o = table_to_use or {}
    setmetatable(o, Collider)
 
    if collider_type == 'circle' then
@@ -71,9 +71,10 @@ function World:newCollider(collider_type, shape_arguments, table_to_use)
    o.y = o.y - halfHeight
    self._world:add(o, o.x, o.y, o.width, o.height)
 
-   o._world = self
-   self.colliders[o] = o
-   return o
+o._world = self
+    o.world = self
+    self.colliders[o] = o
+    return o
 end
 
 -- true when `collider` has opted out of solidity against `other`'s entity

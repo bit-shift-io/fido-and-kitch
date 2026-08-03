@@ -139,7 +139,7 @@ function Sprite:init(props)
 	if not duration and #self.frames == 1 then
 		duration = 1.0
 	end
-	self.timeline = Timeline({duration = duration, loop = props.loop, playing = props.playing})
+	self.timeline = Timeline({duration = duration, loop = props.loop, bounce = props.bounce, hold = props.hold, playing = props.playing})
 
 	-- headless: no real texture loaded (image and frames[1] both nil), so
 	-- there's nothing to measure and no fit to compute -- self.scale/offset

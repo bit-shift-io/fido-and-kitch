@@ -17,7 +17,6 @@ function StateMachine:init(props)
         end
     end
     
-    self.currentState = nil
     if (props.currentState) then
         self:setState(props.currentState)
     end
@@ -60,6 +59,12 @@ function StateMachine:setState(name)
     -- special case for Sprites - should be replaced with a onChangeState callback?
     if (prevState ~= nil and prevState.getPositionV ~= nil) then
         self:setPositionV(prevState:getPositionV())
+    end
+end
+
+function StateMachine:update(dt)
+    if self.currentState and self.currentState.update then
+        self.currentState:update(dt)
     end
 end
 

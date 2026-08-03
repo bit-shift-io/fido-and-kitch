@@ -9,9 +9,11 @@ function JumpPad:init(object, map)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/entity_jump_pad.png',
 		frames=3,
-		duration=0.4,
-		loop=true,
-		playing=true,
+		duration=0.2,
+		loop=false,
+		bounce=true,
+		hold=1.0,
+		playing=false,
 		shape_arguments=shape_arguments
 	})
 
@@ -42,6 +44,7 @@ end
 
 function JumpPad:use(user)
 	self.sound:play('launch')
+	self.sprite.timeline:playForward()
 
 	if user.pathFollow then
 		user.pathFollow:finish()
