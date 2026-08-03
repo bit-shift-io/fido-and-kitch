@@ -137,6 +137,22 @@ end
 		return self.gameAPI.getTileGrid()
 	end)
 
+	self:register('GET_LOG', function(args)
+		if not _ipc_log then return nil, 'Log buffer not available' end
+		local count = args[1] and tonumber(args[1]) or nil
+		local lines
+		if count then
+			local start = math.max(1, #_ipc_log - count + 1)
+			lines = {}
+			for i = start, #_ipc_log do
+				lines[#lines + 1] = _ipc_log[i]
+			end
+		else
+			lines = _ipc_log
+		end
+		return table.concat(lines, '\n')
+	end)
+
 	self:register('SPAWN_ENTITY', function(args)
 		if #args < 3 then return nil, 'Usage: SPAWN_ENTITY <type> <x> <y> [props_json]' end
 		local entityType = args[1]

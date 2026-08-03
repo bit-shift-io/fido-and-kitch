@@ -74,7 +74,7 @@ async function launchGame(map?: string): Promise<void> {
     for (let i = 0; i < maxRetries; i++) {
         await new Promise((r) => setTimeout(r, 100));
         if (await isServerUp()) {
-            console.log("[IPC] Game successfully started and IPC socket is ready.");
+            console.log("[IPC] Game started");
             return;
         }
     }
@@ -326,5 +326,17 @@ export const step_frames = tool({
     async execute({ count }) {
         const response = await sendCommand(`STEP_FRAMES ${count}`);
         return parseResponse(response);
+    },
+});
+
+export const get_log = tool({
+    description: "Get console output from the game (print statements, debug logs)",
+    args: {
+        count: tool.schema.number().optional().describe("Number of recent lines to return. Omit for all."),
+    },
+    async execute({ count }) {
+        const cmd = count ? `GET_LOG ${count}` : "GET_LOG";
+        const response = await sendCommand(cmd);
+        return response;
     },
 });

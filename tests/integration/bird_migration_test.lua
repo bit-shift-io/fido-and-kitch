@@ -44,7 +44,7 @@ local function test_bird_spawnsViaRegistry()
     NPCRegistry.clear()
     NPCRegistry.registerType('bird_npc', BirdNPC)
     
-    local bird = NPCRegistry.spawn('bird_npc', 100, 100, {})
+    local bird = NPCRegistry.spawn('bird_npc', {x = 100, y = 100}, {})
     assert(bird ~= nil, 'should spawn via registry')
     assert(bird.x == 100 and bird.y == 100, 'should set position')
     print('test_bird_spawnsViaRegistry: PASS')

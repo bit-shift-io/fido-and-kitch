@@ -1,70 +1,96 @@
 -- src/npc/states/patrol_state.lua
 local Class = require('lib.hump.class')
-local Vector = require('lib.hump.vector')
 
 local PatrolState = Class{}
 
 function PatrolState:enter(prevState)
     local entity = self.entity
-    local points = entity.config.patrolPoints
-    if not points or #points == 0 then return end
-    
-    local idx = entity.currentPatrolIndex or 1
-    entity.patrolTarget = points[idx]
+
+    -- Initialize patrol timers if not set
+    if not entity.patrolPauseTimer then
+        entity.patrolPauseTimer = 0
+        entity.patrolPaused = false
+        entity.patrolPauseDuration = 0
+        entity.patrolWalkTimer = 0
+        entity.patrolNextPause = 2 + math.random() * 3
+    end
 end
 
 function PatrolState:update(dt)
-    -- Defensive check for dt being a table
     if type(dt) ~= 'number' then
-        print("ERROR PatrolState:update received non-number dt:", type(dt), dt)
-        dt = 1/60  -- fallback
+        dt = 1/60
     end
     local entity = self.entity
-    
-    local points = entity.config.patrolPoints
-    if not points or #points == 0 then return end
-    if not entity.patrolTarget then
-        self:enter()
-        return
-    end
-    
-    local dx = entity.patrolTarget.x - entity.x
-    local dy = entity.patrolTarget.y - entity.y
-    local dist = math.sqrt(dx*dx + dy*dy)
-    
-    if dist < 10 then
-        -- Reached patrol point, advance to next
-        local idx = (entity.currentPatrolIndex or 1) + (entity.patrolDirection or 1)
-        if idx > #points then
-            idx = #points - 1
-            entity.patrolDirection = -1
-        elseif idx < 1 then
-            idx = 2
-            entity.patrolDirection = 1
+    local config = entity.config
+    local accel = config.acceleration or 400
+    local maxSpeed = config.maxSpeed or 80
+
+    -- Random idle pause during walk
+    if entity.patrolPaused then
+        entity.patrolPauseTimer = entity.patrolPauseTimer + dt
+        if entity.patrolPauseTimer >= entity.patrolPauseDuration then
+            entity.patrolPaused = false
+            entity.patrolPauseTimer = 0
+            self:reverse(entity)
         end
-        entity.currentPatrolIndex = idx
-        entity.patrolTarget = points[idx]
         return
     end
-    
-    local dir = Vector(dx, dy):normalized()
-    local dirX, dirY = dir.x, dir.y
-    local accel = entity.config.acceleration or 200
-    local maxSpeed = entity.config.maxSpeed or 50
-    
-    entity.collider.vx = entity.collider.vx + dirX * accel * dt
-    entity.collider.vy = entity.collider.vy + dirY * accel * dt
-    
-    local speed = math.sqrt(entity.collider.vx^2 + entity.collider.vy^2)
-    if speed > maxSpeed then
-        entity.collider.vx = entity.collider.vx / speed * maxSpeed
-        entity.collider.vy = entity.collider.vy / speed * maxSpeed
+
+    -- Check for wall ahead
+    if entity:isWallAhead(entity.facing) then
+        self:pauseAndReverse(entity, 1.0, 2.0)
+        return
     end
+
+    -- Check for edge ahead (no ground = edge)
+    if not entity:isGroundAhead(entity.facing) then
+        self:pauseAndReverse(entity, 0.5, 1.5)
+        return
+    end
+
+    -- Walk in facing direction (horizontal only — gravity handles vertical)
+    local vx, vy = entity.collider:getLinearVelocity()
+    local dirX = entity.facing == 'right' and 1 or -1
+    vx = vx + dirX * accel * dt
+
+    -- Clamp horizontal speed
+    if math.abs(vx) > maxSpeed then
+        vx = (vx > 0 and 1 or -1) * maxSpeed
+    end
+    entity.collider:setLinearVelocity(vx, vy)
+
+    -- Random idle pauses during walk
+    entity.patrolWalkTimer = entity.patrolWalkTimer + dt
+    if entity.patrolWalkTimer >= entity.patrolNextPause then
+        entity.patrolPaused = true
+        entity.patrolPauseDuration = 0.5 + math.random() * 1.0
+        entity.patrolWalkTimer = 0
+        entity.patrolNextPause = 2 + math.random() * 3
+        entity.collider:setLinearVelocity(0, vy)
+    end
+end
+
+function PatrolState:pauseAndReverse(entity, minDur, maxDur)
+    entity.patrolPaused = true
+    entity.patrolPauseTimer = 0
+    entity.patrolPauseDuration = minDur + math.random() * (maxDur - minDur)
+    entity.patrolWalkTimer = 0
+    entity.patrolNextPause = 2 + math.random() * 3
+    local _, vy = entity.collider:getLinearVelocity()
+    entity.collider:setLinearVelocity(0, vy)
+end
+
+function PatrolState:reverse(entity)
+    entity.facing = entity.facing == 'right' and 'left' or 'right'
 end
 
 function PatrolState:exit(prevState)
     local entity = self.entity
-    entity.patrolTarget = nil
+    entity.patrolPauseTimer = nil
+    entity.patrolPaused = nil
+    entity.patrolPauseDuration = nil
+    entity.patrolWalkTimer = nil
+    entity.patrolNextPause = nil
 end
 
 return PatrolState

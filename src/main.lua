@@ -1,5 +1,24 @@
 tbl = require('src.utils.tbl')
 
+-- IPC log capture: intercept print() so GET_LOG can retrieve console output
+if not _ipc_log then
+	_ipc_log = {}
+	_ipc_log_max = 500
+	_original_print = print
+	function print(...)
+		_original_print(...)
+		local parts = {}
+		for i = 1, select('#', ...) do
+			parts[#parts + 1] = tostring(select(i, ...))
+		end
+		local msg = table.concat(parts, '\t')
+		_ipc_log[#_ipc_log + 1] = msg
+		if #_ipc_log > _ipc_log_max then
+			table.remove(_ipc_log, 1)
+		end
+	end
+end
+
 if tbl.includes(arg, 'debug') then
 	local ok, debugger = pcall(require, 'lldebugger')
 	if ok then

@@ -41,21 +41,19 @@ function WanderState:update(dt)
         return
     end
     
-    -- Move toward target
+    -- Move toward target (horizontal only — gravity handles vertical)
     local dir = Vector(dx, dy):normalized()
-    local dirX, dirY = dir.x, dir.y
     local accel = entity.config.acceleration or 200
     local maxSpeed = entity.config.maxSpeed or 50
     
-    entity.collider.vx = entity.collider.vx + dirX * accel * dt
-    entity.collider.vy = entity.collider.vy + dirY * accel * dt
+    local vx, vy = entity.collider:getLinearVelocity()
+    vx = vx + dir.x * accel * dt
     
-    -- Clamp to max speed
-    local speed = math.sqrt(entity.collider.vx^2 + entity.collider.vy^2)
-    if speed > maxSpeed then
-        entity.collider.vx = entity.collider.vx / speed * maxSpeed
-        entity.collider.vy = entity.collider.vy / speed * maxSpeed
+    -- Clamp horizontal speed
+    if math.abs(vx) > maxSpeed then
+        vx = (vx > 0 and 1 or -1) * maxSpeed
     end
+    entity.collider:setLinearVelocity(vx, vy)
 end
 
 function WanderState:exit(prevState)

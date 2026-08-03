@@ -80,7 +80,7 @@ function EntityFactory:loadEntity(entityName, layer, object)
 	-- Handle NPC types via registry first
 	if NPCRegistry._types[entityName] then
 		local props = object.properties or {}
-		local npc = NPCRegistry.spawn(entityName, object.x, object.y, props)
+		local npc = NPCRegistry.spawn(entityName, object, props)
 		if npc then
 			npc.mapData = object
 			object.entity = npc

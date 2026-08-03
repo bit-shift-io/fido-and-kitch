@@ -5,8 +5,7 @@ local IdleState = Class{}
 
 function IdleState:enter(prevState)
     local entity = self.entity
-    entity.collider.vx = 0
-    entity.collider.vy = 0
+    entity.collider:setLinearVelocity(0, 0)
 end
 
 function IdleState:update(entity, dt)

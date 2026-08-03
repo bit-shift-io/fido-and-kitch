@@ -44,7 +44,7 @@ local function test_robot_spawnsViaRegistry()
     NPCRegistry.clear()
     NPCRegistry.registerType('robot', Robot)
     
-    local robot = NPCRegistry.spawn('robot', 100, 100, {})
+    local robot = NPCRegistry.spawn('robot', {x = 100, y = 100}, {})
     assert(robot ~= nil, 'should spawn via registry')
     assert(robot.x == 100 and robot.y == 100, 'should set position')
     print('test_robot_spawnsViaRegistry: PASS')

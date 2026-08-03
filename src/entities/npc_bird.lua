@@ -11,6 +11,7 @@ NPCRegistry.registerType('npc_bird', BirdNPC)
 function BirdNPC:init(props)
     props = props or {}
     local birdDefaults = {
+        idleImage = 'res/img/npc_bird_idle.png',
         maxSpeed = 100,
         acceleration = 300,
         deceleration = 400,

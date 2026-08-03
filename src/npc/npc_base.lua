@@ -3,18 +3,29 @@ local Class = require('lib.hump.class')
 local Entity = require('src.entity')
 local StateMachine = require('src.components.state_machine')
 local Collider = require('src.components.collider')
+local Sprite = require('src.components.sprite')
 local NPCConfig = require('src.npc.npc_config')
+local Rect = require('src.utils.rect')
 local Vector = require('lib.hump.vector')
 
 local NPCBase = Class{__includes = Entity}
 
-function NPCBase:init(props)
+function NPCBase:init(props, tiledObject)
     props = props or {}
     Entity.init(self, props)
     
-    -- Set position from props
-    self.x = props.x or 0
-    self.y = props.y or 0
+    -- Position: use Rect.centreOfMapObject for Tiled tile objects (bottom-edge
+    -- anchored), plain x/y for everything else (cage-spawned NPCs, etc.)
+    local position
+    if tiledObject and tiledObject.gid then
+        position = Rect.centreOfMapObject(tiledObject)
+    elseif props.x and props.y then
+        position = Vector(props.x, props.y)
+    else
+        position = Vector(0, 0)
+    end
+    self.x = position.x
+    self.y = position.y
     
     -- Merge config with defaults
     self.config = NPCConfig.mergeWithDefaults(props)
@@ -28,8 +39,8 @@ function NPCBase:init(props)
     self.deathTimer = 0
     self.RESPAWN_DELAY = 30
     self.deathType = nil
-    self.homeX = props.x or 0
-    self.homeY = props.y or 0
+    self.homeX = position.x
+    self.homeY = position.y
     self.homeFacing = 'right'
     
     -- Stun/ban system
@@ -49,20 +60,47 @@ function NPCBase:init(props)
     self.currentPatrolIndex = 1
     self.patrolDirection = 1
     
--- Physics setup
+    -- Facing direction for sprites and patrol
+    self.facing = 'right'
+    
+    -- Sprite: idle image from config (each subclass sets idleImage in props)
     local w = props.width or 16
     local h = props.height or 16
-    local cx = props.x or 0
-    local cy = props.y or 0
+    -- shape_arguments must include world center position as first 2 values:
+    -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
+    local shape_arguments = {position.x, position.y, w, h}
+    local idleImage = props.idleImage or self.config.idleImage or 'res/img/npc_spider.png'
+    self.animations = self:addComponent(StateMachine{
+        states = {
+            idle = Sprite{
+                image = idleImage,
+                frames = 1,
+                duration = 1.0,
+                loop = false,
+                shape_arguments = shape_arguments,
+            },
+        },
+        entity = self,
+        currentState = 'idle',
+    })
+    
+    -- Physics setup
     self.collider = self:addComponent(Collider{
         shape_type = 'rectangle',
-        shape_arguments = {cx, cy, w, h},
+        shape_arguments = shape_arguments,
+        body_type = 'dynamic',
+        fixedRotation = true,
+        sprite = self.animations,
         solid = true,
         walkable = self.config.ridePlatforms,
     })
     self.collider.owner = self
     self.collider.entity = self
     self.collider.walkable = self.config.ridePlatforms
+    -- NPCs must collide with terrain (nil groupIndex). Player uses -1, so
+    -- use -2 here: nil != -2 → slide, -1 != -2 → slide, -2 == -2 → skip
+    -- (NPC-vs-NPC physical collision is unnecessary).
+    self.collider:setGroupIndex(-2)
     
     -- State machine with enhanced FSM states
     local stateMachine = StateMachine{
@@ -128,6 +166,12 @@ function NPCBase:update(dt)
     
     -- Now call Entity.update which will call StateMachine.update -> currentState:update
     Entity.update(self, dt)
+    
+    -- Sync position from collider after physics
+    if self.collider then
+        self.x = self.collider:getX()
+        self.y = self.collider:getY()
+    end
 end
 
 function NPCBase:calculateUtilities()
@@ -170,8 +214,8 @@ function NPCBase:calculateUtilities()
         utils.follow = 0
     end
     
-    -- Patrol: only when patrol points defined and no target
-    if #config.patrolPoints > 0 and not target then
+    -- Patrol: active when behavior is 'patrol' and no target
+    if config.behavior == 'patrol' and not target then
         utils.patrol = self.utilityWeights.patrol
     else
         utils.patrol = 0
@@ -270,8 +314,8 @@ end
 function NPCBase:applyPush(dx, dy)
     if not self.config.canBePushed then return end
     local force = self.config.pushForce
-    self.collider.vx = self.collider.vx + dx * force
-    self.collider.vy = self.collider.vy + dy * force
+    local vx, vy = self.collider:getLinearVelocity()
+    self.collider:setLinearVelocity(vx + dx * force, vy + dy * force)
 end
 
 function NPCBase:onCollision(other, dx, dy)
@@ -294,20 +338,83 @@ function NPCBase:onCollision(other, dx, dy)
     
     -- Handle platform riding (for entities with ridePlatforms = true)
     if other and other.isMovingPlatform and self.config.ridePlatforms then
-        self.collider.vx = other.collider.vx
-        self.collider.vy = other.collider.vy
+        local otherVx, otherVy = other.collider:getLinearVelocity()
+        self.collider:setLinearVelocity(otherVx, otherVy)
     end
 end
 
 function NPCBase:isOnGround()
-    -- Query physics world for ground contact
-    if self.collider and self.collider.world then
-        local items, len = self.collider.world:queryRect(
-            self.collider.x, self.collider.y + self.collider.height + 1,
-            self.collider.width, 2
-        )
+    if self.collider then
+        local w = self.collider.world or world
+        if not w then return false end
+        local bounds = {
+            left = self.collider.x,
+            right = self.collider.x + self.collider.width,
+            top = self.collider.y + self.collider.height + 1,
+            bottom = self.collider.y + self.collider.height + 3,
+        }
+        local items = w:queryOverlap(bounds)
         for _, item in ipairs(items) do
-            if item.solid and item ~= self.collider then
+            if item ~= self.collider and not item.sensor then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function NPCBase:isWallAhead(direction)
+    if not self.collider then return false end
+    local w = self.collider.world or world
+    if not w then return false end
+    local checkDist = 8
+    local bounds = self.collider:getBounds()
+    if direction == 'right' then
+        bounds.left = bounds.right
+        bounds.right = bounds.right + checkDist
+    else
+        bounds.right = bounds.left
+        bounds.left = bounds.left - checkDist
+    end
+    bounds.top = bounds.top + 2
+    bounds.bottom = bounds.bottom - 2
+    local items = w:queryOverlap(bounds)
+    for _, item in ipairs(items) do
+        if item ~= self.collider then
+            if not item.entity and not item.sensor then
+                return true
+            end
+            if item.entity and item.solid and not item.sensor then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function NPCBase:isGroundAhead(direction)
+    if not self.collider then return false end
+    local w = self.collider.world or world
+    if not w then return false end
+    local bounds = self.collider:getBounds()
+    local checkDist = 16
+    local vertRange = 8
+    if direction == 'right' then
+        bounds.left = bounds.right
+        bounds.right = bounds.right + checkDist
+    else
+        bounds.right = bounds.left
+        bounds.left = bounds.left - checkDist
+    end
+    bounds.top = bounds.bottom - vertRange
+    bounds.bottom = bounds.bottom + vertRange
+    local items = w:queryOverlap(bounds)
+    for _, item in ipairs(items) do
+        if item ~= self.collider then
+            if not item.entity and not item.sensor then
+                return true
+            end
+            if item.entity and item.solid and not item.sensor then
                 return true
             end
         end

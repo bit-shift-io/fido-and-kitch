@@ -48,7 +48,7 @@ function Cage:init(object, map)
 		}
 	})
 
-	-- spawn the prisoner!
+	-- Store spawn params; NPC is spawned when the cage is opened, not on map load
 	if object.properties.path == nil then
 		Log.warn('Cage has no path property setup for the actor to follow when released')
 		return
@@ -74,11 +74,16 @@ function Cage:init(object, map)
 		npcProps.height = 16
 	end
 	
-	-- Merge path object position with NPC properties
+	-- Pass pathObj as the object so NPCBase can use Rect.centreOfMapObject
+	-- for correct position (Tiled tile objects are bottom-edge anchored)
 	npcProps.x = pathObj.x
 	npcProps.y = pathObj.y
+	npcProps.gid = pathObj.gid  -- Preserve gid for position calculation
 	
-	self.actor = map:loadEntity(npcType, object.layer, npcProps)
+	self.spawnNpcType = npcType
+	self.spawnLayer = object.layer
+	self.spawnNpcProps = npcProps
+	self.map = map
 end
 
 function Cage:use(user)
@@ -88,6 +93,11 @@ function Cage:use(user)
 	self.sound:play('open')
 
 	EventBus.emit('cage_unlocked', {cage = self})
+
+	-- Spawn the NPC on first use
+	if self.actor == nil and self.spawnNpcType then
+		self.actor = self.map:loadEntity(self.spawnNpcType, self.spawnLayer, self.spawnNpcProps)
+	end
 
 	if self.actor == nil then
 		return

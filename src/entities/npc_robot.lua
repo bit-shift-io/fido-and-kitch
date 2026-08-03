@@ -11,6 +11,7 @@ NPCRegistry.registerType('npc_robot', Robot)
 function Robot:init(props)
     props = props or {}
     local robotDefaults = {
+        idleImage = 'res/img/npc_blob.png',
         maxSpeed = 60,
         acceleration = 250,
         deceleration = 400,
@@ -26,7 +27,6 @@ function Robot:init(props)
         ridePlatforms = false,
         triggerSwitches = true,
         invulnerableTime = 0.3,
-        patrolPoints = {},
     }
     
     local merged = {}

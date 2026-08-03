@@ -9,17 +9,23 @@ function NPCRegistry.registerType(name, class)
     NPCRegistry._types[name] = class
 end
 
-function NPCRegistry.spawn(typeName, x, y, props)
+function NPCRegistry.spawn(typeName, object, props)
     local class = NPCRegistry._types[typeName]
     if not class then
         return nil
     end
     
     props = props or {}
-    props.x = x
-    props.y = y
+    -- Set x/y from object if not already in props
+    if object then
+        if props.x == nil then props.x = object.x end
+        if props.y == nil then props.y = object.y end
+        if props.width == nil then props.width = object.width end
+        if props.height == nil then props.height = object.height end
+    end
     
-    local npc = class(props)
+    -- Pass tiledObject (second arg) so NPCBase can use Rect.centreOfMapObject
+    local npc = class(props, object)
     npc._typeName = typeName  -- Store type name on instance for getByType
     table.insert(NPCRegistry._instances, npc)
     
@@ -83,7 +89,7 @@ function NPCRegistry.onMapLoad(map)
                 if obj.type and NPCRegistry._types[obj.type] then
                     local props = obj.properties or {}
                     props._typeName = obj.type  -- Track type for getByType
-                    NPCRegistry.spawn(obj.type, obj.x, obj.y, props)
+                    NPCRegistry.spawn(obj.type, obj, props)
                 end
             end
         end

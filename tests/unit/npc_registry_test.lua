@@ -1,5 +1,5 @@
 -- tests/unit/npc_registry_test.lua
-require('tests.support.headless_bootstrap')
+local HeadlessBootstrap = require('tests.support.headless_bootstrap')
 local NPCRegistry = require('src.npc.npc_registry')
 local NPCBase = require('src.npc.npc_base')
 local Class = require('lib.hump.class')
@@ -11,11 +11,14 @@ function TestNPC:init(props)
     self.testType = 'test'
 end
 
+-- Reset world before each test run (Collider needs a global `world`)
+HeadlessBootstrap.resetWorld()
+
 local function test_registerType_and_spawn()
     NPCRegistry.clear()
     NPCRegistry.registerType('test_npc', TestNPC)
     
-    local npc = NPCRegistry.spawn('test_npc', 100, 200, {maxSpeed = 150})
+    local npc = NPCRegistry.spawn('test_npc', {x = 100, y = 200}, {maxSpeed = 150})
     assert(npc ~= nil, 'spawn should return NPC instance')
     assert(npc.x == 100 and npc.y == 200, 'should set position')
     assert(npc.config.maxSpeed == 150, 'should pass props to config')
@@ -25,7 +28,7 @@ end
 
 local function test_spawn_unknownType_returnsNil()
     NPCRegistry.clear()
-    local npc = NPCRegistry.spawn('unknown_type', 0, 0, {})
+    local npc = NPCRegistry.spawn('unknown_type', {x = 0, y = 0}, {})
     assert(npc == nil, 'unknown type should return nil')
     print('test_spawn_unknownType_returnsNil: PASS')
 end
@@ -33,9 +36,9 @@ end
 local function test_getAll_returnsAllSpawned()
     NPCRegistry.clear()
     NPCRegistry.registerType('test_npc', TestNPC)
-    NPCRegistry.spawn('test_npc', 0, 0, {})
-    NPCRegistry.spawn('test_npc', 10, 10, {})
-    NPCRegistry.spawn('test_npc', 20, 20, {})
+    NPCRegistry.spawn('test_npc', {x = 0, y = 0}, {})
+    NPCRegistry.spawn('test_npc', {x = 10, y = 10}, {})
+    NPCRegistry.spawn('test_npc', {x = 20, y = 20}, {})
     
     local all = NPCRegistry.getAll()
     assert(#all == 3, 'should return all 3 NPCs')
@@ -46,9 +49,9 @@ local function test_getByType_filtersCorrectly()
     NPCRegistry.clear()
     NPCRegistry.registerType('test_npc', TestNPC)
     NPCRegistry.registerType('other_npc', TestNPC)
-    NPCRegistry.spawn('test_npc', 0, 0, {})
-    NPCRegistry.spawn('other_npc', 10, 10, {})
-    NPCRegistry.spawn('test_npc', 20, 20, {})
+    NPCRegistry.spawn('test_npc', {x = 0, y = 0}, {})
+    NPCRegistry.spawn('other_npc', {x = 10, y = 10}, {})
+    NPCRegistry.spawn('test_npc', {x = 20, y = 20}, {})
     
     local testNPCs = NPCRegistry.getByType('test_npc')
     assert(#testNPCs == 2, 'should return only test_npc type')
@@ -58,7 +61,7 @@ end
 local function test_despawn_removesNPC()
     NPCRegistry.clear()
     NPCRegistry.registerType('test_npc', TestNPC)
-    local npc = NPCRegistry.spawn('test_npc', 0, 0, {})
+    local npc = NPCRegistry.spawn('test_npc', {x = 0, y = 0}, {})
     assert(#NPCRegistry.getAll() == 1, 'should have 1 NPC')
     
     NPCRegistry.despawn(npc)
@@ -69,8 +72,8 @@ end
 local function test_clear_removesAll()
     NPCRegistry.clear()
     NPCRegistry.registerType('test_npc', TestNPC)
-    NPCRegistry.spawn('test_npc', 0, 0, {})
-    NPCRegistry.spawn('test_npc', 10, 10, {})
+    NPCRegistry.spawn('test_npc', {x = 0, y = 0}, {})
+    NPCRegistry.spawn('test_npc', {x = 10, y = 10}, {})
     
     NPCRegistry.clear()
     assert(#NPCRegistry.getAll() == 0, 'clear should remove all')
@@ -112,7 +115,7 @@ end
 local function test_onMapUnload_clearsRegistry()
     NPCRegistry.clear()
     NPCRegistry.registerType('test_npc', TestNPC)
-    NPCRegistry.spawn('test_npc', 0, 0, {})
+    NPCRegistry.spawn('test_npc', {x = 0, y = 0}, {})
     
     NPCRegistry.onMapUnload()
     assert(#NPCRegistry.getAll() == 0, 'onMapUnload should clear all')

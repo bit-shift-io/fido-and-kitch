@@ -27,18 +27,16 @@ function FleeState:update(dt)
     if dist < 1 then return end
     
     local dir = Vector(dx, dy):normalized()
-    local dirX, dirY = dir.x, dir.y
     local accel = entity.config.acceleration or 400
     local maxSpeed = entity.config.maxSpeed or 100
     
-    entity.collider.vx = entity.collider.vx + dirX * accel * dt
-    entity.collider.vy = entity.collider.vy + dirY * accel * dt
+    local vx, vy = entity.collider:getLinearVelocity()
+    vx = vx + dir.x * accel * dt
     
-    local speed = math.sqrt(entity.collider.vx^2 + entity.collider.vy^2)
-    if speed > maxSpeed then
-        entity.collider.vx = entity.collider.vx / speed * maxSpeed
-        entity.collider.vy = entity.collider.vy / speed * maxSpeed
+    if math.abs(vx) > maxSpeed then
+        vx = (vx > 0 and 1 or -1) * maxSpeed
     end
+    entity.collider:setLinearVelocity(vx, vy)
 end
 
 function FleeState:exit(prevState)

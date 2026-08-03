@@ -45,7 +45,7 @@ local function test_spider_spawnsViaRegistry()
     NPCRegistry.clear()
     NPCRegistry.registerType('spider', Spider)
     
-    local spider = NPCRegistry.spawn('spider', 100, 100, {})
+    local spider = NPCRegistry.spawn('spider', {x = 100, y = 100}, {})
     assert(spider ~= nil, 'should spawn via registry')
     assert(spider.x == 100 and spider.y == 100, 'should set position')
     print('test_spider_spawnsViaRegistry: PASS')

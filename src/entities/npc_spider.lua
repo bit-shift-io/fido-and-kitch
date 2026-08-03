@@ -13,6 +13,7 @@ function Spider:init(props)
     props = props or {}
     -- Spider-specific defaults
     local spiderDefaults = {
+        idleImage = 'res/img/npc_spider.png',
         maxSpeed = 90,
         acceleration = 350,
         deceleration = 500,

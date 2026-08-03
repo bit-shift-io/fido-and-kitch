@@ -104,6 +104,7 @@ Available commands (sent via TCP to 127.0.0.1:8081):
 | `GET_TILE_GRID` | Get map tile grid as 2D matrix (0=empty, 1=solid, 2=ladder, 3=killzone) |
 | `SPAWN_ENTITY <type> <x> <y> [props_json]` | Spawn entity into live game world |
 | `STEP_FRAMES <count>` | Advance simulation by N fixed timesteps |
+| `GET_LOG [count]` | Console output (print statements, debug logs) |
 
 OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `launch_game` — Start game with IPC (blocks until ready)
@@ -122,5 +123,6 @@ OpenCode tools (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 - `get_tile_grid` — Get map tile grid as 2D matrix
 - `spawn_entity` — Spawn entity into live game world
 - `step_frames` — Advance simulation by N frames
+- `get_log` — Console output (print statements, debug logs)
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port.

@@ -12,6 +12,7 @@ NPCRegistry.registerType('npc_rabbit', RabbitNPC)
 function RabbitNPC:init(props)
     props = props or {}
     local rabbitDefaults = {
+        idleImage = 'res/img/npc_rabbit_idle.png',
         maxSpeed = 80,
         acceleration = 350,
         deceleration = 500,
@@ -50,7 +51,8 @@ function RabbitNPC:update(dt)
     if self.target and self.stateMachine.currentState.name == 'FollowState' then
         self.hopTimer = self.hopTimer - dt
         if self.hopTimer <= 0 and self:isOnGround() then
-            self.collider.vy = -self.config.hopHeight
+            local vx, vy = self.collider:getLinearVelocity()
+            self.collider:setLinearVelocity(vx, -self.config.hopHeight)
             self.hopTimer = self.config.hopCooldown
         end
     end

@@ -43,7 +43,7 @@ local function test_rabbit_spawnsViaRegistry()
     NPCRegistry.clear()
     NPCRegistry.registerType('rabbit_npc', RabbitNPC)
     
-    local rabbit = NPCRegistry.spawn('rabbit_npc', 100, 100, {})
+    local rabbit = NPCRegistry.spawn('rabbit_npc', {x = 100, y = 100}, {})
     assert(rabbit ~= nil, 'should spawn via registry')
     assert(rabbit.x == 100 and rabbit.y == 100, 'should set position')
     print('test_rabbit_spawnsViaRegistry: PASS')

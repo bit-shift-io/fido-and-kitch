@@ -226,6 +226,7 @@ The game includes a TCP-based IPC server for programmatic control via OpenCode (
 | `GET_TILE_GRID` | — | JSON: 2D matrix (0=empty, 1=solid, 2=ladder, 3=killzone) |
 | `SPAWN_ENTITY` | `<type> <x> <y> [props_json]` | `OK: Spawned <type> at x,y` |
 | `STEP_FRAMES` | `<count>` | `OK: Stepped N frames` |
+| `GET_LOG` | `[count]` | Console output (print statements, debug logs) |
 
 **OpenCode Tools** (auto-loaded from `.opencode/tools/fido-kitch-ipc.ts`):
 | Tool | Description |
@@ -246,6 +247,7 @@ The game includes a TCP-based IPC server for programmatic control via OpenCode (
 | `get_tile_grid` | Get map tile grid as 2D matrix |
 | `spawn_entity` | Spawn entity into live game world |
 | `step_frames` | Advance simulation by N frames |
+| `get_log` | Console output (print statements, debug logs) |
 
 Set `FIDO_KITCH_IPC_PORT` env var for custom port (default 8081).
 
