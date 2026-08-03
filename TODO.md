@@ -2,13 +2,16 @@
 A list of tasks that need to be done. Generate docs before starting each task.
 
 ## High Priority
-* pickups (coins & lives) which work - keys work!
+* npc - rename entities to npc_
+* pickups (coins & lives) which work - keys work! Event bus/game state
+* fix gamepad controls
 
 ## Medium Priority
-* enemies
+* fix sounds - random volume, many sounds playing for character walk
 * particle effects
+* story entity
+* ladders as props?
 
 ## Low Priority
-* story entity
 * procedural levels
 * game gui

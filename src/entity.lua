@@ -86,6 +86,11 @@ function Entity:draw()
 			component:draw()
 		end
 	end
+	for _, component in pairs(self.components) do
+		if component.postDraw ~= nil then
+			component:postDraw()
+		end
+	end
 end
 
 

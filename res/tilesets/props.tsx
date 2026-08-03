@@ -13,9 +13,9 @@
  <tile id="3" x="0" y="0" width="162" height="162">
   <image source="../img/entity_switch.png" width="488" height="162"/>
  </tile>
- <tile id="4">
-  <image source="../img/key_blue.png" width="32" height="32"/>
- </tile>
+<tile id="4">
+   <image source="../img/entity_key.png" width="32" height="32"/>
+  </tile>
  <tile id="5" x="0" y="0" width="64" height="64">
   <image source="../img/entity_door.png" width="320" height="64"/>
  </tile>
@@ -29,7 +29,7 @@
   <image source="../img/cage/cage.png" width="760" height="370"/>
  </tile>
  <tile id="10">
-  <image source="../img/spring/Spring - 1.png" width="31" height="26"/>
+  <image source="../img/entity_jump_pad.png" width="31" height="26"/>
  </tile>
  <tile id="11">
   <image source="../img/default.png" width="32" height="32"/>

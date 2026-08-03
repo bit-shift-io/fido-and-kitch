@@ -67,7 +67,7 @@
   </object>
   <object id="62" template="../templates/key.tx" name="red_key" x="96" y="384">
    <properties>
-    <property name="image" type="file" value="../img/key_yellow.png"/>
+    <property name="image" type="file" value="../img/entity_key.png"/>
    </properties>
   </object>
   <object id="63" template="../templates/teleport.tx" name="teleport" type="teleport" x="384" y="544">
@@ -77,7 +77,7 @@
   </object>
   <object id="68" template="../templates/jump_pad.tx" x="192" y="384">
    <properties>
-    <property name="image" type="file" value="../img/spring/Spring - 1.png"/>
+    <property name="image" type="file" value="../img/entity_jump_pad.png"/>
     <property name="path" type="object" value="73"/>
    </properties>
   </object>
@@ -94,8 +94,8 @@
    </properties>
   </object>
   <object id="81" template="../templates/push_box.tx" x="160" y="192"/>
-  <object id="87" name="robot" type="robot" x="29.9128" y="480.308" width="32" height="30.2203"/>
-  <object id="88" name="spider" type="spider" x="416.205" y="317.467" width="32" height="32"/>
+  <object id="87" name="robot" type="npc_robot" x="29.9128" y="480.308" width="32" height="30.2203"/>
+  <object id="88" name="spider" type="npc_spider" x="416.205" y="317.467" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="18" name="waypoints">
   <object id="67" name="red_bird_path" x="48" y="368">

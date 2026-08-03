@@ -133,7 +133,13 @@ function Sprite:init(props)
 	self.offset = props.offset or Vector(0, 0)
 	self.facing = props.facing or 'right'
 	self.playingOnEnter = props.playing ~= false
-	self.timeline = Timeline(props)
+
+	-- Default duration for single-frame sprites (no animation)
+	local duration = props.duration
+	if not duration and #self.frames == 1 then
+		duration = 1.0
+	end
+	self.timeline = Timeline({duration = duration, loop = props.loop, playing = props.playing})
 
 	-- headless: no real texture loaded (image and frames[1] both nil), so
 	-- there's nothing to measure and no fit to compute -- self.scale/offset
@@ -227,6 +233,11 @@ function Sprite:update(dt)
 	if self.timeline.playing == false then
 		return;
 	end
+    -- Defensive check for dt being a table
+    if type(dt) ~= 'number' then
+        print("ERROR Sprite:update received non-number dt:", type(dt), dt)
+        dt = 1/60  -- fallback
+    end
 	self.timeline:update(dt)
 	self.frameNum = self.timeline:getFrameIndex(#self.frames)
 end

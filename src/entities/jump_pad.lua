@@ -7,14 +7,14 @@ function JumpPad:init(object, map)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
-		image='res/img/spring/Spring - 1.png',
-		frames=1,
-		duration=1.0,
+		image='res/img/entity_jump_pad.png',
+		frames=3,
+		duration=0.4,
 		loop=true,
 		playing=true,
 		shape_arguments=shape_arguments
 	})
-	
+
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',
 		shape_arguments=shape_arguments,

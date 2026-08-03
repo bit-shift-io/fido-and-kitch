@@ -55,16 +55,22 @@ end
 
 function Timeline:update(dt)
     if self.playing == false then
-		return
-	end
-
+ 		return
+ 	end
+    
+    -- Defensive check for dt being a table
+    if type(dt) ~= 'number' then
+        print("ERROR Timeline:update received non-number dt:", type(dt), dt)
+        dt = 1/60  -- fallback
+    end
+    
     local speed = self.speed
     if (self.isReverse) then
         speed = -speed
     end
-
+    
     self:progress(dt * speed)
-
+    
     -- TODO: set playing = false if start/end reached
 end
 
