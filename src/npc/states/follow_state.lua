@@ -19,15 +19,16 @@ function FollowState:update(dt)
     
     if not entity.target then return end
     
-    -- Defensive: ensure target has x,y
-    if not entity.target.x or not entity.target.y then
+    -- Resolve target position (entity with collider or plain table)
+    local tx, ty = entity:getTargetPos()
+    if not tx or not ty then
         entity.target = nil
         return
     end
     
     local followDist = entity.config.followDistance or 40
-    local dx = entity.target.x - entity.x
-    local dy = entity.target.y - entity.y
+    local dx = tx - entity.x
+    local dy = ty - entity.y
     local dist = math.sqrt(dx*dx + dy*dy)
     
     -- If too close, back off; if too far, approach

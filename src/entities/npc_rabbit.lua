@@ -31,6 +31,7 @@ function RabbitNPC:init(props)
         followDistance = 40,
         hopHeight = 120,
         hopCooldown = 0.5,
+        despawnDistance = 400,
     }
     
     local merged = {}

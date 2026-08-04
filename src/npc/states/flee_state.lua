@@ -20,8 +20,10 @@ function FleeState:update(dt)
     if not entity.target then return end
     
     -- Move away from threat
-    local dx = entity.x - entity.target.x
-    local dy = entity.y - entity.target.y
+    local tx, ty = entity:getTargetPos()
+    if not tx or not ty then return end
+    local dx = entity.x - tx
+    local dy = entity.y - ty
     local dist = math.sqrt(dx*dx + dy*dy)
     
     if dist < 1 then return end

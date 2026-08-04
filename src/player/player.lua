@@ -1,7 +1,7 @@
 local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
-local DeathFlash = require('src.components.death_flash')
 local GroundSupport = require('src.player.ground_support')
+local FlashEffect = require('src.components.flash_effect')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
 local Log = require('src.utils.log')
@@ -67,6 +67,9 @@ function Player:init(props)
         }
     }
 
+    -- FlashEffect must be added BEFORE the animations StateMachine so its
+    -- draw() sets the color before the sprite renders (no one-frame delay).
+    self.flashEffect = self:addComponent(FlashEffect{})
     self.animations = self:addComponent(StateMachine{
         states=animations,
         entity=self,
@@ -174,13 +177,6 @@ end
 function Player:update(dt)
     Entity.update(self, dt)
 
-    if self.fadeTween then
-        local finished = self.fadeTween:update(dt)
-        if finished then
-            self.fadeTween = nil
-        end
-    end
-
     if not self:isDead() then
         local killZone = PlayerSensors.queryKillZone(world, self.collider)
         if killZone then
@@ -265,7 +261,8 @@ function Player:respawn()
 end
 
 function Player:startSpawnFlash()
-    DeathFlash.startSpawn(self)
+    self.flashEffect:fadeIn(0.15 * 8)
+    self.flashEffect:blink(0.15, 8)
 end
 
 function Player:drawSafePositionMarker()

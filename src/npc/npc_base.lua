@@ -4,6 +4,7 @@ local Entity = require('src.entity')
 local StateMachine = require('src.components.state_machine')
 local Collider = require('src.components.collider')
 local Sprite = require('src.components.sprite')
+local FlashEffect = require('src.components.flash_effect')
 local NPCConfig = require('src.npc.npc_config')
 local Rect = require('src.utils.rect')
 local Vector = require('lib.hump.vector')
@@ -70,6 +71,9 @@ function NPCBase:init(props, tiledObject)
     -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
     local shape_arguments = {position.x, position.y, w, h}
     local idleImage = props.idleImage or self.config.idleImage or 'res/img/npc_spider.png'
+    -- FlashEffect must be added BEFORE the sprite StateMachine so its draw()
+    -- sets the color before the sprite renders (no one-frame delay).
+    self.flashEffect = self:addComponent(FlashEffect{})
     self.animations = self:addComponent(StateMachine{
         states = {
             idle = Sprite{
@@ -149,6 +153,39 @@ function NPCBase:update(dt)
         end
     end
     
+    -- Detect nearby players for follow/chase behavior
+    if players and #players > 0 then
+        local closest = nil
+        local closestDist = self.config.detectionRadius
+        for _, player in ipairs(players) do
+            if player and not player.dead and player.collider then
+                local px = player.collider:getX()
+                local py = player.collider:getY()
+                local dx = px - self.x
+                local dy = py - self.y
+                local dist = math.sqrt(dx * dx + dy * dy)
+                if dist < closestDist then
+                    closestDist = dist
+                    closest = {x = px, y = py}
+                end
+            end
+        end
+        self:setTarget(closest)
+    end
+    
+    -- Despawn to target if too far away (for friendly NPCs)
+    if self.config.despawnDistance > 0 and self.target and not self:isDead() then
+        local tx, ty = self:getTargetPos()
+        if tx then
+            local dx = tx - self.x
+            local dy = ty - self.y
+            local dist = math.sqrt(dx * dx + dy * dy)
+            if dist > self.config.despawnDistance then
+                self:despawnToTarget()
+            end
+        end
+    end
+    
     -- Calculate utilities and transition state FIRST
     -- Skip if dead - DeadState handles its own transitions
     if not self:isDead() then
@@ -186,7 +223,8 @@ function NPCBase:calculateUtilities()
     if not target then
         utils.wander = self.utilityWeights.wander
     else
-        local dist = (Vector(self.x, self.y) - Vector(target.x, target.y)):len()
+        local tx, ty = self:getTargetPos()
+        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         if dist > config.detectionRadius * 1.5 then
             utils.wander = self.utilityWeights.wander * 0.5
         else
@@ -196,7 +234,8 @@ function NPCBase:calculateUtilities()
     
     -- Chase: high when target detected and hostile
     if target and config.behavior ~= 'follow' then
-        local dist = (Vector(self.x, self.y) - Vector(target.x, target.y)):len()
+        local tx, ty = self:getTargetPos()
+        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         if dist <= config.detectionRadius then
             utils.chase = self.utilityWeights.chase * (1 - dist / config.detectionRadius)
         else
@@ -208,7 +247,8 @@ function NPCBase:calculateUtilities()
     
     -- Follow: high when behavior is follow and target exists
     if target and config.behavior == 'follow' then
-        local dist = (Vector(self.x, self.y) - Vector(target.x, target.y)):len()
+        local tx, ty = self:getTargetPos()
+        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         utils.follow = self.utilityWeights.follow * (1 - math.min(1, dist / (config.detectionRadius * 2)))
     else
         utils.follow = 0
@@ -223,7 +263,8 @@ function NPCBase:calculateUtilities()
     
     -- Attack: very high when in attack range
     if target then
-        local dist = (Vector(self.x, self.y) - Vector(target.x, target.y)):len()
+        local tx, ty = self:getTargetPos()
+        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         if dist <= config.attackRange then
             utils.attack = self.utilityWeights.attack
         else
@@ -262,8 +303,22 @@ end
 function NPCBase:setTarget(target)
     self.target = target
     if target then
-        self.lastKnownTargetPos = {x = target.x, y = target.y}
+        local tx, ty
+        if target.collider then
+            tx, ty = target.collider:getX(), target.collider:getY()
+        else
+            tx, ty = target.x, target.y
+        end
+        self.lastKnownTargetPos = {x = tx, y = ty}
     end
+end
+
+function NPCBase:getTargetPos()
+    if not self.target then return nil end
+    if self.target.collider then
+        return self.target.collider:getX(), self.target.collider:getY()
+    end
+    return self.target.x, self.target.y
 end
 
 function NPCBase:takeDamage(amount, source)
@@ -307,8 +362,8 @@ function NPCBase:respawn()
     self.bans = {}
     self.stateMachine:setState('IdleState')
     -- Start spawn flash
-    local DeathFlash = require('src.components.death_flash')
-    DeathFlash.startSpawn(self)
+    self.flashEffect:fadeIn(0.15 * 8)
+    self.flashEffect:blink(0.15, 8)
 end
 
 function NPCBase:applyPush(dx, dy)
@@ -424,6 +479,27 @@ end
 
 function NPCBase:isDead()
     return self.stateMachine and self.stateMachine.currentState and self.stateMachine.currentState.name == 'DeadState'
+end
+
+function NPCBase:getSprite()
+    if self.animations and self.animations.currentState then
+        return self.animations.currentState
+    end
+    return nil
+end
+
+function NPCBase:despawnToTarget()
+    local tx, ty = self:getTargetPos()
+    if not tx then return end
+    self.x = tx
+    self.y = ty
+    if self.collider then
+        self.collider:setPosition(tx, ty)
+        self.collider:setLinearVelocity(0, 0)
+    end
+    self.stateMachine:setState('IdleState')
+    self.flashEffect:fadeIn(0.15 * 8)
+    self.flashEffect:blink(0.15, 8)
 end
 
 

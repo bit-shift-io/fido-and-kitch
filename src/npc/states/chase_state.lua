@@ -7,7 +7,8 @@ local ChaseState = Class{}
 function ChaseState:enter(prevState)
     local entity = self.entity
     if entity.target then
-        entity.chaseTarget = {x = entity.target.x, y = entity.target.y}
+        local tx, ty = entity:getTargetPos()
+        entity.chaseTarget = {x = tx, y = ty}
     end
 end
 
@@ -24,8 +25,9 @@ function ChaseState:update(dt)
     end
     
     -- Update chase target to current target position
-    entity.chaseTarget.x = entity.target.x
-    entity.chaseTarget.y = entity.target.y
+    local tx, ty = entity:getTargetPos()
+    entity.chaseTarget.x = tx
+    entity.chaseTarget.y = ty
     
     local dx = entity.chaseTarget.x - entity.x
     local dy = entity.chaseTarget.y - entity.y

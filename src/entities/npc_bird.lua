@@ -29,6 +29,7 @@ function BirdNPC:init(props)
         invulnerableTime = 0.5,
         followDistance = 60,
         canFly = true,
+        despawnDistance = 400,
     }
     
     local merged = {}

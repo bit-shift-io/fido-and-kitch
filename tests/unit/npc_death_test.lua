@@ -5,8 +5,8 @@
 local HeadlessBootstrap = require('tests.support.headless_bootstrap')
 local Robot = require('src.entities.npc_robot')
 
-local FLASH_INTERVAL = 0.15 -- DeathFlash.FLASH_INTERVAL, mirrored to avoid a require just for a constant
-local FLASH_BLINKS = 8
+local BLINK_INTERVAL = 0.15
+local BLINKS = 8
 local RESPAWN_DELAY = 30
 
 local function makeRobot(x, y)
@@ -14,12 +14,12 @@ local function makeRobot(x, y)
 	return Robot({x = x, y = y, width = 24, height = 24, properties = {}})
 end
 
--- Flash:update toggles at most once per call (no internal while-loop), so
--- completing the death flash-out means stepping it blink-by-blink -- a
--- single dt == the whole fade duration only registers one toggle.
-local function runOutDeathFlash(robot)
-	for _ = 1, FLASH_BLINKS do
-		robot:update(FLASH_INTERVAL)
+-- Sprite:blink toggles at most once per Sprite:update call, so completing
+-- the death blink means stepping it blink-by-blink via the robot's update
+-- (which ticks all components including the sprite).
+local function runOutDeathBlink(robot)
+	for _ = 1, BLINKS do
+		robot:update(BLINK_INTERVAL)
 	end
 end
 
@@ -53,7 +53,7 @@ test('a Robot does not respawn before the 30s window has elapsed, even after the
 	local robot = makeRobot(100, 100)
 	robot:die('water')
 
-	runOutDeathFlash(robot) -- flash-out completes
+	runOutDeathBlink(robot) -- flash-out completes
 	robot:update(RESPAWN_DELAY - 1) -- short of the 30s window
 
 	assertTrue(robot:isDead(), 'expected the Robot to still be gone just short of the respawn window')
@@ -65,7 +65,7 @@ test('a Robot respawns at its original position 30s after the flash-out complete
 	robot.collider:setPosition(999, 999) -- simulate having wandered before dying
 	robot:die('water')
 
-	runOutDeathFlash(robot)
+	runOutDeathBlink(robot)
 	robot:update(RESPAWN_DELAY + 0.1)
 
 	assertFalse(robot:isDead(), 'expected the Robot to have respawned')
@@ -79,7 +79,7 @@ test('a respawned Robot resumes wander with no stale stun or ban state', functio
 	robot:ban({}, 30)
 	robot:die('water')
 
-	runOutDeathFlash(robot)
+	runOutDeathBlink(robot)
 	robot:update(RESPAWN_DELAY + 0.1)
 
 	assertEqual(0, robot.stunTimer)

@@ -30,6 +30,7 @@ NPCConfig.Defaults = {
     invulnerableTime = 0.5,
     hopHeight = 120,
     hopCooldown = 0.5,
+    despawnDistance = 0,
 }
 
 function NPCConfig.getDefaults()

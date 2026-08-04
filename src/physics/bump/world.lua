@@ -101,6 +101,13 @@ function World.colFilter(a, b)
       return 'cross'
    end
 
+	-- Players and NPCs pass through each other
+	local aType = a.entity and a.entity.type
+	local bType = b.entity and b.entity.type
+	if (aType == 'player' and bType == 'entity') or (aType == 'entity' and bType == 'player') then
+		return 'cross'
+	end
+
 	if World.ignoresEntity(a, b) or World.ignoresEntity(b, a) then
 		return 'cross'
 	end

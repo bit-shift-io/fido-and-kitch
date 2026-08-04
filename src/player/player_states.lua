@@ -1,6 +1,5 @@
 local PlayerMovement = require('src.player.player_movement')
 local PlayerSensors = require('src.player.player_sensors')
-local DeathFlash = require('src.components.death_flash')
 local Log = require('src.utils.log')
 
 local LadderState = Class{}
@@ -310,7 +309,11 @@ function DeadState:enter()
     player.collider:setGravityScale(0)
     player:setAnimation('idle')
 
-    DeathFlash.startDeath(player, utils.bindSelf(player.resolveDeath, player))
+    -- Use flash effect blink + fade-out
+    player.flashEffect:blink(0.15, 8, function()
+        player:resolveDeath()
+    end)
+    player.flashEffect:fadeOut(0.15 * 8)
 end
 
 function DeadState:exit()
