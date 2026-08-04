@@ -182,11 +182,13 @@ function LoveMock.new()
 
 	love.audio = {
 		newSource = function(path, kind)
-			local source = {path = path, kind = kind, pitch = 1, playing = false}
+			local source = {path = path, kind = kind, pitch = 1, volume = 1, playing = false}
 			function source:setPitch(pitch) self.pitch = pitch end
+			function source:setVolume(vol) self.volume = vol end
 			function source:play() self.playing = true end
 			function source:stop() self.playing = false end
 			function source:isPlaying() return self.playing end
+			function source:seek(offset) end
 			table.insert(state.audio.created, source)
 			return source
 		end,

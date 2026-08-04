@@ -15,6 +15,8 @@ function RabbitNPC:init(props)
         idleImage = 'res/img/npc_rabbit_idle.png',
         width = 32,
         height = 32,
+        colliderWidth = 16,
+        colliderHeight = 16,
         maxSpeed = 80,
         acceleration = 350,
         deceleration = 500,

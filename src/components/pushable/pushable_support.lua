@@ -140,38 +140,13 @@ function PushableSupport.pushDirection(pushers, propCentreX)
 	return 0
 end
 
--- The players' collision group. World.colFilter ignores a collision between
--- two colliders sharing a group (Player:init sets -1 so co-op players pass
--- through each other), which a falling prop borrows deliberately -- see
--- groupIndexFor.
-local PLAYER_GROUP_INDEX = -1
-
--- Which collision group the prop should be in right now: its own while at
--- rest, the players' while it is falling.
+-- Which collision group the prop should be in right now: its own at all times.
 --
--- Sharing the players' group means a falling prop passes through them, and
--- that is what keeps a filled hole walkable rather than a cosmetic nicety.
--- While a player pushes a prop, lib/bump clamps the player EXACTLY onto the
--- prop's side face. bump's rect_detectCollision counts exact touching as
--- "already intersecting" (its zero-area intersection case) and from there
--- blocks a diagonal move outright with a horizontal normal -- and every frame
--- is diagonal, because the player's own gravity adds a fractional downward
--- step. So a player left welded to where the prop's face used to be can never
--- walk forward again once the prop drops away: the hole it filled becomes a
--- wall, defeating the mechanic. Taking the prop out of the player's way for
--- the duration of the fall means they are never welded, and they then meet
--- the landed prop mid-stride, which bump's corner-clip exemption handles.
---
--- Terrain carries an unset (nil) group, so a falling prop still collides with
--- the ground and lands normally. Two props falling at once share the group and
--- pass through each other, which is rare and harmless -- neither can be
--- pushed mid-fall anyway. Props never crush players by design (DECISIONS Q9),
--- so passing through one in flight is consistent with the rest of the model.
+-- The prop keeps its own groupIndex even while falling. This means bump blocks
+-- the player from walking through a falling prop -- the player waits at the
+-- edge while the prop drops below their feet, then walks off freely. The prop
+-- remains solid to the player throughout the fall and lands normally.
 function PushableSupport.groupIndexFor(state, ownGroupIndex)
-	if not state.supported or state.airborne then
-		return PLAYER_GROUP_INDEX
-	end
-
 	return ownGroupIndex
 end
 

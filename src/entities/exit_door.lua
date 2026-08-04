@@ -150,7 +150,7 @@ function ExitDoor:despawnNearbyNPCs()
 	local items = world:queryOverlap(bounds)
 	for _, item in ipairs(items) do
 		local other = item.entity
-		if other and other ~= self and not other:isDead() then
+		if other and other ~= self and (not other.isDead or not other:isDead()) then
 			local isFriendlyNPC = other.config and other.config.despawnDistance > 0
 			if isFriendlyNPC then
 				Log.debug('ExitDoor: despawning friendly NPC near exit')

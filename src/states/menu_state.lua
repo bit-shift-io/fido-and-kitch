@@ -31,9 +31,6 @@ function MenuState:update(dt)
         elseif inputManager:wasPressed(i, 'start') or inputManager:wasPressed(i, 'use') then
             self:startGame{map=self.mapList.selectedFile}
             break
-        elseif inputManager:wasPressed(i, 'back') then
-            love.event.push('quit')
-            break
         end
     end
 end
@@ -62,6 +59,14 @@ function MenuState:touchpressed(id, x, y)
     local action = self.mapList:pressed(x, y)
     if action == 'start' then
         self:startGame{map=self.mapList.selectedFile}
+    end
+end
+
+local BACK_BUTTONS = {back = true, select = true, guide = true}
+
+function MenuState:gamepadpressed(joystick, button)
+    if BACK_BUTTONS[button] then
+        love.event.push('quit')
     end
 end
 

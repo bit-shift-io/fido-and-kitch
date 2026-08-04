@@ -246,12 +246,12 @@ end)
 --
 -- Terrain keeps an unset (nil) group, so a falling prop still collides with
 -- the ground normally and lands.
-test('a falling prop shares the players\' group so it passes through them', function()
-	assertEqual(-1, PushableSupport.groupIndexFor({supported = false}, 7))
+test('a falling prop keeps its own group so it blocks players', function()
+	assertEqual(7, PushableSupport.groupIndexFor({supported = false}, 7))
 end)
 
-test('a prop still settling after a landing also passes through players', function()
-	assertEqual(-1, PushableSupport.groupIndexFor({supported = true, airborne = true}, 7))
+test('a prop still settling after a landing also keeps its own group', function()
+	assertEqual(7, PushableSupport.groupIndexFor({supported = true, airborne = true}, 7))
 end)
 
 test('a prop at rest takes back its own group, so it blocks players again', function()

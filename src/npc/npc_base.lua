@@ -67,9 +67,12 @@ function NPCBase:init(props, tiledObject)
     -- Sprite: idle image from config (each subclass sets idleImage in props)
     local w = props.width or 16
     local h = props.height or 16
+    local cw = props.colliderWidth or w
+    local ch = props.colliderHeight or h
     -- shape_arguments must include world center position as first 2 values:
     -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
-    local shape_arguments = {position.x, position.y, w, h}
+    local spriteArgs = {position.x, position.y, w, h}
+    local colliderArgs = {position.x, position.y, cw, ch}
     local idleImage = props.idleImage or self.config.idleImage or 'res/img/npc_spider.png'
     -- FlashEffect must be added BEFORE the sprite StateMachine so its draw()
     -- sets the color before the sprite renders (no one-frame delay).
@@ -81,7 +84,7 @@ function NPCBase:init(props, tiledObject)
                 frames = 1,
                 duration = 1.0,
                 loop = false,
-                shape_arguments = shape_arguments,
+                shape_arguments = spriteArgs,
             },
         },
         entity = self,
@@ -91,7 +94,7 @@ function NPCBase:init(props, tiledObject)
     -- Physics setup
     self.collider = self:addComponent(Collider{
         shape_type = 'rectangle',
-        shape_arguments = shape_arguments,
+        shape_arguments = colliderArgs,
         body_type = 'dynamic',
         fixedRotation = true,
         sprite = self.animations,

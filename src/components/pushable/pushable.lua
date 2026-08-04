@@ -28,7 +28,7 @@ local FACE_INSET = 6
 -- tall enough that an entity standing on the prop -- feet on its top edge,
 -- body extending upward out of the prop's own depth -- is caught by the
 -- on-top query, mirroring the drawbridge's occupancy margin
-local ON_TOP_HEIGHT = 200
+local ON_TOP_HEIGHT = 32
 
 function Pushable:init(props)
 	self.type = 'pushable'

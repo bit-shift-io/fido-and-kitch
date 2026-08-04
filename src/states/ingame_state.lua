@@ -188,8 +188,11 @@ function InGameState:update(dt)
         self.camera:update(dt, self:collectPlayerTargets())
     end
 
-    if inputManager:wasPressed(1, 'back') then
-        self.camera:toggleOverview()
+    for i = 1, 4 do
+        if inputManager:wasPressed(i, 'start') then
+            local game = self.entity
+            game:setGameState('MenuState')
+        end
     end
 end
 
@@ -228,6 +231,14 @@ function InGameState:keypressed(k)
     if k == 'escape' then
         game:setGameState('MenuState')
     elseif k == 'space' then
+        self.camera:toggleOverview()
+    end
+end
+
+local BACK_BUTTONS = {back = true, select = true, guide = true}
+
+function InGameState:gamepadpressed(joystick, button)
+    if BACK_BUTTONS[button] then
         self.camera:toggleOverview()
     end
 end

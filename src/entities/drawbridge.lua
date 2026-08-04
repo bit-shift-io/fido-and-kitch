@@ -215,7 +215,7 @@ end
 -- the deck (feet at the tile's top edge, body extending upward) is caught
 -- by the overlap query below, not just something inside the tile's own
 -- physical depth
-local OCCUPANCY_HEIGHT_MARGIN = 200
+local OCCUPANCY_HEIGHT_MARGIN = 32
 
 -- held is evaluated fresh every frame, separately, over the trigger tile
 -- and the deck tile -- an entity that has triggered the bridge but not yet

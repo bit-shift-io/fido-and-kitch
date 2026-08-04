@@ -2,15 +2,26 @@ Class = Class or require('lib.hump.class')
 local Sound = require('src.components.sound')
 
 local function fakeSource()
-	local source = {calls = {}}
+	local source = {calls = {}, _playing = false}
 	function source:setPitch(pitch)
 		table.insert(self.calls, {name = 'setPitch', pitch = pitch})
 	end
+	function source:setVolume(vol)
+		table.insert(self.calls, {name = 'setVolume', volume = vol})
+	end
 	function source:play()
+		self._playing = true
 		table.insert(self.calls, {name = 'play'})
 	end
 	function source:stop()
+		self._playing = false
 		table.insert(self.calls, {name = 'stop'})
+	end
+	function source:isPlaying()
+		return self._playing
+	end
+	function source:seek(offset)
+		table.insert(self.calls, {name = 'seek', offset = offset})
 	end
 	return source
 end
@@ -72,7 +83,8 @@ test('play(name) sets pitch within the configured variation and calls play', fun
 		local source = createdSources[1]
 		assertNear(1.1, source.calls[1].pitch)
 		assertEqual('setPitch', source.calls[1].name)
-		assertEqual('play', source.calls[2].name)
+		assertEqual('setVolume', source.calls[2].name)
+		assertEqual('play', source.calls[3].name)
 	end)
 end)
 
@@ -124,7 +136,70 @@ test('destroy() stops every source created by play', function()
 
 		sound:destroy()
 
-		assertEqual('stop', createdSources[1].calls[#createdSources[1].calls].name)
-		assertEqual('stop', createdSources[2].calls[#createdSources[2].calls].name)
+		for _, source in ipairs(createdSources) do
+			assertEqual('stop', source.calls[#source.calls].name)
+		end
+	end)
+end)
+
+test('play(name) reuses a stopped source instead of creating a new one', function()
+	withMockedLove(0.5, function(createdSources)
+		local sound = Sound{sounds = {jump = 'res/sfx/player_jump.wav'}}
+
+		sound:play('jump')
+		assertEqual(1, #createdSources)
+
+		createdSources[1]._playing = false
+		sound:play('jump')
+		assertEqual(1, #createdSources)
+		-- the source should have been seeked to 0
+		local seekCall = nil
+		for _, c in ipairs(createdSources[1].calls) do
+			if c.name == 'seek' then seekCall = c end
+		end
+		assertTrue(seekCall ~= nil)
+		assertEqual(0, seekCall.offset)
+	end)
+end)
+
+test('play(name) creates a new source if all pooled sources are still playing', function()
+	withMockedLove(0.5, function(createdSources)
+		local sound = Sound{sounds = {jump = 'res/sfx/player_jump.wav'}}
+
+		sound:play('jump')
+		assertEqual(1, #createdSources)
+
+		sound:play('jump')
+		assertEqual(2, #createdSources)
+	end)
+end)
+
+test('play(name) sets volume from the volume prop', function()
+	withMockedLove(0.5, function(createdSources)
+		local sound = Sound{sounds = {jump = 'res/sfx/player_jump.wav'}, volume = 0.5}
+
+		sound:play('jump')
+
+		local volCall = nil
+		for _, c in ipairs(createdSources[1].calls) do
+			if c.name == 'setVolume' then volCall = c end
+		end
+		assertTrue(volCall ~= nil)
+		assertEqual(0.5, volCall.volume)
+	end)
+end)
+
+test('play(name) defaults volume to 1', function()
+	withMockedLove(0.5, function(createdSources)
+		local sound = Sound{sounds = {jump = 'res/sfx/player_jump.wav'}}
+
+		sound:play('jump')
+
+		local volCall = nil
+		for _, c in ipairs(createdSources[1].calls) do
+			if c.name == 'setVolume' then volCall = c end
+		end
+		assertTrue(volCall ~= nil)
+		assertEqual(1, volCall.volume)
 	end)
 end)
