@@ -1,7 +1,9 @@
 local PickupProp = require('src.entities.pickup_prop')
+local CoinPickup = require('src.fx.coin_pickup')
 
 return PickupProp.define{
 	type = 'coin',
+	pickupFx = CoinPickup,
 	pickupSound = 'res/snd/entity_coin_collect.wav',
 	itemName = function(object) return object.name end,
 	sprite = function(object, shape_arguments)

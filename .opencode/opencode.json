@@ -4,8 +4,8 @@
   "lsp": true,
   "provider": {
     "options": {
-      "timeout": 3600000,
-      "chunkTimeout": 0
+      "timeout": 900000,
+      "chunkTimeout": 300000
     }
   },
   "plugin": [

@@ -3,6 +3,7 @@ local Tmx = require('src.map.tmx')
 local EntityFactory = require('src.map.entity_factory')
 local CollisionBuilder = require('src.map.collision_builder')
 local ParallaxRenderer = require('src.map.parallax_renderer')
+local FxManager = require('src.fx.manager')
 local lg = love.graphics
 
 local Map = {}
@@ -45,7 +46,32 @@ function Map:new(path, world, debug)
 
 	local map = loadSti(path, { "box2d" })
 	self.map = map
-	utils.proxyClass(self, self.map)
+
+	-- Set up a metatable that forwards unknown properties to the current
+	-- STI map.  This must read self.map *dynamically* (not capture it in a
+	-- closure) because Map:new can be called again to reload — the STI map
+	-- stored in self.map changes, and the proxy must follow.
+	if not self._proxied then
+		local mapObj = self
+		setmetatable(self, {
+			__index = function(_, key)
+				-- Map's own methods take priority over STI forwarding.
+				local val = rawget(Map, key)
+				if val ~= nil then
+					return val
+				end
+				-- Forward to the current STI map.
+				local stiMap = mapObj.map
+				if stiMap then
+					if type(stiMap[key]) == 'function' then
+						return utils.dropCallerSelf(stiMap[key], stiMap)
+					end
+					return stiMap[key]
+				end
+			end
+		})
+		self._proxied = true
+	end
 
 	self.typeIgnores = {'', 'spawn'}
 	self.searchPaths = {
@@ -56,6 +82,7 @@ function Map:new(path, world, debug)
 	self.entityFactory = EntityFactory:new(self.searchPaths, self.typeIgnores, self)
 	self.collisionBuilder = CollisionBuilder:new()
 	self.parallaxRenderer = ParallaxRenderer:new()
+	self.fx = FxManager:new()
 
 	self.entityFactory:createEntities(map, world)
 
@@ -84,6 +111,9 @@ end
 
 function Map:update(dt)
 	self.map:update(dt)
+	if self.fx then
+		self.fx:update(dt)
+	end
 end
 
 -- Map size in pixels. Previously recomputed inline at each of its three call
@@ -138,6 +168,10 @@ function Map:drawEntities(tx, ty, sx, sy)
 				entity:draw()
 			end
 		end
+	end
+
+	if self.fx then
+		self.fx:draw()
 	end
 
 	lg.pop()

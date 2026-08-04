@@ -10,7 +10,6 @@ A list of tasks that need to be done. Generate docs before starting each task.
 
 ## High Priority
 * pickups (coins & lives) which work - keys work! Event bus/game state
-* fix gamepad controls - back toggle camera, start exit to menu
 * turn props on/off via switch - ladders, teleporter, spring pads, drawbridge etc
 
 ## Medium Priority

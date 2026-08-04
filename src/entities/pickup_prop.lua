@@ -48,6 +48,17 @@ function PickupProp.define(spec)
 			},
 		})
 
+		-- When picked up the entity is queueDestroy()'d; the burst must keep
+		-- animating after the pickup is gone, so it's handed to the map's
+		-- persistent FxManager rather than left on this dying entity.
+		if spec.pickupFx then
+			self.destroySignal:connect(function()
+				if map and map.fx then
+					map.fx:burst(spec.pickupFx, {x = position.x, y = position.y})
+				end
+			end)
+		end
+
 		if spec.components then
 			local comps = spec.components(object)
 			for compName, compProps in pairs(comps) do
