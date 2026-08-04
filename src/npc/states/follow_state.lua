@@ -47,11 +47,26 @@ function FollowState:update(dt)
     local maxSpeed = entity.config.maxSpeed or 60
     
     local vx, vy = entity.collider:getLinearVelocity()
-    vx = vx + dir.x * accel * dt
     
-    if math.abs(vx) > maxSpeed then
-        vx = (vx > 0 and 1 or -1) * maxSpeed
+    -- Flying NPCs (canFly) move in both X and Y; ground NPCs only move horizontally
+    if entity.config.canFly then
+        vx = vx + dir.x * accel * dt
+        vy = vy + dir.y * accel * dt
+        
+        if math.abs(vx) > maxSpeed then
+            vx = (vx > 0 and 1 or -1) * maxSpeed
+        end
+        if math.abs(vy) > maxSpeed then
+            vy = (vy > 0 and 1 or -1) * maxSpeed
+        end
+    else
+        vx = vx + dir.x * accel * dt
+        
+        if math.abs(vx) > maxSpeed then
+            vx = (vx > 0 and 1 or -1) * maxSpeed
+        end
     end
+    
     entity.collider:setLinearVelocity(vx, vy)
 end
 

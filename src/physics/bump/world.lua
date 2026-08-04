@@ -108,6 +108,13 @@ function World.colFilter(a, b)
 		return 'cross'
 	end
 
+	-- Pushable props pass through NPCs (NPCs are massless to pushables)
+	local aPushable = a.entity and a.entity.isPushable
+	local bPushable = b.entity and b.entity.isPushable
+	if (aPushable and bType == 'entity') or (bPushable and aType == 'entity') then
+		return 'cross'
+	end
+
 	if World.ignoresEntity(a, b) or World.ignoresEntity(b, a) then
 		return 'cross'
 	end

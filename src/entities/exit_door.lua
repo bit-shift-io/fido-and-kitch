@@ -114,9 +114,11 @@ end
 function ExitDoor:open()
 	Log.debug('all objectives achived, open door for player to exit')
 	self.enableUsableOnOpen = true
-	self.desiredState = 'open'
+	self.state = 'open'
+	self.usable.enabled = true
 	self.sound:play('open')
-	self:updateState('open')
+	self.sprite.timeline:reset()
+	self.sprite.timeline:play()
 end
 
 
@@ -128,11 +130,34 @@ end
 function ExitDoor:addWaitingEntity(entity)
 	if (self.state == 'open') then
 		entity:queueDestroy()
+		self:despawnNearbyNPCs()
 		self:checkEndGame()
 		return
 	end
 
 	table.insert(self.entitysWaiting, entity)
+end
+
+function ExitDoor:despawnNearbyNPCs()
+	local cx = self.sprite.position.x
+	local cy = self.sprite.position.y
+	local bounds = {
+		left = cx - 64,
+		right = cx + 64,
+		top = cy - 64,
+		bottom = cy + 64,
+	}
+	local items = world:queryOverlap(bounds)
+	for _, item in ipairs(items) do
+		local other = item.entity
+		if other and other ~= self and not other:isDead() then
+			local isFriendlyNPC = other.config and other.config.despawnDistance > 0
+			if isFriendlyNPC then
+				Log.debug('ExitDoor: despawning friendly NPC near exit')
+				other:queueDestroy()
+			end
+		end
+	end
 end
 
 function ExitDoor:updateState(desiredState)
@@ -165,6 +190,7 @@ function ExitDoor:animFinished()
 			e:queueDestroy()
 		end
 		self.entitysWaiting = {}
+		self:despawnNearbyNPCs()
 		self:checkEndGame()
 		if (self.enableUsableOnOpen) then
 			self.usable.enabled = true

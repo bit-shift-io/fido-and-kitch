@@ -30,6 +30,8 @@ NPCConfig.Defaults = {
     invulnerableTime = 0.5,
     hopHeight = 120,
     hopCooldown = 0.5,
+    followDistance = 40,
+    canFly = false,
     despawnDistance = 0,
 }
 

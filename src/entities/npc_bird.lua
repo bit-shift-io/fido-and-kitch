@@ -12,10 +12,12 @@ function BirdNPC:init(props)
     props = props or {}
     local birdDefaults = {
         idleImage = 'res/img/npc_bird_idle.png',
+        width = 32,
+        height = 32,
         maxSpeed = 100,
         acceleration = 300,
         deceleration = 400,
-        detectionRadius = 300,
+        detectionRadius = 500,
         attackRange = 0,  -- Bird doesn't attack
         damage = 0,
         health = 1,
@@ -29,7 +31,7 @@ function BirdNPC:init(props)
         invulnerableTime = 0.5,
         followDistance = 60,
         canFly = true,
-        despawnDistance = 400,
+        despawnDistance = 200,
     }
     
     local merged = {}
@@ -38,8 +40,9 @@ function BirdNPC:init(props)
     
     NPCBase.init(self, merged)
     
-    -- Override collider for flying (non-solid)
+    -- Override collider for flying (non-solid, no gravity)
     self.collider.solid = false
+    self.collider:setGravityScale(0)
 end
 
 return BirdNPC

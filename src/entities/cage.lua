@@ -64,15 +64,9 @@ function Cage:init(object, map)
 	local spawnType = object.properties.spawn_type or object.properties.actor or 'bird'
 	local npcType = spawnTypeMap[spawnType] or spawnType
 	
-	-- Provide proper dimensions for the NPC being spawned
+	-- Let entity type defaults define NPC sprite dimensions
+	-- (bird=155x155, rabbit=142x137, etc.)
 	local npcProps = {properties = {}}
-	if npcType == 'npc_bird' then
-		npcProps.width = 16
-		npcProps.height = 16
-	elseif npcType == 'npc_rabbit' then
-		npcProps.width = 16
-		npcProps.height = 16
-	end
 	
 	-- Pass pathObj as the object so NPCBase can use Rect.centreOfMapObject
 	-- for correct position (Tiled tile objects are bottom-edge anchored)

@@ -7,7 +7,7 @@ local Robot = require('src.entities.npc_robot')
 
 local BLINK_INTERVAL = 0.15
 local BLINKS = 8
-local RESPAWN_DELAY = 30
+local RESPAWN_DELAY = 2
 
 local function makeRobot(x, y)
 	HeadlessBootstrap.resetWorld()
@@ -49,7 +49,7 @@ test('dying twice is idempotent -- the second deathType does not overwrite the f
 	assertEqual('water', robot.deathType)
 end)
 
-test('a Robot does not respawn before the 30s window has elapsed, even after the flash completes', function()
+test('a Robot does not respawn before the 2s window has elapsed, even after the flash completes', function()
 	local robot = makeRobot(100, 100)
 	robot:die('water')
 
@@ -59,7 +59,7 @@ test('a Robot does not respawn before the 30s window has elapsed, even after the
 	assertTrue(robot:isDead(), 'expected the Robot to still be gone just short of the respawn window')
 end)
 
-test('a Robot respawns at its original position 30s after the flash-out completes', function()
+test('a Robot respawns at its original position 2s after the flash-out completes', function()
 	local robot = makeRobot(100, 100)
 	local originX, originY = robot.collider:getX(), robot.collider:getY()
 	robot.collider:setPosition(999, 999) -- simulate having wandered before dying

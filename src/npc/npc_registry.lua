@@ -20,8 +20,11 @@ function NPCRegistry.spawn(typeName, object, props)
     if object then
         if props.x == nil then props.x = object.x end
         if props.y == nil then props.y = object.y end
-        if props.width == nil then props.width = object.width end
-        if props.height == nil then props.height = object.height end
+        -- Width/height: entity type defaults (bird=155, rabbit=142, etc.)
+        -- take precedence over Tiled object size (which is just the editor
+        -- tile size, not the intended runtime sprite size).  Only copy from
+        -- the Tiled object when the entity type hasn't defined its own.
+        -- NPCBase falls back to 16 if nothing is set.
     end
     
     -- Pass tiledObject (second arg) so NPCBase can use Rect.centreOfMapObject

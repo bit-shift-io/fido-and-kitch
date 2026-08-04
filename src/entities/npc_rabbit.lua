@@ -13,10 +13,12 @@ function RabbitNPC:init(props)
     props = props or {}
     local rabbitDefaults = {
         idleImage = 'res/img/npc_rabbit_idle.png',
+        width = 32,
+        height = 32,
         maxSpeed = 80,
         acceleration = 350,
         deceleration = 500,
-        detectionRadius = 200,
+        detectionRadius = 120,
         attackRange = 0,
         damage = 0,
         health = 1,
@@ -31,7 +33,7 @@ function RabbitNPC:init(props)
         followDistance = 40,
         hopHeight = 120,
         hopCooldown = 0.5,
-        despawnDistance = 400,
+        despawnDistance = 200,
     }
     
     local merged = {}

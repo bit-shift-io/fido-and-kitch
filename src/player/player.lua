@@ -155,14 +155,11 @@ end
 function Player:checkForUsables()
     local x = self.collider:getX()
     local y = self.collider:getY()
-    print("CHECK FOR USABLES at player pos: " .. x .. "," .. y)
-    local bounds = {left = x-1, top = y-1, right = x+1, bottom = y+1}
+    local bounds = {left = x-16, top = y-16, right = x+16, bottom = y+16}
     local colls = world:queryOverlap(bounds)
-    print("  Found " .. #colls .. " colliders in query area")
     for _, c in ipairs(colls) do
         local entity = c.entity
         if entity then
-            print("  Collider entity: " .. tostring(entity.name) .. " type=" .. tostring(entity.type))
             local usable = entity:getComponent(Usable)
             if usable ~= nil then
                 Log.debug('found entity with usable', c.entity.name)

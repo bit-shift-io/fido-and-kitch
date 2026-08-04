@@ -38,7 +38,7 @@ function NPCBase:init(props, tiledObject)
     
     -- Death/respawn system
     self.deathTimer = 0
-    self.RESPAWN_DELAY = 30
+    self.RESPAWN_DELAY = 2
     self.deathType = nil
     self.homeX = position.x
     self.homeY = position.y
