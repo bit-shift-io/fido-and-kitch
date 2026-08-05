@@ -27,9 +27,15 @@ function JumpPad:init(object, map)
 		entity=self
 	})
 
-	self:addComponent(Usable{
+	self.usable = self:addComponent(Usable{
 		entity=self,
 		use=utils.bindSelf(self.use, self)
+	})
+	self:addComponent(Switchable{
+		entity=self,
+		onStateChange=function(enabled)
+			self.usable.enabled = enabled
+		end
 	})
 
 	self.sound = self:addComponent(Sound{

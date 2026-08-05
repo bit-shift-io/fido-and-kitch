@@ -7,13 +7,18 @@
   },
   "provider": {
     "options": {
-      "timeout": 900000,
-      "chunkTimeout": 300000
+      "timeout": 300000,
+      // Force stream death after 10s of zero chunks received
+      "chunkTimeout": 10000,
+      // Enable TCP keep-alive checks
+      "keepAlive": true,
+      "keepAliveMsecs": 5000
     }
   },
   "plugin": [
     "opencode-auto-continue@https://github.com/developing-today/opencode-auto-continue/archive/refs/tags/latest.tar.gz",
-    "./plugins/xml-guard.js"
+    "./plugins/xml-guard.js",
+    "./plugins/network-watchdog.js"
   ],
   "permission": {
     "todowrite": "allow",

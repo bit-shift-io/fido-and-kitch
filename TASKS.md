@@ -1,76 +1,107 @@
-# TASKS — Center HUD Hearts/Coins at Top
+# TASKS — Switchable Component (switch-controlled props)
 
-Grill findings in `NOTES.md` (section "Center HUD Hearts/Coins at Top").
+Grill findings in `NOTES.md` (section "Grill Notes — TODO List Review").
 
-Scope: center the combined hearts + coin-counter row horizontally at the top of the
-screen (currently left-aligned at `x = 16`). The whole block (hearts + optional coin
-counter) is centered as one unit; when `coins == 0` the hearts alone are centered.
-Y stays at `MARGIN = 16`. Centering recomputes every `draw()` so window resizes are
-honored. Coin text width measured via `love.graphics.getFont():getWidth(text)`.
+Scope: a shared `Switchable` component (`enabled` flag defaulting to true + a
+`:switch(switch, user)` method) that a linked lever/pressure switch drives, so
+teleporters and jump pads become unusable until switched on and a drawbridge
+locks permanently open (2-way) while switched on. Only entities a switch is
+linked to become switchable; everything else stays as-is. No disabled visual.
 
-Run in order — each task depends on the previous. Verify each task with the commands
-listed before moving on. The new test file is registered in Task 5; until then run it
-by path.
+Run in order — each task depends on the previous. Verify each task with the
+commands listed before moving on. New test files are registered in later
+tasks; until then run them by path.
 
-- [x] Task 1 — Mock font measurement: in `tests/support/love_mock.lua`, the `love.graphics`
-      table has `newFont = function() return {} end` (line 206) but NO `getFont`. Add
-      `getFont = function() return {getWidth = function() return 0 end} end,` next to it
-      (a `getWidth` on the returned font so `love.graphics.getFont():getWidth(text)` won't
-      crash under the mock). Leave `newFont` as-is unless a test needs it.
+- [x] Task 1 — Switchable component unit test: create `tests/unit/switchable_test.lua`
+      (headless; just `Class = Class or require('lib.hump.class')` +
+      `local Switchable = require('src.components.switchable')`, no love, no
+      EventBus clears). Assert:
+      - `init` defaults `enabled == true` when `props.enabled` is nil; honours
+        `props.enabled == false`.
+      - `:switch({state='on'})` sets `enabled == true` and calls
+        `onStateChange(true)`; `:switch({state='off'})` sets `enabled == false`
+        and calls `onStateChange(false)`.
+      - `:switch` forwards its `switch`/`user` args when invoking
+        `onStateChange` (assert the received args).
+      Use a stub `entity`/`onStateChange` captured via a local table, mirroring
+      the `fakeSource` idiom in `tests/unit/sound_test.lua`.
+      Verify: `./test-unit.sh tests/unit/switchable_test.lua` FAILS (module not
+      found).
+
+- [x] Task 2 — Create `src/components/switchable.lua`:
+      `local Switchable = Class{}`; `init(props)` sets `self.type='switchable'`,
+      `self.entity = props.entity`, `self.onStateChange = props.onStateChange`,
+      `self.enabled = (props.enabled == nil) and true or props.enabled`;
+      `function Switchable:switch(switch, user)` sets
+      `self.enabled = (switch.state == 'on')` then calls
+      `self.onStateChange(self.enabled)` if present (forwarding the original
+      `switch`/`user` args). Follow the shape of `src/components/usable.lua`.
+      Verify: `./test-unit.sh tests/unit/switchable_test.lua` PASSES.
+
+- [x] Task 3 — Register the global: add `Switchable = require('src.components.switchable')`
+      in `src/main.lua` next to `Usable = require('src.components.usable')`
+      (line 63), and add `Switchable = Switchable or require('src.components.switchable')`
+      to `tests/support/headless_bootstrap.lua` (idempotent, matches the
+      existing globals block).
       Verify: full `./test-unit.sh` still passes (no behavior change).
 
-- [x] Task 2 — LivesHud startX param: in `src/ui/lives_hud.lua`, change
-      `function LivesHud:draw()` to `function LivesHud:draw(startX)` with
-      `local baseX = startX or MARGIN`, and draw each heart at
-      `x = baseX + (i - 1) * (HEART_SIZE + HEART_SPACING)` (MARGIN now only the vertical
-      margin, `y = MARGIN`). Default `startX = MARGIN` preserves today's top-left layout,
-      so GameHud calling `self.livesHud:draw()` is unchanged.
-      Verify: full `./test-unit.sh` — no regressions (GameHud still calls `draw()`).
-
-- [x] Task 3 — Centering math tests: create `tests/unit/hud_centering_test.lua`
-      (headless, just `local GameHud = require('src.ui.game_hud')` — no love, no EventBus
-      clears) testing the white-box seam `GameHud._internal` (per AGENTS.md `_internal`
-      pattern, like `Drawbridge._internal`):
-      - `centerOffset(winW, blockW)` = `math.max(MARGIN, math.floor((winW - blockW) / 2))`:
-        assert `centerOffset(800, 100) == 350`, `centerOffset(800, 800) == 16` (clamp,
-        `(800-800)/2` is 0 → clamps to MARGIN), `centerOffset(800, 900) == 16` (block wider
-        than window clamps to MARGIN), `centerOffset(800, 16) == 392`.
-      - `heartRunWidth(lives)` = `lives * (HEART_SIZE + HEART_SPACING) - HEART_SPACING` when
-        `lives > 0`, else 0: assert `heartRunWidth(0) == 0`, `heartRunWidth(1) == 24`,
-        `heartRunWidth(3) == 88`.
-      - `coinSegmentWidth(hasCoins, textWidth)` = `hasCoins and (HEART_SPACING + ICON_SIZE +
-        TEXT_SPACING + textWidth) or 0` (leading HEART_SPACING is the gap between the last
-        heart and the coin icon): assert `coinSegmentWidth(false, 30) == 0`,
-        `coinSegmentWidth(true, 30) == 8 + 24 + 6 + 30`.
-      - `blockWidth(lives, hasCoins, textWidth)` = `heartRunWidth + coinSegmentWidth`:
-        assert `blockWidth(3, false, 30) == 88`, `blockWidth(3, true, 30) == 88 + 68`.
-      Constants referenced must match game_hud.lua's locals (HEART_SIZE=24, HEART_SPACING=8,
-      ICON_SIZE=24, TEXT_SPACING=6, MARGIN=16).
-      Verify: `./test-unit.sh tests/unit/hud_centering_test.lua` FAILS (`_internal` is nil).
-
-- [x] Task 4 — GameHud centering impl: in `src/ui/game_hud.lua`, add a white-box seam after
-      the constants:
-      `GameHud._internal = { centerOffset = ..., heartRunWidth = ..., coinSegmentWidth = ...,
-      blockWidth = ... }` (pure functions implementing Task 3's math using the file's own
-      constants). Rewrite `GameHud:draw()`:
-      - compute `text = string.format('%d/%d', coins, total)` and
-        `textWidth = love.graphics.getFont():getWidth(text)` only when `coins > 0`;
-      - `local offset = GameHud._internal.centerOffset(love.graphics.getWidth(),
-        GameHud._internal.blockWidth(lives, coins > 0, textWidth))`;
-      - call `self.livesHud:draw(offset)` (was `:draw()`);
-      - position the coin icon at `x = offset + GameHud._internal.heartRunWidth(lives) +
-        HEART_SPACING` (was `MARGIN + self.getLives() * (HEART_SIZE + HEART_SPACING)`) and the
-        text at `x + ICON_SIZE + TEXT_SPACING`, `y = MARGIN + TEXT_Y_OFFSET`. Keep the alpha
-        re-apply after `livesHud:draw()` (it still resets colour to (1,1,1,1)). Existing
-        `game_hud_test.lua` draw smoke (line 74) exercises the new `getFont` path.
-      Verify: `./test-unit.sh tests/unit/hud_centering_test.lua` PASSES, then full
-      `./test-unit.sh` (game_hud fade tests still green).
-
-- [x] Task 5 — Register the test: append `'tests/unit/hud_centering_test.lua',` to
-      `tests/unit/run.lua` `defaultTestFiles` (after line 25, `game_hud_test.lua`).
+- [x] Task 4 — Register the unit test: append `'tests/unit/switchable_test.lua',`
+      to `tests/unit/run.lua` `defaultTestFiles`.
       Verify: full `./test-unit.sh` passes.
 
-- [x] Task 6 — Doc update: in `ARCHITECTURE.md`, line 121, change "Draws heart squares
-      top-left from `Lives` count." to reflect top-center placement (e.g. "Draws heart
-      squares top-center from `Lives` count.").
-      Verify: `grep -n "top-center" ARCHITECTURE.md` shows the updated line.
+- [x] Task 5 — Wire teleport: in `src/entities/teleport.lua`, store the Usable
+      as `self.usable = self:addComponent(Usable{ ... })` (currently discarded),
+      then add `self:addComponent(Switchable{ entity = self, onStateChange =
+      function(enabled) self.usable.enabled = enabled end })`. Existing behavior
+      with no switch unchanged (default on).
+      Verify: `./test-unit.sh` no regressions.
+
+- [x] Task 6 — Wire jump pad: in `src/entities/jump_pad.lua`, same change —
+      store `self.usable = self:addComponent(Usable{ ... })` and add the
+      `Switchable` component with the same `onStateChange` wiring as Task 5.
+      Verify: `./test-unit.sh` no regressions.
+
+- [x] Task 7 — Wire drawbridge: in `src/entities/drawbridge.lua`, add
+      `self.latchedOpen = false` in `init` and add the `Switchable` component
+      (`onStateChange` sets `self.latchedOpen = enabled`). In `Drawbridge:update`
+      (line 209), short-circuit when latched: if `self.latchedOpen` then force
+      `self:setState('open')` (deck permanently solid, crossable both ways) and
+      return without `checkHeld`; otherwise the existing hold FSM runs as today
+      (one-way bridge).
+      Verify: `./test-unit.sh tests/unit/drawbridge_test.lua` PASSES, then full
+      `./test-unit.sh`.
+
+- [x] Task 8 — Switch dispatch: in `src/entities/switch.lua` (lines 58-62) and
+      `src/entities/pressure_switch.lua` (lines 160-165), replace the
+      `if self.target.entity.switch then ... end` check with: find the
+      `Switchable` component on the target
+      (`local switchable = self.target.entity:getComponent(Switchable)`); if
+      present call `switchable:switch(self, user)`; else fall back to the legacy
+      `target.entity.switch` method (ladder's map-snippet hook still uses the
+      method form). Preserve the existing `target == nil` guard.
+      Verify: full `./test-unit.sh` passes, then
+      `./test-integration.sh tests/integration/switch_sound_test.lua tests/integration/pressure_switch_test.lua`
+      still pass.
+
+- [x] Task 9 — Integration fixture: create `tests/fixtures/switchable_teleport_room.lua`
+      (copy `teleport_room.lua`'s flat-floor/spawn/teleport-pair shape) with an
+      extra `switch` object whose `properties.target = { id = <teleport A's id> }`.
+      Verify: `./test-integration.sh tests/integration/harness_smoke_test.lua`
+      still loads all fixtures (no fixture-load regression).
+
+- [x] Task 10 — Integration test: create `tests/integration/switchable_teleport_test.lua`
+      mirroring `tests/integration/switch_sound_test.lua` (GameHarness +
+      FrameStepper + Queries): start the fixture map, find the switch and
+      teleporter, assert the teleporter's `usable.enabled` is true before any
+      switch use, call `switch:use(player)` → assert `enabled == false`, call
+      `switch:use(player)` again → assert `enabled == true`. Register the file in
+      `tests/integration/run.lua` `defaultTestFiles`.
+      Verify: `./test-integration.sh tests/integration/switchable_teleport_test.lua`
+      PASSES, then full `./test-integration.sh`.
+
+- [x] Task 11 — Doc update: in `ARCHITECTURE.md`, add `Switchable` to the
+      components list (line 46) and to the component descriptions (line 89-95
+      block, next to `Usable`): "**`Switchable`**: gate an entity on/off driven
+      by a linked switch's state (`:switch(switch, user)`, `enabled` default
+      true)."
+      Verify: `grep -n "Switchable" ARCHITECTURE.md` shows both additions.

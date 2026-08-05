@@ -159,8 +159,13 @@ function PressureSwitch:driveTarget()
 		return
 	end
 
-	if self.target.entity.switch then
-		self.target.entity:switch(self, nil)
+	if self.target.entity then
+		local switchable = self.target.entity.getComponent and self.target.entity:getComponent(Switchable)
+		if switchable then
+			switchable:switch(self, nil)
+		elseif self.target.entity.switch then
+			self.target.entity:switch(self, nil)
+		end
 	end
 end
 

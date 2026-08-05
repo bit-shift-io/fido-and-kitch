@@ -55,7 +55,10 @@ function Switch:use(user)
 	self.sound:play(self.state)
 
 	if self.target.entity then
-		if self.target.entity.switch then
+		local switchable = self.target.entity.getComponent and self.target.entity:getComponent(Switchable)
+		if switchable then
+			switchable:switch(self, user)
+		elseif self.target.entity.switch then
 			self.target.entity:switch(self, user)
 		end
 	end

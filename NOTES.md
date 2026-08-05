@@ -1,91 +1,39 @@
-# Grill Notes — Center HUD Hearts/Coins at Top (2026-08-05)
+# Grill Notes — Story Entity (2026-08-05)
 
 ## Task
 
-Center the hearts + coin counter display at the top-center of the screen.
-Currently left-aligned (hearts start at `x = MARGIN = 16`).
+Pin down the `story` entity design (unimplemented, `TODO.md:9`, specced `CONTEXT.md:251-259`) before building `src/entities/story.lua`.
 
 ## Verified against code
 
-- `src/ui/game_hud.lua` — GameHud wraps a `LivesHud` (`self.livesHud`) plus the coin
-  counter. `draw()`: hearts at `MARGIN` (16,16) via `livesHud:draw()`; coin icon at
-  `x = MARGIN + self.getLives() * (HEART_SIZE + HEART_SPACING)`, text at `x + ICON_SIZE + TEXT_SPACING`.
-  Constants: `HEART_SIZE=24`, `HEART_SPACING=8`, `ICON_SIZE=24`, `MARGIN=16`, `TEXT_SPACING=6`, `TEXT_Y_OFFSET=6`.
-- `src/ui/lives_hud.lua` — hearts at `x = MARGIN + (i-1) * (HEART_SIZE + HEART_SPACING)`,
-  `y = MARGIN`. Ends by resetting colour to `(1,1,1,1)`.
-- `src/states/ingame_state.lua:230` — `gameHud:draw()` called in screen space (after
-  camera transform only applied to map draws), so `love.graphics.getWidth()` is the true
-  window width. `InGameState:resize` exists → recompute centering per frame.
-- `LivesHud` is used ONLY by `GameHud` in production code → change stays local to these two files.
-- `tests/unit/game_hud_test.lua` — draw smoke test uses `LoveMock.new()`; mock already
-  provides `love.graphics.getWidth() -> 800`, `love.graphics.print` no-op. Mock's
-  `newFont` returns `{}` → needs `getWidth` added if we measure coin text width.
-- `ARCHITECTURE.md:121` — says LivesHud draws "top-left"; update if text is touched.
+- No `src/entities/story.lua` exists. `Map.typeIgnores = {'', 'spawn'}` → `story` is not ignored.
+- Spec (`CONTEXT.md:251-259`): Tiled type `story`, `text` property (`\n` newlines), speech bubble on use, follows entity on screen, auto-dismiss on overlap end, re-trigger cooldown, player keeps full control.
+- Interaction plumbing exists: `Player:checkForUsables` (`src/player/player.lua:152-168`) calls `world:queryOverlap(bounds)` with ±16px box around player, then `usable:canUse(user)`/`usable:use(user)`. Story entity needs a static sensor Collider + `Usable` component to piggyback. Runs every frame.
+- `Usable` component (`src/components/usable.lua`) supports `use`/`canUse`/`enabled`; `use` logs, calls `useFunc(user)`.
+- `Sound` component (`src/components/sound.lua`): `play(name)` warns-and-returns if `love.filesystem.getInfo(path) == nil` → wiring a not-yet-existing WAV is safe (Log.warn only). `res/snd/` has no story/dialogue asset.
+- `res/img/default.png` (32×32) exists but is NOT needed — trigger is invisible.
+- Text rendering precedent: `love.graphics.newFont(size)`, `love.graphics.getFont():getWidth()` (used in `game_hud.lua:134`, states). `love_mock` `newFont` returns `{}`; `getWidth` already added to mock fonts.
+- Camera: pure math (`src/camera.lua`), `InGameState:draw` (`src/states/ingame_state.lua:213-233`) calls `camera:getDrawParams()` → `tx, ty, sx, sy`; `map:draw2(tx,ty,sx,sy)` + `map:drawEntities(tx,ty,sx,sy)` in world space, then `gameHud:draw()` in screen space. World→screen ≈ `(wx + tx) * sx`.
 
 ## Confirmed user answers
 
-- **Center the combined row.** Hearts + coin counter (when visible) form one horizontal
-  row and that whole block is centered. When `coins == 0`, the hearts alone are centered.
-  Layout/spacing unchanged — only the anchor moves. (User picked "Center combined row".)
+- **Trigger visual: NONE (superseded).** Initially "standard image, customisable, default png for now"; later answered the image question with "no image, text only." → Invisible trigger; no sprite. No default image asset needed.
+- **Text wrapping: Designer breaks only.** `\n` only; no auto-wrap; bubble sizes to widest line. Designer must insert `\n` for long text; a long unbroken line could run off-screen.
+- **Bubble styling: Simple rounded box.** Dark/light fill + game default font, positioned above entity with a small tail pointing at it, text centred; pure `love.graphics` primitives, no art asset.
+- **Sound: Wire component, no asset.** Attach `Sound` with a `blip` key pointing at a not-yet-existing WAV (e.g. `res/snd/entity_story_blip.wav`). Safe: `Sound:play` warns-and-returns on missing file. No audible cue until asset added.
+- **Re-trigger: 0.5s + toggle.** Use toggles bubble on/off (respecting 0.5s cooldown for re-open after a dismiss); moving away still auto-dismisses. Cooldown counts from dismissal.
+- **Typewriter: ramp-up, locked in.** Per line: first ~4 chars letter-by-letter (~40 chars/sec), then word-by-word, then remaining slab drops in at once. Total ~0.5s to full reveal regardless of length. `use` mid-type reveals instantly (next press dismisses). NES-authentic opening but never laggy.
+- **Render space: Screen space.** Bubble projected to screen each frame (follows entity through pan/zoom), text readable at any zoom incl. overview. Matches "UI overlay" wording.
 
-## Design defaults (implementation decisions, confirm during planning)
+## Design notes (implementation decisions)
 
-- Center horizontally: `offset = (love.graphics.getWidth() - blockW) / 2`, clamped so the
-  block never runs left of `MARGIN`. Block width = hearts run
-  (`lives * (HEART_SIZE + HEART_SPACING) - HEART_SPACING`) + optional coin segment
-  (`ICON_SIZE + TEXT_SPACING + textWidth`).
-- Coin text width measured via `love.graphics.getFont():getWidth(text)`; add
-  `getWidth = function() return 0 end` (or similar) to `love_mock`'s `newFont`.
-- Y stays at `MARGIN = 16` ("top center"). Apply the same horizontal offset to hearts
-  (needs `LivesHud:draw(xOffset)` or a `drawAt` param) and to the coin icon/text.
-- Recompute every `draw()` so resizes are honored.
-
-## Open questions
-
-None. Grilling complete.
-
----
-
-# Grill Notes — Per-Level Coin Tracking (2026-08-05)
-
-Source docs: `docs/superpowers/specs/2026-08-05-coin-tracking-design.md` (Status: Proposed),
-`docs/superpowers/plans/2026-08-05-coin-tracking-design.md` (5 tasks, ready to execute).
-
-## Verified against code (all plan claims hold)
-
-- `src/entities/coin.lua:8` — `itemName = function(object) return object.name end` (arbitrary Tiled name). Plan changes to constant `'coin'`.
-- `src/player/player.lua:230-233` — `Player:resolveDeath` emits `player_died` positionally: `EventBus.emit('player_died', self, self.deathType)`.
-- `src/player/player.lua:273-282` — `Player:pickup` plays sound, `inventory:addItems`, `entity:queueDestroy()`. Plan adds guarded `coin_collected` emit before destroy.
-- `src/states/ingame_state.lua:72-85` — `cage_unlocked` pattern (count at load, `EventBus.on` subscribe). Coin counter mirrors it.
-- `src/states/ingame_state.lua:107-116` — `onPlayerDied(player, deathType)` positional; plan upgrades to `{player, deathType}` table (Task 4). Only consumer besides the emit.
-- `src/states/ingame_state.lua:133-144` — `onPlayerDestroyed` removes player; `playerCount == 0` branch → `setGameState('MenuState')`. Plan adds coin report log here (exit-door level end).
-- `src/states/ingame_state.lua:146-148` — `exit()` calls `EventBus.clear()`, so no manual unsubscribe needed.
-- `src/ui/lives_hud.lua:37` — `:draw` ends with `love.graphics.setColor(1,1,1,1)`; GameHud must re-apply alpha after hearts (plan's "wrinkle" is real).
-- `src/player/player_states.lua:301-326` — `DeadState` blinks then `resolveDeath()`; death does NOT destroy the player entity, so `onPlayerDestroyed` fires only via the exit door. Plan's level-end path claim holds.
-- `src/map/init.lua:184` — `getEntitiesByType` exists; coin entities live in `layer.entities`, so load-time count works.
-- `src/components/pickup.lua:22` — `Pickup:contact` → `entity:pickup(self.pickup)`.
-- Assets/fixtures present: `res/img/ui_coin.png` (128x128), `tests/fixtures/coin_room.lua` (spawn 64,128 32x32; coin `coin1` 120,160 20x20 → centre 130,170), `tests/fixtures/kill_zone_room.lua`.
-- `tests/support/love_mock.lua` has NO `love.graphics.print` (plan adds a no-op).
-
-## Decisions confirmed so far
-
-- Alpha is drawn via ambient `love.graphics.setColor`, FlashEffect idiom — no Sprite alpha field.
-- Coin counter hidden until `getCoins() > 0` (never `0/0`).
-- HUD hidden in `follow`, opaque in `overview`/`gameover`, fades in on `coin_collected`/`player_died` (1.2s in, hold 2.0s, 1.2s out).
-- Keys (`key_<color>`) never match `'coin'`, untouched.
-- Execution choice (subagent-driven vs inline) still open at plan end.
-
-## Confirmed user answers
-
-- **No end-of-level X/Y report.** User: "I dont want a report at the end of the game. Simple having it on the gui is enough." → Drop the `Log.info('Level complete: X/Y coins collected')` from `InGameState:onPlayerDestroyed`, drop `tests/unit/ingame_coin_report_test.lua` (and its registration in `tests/unit/run.lua`). The HUD coin counter is the only surface. `totalCoins`/`coinsCollected` still needed — the HUD's `getCoins`/`getTotal` callbacks read them. Implication: this also covers both exit-door AND game-over paths — never report.
-- **Keep Task 4 (player_died → `{player, deathType}` table payload).** User's stated motivation: "keep things consistent in the game. A standard way of reporting." Kept — it's internal API hygiene, low-risk (2 verified touchpoints, no tests reference the old shape), and makes all three event payloads uniform.
-- **Keep the HUD fade design.** Counter fades in on `coin_collected`/`player_died` (1.2s in, hold 2.0s, 1.2s out), fully visible in `overview`/`gameover`, hidden in follow. Confirmed even though the report is gone — the fade is the intended presentation.
-
-## Final trimmed scope (diff vs plan)
-
-- Task 3: drop the `Log.info('Level complete: X/Y coins collected')` line in `onPlayerDestroyed`, drop `tests/unit/ingame_coin_report_test.lua` + its `run.lua` registration, drop that file from the Task 3 `git add`. Keep: `totalCoins`/`coinsCollected` tracking in `load`, `onCoinCollected` handler, and the integration assertion test. `onPlayerDestroyed` stays untouched.
-- Tasks 1, 2, 4, 5 unchanged.
-- Pending: amend `docs/superpowers/specs/2026-08-05-coin-tracking-design.md` (drop the "Report the final X/Y coin count when the level ends" requirement + its Data flow/Error-handling mentions) and `docs/superpowers/plans/2026-08-05-coin-tracking-design.md` (Execution Summary + carried design decisions) so an executing agent doesn't re-add the report. The plan currently still names the report in Task 3 and its summary.
+- **Collider:** static sensor rectangle sized to the Tiled object (so `world:queryOverlap` in `Player:checkForUsables` finds it). `walkable` irrelevant.
+- **Usable:** `Usable{use=...}`; `use(user)` toggles that user's per-player bubble state. Spec: one bubble per player per entity; both players can show bubbles simultaneously → track bubble state per player (key by player id/table), not a single boolean.
+- **Overlap-end detection:** story entity must detect when its triggering player(s) no longer overlap to auto-dismiss. `Usable` has no overlap-end hook; poll `world:queryOverlap` per frame per active bubble's player, or track via sensor. Spec: "auto-hides when the triggering player's overlap ends."
+- **Screen-space draw hook:** bubbles can't be drawn in `map:drawEntities` (world transform active). Need a draw pass after the camera transform (like `gameHud:draw()`): InGameState (or a story-bubble renderer) projects each active bubble's entity world position → screen via `tx,ty,sx,sy`, draws rounded box + tail + centered typewriter text. Likely iterate `map:getEntitiesByType('story')` or a registry of active bubbles.
+- **Typewriter state:** per active bubble — line index, revealed char count, phase (letters/words/slab), timer. Reset on dismiss; `use` mid-type jumps to full.
+- **`text` property:** read from `object.properties.text` in `init` (entity factory passes `object.properties` as props).
+- Tests: unit-test typewriter reveal math and per-player bubble state via `tests/support/headless_bootstrap.lua` (ADR 0005) with `_internal` seam; bubble draw smoke-test with `love_mock` (has `love.graphics.print`, `getWidth`). Integration: overlap → use → bubble state, dismiss on move-away.
 
 ## Open questions
 

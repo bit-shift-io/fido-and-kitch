@@ -26,9 +26,15 @@ function Teleport:init(object, map)
 		sprite=self.sprite,
 		position=position
 	})
-	self:addComponent(Usable{
+	self.usable = self:addComponent(Usable{
 		entity=self,
 		use=utils.bindSelf(self.use, self)
+	})
+	self:addComponent(Switchable{
+		entity=self,
+		onStateChange=function(enabled)
+			self.usable.enabled = enabled
+		end
 	})
 
 	-- only one teleport sound asset exists (res/snd/); both directions share it

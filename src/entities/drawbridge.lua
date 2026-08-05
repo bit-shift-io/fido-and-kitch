@@ -130,6 +130,8 @@ end
 function Drawbridge:init(object)
 	Entity.init(self, object, 'drawbridge')
 	self.state = 'closed'
+	self.latchedOpen = false
+	self.latchedOpen = false
 
 	self.rect = Rect(object)
 	local shape_arguments = self.rect:colliderShapeArgs()
@@ -198,6 +200,13 @@ function Drawbridge:init(object)
 			close = 'res/snd/entity_drawbridge_close.wav',
 		}
 	})
+
+	self:addComponent(Switchable{
+		entity = self,
+		onStateChange = function(enabled)
+			self.latchedOpen = enabled
+		end
+	})
 end
 
 -- flip solidity to match the new state
@@ -208,6 +217,12 @@ end
 
 function Drawbridge:update(dt)
 	Entity.update(self, dt)
+	if self.latchedOpen then
+		if self.state ~= 'open' then
+			self:setState('open')
+		end
+		return
+	end
 	self:checkHeld()
 end
 

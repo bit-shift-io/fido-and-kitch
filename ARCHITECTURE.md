@@ -43,7 +43,7 @@
 │   ├── camera.lua        # Shared auto-zoom camera framing all players
 │   ├── entity.lua        # Base Entity with component lifecycle
 │   ├── world.lua         # Thin wrapper selecting physics backend (bump/love)
-│   ├── components/       # Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, Variable, Flash, Timeline, Path, PathFollow)
+│   ├── components/       # Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, Switchable, Variable, Flash, Timeline, Path, PathFollow)
 │   ├── entities/         # Map entity implementations; Tiled object `type` must match filename (key → src/entities/key.lua)
 │   ├── player/           # Player entity, movement/ladder/fall states, lives, safe-position respawn
 │   ├── physics/          # Swappable backends (bump, love/Box2D) behind Collider/World
@@ -93,6 +93,7 @@
   * **`Inventory`**: Simple item count map (`addItems`, `hasItem`, `removeItem`).
   * **`Pickup`**: Marks entity as collectible (`itemName`, `itemCount`); player `Inventory` picks up on contact.
   * **`Usable`**: Interaction target (`canUse(player)`, `use(player)`).
+  * **`Switchable`**: gate an entity on/off driven by a linked switch's state (`:switch(switch, user)`, `enabled` default true).
   * **`Variable`**: Named value storage for map-triggered logic.
   * **`Flash`**: Timed visibility toggling (spawn/respawn blink).
   * **`Timeline` / `Path` / `PathFollow`**: Scripted movement along waypoints.
