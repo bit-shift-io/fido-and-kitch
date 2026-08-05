@@ -204,10 +204,12 @@ function LoveMock.new()
 		-- the same shape as newImage's fake.
 		newCanvas = function(w, h) return newFakeImage(w, h) end,
 		newFont = function() return {} end,
+		getFont = function() return {getWidth = function() return 0 end} end,
 		getSystemLimits = function() return {texturesize = 16384} end,
 		draw = function() end,
 		setColor = function() end,
 		getColor = function() return 1, 1, 1, 1 end,
+		print = function() end,
 		push = function() end,
 		pop = function() end,
 		translate = function() end,

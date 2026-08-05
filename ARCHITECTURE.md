@@ -118,7 +118,7 @@
 
 ### 3.9 UI (`src/ui/`)
 * **`MapList`**: Slab-based scrollable map selector.
-* **`LivesHud`**: Draws heart squares top-left from `Lives` count.
+* **`LivesHud`**: Draws heart squares top-center from `Lives` count.
 
 ---
 

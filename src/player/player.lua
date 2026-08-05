@@ -229,7 +229,7 @@ end
 
 function Player:resolveDeath()
     local EventBus = require('src.utils.event_bus')
-    EventBus.emit('player_died', self, self.deathType)
+    EventBus.emit('player_died', {player = self, deathType = self.deathType})
 end
 
 function Player:wrap(duration)
@@ -278,6 +278,12 @@ function Player:pickup(pickup)
         sound:play('pickup')
     end
     self.inventory:addItems(pickup.itemName, pickup.itemCount)
+
+    if pickup.itemName == 'coin' then
+        local EventBus = require('src.utils.event_bus')
+        EventBus.emit('coin_collected', {x = entity.sprite.position.x, y = entity.sprite.position.y})
+    end
+
     entity:queueDestroy()
 end
 

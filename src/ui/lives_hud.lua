@@ -11,13 +11,14 @@ function LivesHud:init(props)
 	self.hearts = {}
 end
 
-function LivesHud:draw()
+function LivesHud:draw(startX)
 	local lives = self.getLives()
+	local baseX = startX or MARGIN
 
 	-- Create heart sprites if needed
 	while #self.hearts < lives do
 		local i = #self.hearts + 1
-		local x = MARGIN + (i - 1) * (HEART_SIZE + HEART_SPACING)
+		local x = baseX + (i - 1) * (HEART_SIZE + HEART_SPACING)
 		local heart = Sprite{
 			frames = {'res/img/ui_heart.png'},
 			position = Vector(x, MARGIN),

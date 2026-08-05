@@ -5,7 +5,7 @@ return PickupProp.define{
 	type = 'coin',
 	pickupFx = CoinPickup,
 	pickupSound = 'res/snd/entity_coin_collect.wav',
-	itemName = function(object) return object.name end,
+	itemName = function(object) return 'coin' end,
 	sprite = function(object, shape_arguments)
 		return {
 			image = 'res/img/coins.png',

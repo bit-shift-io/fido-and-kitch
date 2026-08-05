@@ -21,6 +21,9 @@ local defaultTestFiles = {
 	'tests/unit/tmx_template_test.lua',
 	'tests/unit/entity_lifecycle_test.lua',
 	'tests/unit/particles_test.lua',
+	'tests/unit/coin_identity_test.lua',
+	'tests/unit/game_hud_test.lua',
+	'tests/unit/hud_centering_test.lua',
 }
 
 local tests = {}

@@ -1,5 +1,5 @@
 local Lives = require('src.player.lives')
-local LivesHud = require('src.ui.lives_hud')
+local GameHud = require('src.ui.game_hud')
 local AutoCamera = require('src.camera')
 local EventBus = require('src.utils.event_bus')
 local DebugOverlay = require('src.ui.debug_overlay')
@@ -41,7 +41,12 @@ function InGameState:load(props)
 
     self.lives = Lives.defaultCount()
     local ingame = self
-    self.livesHud = LivesHud{getLives=function() return ingame.lives end}
+    self.gameHud = GameHud{
+        getLives=function() return ingame.lives end,
+        getCoins=function() return ingame.coinsCollected end,
+        getTotal=function() return ingame.totalCoins end,
+        getCameraMode=function() return ingame.camera:getMode() end,
+    }
 
     -- Debug overlay
     self.debugOverlay = DebugOverlay:new()
@@ -84,6 +89,11 @@ function InGameState:load(props)
     -- Listen for cage unlock events
     self.cageUnlockedHandler = EventBus.on('cage_unlocked', utils.bindSelf(InGameState.onCageUnlocked, self))
 
+    -- Count total coins in level and listen for collection
+    self.totalCoins = #map:getEntitiesByType('coin')
+    self.coinsCollected = 0
+    self.coinCollectedHandler = EventBus.on('coin_collected', utils.bindSelf(InGameState.onCoinCollected, self))
+
     -- Listen for player deaths via EventBus
     EventBus.on('player_died', utils.bindSelf(InGameState.onPlayerDied, self))
 
@@ -104,14 +114,18 @@ function InGameState:onCageUnlocked(data)
     end
 end
 
-function InGameState:onPlayerDied(player, deathType)
+function InGameState:onCoinCollected(data)
+    self.coinsCollected = self.coinsCollected + 1
+end
+
+function InGameState:onPlayerDied(data)
     local result = Lives.applyDeath(self.lives)
     self.lives = result.lives
 
     if result.outcome == 'gameover' then
         self:onGameOver()
     else
-        player:respawn()
+        data.player:respawn()
     end
 end
 
@@ -188,6 +202,8 @@ function InGameState:update(dt)
         self.camera:update(dt, self:collectPlayerTargets())
     end
 
+    self.gameHud:update(dt)
+
     for i = 1, 4 do
         if inputManager:wasPressed(i, 'start') then
             local game = self.entity
@@ -211,7 +227,7 @@ function InGameState:draw()
         self.debugOverlay.enabled = false
     end
 
-    self.livesHud:draw()
+    self.gameHud:draw()
 end
 
 function InGameState:resize(w, h)
