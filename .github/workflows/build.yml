@@ -24,7 +24,7 @@ jobs:
         pip3 install ./makelove
 
     - name: Install libs
-      run: cd main && ./install.sh
+      run: cd main && ./setup.sh
 
     - name: Build
       run: cd main && python3 -m makelove

@@ -8,9 +8,7 @@ export const NetworkWatchdogPlugin = async ({ client }) => {
 
   const PING_INTERVAL_MS = 5000;
 
-  // Visual notification that doesn't enter LLM chat context
   function notifyUser(title, message, variant = "info") {
-    // 1. Try OpenCode's native TUI Toast (UI overlay only, excluded from LLM history)
     if (client.tui?.showToast) {
       try {
         client.tui.showToast({
@@ -18,11 +16,10 @@ export const NetworkWatchdogPlugin = async ({ client }) => {
         });
         return;
       } catch {
-        // Fall back to OS notification if TUI toast fails
+        // Fallback to desktop notification
       }
     }
 
-    // 2. Desktop OS notification fallback (dunst / mako / libnotify)
     const urgency = variant === "error" || variant === "warning" ? "critical" : "normal";
     const sanitizedTitle = title.replace(/"/g, '\\"');
     const sanitizedMsg = message.replace(/"/g, '\\"');
@@ -56,75 +53,113 @@ export const NetworkWatchdogPlugin = async ({ client }) => {
     }
   }
 
+  // Helper to wait until session state is clear to accept new prompts
+  async function waitForSessionIdle(sessionId, maxAttempts = 10) {
+    for (let i = 0; i < maxAttempts; i++) {
+      try {
+        if (client.session?.get) {
+          const res = await client.session.get({ path: { id: sessionId } });
+          const status = res.data?.status || res.status;
+          // If status isn't active/busy, it's ready
+          if (status !== "busy" && status !== "running") return true;
+        }
+      } catch {
+        // Ignore check errors and fallback to delay
+      }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    return true;
+  }
+
+  async function handleReconnection() {
+    // Attempt to resolve active session ID dynamically if missing
+    let targetSession = activeSessionID;
+
+    if (!targetSession && client.session?.list) {
+      try {
+        const sessions = await client.session.list();
+        const active = sessions.data?.find((s) => s.status === "busy" || s.active);
+        if (active) targetSession = active.id;
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (!targetSession) {
+      notifyUser("Network Watchdog", "Reconnected, but no active session found.", "warning");
+      wasOffline = false;
+      return;
+    }
+
+    notifyUser("Network Watchdog", "Internet restored! Resuming session...", "info");
+
+    try {
+      // 1. Force interrupt/abort on the active session
+      if (client.session?.abort) {
+        await client.session.abort({ path: { id: targetSession } }).catch(() => {});
+      } else if (client.session?.cancel) {
+        await client.session.cancel({ path: { id: targetSession } }).catch(() => {});
+      }
+
+      // 2. Poll until session transitions out of busy state (up to 5 seconds)
+      await waitForSessionIdle(targetSession);
+
+      // 3. Dispatch prompt
+      if (client.session?.prompt) {
+        await client.session.prompt({
+          path: { id: targetSession },
+          body: { parts: [{ type: "text", text: "continue" }] },
+        });
+      } else if (client.session?.command) {
+        await client.session.command({
+          path: { id: targetSession },
+          body: { command: "continue" },
+        });
+      }
+
+      // Successfully processed recovery
+      wasOffline = false;
+    } catch (err) {
+      notifyUser("Watchdog Error", `Recovery failed: ${err.message}`, "error");
+      if (client.app?.log) {
+        client.app.log({
+          level: "error",
+          message: `Watchdog recovery failed: ${err.message}`,
+        });
+      }
+      // Leave wasOffline = true so the next ping loop can retry if needed
+    }
+  }
+
   const timer = setInterval(async () => {
     const reachable = await checkNetwork();
 
     if (!reachable) {
       if (isOnline) {
-        notifyUser(
-          "Network Watchdog",
-          "Connection dropped. Waiting...",
-          "warning"
-        );
+        notifyUser("Network Watchdog", "Connection dropped. Waiting...", "warning");
       }
       isOnline = false;
       wasOffline = true;
     } else {
       isOnline = true;
-
-      if (wasOffline && activeSessionID) {
-        notifyUser(
-          "Network Watchdog",
-          "Internet restored! Resuming session...",
-          "info"
-        );
-        wasOffline = false;
-
-        try {
-          // 1. Abort active hung request
-          if (client.session.abort) {
-            await client.session.abort({ path: { id: activeSessionID } });
-          } else if (client.session.cancel) {
-            await client.session.cancel({ path: { id: activeSessionID } });
-          }
-
-          // 2. Small buffer for session state to reset to idle
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          // 3. Dispatch "continue" prompt quietly
-          if (client.session.prompt) {
-            await client.session.prompt({
-              path: { id: activeSessionID },
-              body: { parts: [{ type: "text", text: "continue" }] },
-            });
-          } else {
-            await client.session.command({
-              path: { id: activeSessionID },
-              body: { command: "continue" },
-            });
-          }
-        } catch (err) {
-          notifyUser("Watchdog Error", err.message, "error");
-          if (client.app?.log) {
-            client.app.log({
-              level: "error",
-              message: `Watchdog failed: ${err.message}`,
-            });
-          }
-        }
+      if (wasOffline) {
+        await handleReconnection();
       }
     }
   }, PING_INTERVAL_MS);
 
   return {
     event: async ({ event }) => {
-      const sessionID =
+      // Extract session ID from all known event structures
+      const extractedID =
         event.properties?.sessionID ||
         event.properties?.id ||
-        event.payload?.sessionID;
+        event.payload?.sessionID ||
+        event.sessionID ||
+        (event.type === "session.created" ? event.properties?.id : null);
 
-      if (sessionID) {
-        activeSessionID = sessionID;
+      if (extractedID) {
+        activeSessionID = extractedID;
       }
     },
 

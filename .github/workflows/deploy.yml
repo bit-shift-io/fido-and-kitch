@@ -2,6 +2,22 @@ name: Build and Deploy
 on: [push]
 
 jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: main
+        submodules: true
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install --assume-yes luajit
+    - name: Install libs
+      run: cd main && ./setup.sh
+    - name: Run tests
+      run: cd main && ./test-all.sh
+
   build:
     runs-on: ubuntu-20.04
     steps:
@@ -35,7 +51,7 @@ jobs:
         pip3 install ./makelove
 
     - name: Install libs
-      run: cd main && ./install.sh
+      run: cd main && ./setup.sh
         
     - name: Build
       run: cd main && python3 -m makelove
