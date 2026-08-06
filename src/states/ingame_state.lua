@@ -217,6 +217,12 @@ function InGameState:draw()
     map:draw2(tx, ty, sx, sy)
     map:drawEntities(tx, ty, sx, sy)
 
+    -- screen-space speech bubbles (follow the entity through pan/zoom, but the
+    -- text stays readable at any zoom) -- drawn after entities, before the HUD
+    for _, story in ipairs(map:getEntitiesByType('story')) do
+        story:drawBubbleScreen(tx, ty, sx, sy)
+    end
+
     -- Debug overlay (hitboxes, ladders, kill zones, safe positions, etc.)
     if conf.drawphysics and self.debugOverlay then
         self.debugOverlay.enabled = true

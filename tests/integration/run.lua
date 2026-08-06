@@ -39,6 +39,7 @@ local defaultTestFiles = {
 	'tests/integration/tmx_golden_test.lua',
 	'tests/integration/coin_tracking_test.lua',
 	'tests/integration/player_died_payload_test.lua',
+	'tests/integration/story_test.lua',
 }
 
 local tests = {}

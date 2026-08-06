@@ -29,6 +29,7 @@ Timeline = Timeline or require('src.components.timeline')
 Sprite   = Sprite or require('src.components.sprite')
 Collider = Collider or require('src.components.collider')
 Sound    = Sound or require('src.components.sound')
+Usable   = Usable or require('src.components.usable')
 Switchable = Switchable or require('src.components.switchable')
 
 local World = require('src.world')

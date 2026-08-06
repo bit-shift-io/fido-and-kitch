@@ -114,7 +114,8 @@
 
 ### 3.8 Map Entities (`src/entities/`)
 * **Convention**: New entity = new file `src/entities/<type>.lua` + Tiled object with matching `type`.
-* **Examples**: `key`, `cage`, `switch`, `exit_door`, `ladder`, `kill_zone`, `jump_pad`, `teleport`, `bird`, `coin`, `variable`.
+* **Examples**: `key`, `cage`, `switch`, `exit_door`, `ladder`, `kill_zone`, `jump_pad`, `teleport`, `bird`, `coin`, `variable`, `story`.
+* **`story`**: invisible trigger; shows a screen-space typewriter speech bubble on `use` (see CONTEXT.md 'Story entity').
 * **Map Hooks**: Tiled object properties may contain Lua snippets (`onUse`, `onTrigger`, etc.) executed via `object:exec`.
 
 ### 3.9 UI (`src/ui/`)

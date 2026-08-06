@@ -7,336 +7,405 @@ const DEFAULT_PORT = parseInt(process.env.FIDO_KITCH_IPC_PORT || "8081", 10);
 const HOST = "127.0.0.1";
 
 const GAME_COMMAND = process.env.FIDO_KITCH_BIN || "./run.sh";
-const GAME_ARGS = process.env.FIDO_KITCH_ARGS ? process.env.FIDO_KITCH_ARGS.split(" ") : [".", "ipc", "map=sandbox"];
+const GAME_ARGS = process.env.FIDO_KITCH_ARGS
+  ? process.env.FIDO_KITCH_ARGS.split(" ")
+  : [".", "ipc", "map=sandbox"];
 
 const execAsync = promisify(exec);
 
-/**
- * Kill any process holding the IPC port.
- */
-async function clearPort(): Promise<void> {
-    try {
-        const { stdout } = await execAsync(`lsof -ti:${DEFAULT_PORT}`);
-        const pids = stdout.trim().split("\n").filter(Boolean);
-        for (const pid of pids) {
-            console.log(`[IPC] Killing process ${pid} on port ${DEFAULT_PORT}`);
-            await execAsync(`kill -9 ${pid}`);
-        }
-    } catch {
-        // lsof returns non-zero if no process found - that's fine
+export default function FidoKitchPlugin({ client }: { client?: any }) {
+  // Toast notification helper targeting client.tui.showToast
+  function notify(title: string, message: string, variant: "info" | "warning" | "error" = "info") {
+    if (client?.tui?.showToast) {
+      try {
+        client.tui.showToast({
+          body: { title, message, variant },
+        });
+        return;
+      } catch {
+        // Fall through to OS/console fallback
+      }
     }
-}
 
-/**
- * Quick ping check to see if the game IPC socket is actively accepting connections.
- */
-async function isServerUp(): Promise<boolean> {
+    // Fallback: OS notification or stdout
+    const urgency = variant === "error" || variant === "warning" ? "critical" : "normal";
+    const sanitizedTitle = title.replace(/"/g, '\\"');
+    const sanitizedMsg = message.replace(/"/g, '\\"');
+
+    if (process.platform === "linux") {
+      exec(`notify-send -u ${urgency} "${sanitizedTitle}" "${sanitizedMsg}"`, () => {});
+    } else {
+      console.log(`[${variant.toUpperCase()}] ${title}: ${message}`);
+    }
+  }
+
+  /**
+   * Kill any process holding the IPC port.
+   */
+  async function clearPort(): Promise<void> {
+    try {
+      const { stdout } = await execAsync(`lsof -ti:${DEFAULT_PORT}`);
+      const pids = stdout.trim().split("\n").filter(Boolean);
+      for (const pid of pids) {
+        notify("IPC Port Cleanup", `Killing process ${pid} on port ${DEFAULT_PORT}`, "warning");
+        await execAsync(`kill -9 ${pid}`);
+      }
+    } catch {
+      // lsof returns non-zero if no process found - that's fine
+    }
+  }
+
+  /**
+   * Quick ping check to see if the game IPC socket is actively accepting connections.
+   */
+  async function isServerUp(): Promise<boolean> {
     return new Promise((resolve) => {
-        const socket = net.createConnection({ host: HOST, port: DEFAULT_PORT }, () => {
-            socket.destroy();
-            resolve(true);
-        });
-        socket.on("error", () => {
-            socket.destroy();
-            resolve(false);
-        });
+      const socket = net.createConnection({ host: HOST, port: DEFAULT_PORT }, () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.on("error", () => {
+        socket.destroy();
+        resolve(false);
+      });
     });
-}
+  }
 
-let gameProcess: ReturnType<typeof spawn> | null = null;
+  let gameProcess: ReturnType<typeof spawn> | null = null;
 
-/**
- * Explicitly launch the game with optional map override.
- * Returns when IPC socket is accepting connections.
- */
-async function launchGame(map?: string): Promise<void> {
+  /**
+   * Explicitly launch the game with optional map override.
+   * Returns when IPC socket is accepting connections.
+   */
+  async function launchGame(map?: string): Promise<void> {
     // Clean up any existing process on the port first
     await clearPort();
 
     if (await isServerUp()) {
-        console.log("[IPC] Game already running");
-        return;
+      notify("Game Status", "Game already running", "info");
+      return;
     }
 
     const args = map ? [".", "ipc", `map=${map}`] : GAME_ARGS;
-    console.log(`[IPC] Launching ${GAME_COMMAND} ${args.join(" ")}...`);
+    notify("Game Launcher", `Launching ${GAME_COMMAND} ${args.join(" ")}...`, "info");
 
     gameProcess = spawn(GAME_COMMAND, args, {
-        detached: true,
-        stdio: "ignore",
-        cwd: process.cwd(),
+      detached: true,
+      stdio: "ignore",
+      cwd: process.cwd(),
     });
     gameProcess.unref();
 
     // Poll for up to 10 seconds (100 attempts x 100ms) for the socket to become active
-    // This accounts for LÖVE startup + menu + map load + player spawn
     const maxRetries = 100;
     for (let i = 0; i < maxRetries; i++) {
-        await new Promise((r) => setTimeout(r, 100));
-        if (await isServerUp()) {
-            console.log("[IPC] Game started");
-            return;
-        }
+      await new Promise((r) => setTimeout(r, 100));
+      if (await isServerUp()) {
+        notify("Game Status", "Game started and IPC socket active", "info");
+        return;
+      }
     }
 
-    throw new Error(`Failed to start game: IPC socket at ${HOST}:${DEFAULT_PORT} did not open within 10 seconds.`);
-}
+    notify(
+      "Launch Error",
+      `IPC socket at ${HOST}:${DEFAULT_PORT} did not open within 10s`,
+      "error"
+    );
+    throw new Error(
+      `Failed to start game: IPC socket at ${HOST}:${DEFAULT_PORT} did not open within 10 seconds.`
+    );
+  }
 
-/**
- * Requires the game to be running - fails fast with clear error if not.
- * Removes auto-spawn to prevent race conditions and silent failures.
- */
-async function requireGameRunning(): Promise<void> {
+  /**
+   * Requires the game to be running - fails fast with clear error if not.
+   */
+  async function requireGameRunning(): Promise<void> {
     if (!(await isServerUp())) {
-        throw new Error(
-            `Game not running on port ${DEFAULT_PORT}. ` +
-            `Call launch_game first, or start manually with: ./run.sh ipc map=sandbox`
-        );
+      const msg = `Game not running on port ${DEFAULT_PORT}. Call launch_game first, or start manually with: ./run.sh ipc map=sandbox`;
+      notify("Game Connection Error", msg, "error");
+      throw new Error(msg);
     }
-}
+  }
 
-/**
- * Sends a single line command to the game over the TCP socket.
- * Does NOT auto-launch - use launch_game first.
- */
-async function sendCommand(cmd: string): Promise<string> {
+  /**
+   * Sends a single line command to the game over the TCP socket.
+   */
+  async function sendCommand(cmd: string): Promise<string> {
     await requireGameRunning();
 
     return new Promise((resolve, reject) => {
-        const client = net.createConnection({ host: HOST, port: DEFAULT_PORT }, () => {
-            client.write(cmd + "\n");
-        });
+      const clientSocket = net.createConnection({ host: HOST, port: DEFAULT_PORT }, () => {
+        clientSocket.write(cmd + "\n");
+      });
 
-        let buffer = "";
+      let buffer = "";
 
-        client.on("data", (data) => {
-            buffer += data.toString();
-            if (buffer.includes("\n")) {
-                const line = buffer.trim();
-                client.destroy();
-                resolve(line);
-            }
-        });
+      clientSocket.on("data", (data) => {
+        buffer += data.toString();
+        if (buffer.includes("\n")) {
+          const line = buffer.trim();
+          clientSocket.destroy();
+          resolve(line);
+        }
+      });
 
-        client.on("error", (err) => {
-            client.destroy();
-            reject(new Error(`IPC connection failed: ${err.message}`));
-        });
+      clientSocket.on("error", (err) => {
+        clientSocket.destroy();
+        const msg = `IPC connection failed: ${err.message}`;
+        notify("IPC Error", msg, "error");
+        reject(new Error(msg));
+      });
 
-        client.on("timeout", () => {
-            client.destroy();
-            reject(new Error("IPC timeout"));
-        });
+      clientSocket.on("timeout", () => {
+        clientSocket.destroy();
+        notify("IPC Error", "IPC connection timed out", "error");
+        reject(new Error("IPC timeout"));
+      });
 
-        client.setTimeout(2000);
+      clientSocket.setTimeout(2000);
     });
-}
+  }
 
-function parseResponse(response: string): string {
+  function parseResponse(response: string): string {
     if (response.startsWith("OK: ")) return response.slice(4);
     if (response.startsWith("STATE ")) return response.slice(6);
     if (response.startsWith("ERROR: ")) throw new Error(response.slice(7));
     throw new Error(`Unexpected response: ${response}`);
-}
+  }
 
-/**
- * Launch the game with optional map. Blocks until IPC server is ready.
- */
-export const launch_game = tool({
+  // --- Tool Export Declarations ---
+
+  const launch_game = tool({
     description: "Launch the game with IPC server. Blocks until ready for commands.",
     args: {
-        map: tool.schema.string().optional().describe("Map to load (e.g., 'sandbox', 'll1'). Defaults to 'sandbox'."),
+      map: tool.schema
+        .string()
+        .optional()
+        .describe("Map to load (e.g., 'sandbox', 'll1'). Defaults to 'sandbox'."),
     },
     async execute({ map }) {
-        await launchGame(map);
-        return `Game launched${map ? ` with map: ${map}` : ""} - IPC ready`;
+      await launchGame(map);
+      return `Game launched${map ? ` with map: ${map}` : ""} - IPC ready`;
     },
-});
+  });
 
-export const resize_window = tool({
+  const resize_window = tool({
     description: "Resize the game window (requires game running via launch_game)",
     args: {
-        width: tool.schema.number().describe("Width in pixels"),
-        height: tool.schema.number().describe("Height in pixels"),
+      width: tool.schema.number().describe("Width in pixels"),
+      height: tool.schema.number().describe("Height in pixels"),
     },
     async execute({ width, height }) {
-        const response = await sendCommand(`RESIZE ${width} ${height}`);
-        return parseResponse(response);
+      const response = await sendCommand(`RESIZE ${width} ${height}`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const move_player = tool({
+  const move_player = tool({
     description: "Move a player by relative delta (direct position change)",
     args: {
-        player: tool.schema.number().describe("Player index (1 or 2)"),
-        dx: tool.schema.number().describe("Delta X"),
-        dy: tool.schema.number().describe("Delta Y"),
+      player: tool.schema.number().describe("Player index (1 or 2)"),
+      dx: tool.schema.number().describe("Delta X"),
+      dy: tool.schema.number().describe("Delta Y"),
     },
     async execute({ player, dx, dy }) {
-        const response = await sendCommand(`MOVE_PLAYER ${player} ${dx} ${dy}`);
-        return parseResponse(response);
+      const response = await sendCommand(`MOVE_PLAYER ${player} ${dx} ${dy}`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const press_key = tool({
+  const press_key = tool({
     description: "Press a key for a player (simulates keyboard input: left, right, up, down, use)",
     args: {
-        player: tool.schema.number().describe("Player index (1 or 2)"),
-        action: tool.schema.string().describe("Action: left, right, up, down, use"),
+      player: tool.schema.number().describe("Player index (1 or 2)"),
+      action: tool.schema.string().describe("Action: left, right, up, down, use"),
     },
     async execute({ player, action }) {
-        const response = await sendCommand(`INPUT ${player} ${action} down`);
-        return parseResponse(response);
+      const response = await sendCommand(`INPUT ${player} ${action} down`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const release_key = tool({
+  const release_key = tool({
     description: "Release a key for a player",
     args: {
-        player: tool.schema.number().describe("Player index (1 or 2)"),
-        action: tool.schema.string().describe("Action: left, right, up, down, use"),
+      player: tool.schema.number().describe("Player index (1 or 2)"),
+      action: tool.schema.string().describe("Action: left, right, up, down, use"),
     },
     async execute({ player, action }) {
-        const response = await sendCommand(`INPUT ${player} ${action} up`);
-        return parseResponse(response);
+      const response = await sendCommand(`INPUT ${player} ${action} up`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const hold_key = tool({
+  const hold_key = tool({
     description: "Hold a key for a player for a duration (in seconds)",
     args: {
-        player: tool.schema.number().describe("Player index (1 or 2)"),
-        action: tool.schema.string().describe("Action: left, right, up, down, use"),
-        duration: tool.schema.number().describe("Duration in seconds"),
+      player: tool.schema.number().describe("Player index (1 or 2)"),
+      action: tool.schema.string().describe("Action: left, right, up, down, use"),
+      duration: tool.schema.number().describe("Duration in seconds"),
     },
     async execute({ player, action, duration }) {
-        const response = await sendCommand(`HOLD_KEY ${player} ${action} ${duration}`);
-        return parseResponse(response);
+      const response = await sendCommand(`HOLD_KEY ${player} ${action} ${duration}`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const get_game_state = tool({
+  const get_game_state = tool({
     description: "Get full game state snapshot (player positions, window size, current map)",
     args: {},
     async execute() {
-        const response = await sendCommand("GET_STATE");
-        return response; // GET_STATE returns formatted string directly without "OK: " prefix
+      const response = await sendCommand("GET_STATE");
+      return response;
     },
-});
+  });
 
-export const get_player_pos = tool({
+  const get_player_pos = tool({
     description: "Get single player position",
     args: {
-        player: tool.schema.number().describe("Player index (1 or 2)"),
+      player: tool.schema.number().describe("Player index (1 or 2)"),
     },
     async execute({ player }) {
-        const response = await sendCommand(`GET_PLAYER_POS ${player}`);
-        return response; // GET_PLAYER_POS returns "Player N at X,Y" directly
+      const response = await sendCommand(`GET_PLAYER_POS ${player}`);
+      return response;
     },
-});
+  });
 
-export const get_entities = tool({
+  const get_entities = tool({
     description: "Get all entities in the game (players, colliders, items, etc.) as JSON",
     args: {},
     async execute() {
-        const response = await sendCommand("GET_ENTITIES");
-        return response; // Returns JSON string directly
+      const response = await sendCommand("GET_ENTITIES");
+      return response;
     },
-});
+  });
 
-export const restart_level = tool({
+  const restart_level = tool({
     description: "Restart the current level",
     args: {},
     async execute() {
-        const response = await sendCommand("RESTART_LEVEL");
-        return parseResponse(response);
+      const response = await sendCommand("RESTART_LEVEL");
+      return parseResponse(response);
     },
-});
+  });
 
-export const go_to_menu = tool({
+  const go_to_menu = tool({
     description: "Return to main menu",
     args: {},
     async execute() {
-        const response = await sendCommand("MENU");
-        return parseResponse(response);
+      const response = await sendCommand("MENU");
+      return parseResponse(response);
     },
-});
+  });
 
-export const toggle_camera = tool({
+  const toggle_camera = tool({
     description: "Toggle camera overview mode (zooms out to full map view)",
     args: {},
     async execute() {
-        const response = await sendCommand("TOGGLE_CAMERA");
-        return parseResponse(response);
+      const response = await sendCommand("TOGGLE_CAMERA");
+      return parseResponse(response);
     },
-});
+  });
 
-export const load_map = tool({
+  const load_map = tool({
     description: "Load a specific map dynamically",
     args: {
-        map: tool.schema.string().describe("Map name (e.g., 'sandbox', 'll1', 'll2')"),
+      map: tool.schema.string().describe("Map name (e.g., 'sandbox', 'll1', 'll2')"),
     },
     async execute({ map }) {
-        const response = await sendCommand(`LOAD_MAP ${map}`);
-        return parseResponse(response);
+      const response = await sendCommand(`LOAD_MAP ${map}`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const take_screenshot = tool({
+  const take_screenshot = tool({
     description: "Capture the current game screen to a file",
     args: {
-        filename: tool.schema.string().optional().describe("Filename (without extension). Defaults to timestamp."),
+      filename: tool.schema
+        .string()
+        .optional()
+        .describe("Filename (without extension). Defaults to timestamp."),
     },
     async execute({ filename }) {
-        const cmd = filename ? `TAKE_SCREENSHOT ${filename}` : "TAKE_SCREENSHOT";
-        const response = await sendCommand(cmd);
-        return parseResponse(response);
+      const cmd = filename ? `TAKE_SCREENSHOT ${filename}` : "TAKE_SCREENSHOT";
+      const response = await sendCommand(cmd);
+      return parseResponse(response);
     },
-});
+  });
 
-export const get_tile_grid = tool({
+  const get_tile_grid = tool({
     description: "Get the map tile grid as a 2D matrix (0=empty, 1=solid, 2=ladder, 3=killzone)",
     args: {},
     async execute() {
-        const response = await sendCommand("GET_TILE_GRID");
-        return response; // Returns JSON string directly
+      const response = await sendCommand("GET_TILE_GRID");
+      return response;
     },
-});
+  });
 
-export const spawn_entity = tool({
+  const spawn_entity = tool({
     description: "Spawn an entity into the live game world",
     args: {
-        type: tool.schema.string().describe("Entity type (e.g., 'push_box', 'coin', 'key')"),
-        x: tool.schema.number().describe("X position"),
-        y: tool.schema.number().describe("Y position"),
-        props: tool.schema.record(tool.schema.string(), tool.schema.unknown()).optional().describe("Optional properties as JSON object"),
+      type: tool.schema.string().describe("Entity type (e.g., 'push_box', 'coin', 'key')"),
+      x: tool.schema.number().describe("X position"),
+      y: tool.schema.number().describe("Y position"),
+      props: tool.schema
+        .record(tool.schema.string(), tool.schema.unknown())
+        .optional()
+        .describe("Optional properties as JSON object"),
     },
     async execute({ type, x, y, props }) {
-        const propsJson = props ? JSON.stringify(props) : "";
-        const response = await sendCommand(`SPAWN_ENTITY ${type} ${x} ${y} ${propsJson}`);
-        return parseResponse(response);
+      const propsJson = props ? JSON.stringify(props) : "";
+      const response = await sendCommand(`SPAWN_ENTITY ${type} ${x} ${y} ${propsJson}`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const step_frames = tool({
+  const step_frames = tool({
     description: "Advance the simulation by N fixed timesteps (1/60s each)",
     args: {
-        count: tool.schema.number().describe("Number of frames to step"),
+      count: tool.schema.number().describe("Number of frames to step"),
     },
     async execute({ count }) {
-        const response = await sendCommand(`STEP_FRAMES ${count}`);
-        return parseResponse(response);
+      const response = await sendCommand(`STEP_FRAMES ${count}`);
+      return parseResponse(response);
     },
-});
+  });
 
-export const get_log = tool({
+  const get_log = tool({
     description: "Get console output from the game (print statements, debug logs)",
     args: {
-        count: tool.schema.number().optional().describe("Number of recent lines to return. Omit for all."),
+      count: tool.schema
+        .number()
+        .optional()
+        .describe("Number of recent lines to return. Omit for all."),
     },
     async execute({ count }) {
-        const cmd = count ? `GET_LOG ${count}` : "GET_LOG";
-        const response = await sendCommand(cmd);
-        return response;
+      const cmd = count ? `GET_LOG ${count}` : "GET_LOG";
+      const response = await sendCommand(cmd);
+      return response;
     },
-});
+  });
+
+  return {
+    toolset: {
+      launch_game,
+      resize_window,
+      move_player,
+      press_key,
+      release_key,
+      hold_key,
+      get_game_state,
+      get_player_pos,
+      get_entities,
+      restart_level,
+      go_to_menu,
+      toggle_camera,
+      load_map,
+      take_screenshot,
+      get_tile_grid,
+      spawn_entity,
+      step_frames,
+      get_log,
+    },
+  };
+}
