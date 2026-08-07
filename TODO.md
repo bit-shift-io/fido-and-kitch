@@ -4,6 +4,7 @@ A list of tasks that need to be done. Generate docs before starting each task.
 ## Bugs
 
 ## High Priority
+- convert ladder to use a props system so they can be seen in the editor more easily. Need to ensure they are still working with climbing volumes and can be toggled on/off with switches.
 
 ## Medium Priority
 - `src/entities/exit_door.lua` (`ExitDoor:checkEndGame`): if all players have left the map, trigger game over

@@ -71,6 +71,16 @@ function Game:keypressed(k)
 		conf.drawphysics = not conf.drawphysics
 	end
 
+    if k == "f2" then
+        Log.debug('toggle particle outlines')
+        conf.draw_particles = not conf.draw_particles
+    end
+
+    if k == "f3" then
+        Log.debug('toggle sprite outlines')
+        conf.draw_sprite_outlines = not conf.draw_sprite_outlines
+    end
+
     self.fsm:keypressed(k)
 end
 

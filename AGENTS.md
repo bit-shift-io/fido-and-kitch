@@ -25,6 +25,9 @@ love . debug drawphysics map=sandbox
 - `profile` — prints a load profile in `InGameState:load`
 - `map=<file>` — skips the menu, loads `res/map/<file>`
 - `F12` — screenshot
+- `F1` — physics debug overlay (hitboxes, sensors, kill zones, safe positions, camera bounds, NPC paths); toggles `conf.drawphysics`
+- `F2` — particle-system outlines (emitter emit-box + per-particle quads); toggles `conf.draw_particles`
+- `F3` — sprite outlines (each entity's rendered art box); toggles `conf.draw_sprite_outlines`
 
 ## Layout
 
@@ -40,7 +43,7 @@ love . debug drawphysics map=sandbox
   - `parallax_renderer.lua` — background image layers, parallax math, screen-space draw
   - `tmx.lua`, `tmx_template.lua`, `tmx_xml.lua`, `external_tileset.lua` — TMX parsing
 - `src/camera.lua` — shared auto-zoom camera framing all players
-- `src/entity.lua`, `src/components/` — base entity with component lifecycle; components like `Collider`, `Sprite`, `StateMachine`, `Inventory`, `Pickup`, `Usable`
+- `src/entity.lua`, `src/components/` — base entity with component lifecycle; components like `Collider`, `Sprite`, `StateMachine`, `Inventory`, `Pickup`, `Usable`, `UsableSparkle` (gentle "glow" sparkles emitted while a player is near a usable item; auto-attached by `Usable:onAttach`)
 - `src/entities/` — map entity implementations; Tiled object `type` must match a filename here (`key` → `src/entities/key.lua`)
 - `src/player/` — player entity and subsystems:
   - `player.lua` — bootstrap: components, signals, animation FSM, movement FSM
@@ -51,7 +54,8 @@ love . debug drawphysics map=sandbox
   - `ground_support.lua` — `isFullySupported`
   - `lives.lua` — lives management
 - `src/physics/bump/` — the physics backend (bump.lua), behind `Collider`/`World`. A Box2D/love backend was removed for implementing too little of the Collider contract to actually run the game; re-add it as a real, fully-implemented backend if ever needed, not a partial one
-- `src/ui/` — Slab menu UI, map list, lives HUD, debug overlay
+- `src/fx/` — one-shot particle presets (`coin_pickup.lua`, `dust_burst.lua`, `spark_trail.lua` built on `src/fx/base.lua`); `src/particles.lua` is the low-level emitter engine behind them
+- `src/ui/` — Slab menu UI, map list, lives HUD, debug overlay, sprite-outline overlay
 - `src/utils/` — utility modules:
   - `asset_manager.lua` — texture caching (`getImage`, `clear`, `getTextureCount`)
   - `event_bus.lua` — global event bus (`emit`, `on`, `off`, `clear`)

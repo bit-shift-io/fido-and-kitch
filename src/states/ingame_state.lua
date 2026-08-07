@@ -3,6 +3,7 @@ local GameHud = require('src.ui.game_hud')
 local AutoCamera = require('src.camera')
 local EventBus = require('src.utils.event_bus')
 local DebugOverlay = require('src.ui.debug_overlay')
+local SpriteOutlineOverlay = require('src.ui.sprite_outline_overlay')
 local BaseState = require('src.states.base_state')
 local Log = require('src.utils.log')
 
@@ -50,6 +51,8 @@ function InGameState:load(props)
 
     -- Debug overlay
     self.debugOverlay = DebugOverlay:new()
+    -- F3 sprite-outline debug overlay
+    self.spriteOverlay = SpriteOutlineOverlay:new()
 
     self.players = {}
     local playerCount = 2
@@ -231,6 +234,14 @@ function InGameState:draw()
         self.debugOverlay:draw(world, map, self.players, tx, ty, sx, sy, cameraFramingBounds)
     else
         self.debugOverlay.enabled = false
+    end
+
+    -- F3: sprite outlines (drawn after entities, on top of their art)
+    if conf.draw_sprite_outlines and self.spriteOverlay then
+        self.spriteOverlay.enabled = true
+        self.spriteOverlay:draw(map, self.players, tx, ty, sx, sy)
+    else
+        self.spriteOverlay.enabled = false
     end
 
     self.gameHud:draw()

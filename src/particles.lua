@@ -152,6 +152,15 @@ function Emitter:draw()
 	local c0 = self.opts.colors.start
 	local c1 = self.opts.colors["end"]
 	self:resolveImages()
+	local debug = conf and conf.draw_particles
+	if debug then
+		-- emitter emit-box outline (F2): shows the box particles spawn into
+		local area = self.opts.area
+		if area and area.w > 0 and area.h > 0 then
+			love.graphics.setColor(1, 0.55, 0.2, 0.9)
+			love.graphics.rectangle('line', self.opts.position.x - area.w / 2, self.opts.position.y - area.h / 2, area.w, area.h)
+		end
+	end
 	for i = 1, #self.particles do
 		local p = self.particles[i]
 		local t = math.min(p.age / p.lifetime, 1)
@@ -171,6 +180,10 @@ function Emitter:draw()
 			love.graphics.draw(img, p.x, p.y, rot, scale, scale, imgW / 2, imgH / 2)
 		else
 			love.graphics.rectangle("fill", p.x - s / 2, p.y - s / 2, s, s)
+		end
+		if debug then
+			love.graphics.setColor(0, 1, 1, 0.7)
+			love.graphics.rectangle("line", p.x - s / 2, p.y - s / 2, s, s)
 		end
 	end
 	love.graphics.setColor(1, 1, 1, 1)

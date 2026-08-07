@@ -127,6 +127,22 @@ test('fadeIn config is accepted and defaults to 0', function()
 	assertTrue(true, 'fadeIn emitter constructs, updates and draws fine')
 end)
 
+test('F2 debug mode draws emitter box and particle outlines', function()
+	conf = conf or {}
+	local prev = conf.draw_particles
+	conf.draw_particles = true
+	local e = Particles.new_emitter{
+		position = {x = 0, y = 0},
+		area = {w = 64, h = 64},
+		lifetime = {min = 1, max = 1},
+		speed = {min = 0, max = 0},
+	}
+	e:emit(3)
+	e:draw()
+	conf.draw_particles = prev
+	assertTrue(true, 'particle + emitter-box outlines render under the mock')
+end)
+
 local FxManager = require('src.fx.manager')
 local CoinPickup = require('src.fx.coin_pickup')
 

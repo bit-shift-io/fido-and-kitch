@@ -42,7 +42,9 @@ Edit > Preferences > check 'Embed tilesets' & 'Detatch Templates'
 Save the map as tmx but will need to be exported as .lua to be loaded.  
 
 ## Controls
-F1 - debug
+F1 - physics debug overlay
+F2 - particle-system outlines
+F3 - sprite outlines
 F12 - screenshot
 
 P1
