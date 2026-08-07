@@ -1,6 +1,5 @@
 -- Usable component
 -- an item the player (or entity) can use
--- TODO: take a table of item/count pairs... or an Inventory component!? to allow for complex usage scenarios?
 
 local Log = require('src.utils.log')
 

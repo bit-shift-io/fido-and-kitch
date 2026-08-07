@@ -7,9 +7,8 @@ local DEFAULT_GRAVITY = 300
 local DEFAULT_MAX_FALL_SPEED = 500
 --local set_funcs, lp, lg, COLLIDER_TYPES = unpack(require('utils'))
 
--- TODO: shape arguments includes position as first 2 values in the case or a circle
+-- shape arguments: position as first 2 values in the rect case or a circle
 -- which we don't care about supplying, circle just needs a radius
--- so this needs some tweaking
 function Collider:init(props)
 	self.type = 'collider'
 

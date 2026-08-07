@@ -80,7 +80,7 @@ function JumpPad:use(user)
 		offset=offset
     })
 
-	--user.pathFollow.timeline.tween.easing = 'outQuad' -- TODO: need a way to set tween
+	--user.pathFollow.timeline.tween.easing = 'outQuad'
 	user.pathFollow.timeline:play()
 end
 

@@ -72,71 +72,13 @@ love . debug drawphysics map=sandbox
 - **Player entity** is split across `src/player/player.lua` (bootstrap), `src/player/player_sensors.lua` (spatial queries), `src/player/player_movement.lua` (movement math), and `src/player/player_states.lua` (FSM states). New sensor/movement logic goes in the respective module.
 - **Game states** live in `src/states/` — one file per state (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`).
 - **Physics:** go through `Collider`/`World`, not `src.physics.bump` directly, unless the task is backend-specific. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
-- **Sound:** `Sound.silentMode = not (love and love.audio)` suppresses missing file warnings in headless tests — no need to add dummy WAV files.
+- **Sound:** `Sound:play` checks a private `isHeadless()` (true when `love.audio` is absent) and returns early, and `Log.warn`s about missing files; headless tests need no dummy WAV files.
 - **Debug overlay:** when `conf.drawphysics` is active, `DebugOverlay:draw(world, map, players, camera)` renders hitboxes, ladder sensors, kill zones, safe positions, camera framing bounds, and NPC paths in a single pass.
 - Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `game_states.lua`.
 
 ## Validation
 
 Run `./test-unit.sh` for logic changes; add a unit test when practical. For gameplay checks that need a real map, use `./test-integration.sh`; for checks that need to be watched or need frame capture, use `./test-e2e.sh`. Note `./build.sh` is interactive — don't run it non-interactively.
-
-## AI Agent Control
-
-The test infrastructure doubles as a programmable control layer for AI agents. Any agent can drive the game by requiring the test support modules:
-
-```lua
-local GameHarness = require('tests.support.game_harness')
-local FakeInput = require('tests.support.fake_input').FakeInput
-local FrameStepper = require('tests.support.frame_stepper')
-local holdFor = require('tests.support.fake_input').holdFor
-local Capture = require('tests.support.capture')  -- e2e tier only
-
--- Start game (headless integration: omit {real=true}; headed e2e: include it)
-local game = GameHarness.startGame('res/map/level1.lua', {real = true})
-local controller = FakeInput.new()
-
--- Keyboard input (P1 uses arrow keys + rshift; P2 uses WASD + Q)
-controller:press('right')
-holdFor(game, controller, 'right', 2)  -- hold for 2 seconds
-controller:release('right')
-
--- Gamepad input (P1 = index 1, P2 = index 2)
-local joy = controller:assignJoystick(1)
-joy:setAxes(1, 0)      -- right stick X axis
-joy:setButtonDown(1, true)  -- button 1 (use)
-
--- Step simulation at fixed 1/60s timestep
-FrameStepper.step(game, 60)  -- advance 60 frames
-
--- Window control (e2e tier only; requires real LÖVE window)
--- These call through to love.window in e2e, no-op in headless integration
-love.window.setFullscreen(true, 'desktop')   -- fullscreen
-love.window.setFullscreen(false)             -- windowed
-love.window.maximize()                       -- maximize
-love.window.minimize()                       -- minimize
-love.window.restore()                        -- restore from minimized/maximized
-love.window.setMode(1024, 768)               -- resize window
-
--- Frame capture (e2e tier only)
-local path = Capture.capture('my_screenshot')  -- writes to tests/screenshots/<test>/my_screenshot.png
-```
-
-**Tiers:**
-| Tier | Command | Window | Rendering | Frame Capture |
-|------|---------|--------|-----------|---------------|
-| Integration | `./test-integration.sh` | Mock (no window) | No | No |
-| E2E | `./test-e2e.sh` / `love . e2e=...` | Real | Yes | Yes |
-
-E2E flags: `--paced` (1 sim frame = 1 real frame, watchable), `--filmstrip` / `--filmstrip=N` (capture every N frames).
-
-Key files:
-- `tests/support/fake_input.lua` — `FakeInput` API (`press`, `release`, `assignJoystick`, `holdFor`, `runUntil`)
-- `tests/support/game_harness.lua` — boots real game stack
-- `tests/support/frame_stepper.lua` — fixed-timestep frame advancement
-- `tests/support/capture.lua` — frame capture (e2e only)
-- `tests/integration/key_test.lua` — minimal working example
-
-No special prompts needed — the test infrastructure *is* the control layer.
 
 ## AI Agent Control
 

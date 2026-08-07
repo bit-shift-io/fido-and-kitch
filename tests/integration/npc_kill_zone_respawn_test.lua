@@ -23,17 +23,8 @@ NPCRegistry.clear()
 NPCRegistry.registerType('npc_robot', Robot)
 
 local function findRobot()
-    io.stderr:write("DEBUG findRobot: _instances count = " .. #NPCRegistry._instances .. "\n")
-    io.stderr:flush()
-    for i, npc in ipairs(NPCRegistry._instances) do
-        io.stderr:write("DEBUG findRobot: instance " .. i .. " typeName = " .. tostring(npc._typeName) .. " isDead = " .. tostring(npc:isDead()) .. "\n")
-        io.stderr:flush()
-    end
-    
     local robots = NPCRegistry.getByType('npc_robot')
-    io.stderr:write("DEBUG findRobot: getByType returned " .. #robots .. " robots\n")
-    io.stderr:flush()
-    
+
     -- Return the first alive robot, or first if all dead
     for _, robot in ipairs(robots) do
         if not robot:isDead() then
@@ -50,8 +41,6 @@ test('a Robot falling into a kill zone dies, becomes non-solid, and stops chasin
 
     local robot = findRobot()
     assertTrue(robot ~= nil, 'expected to find a robot')
-    io.stderr:write("DEBUG test1: robot.remove_from_map_flag = " .. tostring(robot.remove_from_map_flag) .. "\n")
-    io.stderr:flush()
     assertTrue(robot:isDead(), 'expected the Robot to have died in the kill zone')
     assertEqual('kinematic', robot.collider.bodyType, 'expected a dead Robot to be non-solid/kinematic')
 end)
@@ -62,8 +51,6 @@ test('a Robot stays gone for 30s after the death flash completes, then respawns 
 
     local robot = findRobot()
     assertTrue(robot ~= nil, 'fixture check: expected to find a robot')
-    io.stderr:write("DEBUG test2a: robot.remove_from_map_flag = " .. tostring(robot.remove_from_map_flag) .. "\n")
-    io.stderr:flush()
     assertTrue(robot:isDead(), 'fixture check: expected the Robot to have died')
     local originX, originY = robot.homeX, robot.homeY
 
@@ -74,8 +61,6 @@ test('a Robot stays gone for 30s after the death flash completes, then respawns 
     local shortOfWindowFrames = math.floor((RESPAWN_DELAY - 3) / FIXED_DT)
     FrameStepper.step(game, shortOfWindowFrames)
 
-    io.stderr:write("DEBUG test2b: robot.remove_from_map_flag = " .. tostring(robot.remove_from_map_flag) .. "\n")
-    io.stderr:flush()
     assertTrue(robot:isDead(), 'expected the Robot to still be gone a few seconds short of the 30s window')
 
     -- step forward frame-by-frame, stopping the instant it respawns -- once
@@ -85,8 +70,6 @@ test('a Robot stays gone for 30s after the death flash completes, then respawns 
     local respawned = false
     for i = 1, math.ceil(10 / FIXED_DT) do
         FrameStepper.step(game, 1)
-        io.stderr:write("DEBUG loop " .. i .. ": robot.isDead=" .. tostring(robot:isDead()) .. ", deathTimer=" .. tostring(robot.deathTimer) .. "\n")
-        io.stderr:flush()
         if not robot:isDead() then
             respawned = true
             break

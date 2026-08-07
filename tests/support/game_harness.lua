@@ -91,8 +91,6 @@ function GameHarness.startGame(mapPath, opts)
 	end
 
 	function game:update(dt)
-		io.stderr:write("DEBUG game:update dt = " .. type(dt) .. " " .. tostring(dt) .. "\n")
-		io.stderr:flush()
 		inputManager:update(dt)
 		self.fsm:update(dt)
 	end

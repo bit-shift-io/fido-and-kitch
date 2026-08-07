@@ -64,7 +64,6 @@ end
 function Ladder:createSprites()
 	local tileHeight = self:tileHeight()
 
-	-- TODO: handle resizing better
 	if self.sprites then
 		for _, sprite in pairs(self.sprites) do
 			self:removeComponent(sprite)

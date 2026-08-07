@@ -71,8 +71,6 @@ function Timeline:update(dt)
     end
     
     self:progress(dt * speed)
-    
-    -- TODO: set playing = false if start/end reached
 end
 
 

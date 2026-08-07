@@ -25,7 +25,6 @@ function Path:init(props)
 
     self.curve = love.math.newBezierCurve(curveTable)
 
-    -- TODO:
     -- bezier curves arent linear, so we can iterate with some small step to generate a table
     -- also we might want to use control points to reduce the curviness?
 

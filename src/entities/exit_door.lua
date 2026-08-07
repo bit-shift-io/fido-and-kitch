@@ -207,7 +207,6 @@ function ExitDoor:animFinished()
 end
 
 function ExitDoor:checkEndGame()
-	-- TODO: if all players have left the map, game over man!
 end
 
 function ExitDoor:destroy()

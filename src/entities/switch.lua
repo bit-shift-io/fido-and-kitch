@@ -41,8 +41,7 @@ end
 function Switch:use(user)
 	Log.debug('switch has been used')
 
-	-- TODO: really we need a play and play({reverse=true}) method
-	-- added to the sprite
+	-- sprite needs a play and play({reverse=true}) method
 	local frameNum = self.sprite.frameNum
 	if frameNum == 1 then
 		frameNum = 2
