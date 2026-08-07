@@ -45,6 +45,7 @@ Save the map as tmx but will need to be exported as .lua to be loaded.
 F1 - physics debug overlay
 F2 - particle-system outlines
 F3 - sprite outlines
+F11 / Alt+Enter - toggle fullscreen
 F12 - screenshot
 
 P1
