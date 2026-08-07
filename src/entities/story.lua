@@ -6,7 +6,7 @@
 -- instantly; the next `use` dismisses. A bubble auto-dismisses when the
 -- triggering player's overlap ends; re-trigger is gated by a 0.5s cooldown
 -- counted from dismissal. Both players can show bubbles on the same entity
--- simultaneously (one per player). No sprite.
+-- simultaneously (one per player).
 --
 -- Pure decision helpers (typewriter ramp, cooldown gate, overlap check,
 -- bubble geometry) stay private locals reached by tests/unit/story_test.lua
@@ -16,11 +16,13 @@
 local Story = Class{__includes = Entity}
 
 local LETTER_COUNT = 4
-local LETTER_RATE = 40
-local WORD_PHASE = 0.15
+local LETTER_RATE = 25.6
+local WORD_PHASE = 0.234375
 local COOLDOWN = 0.5
-local PADDING = 8
+local PADDING = 12
+local CORNER_RADIUS = 3
 local LINE_HEIGHT = 16
+local MAX_WIDTH = 500
 local TAIL_HEIGHT = 8
 local TAIL_WIDTH = 16
 local BOX_GAP = 4
@@ -97,7 +99,25 @@ local function isFullyRevealed(revealElapsed, lines)
 	return revealElapsed >= totalDuration(lines)
 end
 
--- the per-line visible text of every line at reveal time `t`: full lines
+-- byte-safe slice of `s` to at most `n` characters (revealedCount counts
+-- bytes via #line, but cutting mid-multibyte-character would hand
+-- love.graphics a truncated UTF-8 sequence); steps over continuation bytes
+local function utf8Cut(s, n)
+	local i = 1
+	local count = 0
+	while count < n and i <= #s do
+		local b = s:byte(i)
+		local width = 1
+		if b >= 0xF0 then width = 4
+		elseif b >= 0xE0 then width = 3
+		elseif b >= 0xC0 then width = 2
+		end
+		i = i + width
+		count = count + 1
+	end
+	return s:sub(1, i - 1)
+end
+
 -- before the cursor, '' after it, a partial line in between
 local function visibleText(lines, t)
 	local result = {}
@@ -109,7 +129,7 @@ local function visibleText(lines, t)
 		elseif t <= elapsed then
 			result[i] = ''
 		else
-			result[i] = string.sub(line, 1, revealedCount(line, t - elapsed))
+			result[i] = utf8Cut(line, revealedCount(line, t - elapsed))
 		end
 		elapsed = elapsed + duration
 	end
@@ -179,6 +199,43 @@ local function tailPoints(x, y, w, h, anchorX, anchorY)
 	}
 end
 
+--
+-- word wrap (pure; measure(line) is injected)
+--
+
+-- greedy word-wrap of a single line into sub-lines that each fit within
+-- maxWidth; returns {line} unchanged when it already fits
+local function wrapLine(line, measure, maxWidth)
+	if measure(line) <= maxWidth then
+		return { line }
+	end
+	local wrapped = {}
+	local current = ''
+	for word in string.gmatch(line, '%S+') do
+		if current == '' then
+			current = word
+		elseif measure(current .. ' ' .. word) <= maxWidth then
+			current = current .. ' ' .. word
+		else
+			table.insert(wrapped, current)
+			current = word
+		end
+	end
+	table.insert(wrapped, current)
+	return wrapped
+end
+
+-- flatten every line's wrapped sub-lines into one display list
+local function wrapLines(lines, measure, maxWidth)
+	local result = {}
+	for i, line in ipairs(lines) do
+		for j, sub in ipairs(wrapLine(line, measure, maxWidth)) do
+			table.insert(result, sub)
+		end
+	end
+	return result
+end
+
 Story._internal = {
 	CONST = {
 		LETTER_COUNT = LETTER_COUNT,
@@ -186,7 +243,9 @@ Story._internal = {
 		WORD_PHASE = WORD_PHASE,
 		COOLDOWN = COOLDOWN,
 		PADDING = PADDING,
+		CORNER_RADIUS = CORNER_RADIUS,
 		LINE_HEIGHT = LINE_HEIGHT,
+		MAX_WIDTH = MAX_WIDTH,
 	},
 	typewriter = {
 		splitLines = splitLines,
@@ -200,6 +259,10 @@ Story._internal = {
 		canShow = canShow,
 	},
 	playerOverlaps = playerOverlaps,
+	wrap = {
+		wrapLine = wrapLine,
+		wrapLines = wrapLines,
+	},
 	bubble = {
 		screenPoint = screenPoint,
 		boxWidth = boxWidth,
@@ -213,8 +276,25 @@ function Story:init(object, map)
 	self.text = (object.properties and object.properties.text) or ''
 	self.lines = splitLines(self.text)
 
+	-- retro blocky fonts for the speech bubble; Press Start 2P is the crisp
+	-- pixel face, DotGothic16 is kept as the alternate
+	self.font = nil
+	self.fontAlt = nil
+	if love and love.graphics then
+		self.font = love.graphics.newFont('res/fonts/SuperMarioBrosNES.ttf', 14)
+		self.fontAlt = love.graphics.newFont('res/fonts/DotGothic16-Regular.ttf', 20)
+	end
+
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
+	self.sprite = self:addComponent(Sprite{
+		image = 'res/img/entity_wood_sign_post.png',
+		frames = 1,
+		duration = 1.0,
+		loop = false,
+		position = position,
+		shape_arguments = shape_arguments,
+	})
 	self.collider = self:addComponent(Collider{
 		shape_type = 'rectangle',
 		shape_arguments = shape_arguments,
@@ -292,7 +372,11 @@ function Story:drawBubbleScreen(tx, ty, sx, sy)
 
 	for player, bubble in pairs(self.bubbles) do
 		if bubble.visible then
-			local visible = visibleText(self.lines, bubble.revealElapsed)
+			local font = self.font or love.graphics.getFont()
+			local lineHeight = font:getHeight()
+			local spacing = lineHeight * 1.5
+			local measure = function(line) return font:getWidth(line) end
+			local visible = wrapLines(visibleText(self.lines, bubble.revealElapsed), measure, MAX_WIDTH)
 
 			-- screenPoint takes a world-space translation; the camera's
 			-- tx/ty are screen-space, so fold the scale in first
@@ -301,23 +385,25 @@ function Story:drawBubbleScreen(tx, ty, sx, sy)
 				self.collider:getY() - self.collider.height * 0.5,
 				tx / sx, ty / sy, sx, sy)
 
-			local measure = function(line) return love.graphics.getFont():getWidth(line) end
 			local width = boxWidth(visible, measure)
-			local height = boxHeight(#visible, LINE_HEIGHT)
+			local height = boxHeight(#visible, spacing)
 			local boxX = anchorX - width / 2
 			local boxY = anchorY - height - TAIL_HEIGHT - BOX_GAP
 			local tail = tailPoints(boxX, boxY, width, height, anchorX, anchorY - BOX_GAP)
 
 			love.graphics.push()
-			love.graphics.setFont(love.graphics.getFont())
+			love.graphics.setFont(font)
 			love.graphics.setColor(0.1, 0.1, 0.1, 0.9)
-			love.graphics.rectangle('fill', boxX, boxY, width, height, 6, 6)
+			love.graphics.rectangle('fill', boxX, boxY, width, height, CORNER_RADIUS, CORNER_RADIUS)
 			love.graphics.setColor(1, 1, 1, 1)
-			love.graphics.rectangle('line', boxX, boxY, width, height, 6, 6)
+			love.graphics.rectangle('line', boxX, boxY, width, height, CORNER_RADIUS, CORNER_RADIUS)
 			love.graphics.polygon('fill', tail[1].x, tail[1].y, tail[2].x, tail[2].y, tail[3].x, tail[3].y)
 			love.graphics.setColor(1, 1, 1, 1)
+			local textTop = boxY + PADDING
 			for i, line in ipairs(visible) do
-				love.graphics.print(line, boxX + (width - measure(line)) / 2, boxY + (i - 1) * LINE_HEIGHT + PADDING)
+				-- print's y is the top of the font's line box; with the box sized
+				-- to that same line height, ink is centred in each slot
+				love.graphics.print(line, boxX + (width - measure(line)) / 2, textTop + (i - 1) * spacing)
 			end
 			love.graphics.pop()
 		end

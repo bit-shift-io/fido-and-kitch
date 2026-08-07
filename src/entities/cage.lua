@@ -49,14 +49,6 @@ function Cage:init(object, map)
 	})
 
 	-- Store spawn params; NPC is spawned when the cage is opened, not on map load
-	if object.properties.path == nil then
-		Log.warn('Cage has no path property setup for the actor to follow when released')
-		return
-	end
-
-	local pathObj = map:getObjectById(object.properties.path.id)
-	
-	-- Map spawn_type to NPC registry type names
 	local spawnTypeMap = {
 		bird = 'npc_bird',
 		rabbit = 'npc_rabbit',
@@ -68,11 +60,11 @@ function Cage:init(object, map)
 	-- (bird=155x155, rabbit=142x137, etc.)
 	local npcProps = {properties = {}}
 	
-	-- Pass pathObj as the object so NPCBase can use Rect.centreOfMapObject
-	-- for correct position (Tiled tile objects are bottom-edge anchored)
-	npcProps.x = pathObj.x
-	npcProps.y = pathObj.y
-	npcProps.gid = pathObj.gid  -- Preserve gid for position calculation
+	-- Spawn the NPC at the cage's own position (Tiled tile objects are
+	-- bottom-edge anchored, so preserve gid for Rect.centreOfMapObject)
+	npcProps.x = object.x
+	npcProps.y = object.y
+	npcProps.gid = object.gid
 	
 	self.spawnNpcType = npcType
 	self.spawnLayer = object.layer

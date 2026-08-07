@@ -19,6 +19,7 @@ local Story = require('src.entities.story')
 local T = Story._internal.typewriter
 local C = Story._internal.cooldown
 local B = Story._internal.bubble
+local W = Story._internal.wrap
 local PO = Story._internal.playerOverlaps
 
 --
@@ -41,10 +42,11 @@ test('splitLines handles a single line and empty text', function()
 end)
 
 test('a short line reveals entirely by letter-rate (no word phase)', function()
+	local C = Story._internal.CONST
 	-- 'hi' is 2 chars; the whole line fits inside the letter phase
-	assertEqual(0.05, T.lineDuration('hi'))
+	assertNear(2 / C.LETTER_RATE, T.lineDuration('hi'), 1e-6)
 	assertEqual(1, T.revealedCount('hi', 0))
-	assertEqual(2, T.revealedCount('hi', 0.03))
+	assertEqual(2, T.revealedCount('hi', 1 / C.LETTER_RATE))
 	assertEqual(2, T.revealedCount('hi', 0.05))
 	assertEqual(2, T.revealedCount('hi', 999))
 end)
@@ -60,14 +62,16 @@ test('revealedCount starts at one character at t=0', function()
 end)
 
 test('revealedCount reveals one character at a time during the letter phase', function()
-	assertEqual(2, T.revealedCount('hello world', 0.025))
-	assertEqual(3, T.revealedCount('hello world', 0.05))
+	local C = Story._internal.CONST
+	assertEqual(2, T.revealedCount('hello world', 1 / C.LETTER_RATE))
+	assertEqual(3, T.revealedCount('hello world', 2 / C.LETTER_RATE))
 end)
 
 test('revealedCount caps at the letter count during the letter phase', function()
-	-- 0.09 * 40 = 3.6, floor + 1 = 4, clamped to LETTER_COUNT
-	assertEqual(4, T.revealedCount('hello world', 0.09))
-	assertEqual(4, T.revealedCount('hello world', 0.099))
+	local C = Story._internal.CONST
+	-- inside the letter phase (3.5 chars in), clamped to LETTER_COUNT
+	assertEqual(C.LETTER_COUNT, T.revealedCount('hello world', 3.5 / C.LETTER_RATE))
+	assertEqual(C.LETTER_COUNT, T.revealedCount('hello world', (C.LETTER_COUNT - 0.1) / C.LETTER_RATE))
 end)
 
 test('revealedCount is monotonic non-decreasing over the whole ramp', function()
@@ -90,15 +94,17 @@ test('a single-word line reveals the whole word after the letter phase', functio
 end)
 
 test('visibleText reveals line by line, then the full slab', function()
+	local R = Story._internal.CONST.LETTER_RATE
 	local lines = { 'Hi', 'there', 'friend' }
-	-- t=0.02: line 1 partial ('H'), later lines empty
-	local early = T.visibleText(lines, 0.02)
+	-- still inside line 1's letter phase (0.5 chars in): line 1 partial ('H'),
+	-- later lines empty
+	local early = T.visibleText(lines, 0.5 / R)
 	assertEqual('H', early[1])
 	assertEqual('', early[2])
 	assertEqual('', early[3])
 
-	-- t=0.06: line 1 full, line 2 partial ('t')
-	local mid = T.visibleText(lines, 0.06)
+	-- line 1 done, line 2 partial ('t')
+	local mid = T.visibleText(lines, 2.5 / R)
 	assertEqual('Hi', mid[1])
 	assertEqual('t', mid[2])
 	assertEqual('', mid[3])
@@ -163,6 +169,38 @@ end)
 
 test('bubble box height is lines times line height plus padding', function()
 	assertEqual(3 * 16 + 2 * Story._internal.CONST.PADDING, B.boxHeight(3, 16))
+end)
+
+test('wrapLine leaves a fitting line alone', function()
+	local measure = function(line) return #line * 10 end
+	local out = W.wrapLine('abc', measure, 40)
+	assertEqual(1, #out)
+	assertEqual('abc', out[1])
+end)
+
+test('wrapLine greedily wraps a long line at word boundaries', function()
+	local measure = function(line) return #line * 10 end
+	-- each wrapped line may hold up to 4 chars (40 / 10)
+	local out = W.wrapLine('one two three four', measure, 40)
+	assertEqual('one|two|three|four', table.concat(out, '|'))
+end)
+
+test('wrapLine keeps a single oversized word on its own line', function()
+	local measure = function(line) return #line * 10 end
+	local out = W.wrapLine('longword here', measure, 40)
+	assertEqual('longword|here', table.concat(out, '|'))
+end)
+
+test('wrapLines flattens wrapped sub-lines across lines', function()
+	local measure = function(line) return #line * 10 end
+	local out = W.wrapLines({'one two', 'three four'}, measure, 40)
+	assertEqual('one|two|three|four', table.concat(out, '|'))
+end)
+
+test('wrapLines keeps already-fitting multi-lines intact', function()
+	local measure = function(line) return #line * 10 end
+	local out = W.wrapLines({'ab', 'cd'}, measure, 40)
+	assertEqual('ab|cd', table.concat(out, '|'))
 end)
 
 --
