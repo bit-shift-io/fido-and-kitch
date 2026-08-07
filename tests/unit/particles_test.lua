@@ -73,6 +73,60 @@ test('draw renders every particle without error', function()
 	assertTrue(e:done(), 'emitter reports done once all particles expire')
 end)
 
+test('array image textures are assigned per particle at spawn', function()
+	local e = Particles.new_emitter{
+		position = {x = 0, y = 0},
+		lifetime = {min = 1, max = 1},
+		speed = {min = 0, max = 0},
+		image = {
+			'res/fx/fx_star_glow.png',
+			'res/fx/fx_star_outline.png',
+			'res/fx/fx_blob_glow.png',
+			'res/fx/fx_square_outline.png',
+		},
+	}
+	e:emit(80)
+	assertEqual(80, #e.particles, 'all particles spawned')
+
+	local seen = {}
+	for _, p in ipairs(e.particles) do
+		assertTrue(p.image ~= nil, 'every particle is assigned a texture at spawn')
+		seen[p.image] = true
+	end
+	local count = 0
+	for _ in pairs(seen) do count = count + 1 end
+	assertEqual(4, count, 'the full set of textures is spread across particles')
+	e:draw()
+end)
+
+test('rotation and spin are per-particle and survive updates', function()
+	local e = Particles.new_emitter{
+		position = {x = 0, y = 0},
+		lifetime = {min = 1, max = 1},
+		speed = {min = 0, max = 0},
+		rotation = {angle = 1.5, spread = 0},
+		spin = {min = 2, max = 2},
+	}
+	e:emit(3)
+	for _, p in ipairs(e.particles) do
+		assertNear(1.5, p.angle, 0.001, 'initial rotation from angle')
+		assertNear(2, p.spin, 0.001, 'per-particle spin')
+	end
+	e:update(0.25)
+	e:draw()
+end)
+
+test('fadeIn config is accepted and defaults to 0', function()
+	local e = Particles.new_emitter{position = {x = 0, y = 0}, lifetime = {min = 1, max = 1}, speed = {min = 0, max = 0}}
+	assertEqual(0, e.opts.fadeIn, 'fadeIn defaults to 0 (backward compatible)')
+
+	e.opts.fadeIn = 0.4
+	e:emit(4)
+	e:update(0.1)
+	e:draw()
+	assertTrue(true, 'fadeIn emitter constructs, updates and draws fine')
+end)
+
 local FxManager = require('src.fx.manager')
 local CoinPickup = require('src.fx.coin_pickup')
 

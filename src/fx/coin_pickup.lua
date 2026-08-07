@@ -15,8 +15,9 @@ function CoinPickup:config()
 		speed = {min = 40, max = 140},
 		direction = {angle = -math.pi / 2, spread = math.pi},
 		gravity = {x = 0, y = 220},
-		size = {start = 6, ["end"] = 0},
+		size = {start = 14, ["end"] = 0},
 		colors = {start = {1, 0.9, 0.2, 1}, ["end"] = {1, 0.5, 0, 0}},
+		image = 'res/fx/fx_star_glow.png',
 	}
 end
 

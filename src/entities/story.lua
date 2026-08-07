@@ -276,13 +276,10 @@ function Story:init(object, map)
 	self.text = (object.properties and object.properties.text) or ''
 	self.lines = splitLines(self.text)
 
-	-- retro blocky fonts for the speech bubble; Press Start 2P is the crisp
-	-- pixel face, DotGothic16 is kept as the alternate
+	-- retro blocky font for the speech bubble
 	self.font = nil
-	self.fontAlt = nil
 	if love and love.graphics then
 		self.font = love.graphics.newFont('res/fonts/SuperMarioBrosNES.ttf', 14)
-		self.fontAlt = love.graphics.newFont('res/fonts/DotGothic16-Regular.ttf', 20)
 	end
 
 	local position = Rect.centreOfMapObject(object)

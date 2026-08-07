@@ -14,8 +14,9 @@ function DustBurst:config()
 		speed = {min = 8, max = 40},
 		direction = {angle = -math.pi / 2, spread = math.pi},
 		gravity = {x = 0, y = 160},
-		size = {start = 10, ["end"] = 2},
+		size = {start = 12, ["end"] = 2},
 		colors = {start = {0.62, 0.52, 0.42, 0.55}, ["end"] = {0.5, 0.42, 0.36, 0}},
+		image = 'res/fx/fx_blob_glow.png',
 	}
 end
 

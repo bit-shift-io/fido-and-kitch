@@ -18,8 +18,9 @@ function SparkTrail:config()
 		speed = {min = 0, max = 20},
 		direction = {angle = math.pi / 2, spread = 0.3},
 		gravity = {x = 0, y = 0},
-		size = {start = 5, ["end"] = 0},
+		size = {start = 8, ["end"] = 0},
 		colors = {start = {1, 0.85, 0.6, 0.9}, ["end"] = {1, 0.6, 0.2, 0}},
+		image = 'res/fx/fx_blob_glow.png',
 	}
 end
 
