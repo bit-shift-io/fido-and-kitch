@@ -40,6 +40,15 @@ local defaultTestFiles = {
 	'tests/integration/coin_tracking_test.lua',
 	'tests/integration/player_died_payload_test.lua',
 	'tests/integration/story_test.lua',
+	'tests/integration/level_generator_walking_skeleton_test.lua',
+	'tests/integration/level_generator_terrain_test.lua',
+	'tests/integration/level_generator_objective_spine_test.lua',
+	'tests/integration/level_generator_rules_test.lua',
+	'tests/integration/level_generator_hazards_test.lua',
+	'tests/integration/level_generator_coop_test.lua',
+	'tests/integration/level_generator_pushables_test.lua',
+	'tests/integration/level_generator_dressing_test.lua',
+	'tests/integration/level_generator_end_to_end_test.lua',
 }
 
 local tests = {}

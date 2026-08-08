@@ -10,3 +10,5 @@ butler
 bin/*
 !bin/.gitkeep
 tests/screenshots/
+res/map/generated/*
+!res/map/generated/.gitkeep

@@ -188,27 +188,27 @@
 
 ## Cage objective
 
-**Definition** — The completion spine of a level: players collect colored keys to unlock matching cages, each cage releases a bird ally that follows its authored path (optionally performing actions like flicking a switch) before exiting, the exit door counts released birds down via `actor_count`, the last cage opens the door, and the level ends when all players exit through it.
+**Definition** — The completion spine of a level: players collect colored keys to unlock matching cages (each release spawns a bird or rabbit ally that cosmetically follows the releasing player — no scripted path). The level's `InGameState` counts cages on load and listens for each cage's `cage_unlocked` event; once every cage has been used it emits `all_cages_unlocked`, which the exit door opens on directly. The level ends when all players exit through it.
 
-**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. Birds are allies with scripted paths, not controllable characters.
+**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. The exit door also carries a legacy `actor_count` `Variable` and `exitInstant`/`exitThroughDoor` methods from an earlier bird-path design; neither is wired to anything and both are dead code — the `all_cages_unlocked` event is the real mechanism.
 
 ## Level generator
 
-**Definition** — The standalone offline CLI tool that produces complete, playable-but-bland levels (Tiled `.tmx` source plus auto-exported `.lua` map and a solution walkthrough) for designers to hand-tweak in Tiled and ship through the normal pipeline.
+**Definition** — The standalone offline CLI tool that produces complete, playable-but-bland levels (a Tiled `.tmx` plus a solution walkthrough) for designers to hand-tweak in Tiled and ship through the normal pipeline. The game loads `.tmx` directly, so a generated or hand-tweaked file is immediately playable with no export step.
 
 **Boundary** — A design-time tool, never part of the shipped game or its runtime. It generates new maps; it does not validate or repair hand-made ones.
 
 ## Solution-first generation
 
-**Definition** — The level generator's construction discipline: build the abstract solution plan (an ordered dependency graph of objectives placed into connected zones) first, realise terrain and entities around it, and decorate last — so every emitted level is solvable by construction.
+**Definition** — The level generator's construction discipline: build the abstract solution plan (objectives placed into zones a movement model already guarantees are connected by walking and/or ladders — the player has no jump) first, realise terrain and entities around it, and decorate last — so every emitted level is solvable by construction.
 
 **Boundary** — There is no post-hoc solvability checker; validity is implied by construction. It constrains generation, not hand-editing — a designer can still break a level in Tiled afterwards.
 
 ## Puzzle rule
 
-**Definition** — A pluggable module in the level generator encoding one puzzle pattern (e.g. "momentary pressure switch holds a remote door") through a uniform interface: what it requires, what it unlocks, how it expands into terrain/entities, and the walkthrough steps it contributes.
+**Definition** — A pluggable module in `tools/level_generator/rules/`, auto-discovered (a new file needs no registration), encoding one optional flourish — a lever or pressure plate that can turn something already-working on or off — through a uniform interface: what zone it needs, what it places, and the walkthrough step it contributes. Deliberately never gating: nothing in `Switchable` (teleport, jump pad, drawbridge) can be authored to start blocked from map data alone except via the one seam added for the coop dial (see Cage objective's neighbour, Level generator), so a rule can only ever take something that already works and let a lever turn it off and back on.
 
-**Boundary** — Generator-side only; it describes how to *place* game mechanics, and adding a game prop later means adding a rule file, not changing the generator core. Not a runtime scripting system.
+**Boundary** — Generator-side only, and distinct from the coop dial's pressure-plate vault, which *is* a real, required gate — that's a standalone mechanism (`tools/level_generator/coop.lua`), not a puzzle rule, precisely because rules are never allowed to block completion. Not a runtime scripting system.
 
 ## Solution walkthrough
 

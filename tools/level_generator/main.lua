@@ -1,0 +1,719 @@
+-- CLI orchestration: parses flags, builds a level map table, serialises it
+-- via TmxWriter, and writes it to res/map/generated/. Kept as a pure,
+-- side-effect-free `generate` core (testable without touching the
+-- filesystem) plus a thin `run` wrapper that does CLI parsing and file I/O.
+local Rng = require('tools.level_generator.rng')
+local TmxWriter = require('tools.level_generator.tmx_writer')
+local Layout = require('tools.level_generator.layout')
+local Plan = require('tools.level_generator.plan')
+local Walkthrough = require('tools.level_generator.walkthrough')
+local RuleSet = require('tools.level_generator.rule_set')
+local Decorate = require('tools.level_generator.decorate')
+local Coop = require('tools.level_generator.coop')
+local Pushables = require('tools.level_generator.pushables')
+
+local Main = {}
+
+local MAP_WIDTH = 20
+local MAP_HEIGHT = 15
+local TILE = 32
+local GROUND_ROW = MAP_HEIGHT -- 1-indexed: the bottom row
+
+-- Matches res/map/sandbox.tmx's own water tile gids (generic_platformer_tiles.tsx).
+local WATER_TILE_GID = 105
+
+local TILESETS = {
+	{firstgid = 1, source = '../../tilesets/generic_platformer_tiles.tsx'},
+	{firstgid = 145, source = '../../tilesets/props.tsx'},
+}
+
+local function surfaceY(row)
+	return (row - 1) * TILE
+end
+
+local function spawnObject(id, x, y)
+	return {id = id, template = '../../templates/spawn.tx', name = 'spawn', x = x, y = y}
+end
+
+local function exitObject(id, x, y, actorCount)
+	return {
+		id = id,
+		template = '../../templates/exit.tx',
+		name = 'exit',
+		x = x,
+		y = y,
+		properties = {{name = 'actor_count', type = 'int', value = actorCount}},
+	}
+end
+
+local function teleportObject(id, x, y, targetId, enabled)
+	local properties = {{name = 'target', type = 'object', value = targetId}}
+	if enabled ~= nil then
+		table.insert(properties, {name = 'enabled', type = 'bool', value = enabled})
+	end
+	return {
+		id = id,
+		template = '../../templates/teleport.tx',
+		name = 'teleport',
+		type = 'teleport',
+		x = x,
+		y = y,
+		properties = properties,
+	}
+end
+
+-- A plain rect object, NOT a template reference: real usage
+-- (tests/fixtures/pressure_switch_room.lua) authors it as a bare rectangle,
+-- top-left anchored like kill_zone/ladder, not a tile-object with a gid.
+local function pressureSwitchObject(id, x, y, targetId)
+	return {
+		id = id,
+		name = 'pressure_switch',
+		type = 'pressure_switch',
+		x = x,
+		y = y,
+		width = TILE,
+		height = TILE,
+		properties = {
+			{name = 'target', type = 'object', value = targetId},
+			{name = 'latching', type = 'bool', value = false},
+		},
+	}
+end
+
+local function pushBoxObject(id, x, y)
+	return {id = id, template = '../../templates/push_box.tx', name = 'push_box', type = 'push_box', x = x, y = y}
+end
+
+local function killZoneObject(id, hazard)
+	return {
+		id = id,
+		name = hazard.deathType .. '_kill',
+		type = 'kill_zone',
+		x = hazard.x,
+		y = hazard.y,
+		width = hazard.width,
+		height = hazard.height,
+		properties = {{name = 'deathType', value = hazard.deathType}},
+	}
+end
+
+local function keyObject(id, x, y, color)
+	return {
+		id = id,
+		template = '../../templates/key.tx',
+		name = 'key',
+		type = 'key',
+		x = x,
+		y = y,
+		properties = {{name = 'color', value = color}},
+	}
+end
+
+local function cageObject(id, x, y, color)
+	return {
+		id = id,
+		template = '../../templates/cage.tx',
+		name = 'cage',
+		type = 'cage',
+		x = x,
+		y = y,
+		properties = {{name = 'color', value = color}},
+	}
+end
+
+-- Builds the kill-zone objects and a matching visual water tile layer from
+-- Decorate's hazard rects. Visual tiles only fill the rows strictly between
+-- the two platforms a hazard's ladder connects (never the platforms' own
+-- rows), so they never overlap solid ground -- the kill volume itself still
+-- covers the full gap (Decorate.hazardsForLayout), one tile-row taller than
+-- what's drawn, which is an acceptable "bland" mismatch (PRD: art polish is
+-- explicitly out of scope) rather than risking a solid-tile/water overlap.
+local function buildHazards(hazards, startId, width, height)
+	local killObjects = {}
+	local waterRows = {}
+	for y = 1, height do
+		waterRows[y] = {}
+		for x = 1, width do
+			waterRows[y][x] = 0
+		end
+	end
+
+	local nextId = startId
+	for _, hazard in ipairs(hazards) do
+		table.insert(killObjects, {
+			id = nextId,
+			name = hazard.deathType .. '_kill',
+			type = 'kill_zone',
+			x = hazard.x,
+			y = hazard.y,
+			width = hazard.width,
+			height = hazard.height,
+			properties = {{name = 'deathType', value = hazard.deathType}},
+		})
+		nextId = nextId + 1
+
+		local firstCol = math.floor(hazard.x / TILE) + 1
+		local lastCol = math.floor((hazard.x + hazard.width) / TILE)
+		-- Skip the upper zone's own row (hazard.ladder.yTop): rows below
+		-- that, for hazard.height/TILE rows, are the strictly-empty band
+		-- decorate.lua actually carved out (already clearance-shrunk).
+		local firstRow = hazard.ladder.yTop + 1
+		local lastRow = hazard.ladder.yTop + (hazard.height / TILE) - 1
+		for row = firstRow, lastRow do
+			for col = firstCol, lastCol do
+				waterRows[row][col] = WATER_TILE_GID
+			end
+		end
+	end
+
+	return killObjects, waterRows, nextId
+end
+
+-- Difficulty scales how many optional rule flourishes get applied, not
+-- chain depth -- flourishes don't chain (DECISIONS.md Q14).
+local function flourishCountForDifficulty(difficulty)
+	difficulty = difficulty or 1
+	if difficulty >= 5 then
+		return 2
+	elseif difficulty >= 3 then
+		return 1
+	end
+	return 0
+end
+
+-- A deterministic pixel position for an object standing on `zone`, offset
+-- by `slot` (0, 1, 2, ...) so multiple objects on the same zone don't stack
+-- on the same tile.
+local function positionOnZone(zone, slot)
+	local width = zone.x2 - zone.x1 + 1
+	local column = zone.x1 + (slot % width)
+	return (column - 1) * TILE, surfaceY(zone.y)
+end
+
+--- Builds the walking-skeleton level: flat ground across the bottom, one
+-- spawn object, an exit door with actor_count 0 (open immediately -- there
+-- are no objectives yet, see issue 03).
+function Main.buildWalkingSkeletonMap(seed)
+	local rows = {}
+	for y = 1, MAP_HEIGHT do
+		local row = {}
+		for x = 1, MAP_WIDTH do
+			row[x] = (y == GROUND_ROW) and 1 or 0
+		end
+		rows[y] = row
+	end
+
+	local groundSurfaceY = surfaceY(GROUND_ROW)
+
+	return {
+		width = MAP_WIDTH,
+		height = MAP_HEIGHT,
+		tilewidth = TILE,
+		tileheight = TILE,
+		nextobjectid = 3,
+		properties = {
+			{name = 'name', value = 'Generated ' .. tostring(seed)},
+			{name = 'description', value = 'Procedurally generated level (walking skeleton)'},
+			{name = 'players', type = 'int', value = 1},
+		},
+		tilesets = TILESETS,
+		layers = {
+			{
+				id = 1,
+				type = 'tilelayer',
+				name = 'ground',
+				width = MAP_WIDTH,
+				height = MAP_HEIGHT,
+				properties = {{name = 'collision', type = 'bool', value = true}},
+				data = rows,
+			},
+			{
+				id = 2,
+				type = 'objectgroup',
+				name = 'game',
+				objects = {
+					spawnObject(1, 2 * TILE, groundSurfaceY),
+					exitObject(2, (MAP_WIDTH - 3) * TILE, groundSurfaceY, 0),
+				},
+			},
+		},
+	}
+end
+
+-- Shared terrain build: the layout, its tile grid, and its ladder objects.
+-- Used by both buildTerrainMap (issue 02) and buildObjectiveMap (issue 03)
+-- so the two don't duplicate tile/ladder assembly.
+local function buildTerrain(seed, opts)
+	local layout = Layout.generate(Rng.new(seed), {size = opts.size})
+
+	local rows = {}
+	for y = 1, layout.height do
+		rows[y] = {}
+		for x = 1, layout.width do
+			rows[y][x] = 0
+		end
+	end
+	for _, zone in ipairs(layout.zones) do
+		for x = zone.x1, zone.x2 do
+			rows[zone.y][x] = 1
+		end
+	end
+
+	local ladderObjects = {}
+	for i, ladder in ipairs(layout.ladders) do
+		table.insert(ladderObjects, {
+			id = 100 + i,
+			type = 'ladder',
+			name = 'ladder',
+			x = (ladder.x - 1) * TILE,
+			y = surfaceY(ladder.yTop),
+			width = TILE,
+			height = surfaceY(ladder.yBottom) - surfaceY(ladder.yTop),
+		})
+	end
+
+	return layout, rows, ladderObjects
+end
+
+local function baseMapFields(seed, layout, description, background)
+	local properties = {
+		{name = 'name', value = 'Generated ' .. tostring(seed)},
+		{name = 'description', value = description},
+		{name = 'players', type = 'int', value = 1},
+	}
+	if background then
+		table.insert(properties, {name = 'background', value = background})
+	end
+	return {
+		width = layout.width,
+		height = layout.height,
+		tilewidth = TILE,
+		tileheight = TILE,
+		properties = properties,
+		tilesets = TILESETS,
+	}
+end
+
+local function coinObject(id, x, y)
+	return {id = id, template = '../../templates/coin.tx', name = 'coin', type = 'coin', x = x, y = y}
+end
+
+local function enemyObject(id, x, y, enemyType)
+	return {id = id, name = enemyType, type = enemyType, x = x, y = y, width = TILE, height = TILE}
+end
+
+--- Builds a level with real terrain: a ground row plus a chain of platforms
+-- connected by ladders (tools.level_generator.layout), every zone
+-- guaranteed reachable from spawn by construction. Spawn sits on the ground
+-- zone, the exit on the topmost zone (actor_count 0 -- objectives arrive in
+-- issue 03).
+function Main.buildTerrainMap(seed, opts)
+	opts = opts or {}
+	local layout, rows, ladderObjects = buildTerrain(seed, opts)
+	local groundZone = layout.zones[1]
+	local topZone = layout.zones[#layout.zones]
+
+	local map = baseMapFields(seed, layout, 'Procedurally generated level')
+	map.nextobjectid = 3 + #ladderObjects
+	map.layers = {
+		{
+			id = 1,
+			type = 'tilelayer',
+			name = 'ground',
+			width = layout.width,
+			height = layout.height,
+			properties = {{name = 'collision', type = 'bool', value = true}},
+			data = rows,
+		},
+		{
+			id = 2,
+			type = 'objectgroup',
+			name = 'game',
+			objects = {
+				spawnObject(1, (groundZone.x1 + 1) * TILE, surfaceY(groundZone.y)),
+				exitObject(2, (topZone.x1 - 1) * TILE, surfaceY(topZone.y), 0),
+			},
+		},
+		{
+			id = 3,
+			type = 'objectgroup',
+			name = 'ladder',
+			objects = ladderObjects,
+		},
+	}
+	return map
+end
+
+--- Builds the full objective spine on top of the terrain: one spawn, one
+-- exit (opens automatically once every cage is used -- DECISIONS.md Q13,
+-- there's no bird/actor_count involvement), and a matched key+cage pair per
+-- plan objective (tools.level_generator.plan), each placed on its assigned
+-- zone.
+function Main.buildObjectiveMap(seed, opts)
+	opts = opts or {}
+	local rng = Rng.new(seed)
+	local layout, rows, ladderObjects = buildTerrain(seed, opts)
+	local plan = Plan.build(rng, #layout.zones)
+
+	local groundZone = layout.zones[1]
+	local topZone = layout.zones[#layout.zones]
+
+	local objects = {
+		spawnObject(1, (groundZone.x1 + 1) * TILE, surfaceY(groundZone.y)),
+		exitObject(2, (topZone.x1 - 1) * TILE, surfaceY(topZone.y), 0),
+	}
+
+	-- --coop required (issue 06) reserves the last plan objective for the
+	-- vault instead of placing it on a normal zone -- see the vault
+	-- construction below.
+	local coopRequired = opts.coop == 'required'
+	local vaultObjective = coopRequired and plan[#plan] or nil
+
+	-- Box-fills-hole (issue 07) reserves one more objective (the last one
+	-- not already claimed by the vault) to sit on the far side of the gap.
+	local pushBridgeObjective = nil
+	for i = #plan, 1, -1 do
+		if plan[i] ~= vaultObjective then
+			pushBridgeObjective = plan[i]
+			break
+		end
+	end
+
+	local nextId = 3
+	for _, objective in ipairs(plan) do
+		if objective ~= vaultObjective and objective ~= pushBridgeObjective then
+			local keyZone = layout.zones[objective.keyZoneIndex]
+			local cageZone = layout.zones[objective.cageZoneIndex]
+			local keySlot = rng:nextInt(0, 1000)
+			local cageSlot = rng:nextInt(0, 1000)
+
+			local keyX, keyY = positionOnZone(keyZone, keySlot)
+			local cageX, cageY = positionOnZone(cageZone, cageSlot)
+
+			table.insert(objects, keyObject(nextId, keyX, keyY, objective.color))
+			nextId = nextId + 1
+			table.insert(objects, cageObject(nextId, cageX, cageY, objective.color))
+			nextId = nextId + 1
+		end
+	end
+
+	-- Optional rule flourishes (DECISIONS.md Q14): never gate anything, so
+	-- they're layered on after the required objects above. Objects with a
+	-- polyline go to a waypoints layer (matching hand-made map convention);
+	-- everything else joins the game objectgroup.
+	local waypointObjects = {}
+	local walkthroughSteps = {}
+	local availableRules = RuleSet.discover()
+	local flourishCount = flourishCountForDifficulty(opts.difficulty)
+	for i = 1, flourishCount do
+		local rule = availableRules[((i - 1) % #availableRules) + 1]
+		if rule and rule.canApply(layout) then
+			local result = rule.apply(rng, layout, nextId)
+			for _, object in ipairs(result.objects) do
+				if object.polyline then
+					table.insert(waypointObjects, object)
+				else
+					table.insert(objects, object)
+				end
+			end
+			nextId = nextId + result.idsUsed
+			table.insert(walkthroughSteps, result.walkthroughStep)
+		end
+	end
+
+	-- Hazards (issue 05): one kill-zone band per hazarded ladder gap, scaled
+	-- by --difficulty, plus a matching visual water tile layer. Never on the
+	-- solution route -- see decorate.lua's header comment.
+	local hazards = Decorate.hazardsForLayout(rng, layout, opts.difficulty)
+	local killObjects, waterRows
+	killObjects, waterRows, nextId = buildHazards(hazards, nextId, layout.width, layout.height)
+
+	-- --coop required (issue 06): a walled-off vault beyond the layout's own
+	-- width, entered only through a teleport a distant momentary pressure
+	-- plate must hold enabled -- see coop.lua's header for why this is
+	-- unsolvable solo by construction, not by a post-hoc solver.
+	local mapWidth = layout.width
+	if vaultObjective then
+		local vault = Coop.planVault(layout)
+		mapWidth = vault.newWidth
+
+		for y = 1, layout.height do
+			for x = layout.width + 1, mapWidth do
+				rows[y][x] = 0
+			end
+			if waterRows then
+				for x = layout.width + 1, mapWidth do
+					waterRows[y][x] = 0
+				end
+			end
+		end
+		for _, cell in ipairs(vault.wallCells) do
+			rows[cell.row][cell.col] = 1
+		end
+
+		local teleportBId = nextId
+		local teleportAId = nextId + 1
+		local switchId = nextId + 2
+		nextId = nextId + 3
+
+		table.insert(objects, teleportObject(teleportBId, vault.interior.teleportX, vault.interior.y, teleportAId, nil))
+		table.insert(objects, keyObject(nextId, vault.interior.keyX, vault.interior.y, vaultObjective.color))
+		nextId = nextId + 1
+		table.insert(objects, cageObject(nextId, vault.interior.cageX, vault.interior.y, vaultObjective.color))
+		nextId = nextId + 1
+
+		local plateZone = groundZone
+		local plateX, plateY = positionOnZone(plateZone, rng:nextInt(0, 1000))
+		table.insert(objects, teleportObject(teleportAId, (topZone.x1) * TILE, surfaceY(topZone.y), teleportBId, false))
+		table.insert(objects, pressureSwitchObject(nextId, plateX, plateY, teleportAId))
+		nextId = nextId + 1
+
+		table.insert(walkthroughSteps, string.format(
+			'Coop required: P1 must stand on the pressure plate (zone %d, ground) to keep the vault teleporter enabled '
+				.. 'while P2 uses it (top zone) to reach the %s key and cage sealed inside the vault -- the plate '
+				.. 'releases the instant P1 steps off, so one player cannot do both.',
+			1, vaultObjective.color
+		))
+	end
+
+	-- Box-fills-hole (issue 07): additive, like the vault, so it never
+	-- touches the ground zone's own tiles -- see pushables.lua's header.
+	-- Both extensions occupy different rows (vault near the top, this at
+	-- the ground row), so their column ranges can freely overlap; only the
+	-- overall map width needs to cover whichever reaches furthest.
+	if pushBridgeObjective then
+		local bridge = Pushables.planBoxBridge(layout)
+		local previousWidth = mapWidth
+		mapWidth = math.max(mapWidth, bridge.newWidth)
+
+		for y = 1, layout.height do
+			for x = previousWidth + 1, mapWidth do
+				rows[y][x] = 0
+			end
+			if waterRows then
+				for x = previousWidth + 1, mapWidth do
+					waterRows[y][x] = 0
+				end
+			end
+		end
+		for col = bridge.farColumns.first, bridge.farColumns.last do
+			rows[bridge.groundRow][col] = 1
+		end
+
+		table.insert(objects, pushBoxObject(nextId, bridge.boxSpawnX, bridge.boxSpawnY))
+		nextId = nextId + 1
+		table.insert(killObjects, killZoneObject(nextId, bridge.killZone))
+		nextId = nextId + 1
+		table.insert(objects, keyObject(nextId, bridge.farObjectiveX, bridge.farObjectiveY, pushBridgeObjective.color))
+		nextId = nextId + 1
+		table.insert(objects, cageObject(nextId, bridge.farObjectiveX + TILE, bridge.farObjectiveY, pushBridgeObjective.color))
+		nextId = nextId + 1
+
+		table.insert(walkthroughSteps, string.format(
+			'Push the box (right edge of the ground zone) one tile right into the gap to bridge it, then cross to '
+				.. 'reach the %s key and cage on the far side. Falling into the gap before bridging it is a recoverable death, not a dead end.',
+			pushBridgeObjective.color
+		))
+
+		pushBridgeObjective.relocated = true
+	end
+
+	-- Dressing (issue 08): a real background (DECISIONS.md Q16 -- no
+	-- gradient/cloud_spawner, they don't exist in src/), one coin per zone,
+	-- and difficulty-scaled enemies (never on a ladder column).
+	local background = Decorate.pickBackground(rng)
+	for _, coin in ipairs(Decorate.coinsForLayout(rng, layout)) do
+		table.insert(objects, coinObject(nextId, coin.x, coin.y))
+		nextId = nextId + 1
+	end
+	for _, enemy in ipairs(Decorate.enemiesForLayout(rng, layout, opts.difficulty)) do
+		table.insert(objects, enemyObject(nextId, enemy.x, enemy.y, enemy.type))
+		nextId = nextId + 1
+	end
+
+	local map = baseMapFields(seed, layout, 'Procedurally generated level', background)
+	map.width = mapWidth
+	map.nextobjectid = nextId + #ladderObjects
+	map.layers = {
+		{
+			id = 1,
+			type = 'tilelayer',
+			name = 'ground',
+			width = mapWidth,
+			height = layout.height,
+			properties = {{name = 'collision', type = 'bool', value = true}},
+			data = rows,
+		},
+		{
+			id = 2,
+			type = 'objectgroup',
+			name = 'game',
+			objects = objects,
+		},
+		{
+			id = 3,
+			type = 'objectgroup',
+			name = 'ladder',
+			objects = ladderObjects,
+		},
+	}
+	if #waypointObjects > 0 then
+		table.insert(map.layers, {
+			id = 4,
+			type = 'objectgroup',
+			name = 'waypoints',
+			objects = waypointObjects,
+		})
+	end
+	if #killObjects > 0 then
+		table.insert(map.layers, {
+			id = 5,
+			type = 'tilelayer',
+			name = 'water',
+			width = mapWidth,
+			height = layout.height,
+			data = waterRows,
+		})
+		table.insert(map.layers, {
+			id = 6,
+			type = 'objectgroup',
+			name = 'kill',
+			objects = killObjects,
+		})
+	end
+
+	-- Tagged (not removed) so `plan`'s objective count/colors stay a
+	-- complete picture of the level; Main.generate filters this flag out
+	-- before building the walkthrough's per-objective lines, since a
+	-- relocated objective's real location (vault or box-bridge) is already
+	-- described by walkthroughSteps instead of the normal "zone N" phrasing.
+	if vaultObjective then
+		vaultObjective.relocated = true
+	end
+
+	return map, plan, walkthroughSteps
+end
+
+--- Pure generation core: given a base seed and item count, returns one
+-- {seed, filename, xml} entry per level. No filesystem access, so it's
+-- directly unit-testable. Item i's seed is derived from the base seed
+-- (Rng.deriveSeed) so each item in a batch is independently reproducible.
+function Main.generate(opts)
+	opts = opts or {}
+	local baseSeed = opts.seed
+	local count = opts.count or 1
+
+	local results = {}
+	for i = 0, count - 1 do
+		local itemSeed
+		if count == 1 then
+			itemSeed = baseSeed
+		else
+			itemSeed = Rng.deriveSeed(baseSeed, i)
+		end
+
+		local map, plan, flourishSteps = Main.buildObjectiveMap(itemSeed, {size = opts.size, difficulty = opts.difficulty, coop = opts.coop})
+		local walkthroughPlan = {}
+		for _, objective in ipairs(plan) do
+			if not objective.relocated then
+				table.insert(walkthroughPlan, objective)
+			end
+		end
+		local xml = TmxWriter.write(map)
+		local solutionText = Walkthrough.build(walkthroughPlan, flourishSteps)
+		table.insert(results, {
+			seed = itemSeed,
+			filename = string.format('%d.tmx', itemSeed),
+			xml = xml,
+			solutionFilename = string.format('%d-solution.md', itemSeed),
+			solutionText = solutionText,
+		})
+	end
+
+	return results
+end
+
+local function parseArgs(argv)
+	local opts = {count = 1}
+	local i = 1
+	while i <= #argv do
+		local a = argv[i]
+		if a == '--seed' then
+			i = i + 1
+			opts.seed = tonumber(argv[i])
+			if not opts.seed then
+				error('--seed requires a numeric value')
+			end
+		elseif a == '--count' then
+			i = i + 1
+			opts.count = tonumber(argv[i])
+			if not opts.count or opts.count < 1 then
+				error('--count requires a positive integer')
+			end
+		elseif a == '--size' then
+			i = i + 1
+			opts.size = argv[i]
+			if opts.size ~= 'small' and opts.size ~= 'medium' and opts.size ~= 'large' then
+				error('--size must be one of small|medium|large')
+			end
+		elseif a == '--difficulty' then
+			i = i + 1
+			opts.difficulty = tonumber(argv[i])
+			if not opts.difficulty or opts.difficulty < 1 or opts.difficulty > 5 then
+				error('--difficulty must be an integer from 1 to 5')
+			end
+		elseif a == '--coop' then
+			i = i + 1
+			opts.coop = argv[i]
+			if opts.coop ~= 'required' and opts.coop ~= 'optional' then
+				error('--coop must be one of required|optional')
+			end
+		else
+			error('Unrecognised argument: ' .. tostring(a))
+		end
+		i = i + 1
+	end
+	return opts
+end
+
+local function writeFile(path, contents)
+	local file, err = io.open(path, 'w')
+	if not file then
+		error('Failed to write "' .. path .. '": ' .. tostring(err))
+	end
+	file:write(contents)
+	file:close()
+end
+
+--- CLI entrypoint: parses argv, generates, writes .tmx files to
+-- res/map/generated/, and prints each seed (so unseeded/random runs can be
+-- reproduced later).
+function Main.run(argv, outputDir)
+	outputDir = outputDir or 'res/map/generated'
+
+	local ok, opts = pcall(parseArgs, argv)
+	if not ok then
+		io.stderr:write('Error: ' .. tostring(opts) .. '\n')
+		os.exit(1)
+	end
+
+	if not opts.seed then
+		opts.seed = os.time()
+	end
+
+	local results = Main.generate(opts)
+	for _, result in ipairs(results) do
+		local path = outputDir .. '/' .. result.filename
+		writeFile(path, result.xml)
+		writeFile(outputDir .. '/' .. result.solutionFilename, result.solutionText)
+		print(string.format('seed=%d -> %s', result.seed, path))
+	end
+end
+
+if arg and arg[0] and arg[0]:match('main%.lua$') then
+	-- arg[1..] here excludes arg[0] itself (standard Lua CLI convention).
+	Main.run(arg)
+end
+
+return Main

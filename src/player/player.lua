@@ -4,6 +4,7 @@ local GroundSupport = require('src.player.ground_support')
 local FlashEffect = require('src.components.flash_effect')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
+local MovementConstants = require('src.player.movement_constants')
 local Log = require('src.utils.log')
 
 local Player = Class{__includes = Entity}
@@ -77,9 +78,9 @@ function Player:init(props)
     })
 
     self.object = object
-    self.speed = 100;
-    self.climbSpeed = 100;
-    self.slideSpeed = 60; -- slow slide speed for on-ladder horizontal movement
+    self.speed = MovementConstants.speed;
+    self.climbSpeed = MovementConstants.climbSpeed;
+    self.slideSpeed = MovementConstants.slideSpeed; -- slow slide speed for on-ladder horizontal movement
     self.facing = 'right'
 
     -- Per-axis edge tracking for last-pressed arbitration

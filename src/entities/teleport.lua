@@ -26,12 +26,19 @@ function Teleport:init(object, map)
 		sprite=self.sprite,
 		position=position
 	})
+	-- Defaults to enabled, matching every existing map (none author this
+	-- property) -- an authored `enabled=false` lets a level start this
+	-- teleporter blocked until a switch/pressure-plate targeting it turns
+	-- it on, rather than always starting usable.
+	local startEnabled = (object.properties.enabled == nil) and true or object.properties.enabled
 	self.usable = self:addComponent(Usable{
 		entity=self,
-		use=utils.bindSelf(self.use, self)
+		use=utils.bindSelf(self.use, self),
+		enabled=startEnabled
 	})
 	self:addComponent(Switchable{
 		entity=self,
+		enabled=startEnabled,
 		onStateChange=function(enabled)
 			self.usable.enabled = enabled
 		end

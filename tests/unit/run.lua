@@ -27,6 +27,19 @@ local defaultTestFiles = {
 	'tests/unit/coin_identity_test.lua',
 	'tests/unit/game_hud_test.lua',
 	'tests/unit/hud_centering_test.lua',
+	'tests/unit/level_generator_rng_test.lua',
+	'tests/unit/level_generator_tmx_writer_test.lua',
+	'tests/unit/level_generator_main_test.lua',
+	'tests/unit/level_generator_movement_model_test.lua',
+	'tests/unit/level_generator_layout_test.lua',
+	'tests/unit/level_generator_plan_test.lua',
+	'tests/unit/level_generator_walkthrough_test.lua',
+	'tests/unit/level_generator_rules_test.lua',
+	'tests/unit/level_generator_decorate_test.lua',
+	'tests/unit/teleport_start_disabled_test.lua',
+	'tests/unit/level_generator_coop_test.lua',
+	'tests/unit/level_generator_pushables_test.lua',
+	'tests/unit/level_generator_dressing_test.lua',
 }
 
 local tests = {}
