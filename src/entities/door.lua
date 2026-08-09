@@ -36,14 +36,19 @@ local function barrierDimensions(objectWidth, objectHeight)
 	return objectWidth * BARRIER_WIDTH_FRACTION, objectHeight
 end
 
--- The sprite draws 3x the object's own dimensions, centred on it -- a full
+-- The sprite draws 2x the object's own dimensions, centred on it -- half a
 -- tile of bleed in every direction so door art can key into the
--- surrounding terrain (frame, lintel, threshold). Purely decorative: it is
--- never a hint about what blocks or what can be stood on. 3x centred is
--- symmetric, so unlike the exit door's 2x box it needs no vertical lift to
--- sit back on the ground line.
+-- surrounding terrain (frame, lintel, threshold). Matches the drawbridge's
+-- and the exit door's box, so every prop-scale entity draws to the same
+-- footprint. Purely decorative: it is never a hint about what blocks or
+-- what can be stood on.
+--
+-- Centred on the object rect like the drawbridge's, so it needs no
+-- vertical lift. The exit door lifts its own 2x box only because it
+-- anchors on Rect.centreOfMapObject (bottom-anchored, for gid-bearing tile
+-- objects) rather than on the rect's centre.
 local function spriteBoxDimensions(objectWidth, objectHeight)
-	return objectWidth * 3, objectHeight * 3
+	return objectWidth * 2, objectHeight * 2
 end
 
 -- The whole state model, as one pure function of the two live inputs --
@@ -135,9 +140,8 @@ function Door:init(object)
 	self.sprite = self:addComponent(Sprite{
 		image = 'res/img/entity_door.png',
 		frames = 2, -- todo: make more
-		-- matches the drawbridge's pace, whose art this borrows: fast enough
-		-- that the door finishes opening while whoever flipped the switch is
-		-- still walking toward it
+		-- the drawbridge's pace: fast enough that the door finishes opening
+		-- while whoever flipped the switch is still walking toward it
 		duration = 0.3,
 		loop = false,
 		playing = false,

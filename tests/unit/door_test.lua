@@ -45,16 +45,18 @@ test('barrier dimensions derive from the object, not a hard-coded tile size', fu
 	assertEqual(64, height)
 end)
 
-test('the sprite box is 3x the object dimensions, centred -- decorative bleed only', function()
+-- 2x, matching the drawbridge and the exit door, so every prop-scale
+-- entity draws to the same footprint.
+test('the sprite box is 2x the object dimensions, centred -- decorative bleed only', function()
 	local width, height = D.spriteBoxDimensions(32, 32)
-	assertEqual(96, width)
-	assertEqual(96, height)
+	assertEqual(64, width)
+	assertEqual(64, height)
 end)
 
 test('the sprite box derives from the object dimensions, not a hard-coded size', function()
 	local width, height = D.spriteBoxDimensions(48, 64)
-	assertEqual(144, width)
-	assertEqual(192, height)
+	assertEqual(96, width)
+	assertEqual(128, height)
 end)
 
 -- State is recomputed fresh every frame from (switch enabled, doorway
