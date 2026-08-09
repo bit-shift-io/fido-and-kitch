@@ -18,7 +18,7 @@
 --    the path exactly as Tiled wrote it (relative to the map's own
 --    directory), but the parser must resolve it project-root-relative,
 --    because STI's pre-built-table constructor is given no directory of
---    its own to resolve against (see HANDOFF.md's path-resolution
+--    its own to resolve against HANDOFF.md's path-resolution
 --    gotcha). Checked for a matching suffix, then normalised.
 -- 3. `class`/`opacity` on ll2 only: ll2.lua's export predates Tiled's
 --    Lua exporter emitting these fields at all (ll1's and sandbox's
@@ -36,10 +36,25 @@
 --    which is what confirms this is a stale-golden artifact on these two
 --    objects, not a parser defect -- see DECISIONS.md Q5's verified
 --    remap table.
+-- 6. The exit-door object's `name` on ll1/ll2/sandbox: these goldens were
+--    captured while the object was named "exit" and instanced from
+--    exit.tx. Both were renamed to "exit_door" so the new `door`
+--    entity could claim the unqualified name and its art file; the type
+--    was already `exit_door` on both sides. Only the `name` field differs,
+--    and only on this one object per map.
+-- 7. `sandbox`'s "door" and "door_switch" objects: the map gained a
+--    switch-wired door (the door entity's sandbox demo placement)
+--    after this golden was captured, so the golden has no counterpart for
+--    either and every later object in that layer sits one or two indices
+--    further along on the parsed side. Both are dropped from the parsed
+--    side before the diff, which restores the alignment and leaves every
+--    pre-existing object compared as before -- the same map-edited-since-
+--    capture situation as entry 4, but adding objects rather than
+--    bookkeeping counters.
 local Tmx = require('src.map.tmx')
 local DeepEqual = require('tests.support.deep_equal')
 
-local IGNORED = 'IGNORED (see tmx_golden_test.lua header)'
+local IGNORED = 'IGNORED tmx_golden_test.lua header)'
 
 local function loadGolden(name)
 	return loadfile('tests/fixtures/golden/' .. name .. '.lua')()
@@ -104,6 +119,40 @@ local function normaliseTilesetFilenames(golden, parsed)
 	end
 end
 
+-- See header note 6: the exit-door object was renamed "exit" -> "exit_door"
+-- after these goldens were captured. Confirms the parsed side is the
+-- renamed object of the unchanged type, then ignores `name` on both sides.
+local function normaliseExitDoorName(golden, parsed)
+	local goldenExit = findObjectByName(golden, 'exit')
+	local parsedExit = findObjectByName(parsed, 'exit_door')
+	assertTrue(goldenExit ~= nil and parsedExit ~= nil, 'expected an exit-door object on both maps')
+	assertEqual('exit_door', goldenExit.type)
+	assertEqual('exit_door', parsedExit.type)
+	goldenExit.name, parsedExit.name = IGNORED, IGNORED
+end
+
+-- See header note 7: removes objects the map has gained since its golden
+-- was captured, so the surviving objects line up index-for-index again.
+-- Asserts each one is actually there, so a rename or a removal surfaces as
+-- a failure rather than silently normalising nothing.
+local function stripObjectsAddedSinceGolden(parsed, names)
+	for _, name in ipairs(names) do
+		local removed = false
+		for _, layer in ipairs(parsed.layers) do
+			if layer.type == 'objectgroup' then
+				for index, object in ipairs(layer.objects) do
+					if object.name == name then
+						table.remove(layer.objects, index)
+						removed = true
+						break
+					end
+				end
+			end
+		end
+		assertTrue(removed, string.format('expected the parsed map to contain a "%s" object to normalise away', name))
+	end
+end
+
 local function normaliseImageLayerPaths(golden, parsed)
 	for i, goldenLayer in ipairs(golden.layers) do
 		local parsedLayer = parsed.layers[i]
@@ -120,6 +169,7 @@ test('ll1.tmx (template-free) matches its preserved golden export exactly, modul
 
 	stripTilesets(golden)
 	stripTilesets(parsed)
+	normaliseExitDoorName(golden, parsed)
 
 	DeepEqual.assertEqual(golden, parsed, 'll1.tmx parse does not match its golden export')
 end)
@@ -132,12 +182,13 @@ test('ll2.tmx matches its preserved golden export, modulo the tileset-shape/fiel
 	stripTilesets(parsed)
 	stripFieldEverywhere(golden, parsed, 'class')
 	stripFieldEverywhere(golden, parsed, 'opacity')
+	normaliseExitDoorName(golden, parsed)
 
 	local goldenSwitch = findObjectByName(golden, 'switch')
 	local parsedSwitch = findObjectByName(parsed, 'switch')
 	assertTrue(goldenSwitch ~= nil and parsedSwitch ~= nil, 'expected both maps to have a "switch" object')
 	-- Confirm the parser resolves it via the *current* template correctly
-	-- (see DECISIONS.md Q5's formula), independent of the stale golden.
+	-- DECISIONS.md Q5's formula), independent of the stale golden.
 	assertEqual('switch', parsedSwitch.type)
 	assertEqual(148, parsedSwitch.gid) -- switch.tx gid 4, props auto-registered at 145 -> 4-1+145
 	assertEqual(9, parsedSwitch.properties.target.id)
@@ -152,6 +203,8 @@ test('sandbox.tmx matches its preserved golden export exactly, modulo tileset pa
 	local parsed = Tmx.parse('res/map/sandbox.tmx')
 
 	normaliseTilesetFilenames(golden, parsed)
+	normaliseExitDoorName(golden, parsed)
+	stripObjectsAddedSinceGolden(parsed, {'door', 'door_switch'})
 
 	local goldenDrawbridge = findObjectByName(golden, 'drawbridge')
 	local parsedDrawbridge = findObjectByName(parsed, 'drawbridge')

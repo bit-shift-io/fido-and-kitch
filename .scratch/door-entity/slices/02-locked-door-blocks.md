@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # A locked door blocks everything
 

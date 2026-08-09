@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Exit door renamed uniformly
 

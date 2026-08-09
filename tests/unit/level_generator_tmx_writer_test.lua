@@ -50,8 +50,8 @@ local function walkingSkeletonMap()
 					{id = 1, template = '../../templates/spawn.tx', name = 'spawn', x = 64, y = 448},
 					{
 						id = 2,
-						template = '../../templates/exit.tx',
-						name = 'exit',
+						template = '../../templates/exit_door.tx',
+						name = 'exit_door',
 						x = 544,
 						y = 448,
 						properties = {{name = 'actor_count', type = 'int', value = 0}},
@@ -154,7 +154,7 @@ test('spawn and exit objects are placed on the ground with the right templates',
 	assertEqual(448, gameLayer.objects[1].y)
 
 	local exit = gameLayer.objects[2]
-	assertEqual('exit', exit.name)
+	assertEqual('exit_door', exit.name)
 	assertEqual(0, exit.properties.actor_count)
 end)
 

@@ -36,7 +36,7 @@ test('walking skeleton map has one spawn and an exit with actor_count 0', functi
 
 	assertEqual(2, #gameLayer.objects)
 	assertEqual('spawn', gameLayer.objects[1].name)
-	assertEqual('exit', gameLayer.objects[2].name)
+	assertEqual('exit_door', gameLayer.objects[2].name)
 	assertEqual(0, gameLayer.objects[2].properties[1].value)
 end)
 
@@ -54,7 +54,7 @@ test('terrain map still has exactly one spawn and one exit with actor_count 0', 
 	local spawnCount, exitCount = 0, 0
 	for _, object in ipairs(gameLayer.objects) do
 		if object.name == 'spawn' then spawnCount = spawnCount + 1 end
-		if object.name == 'exit' then
+		if object.name == 'exit_door' then
 			exitCount = exitCount + 1
 			assertEqual(0, object.properties[1].value)
 		end
@@ -87,7 +87,7 @@ test('objective map has a matched key and cage per objective, and still one spaw
 	local map = Main.buildObjectiveMap(42, {size = 'medium'})
 	local gameLayer = map.layers[2]
 
-	local counts = {spawn = 0, exit = 0, key = 0, cage = 0}
+	local counts = {spawn = 0, exit_door = 0, key = 0, cage = 0}
 	local keyColors, cageColors = {}, {}
 	for _, object in ipairs(gameLayer.objects) do
 		counts[object.name] = (counts[object.name] or 0) + 1
@@ -104,7 +104,7 @@ test('objective map has a matched key and cage per objective, and still one spaw
 	end
 
 	assertEqual(1, counts.spawn)
-	assertEqual(1, counts.exit)
+	assertEqual(1, counts.exit_door)
 	assertTrue(counts.key >= 1)
 	assertEqual(counts.key, counts.cage)
 
@@ -140,7 +140,7 @@ test('flourishes never remove the required spawn/exit/key/cage objects', functio
 		names[object.name] = (names[object.name] or 0) + 1
 	end
 	assertEqual(1, names.spawn)
-	assertEqual(1, names.exit)
+	assertEqual(1, names.exit_door)
 	assertTrue(names.key >= 1)
 end)
 

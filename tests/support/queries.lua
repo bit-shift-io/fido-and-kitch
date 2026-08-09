@@ -70,4 +70,8 @@ function Queries.drawbridgeState(bridge)
 	return bridge.state
 end
 
+function Queries.doorState(door)
+	return door.state
+end
+
 return Queries

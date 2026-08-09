@@ -17,7 +17,7 @@
   <image source="../img/entity_key.png" width="512" height="256"/>
  </tile>
  <tile id="5" x="0" y="0" width="64" height="64">
-  <image source="../img/entity_door.png" width="512" height="512"/>
+  <image source="../img/entity_exit_door.png" width="512" height="512"/>
  </tile>
  <tile id="6" x="0" y="0" width="20" height="20">
   <image source="../img/coins.png" width="160" height="20"/>

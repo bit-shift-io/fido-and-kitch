@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # A switch unlocks and relocks the door
 

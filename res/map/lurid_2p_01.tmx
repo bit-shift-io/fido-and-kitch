@@ -42,7 +42,7 @@
     <property name="color" value="red"/>
    </properties>
   </object>
-  <object id="4" name="exit" type="exit_door" gid="123" x="1088" y="128" width="32" height="32">
+  <object id="4" name="exit_door" type="exit_door" gid="123" x="1088" y="128" width="32" height="32">
    <properties>
     <property name="actor_count" type="int" value="4"/>
    </properties>

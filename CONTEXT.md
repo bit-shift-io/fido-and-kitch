@@ -240,12 +240,6 @@
 
 **Boundary** — A playback/timing capability only; it plays existing frames in either direction and does not generate or transform art. Forward-only consumers are unaffected. Ping-pong looping is enabled by the API but not used by any shipped entity yet.
 
-## Door
-
-**Definition** — A player- and pushable-blocking obstacle, driven entirely by an external `target` + `:switch()` caller (a lever switch or pressure switch), never by its own proximity check or a direct player interaction. Starts closed on level load. Solid whenever it is not fully `open` — closed, opening, and closing all block — becoming passable only once its opening animation finishes; starting to close blocks again the instant closing begins. It occupies one tile in Tiled and one tile of collision, but *draws* 3×3 tiles centred on that tile (the drawbridge's sprite-bleed pattern), and its blocking collider is made taller than its own tile (following `createStaticPhysicsBodyBoundary`'s pattern) so it reliably stops horizontal movement rather than sitting flush with the walking surface.
-
-**Boundary** — The inverse of the drawbridge's own solidity rule (solid whenever *not* `'closed'`) and, unlike the drawbridge or a pressure switch, has no occupancy logic of its own — it never polls who's nearby, it only reacts to a `:switch()` call. Not directly `Usable` by a player. Several switches may each independently target the same door with no special wiring.
-
 ## Story entity
 
 **Definition** — A Tiled-placed entity of type `story` with a `text` custom property (supports `\n` newlines). When a player overlaps it and presses the use key (P1: right-shift, P2: Q), a speech bubble appears above the entity showing the text. The bubble follows the entity on screen, auto-dismisses when the player moves away (overlap ends), and has a short re-trigger cooldown. Player retains full control while the bubble is visible.

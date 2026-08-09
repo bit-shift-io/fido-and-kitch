@@ -38,8 +38,8 @@ end
 local function exitObject(id, x, y, actorCount)
 	return {
 		id = id,
-		template = '../../templates/exit.tx',
-		name = 'exit',
+		template = '../../templates/exit_door.tx',
+		name = 'exit_door',
 		x = x,
 		y = y,
 		properties = {{name = 'actor_count', type = 'int', value = actorCount}},

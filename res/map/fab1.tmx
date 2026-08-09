@@ -61,7 +61,7 @@
     <property name="spawn_type" value="bird"/>
    </properties>
   </object>
-  <object id="43" template="../templates/exit.tx" name="exit" x="0" y="576">
+  <object id="43" template="../templates/exit_door.tx" name="exit_door" x="0" y="576">
    <properties>
     <property name="actor_count" type="int" value="2"/>
    </properties>

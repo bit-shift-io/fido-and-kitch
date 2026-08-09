@@ -21,7 +21,7 @@ function ExitDoor:init(object)
 	local sprite_shape = Rect.shapeArgs(object.width * 2, object.height * 2)
 	local sprite_position = position - Vector(0, object.height * 0.5)
 	self.sprite = self:addComponent(Sprite{
-		image='res/img/entity_door.png',
+		image='res/img/entity_exit_door.png',
 		frames=2,
 		duration=1.0,
 		loop=false,
@@ -48,8 +48,6 @@ function ExitDoor:init(object)
 		event=utils.bindSelf(self.event, self)
 	})
 
-	-- no asset yet at res/snd/entity_exit_door_open.wav; Sound:play warns and
-	-- skips until one is added
 	self.sound = self:addComponent(Sound{
 		sounds = {
 			open = 'res/snd/entity_exit_door_open.wav'

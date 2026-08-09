@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # Playable door in the sandbox
 
