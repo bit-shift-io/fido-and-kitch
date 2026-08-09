@@ -32,7 +32,16 @@ function Game:init()
 end
 
 function Game:setGameState(name)
+    local previous = self.fsm.currentState and self.fsm.currentState.name or 'none'
+    Log.debug('game state: ' .. previous .. ' -> ' .. name)
     self.fsm:setState(name)
+
+    -- The press that caused this transition is very likely still held (see
+    -- InputManager:swallowEdges). Created after Game in main.lua, so absent
+    -- for a map= launch argument handled during Game:init.
+    if inputManager then
+        inputManager:swallowEdges()
+    end
 end
 
 function Game:load(props)

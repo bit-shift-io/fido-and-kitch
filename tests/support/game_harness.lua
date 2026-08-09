@@ -82,8 +82,14 @@ function GameHarness.startGame(mapPath, opts)
 	local game = {}
 	game.fsm = StateMachine{stateClasses = {MenuState = MenuState, InGameState = InGameState, GameOverState = GameOverState}, entity = game, currentState = 'InGameState'}
 
+	-- Mirrors src/game.lua's Game:setGameState, including the input-edge
+	-- swallow -- a transition that behaves differently here than in the real
+	-- game would let input bugs pass straight through the integration tier.
 	function game:setGameState(name)
 		self.fsm:setState(name)
+		if inputManager then
+			inputManager:swallowEdges()
+		end
 	end
 
 	function game:load(props)

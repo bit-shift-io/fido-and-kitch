@@ -25,6 +25,7 @@ function InGameState:load(props)
     NPCRegistry.clear()
 
     self.currentMap = props.map or 'res/map/sandbox.tmx'
+    Log.debug('loading map: ' .. self.currentMap)
 
     _G.world = World:new(0, 90.81, true)
     _G.map = Map:new(self.currentMap, world, true)
@@ -99,6 +100,9 @@ function InGameState:load(props)
 
     -- Listen for player deaths via EventBus
     EventBus.on('player_died', utils.bindSelf(InGameState.onPlayerDied, self))
+
+    Log.debug('map loaded: ' .. self.currentMap .. ' (' .. #self.players .. ' players, '
+        .. self.totalCages .. ' cages, ' .. self.totalCoins .. ' coins)')
 
     if profile then
         profile.stop()

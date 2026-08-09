@@ -49,12 +49,30 @@ function InputManager:ensurePlayer(idx)
   if not self.prevActionState[idx] then self.prevActionState[idx] = {} end
 end
 
-function InputManager:update(dt)
-  self.prevActionState = {}
-  for i, s in pairs(self.actionState) do
-    self.prevActionState[i] = {}
-    for a, v in pairs(s) do self.prevActionState[i][a] = v end
+local function copyActionState(actionState)
+  local copy = {}
+  for i, s in pairs(actionState) do
+    copy[i] = {}
+    for a, v in pairs(s) do copy[i][a] = v end
   end
+  return copy
+end
+
+-- Swallow the edges of whatever is currently held, so the next update() sees
+-- no newly-pressed actions.
+--
+-- Game:setGameState calls this because one physical press must not be acted on
+-- twice. love.keypressed runs in the event phase, before update() has polled
+-- the keyboard: a press handled there (MenuState starting a map on Enter) would
+-- still be held when update() runs, and `return` is also player 1's `start`
+-- action -- which InGameState reads as "leave the map". Without this the map
+-- would load and unload again inside a single frame.
+function InputManager:swallowEdges()
+  self.swallowNextEdges = true
+end
+
+function InputManager:update(dt)
+  self.prevActionState = copyActionState(self.actionState)
   self.actionState = {}
 
   for i = 1, 4 do self:ensurePlayer(i) end
@@ -72,6 +90,13 @@ function InputManager:update(dt)
     if p.joystick then
       self:pollGamepad(i, p)
     end
+  end
+
+  -- Treat everything held this frame as already-seen, so wasPressed reports
+  -- nothing until a key is genuinely released and pressed again.
+  if self.swallowNextEdges then
+    self.swallowNextEdges = false
+    self.prevActionState = copyActionState(self.actionState)
   end
 end
 
