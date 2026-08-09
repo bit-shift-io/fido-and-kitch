@@ -335,3 +335,21 @@
 **Definition** — Event bus signal (`all_cages_unlocked`) emitted when the last cage in a level is unlocked. Listened by exit door to become usable. Payload: `{totalCages=N}`.
 
 **Boundary** — One-way signal from `InGameState` to exit door. Level must have exit door entity; if missing, event fires but nothing consumes it (safe).
+
+## Door
+
+**Definition** — A switch-gated barrier blocking horizontal passage through a gap in the terrain. Locked (solid) by default; passable while its linked switch reports `on`. Locked blocks players, enemies and pushable props alike, with no entity-type eligibility.
+
+**Boundary** — Not the exit door and not a level-completion object: a door gates movement inside a level. It is never something to stand on, is opened only by a linked switch (not by keys, use, or contact), and mirrors switch state both ways rather than latching.
+
+## Exit door
+
+**Definition** — The level-completion entity players and rescued actors leave through. Opens when its actor counter reaches zero or on the `all_cages_unlocked` event, and cannot be closed again once open for the player.
+
+**Boundary** — Distinct from a door in every respect: it is a level objective, not a barrier, and is never wired to a switch. Named `exit_door` uniformly — in the type, the asset filenames, the Tiled template and the object name.
+
+## Doorway
+
+**Definition** — The full object rect a door consults each frame before closing. While any entity other than the door itself overlaps it, a close is deferred and an in-flight close reverses back to opening.
+
+**Boundary** — Wider than the door's thin barrier collider, so an entity straddling the threshold still counts. It is a query volume only, never a collider, and holds no state between frames.

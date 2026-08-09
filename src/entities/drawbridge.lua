@@ -267,14 +267,14 @@ function Drawbridge:checkHeld()
 		else
 			self.sprite:playReverse() -- fresh close from the fully-open end
 		end
-		self.sound:play('open')
+		self.sound:play('close')
 	elseif nextState == 'opening' then
 		if self.state == 'closing' then
 			self.sprite:reverseFromCurrent() -- reverse in place, no snap
 		else
 			self.sprite:playForward() -- fresh open from the fully-closed end
 		end
-		self.sound:play('close')
+		self.sound:play('open')
 	end
 
 	self:setState(nextState)

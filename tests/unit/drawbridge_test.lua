@@ -252,7 +252,7 @@ test('an occupant entering the trigger zone opens the bridge and solidifies the 
 	assertEqual('opening', bridge.state)
 	assertFalse(bridge.deck:isSensor(), 'deck should be solid once opening')
 	assertEqual(1, #spy.played)
-	assertEqual('close', spy.played[1], 'the open transition plays the "close" sound (named for the deck-lowering cue)')
+	assertEqual('open', spy.played[1], 'the transition into opening plays the open sound')
 
 	spy.uninstall()
 end)
@@ -270,7 +270,7 @@ test('clearing both zones closes the bridge back down', function()
 
 	assertEqual('closing', bridge.state)
 	assertTrue(bridge.deck:isSensor() == false, 'deck stays solid through closing -- an occupant here is still a legitimate reason to reopen')
-	assertEqual('open', spy.played[1])
+	assertEqual('close', spy.played[1], 'the transition into closing plays the close sound')
 
 	spy.uninstall()
 end)
