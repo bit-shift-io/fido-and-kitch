@@ -68,7 +68,7 @@
 
 ## Fixture map
 
-**Definition** — A small, dedicated Tiled map (`.tmx` source plus its exported `.lua`) authored specifically for integration tests — e.g. a flat ground room, a room with one pressure switch — kept minimal and shared across tests where its layout fits.
+**Definition** — A small, dedicated Tiled-style map authored specifically for integration tests — e.g. a flat ground room, a room with one pressure switch — kept minimal and shared across tests where its layout fits. Hand-authored `.lua` STI-shaped maps are used as fixtures (maintained without a Tiled round-trip); their ladder objects follow the same per-rung, bottom-anchored format as `.tmx` maps.
 
 **Boundary** — Not a real playable level; it is never shipped or referenced from `res/map/`. Distinct from the separate "load every real map" smoke test, which exercises actual shipped levels instead of fixtures.
 

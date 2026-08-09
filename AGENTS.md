@@ -37,14 +37,16 @@ love . debug drawphysics map=sandbox
 - `src/states/` — game state FSM modules (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`)
 - `src/map.lua` — thin wrapper delegating to `src/map/init.lua`
 - `src/map/` — map system modules:
-  - `init.lua` — Map class, STI loading, public API, background map
-  - `entity_factory.lua` — Tiled object layer → runtime entity instantiation
-  - `collision_builder.lua` — static bodies, ladder sensors, map boundaries
+  - `init.lua` — Map class, STI/TMX loading, public API, background map
+  - `entity_factory.lua` — Tiled object layer → runtime entity instantiation + ladder annotation
+  - `ladder_merger.lua` — pure per-rung → merged ladder rect grouping (by column + vertical contiguity + identical props)
+  - `collision_builder.lua` — static bodies, map boundaries
   - `parallax_renderer.lua` — background image layers, parallax math, screen-space draw
   - `tmx.lua`, `tmx_template.lua`, `tmx_xml.lua`, `external_tileset.lua` — TMX parsing
 - `src/camera.lua` — shared auto-zoom camera framing all players
 - `src/entity.lua`, `src/components/` — base entity with component lifecycle; components like `Collider`, `Sprite`, `StateMachine`, `Inventory`, `Pickup`, `Usable`, `UsableSparkle` (gentle "glow" sparkles emitted while a player is near a usable item; auto-attached by `Usable:onAttach`)
 - `src/entities/` — map entity implementations; Tiled object `type` must match a filename here (`key` → `src/entities/key.lua`)
+- `src/entities/ladder.lua` — ladders are authored as per-rung template tile objects (32px gid tiles, bottom-anchored: object `y` is the rung's BOTTOM edge, top = y − height). `entity_factory`'s `annotateLadders` merges rungs by column + vertical contiguity + identical properties into one logical ladder; the lowest rung is the lead and builds the merged collider/sprite stack, upper rungs are thin aliases. `Ladder:switch` toggles on/off (hide + disable climb vs restore, keeping grown size). All ladder geometry is bottom-anchored — `resizeTileHeight`/`grow` move the top edge only
 - `src/player/` — player entity and subsystems:
   - `player.lua` — bootstrap: components, signals, animation FSM, movement FSM
   - `player_sensors.lua` — `queryKillZone`, `queryLadder`, `queryLadderBelow`, `queryOnGround`, `queryFullySupported`
@@ -65,7 +67,7 @@ love . debug drawphysics map=sandbox
   - `input_manager.lua` — keyboard/joystick handling, persistent config
   - `input_config.lua` — persistent key bindings (save/load to `love.filesystem`)
   - `action_map.lua` — action to key/button mappings
-- `res/map/` — Tiled `.tmx` sources and exported `.lua` maps (STI loads only the `.lua`; tilesets must be embedded)
+- `res/map/` — Tiled `.tmx` sources loaded directly (see `res/map/ladder.tmx`); the game runs `.tmx` via `src/map/tmx.lua`, tilesets must be embedded
 - `tests/` — three test tiers (unit, integration, e2e) plus shared support/fixtures (see `tests/README.md`)
 
 ## Conventions
@@ -80,7 +82,7 @@ love . debug drawphysics map=sandbox
 - **Physics:** go through `Collider`/`World`, not `src.physics.bump` directly, unless the task is backend-specific. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
 - **Sound:** `Sound:play` checks a private `isHeadless()` (true when `love.audio` is absent) and returns early, and `Log.warn`s about missing files; headless tests need no dummy WAV files.
 - **Debug overlay:** when `conf.drawphysics` is active, `DebugOverlay:draw(world, map, players, camera)` renders hitboxes, ladder sensors, kill zones, safe positions, camera framing bounds, and NPC paths in a single pass.
-- Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `game_states.lua`.
+- Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `src/states/`.
 
 ## Validation
 

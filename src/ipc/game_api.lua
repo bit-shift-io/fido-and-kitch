@@ -337,7 +337,7 @@ function GameAPI.getTileGrid()
 		if layer.type == 'objectgroup' and layer.objects then
 			for _, obj in ipairs(layer.objects) do
 				if obj.properties then
-					if obj.type == 'ladder' or obj.properties.ladder then
+					if obj.type == 'ladder' then
 						local topY = obj.y - (obj.height or 0)
 						local tileX = math.floor(obj.x / tileWidth) + 1
 						for ty = math.floor(topY / tileHeight) + 1, math.floor(obj.y / tileHeight) do

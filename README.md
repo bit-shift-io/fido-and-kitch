@@ -39,7 +39,12 @@ https://www.mapeditor.org/
 ```bash paru -S tiled```
 
 Edit > Preferences > check 'Embed tilesets' & 'Detatch Templates'
-Save the map as tmx but will need to be exported as .lua to be loaded.  
+Save the map as tmx — maps are loaded directly from `.tmx` (no export step).
+
+Note: ladders are authored as per-rung template tile objects
+(`res/templates/ladder.tx`), one 32px rung per step, bottom-anchored
+(object `y` = rung's bottom edge). `entity_factory` auto-merges stacked rungs
+into a single ladder; a switch targeted at any rung toggles the whole ladder.  
 
 ## Controls
 F1 - physics debug overlay

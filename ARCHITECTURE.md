@@ -15,9 +15,9 @@
 * **Class System:** hump.class
 * **Tweening:** hump.tween
 * **Vector Math:** hump.vector
-* **Map Loader:** STI (Simple Tiled Implementation) — loads exported `.lua` maps
+* **Map Loader:** STI (Simple Tiled Implementation) — loads maps; `.tmx` sources are parsed directly (via `src/map/tmx.lua`) then fed to STI
 * **Tiled Map Editor:** `.tmx` sources in `res/map/`; embedded tilesets required
-* **Testing:** Headless Lua tests in `tests/` (run via `./test.sh`)
+* **Testing:** Headless Lua tests in `tests/` (run via `./test-unit.sh`)
 
 ---
 
@@ -32,17 +32,21 @@
 ├── CONTEXT.md            # Glossary of domain terms (camera, framing targets, etc.)
 ├── setup.sh              # Installs LÖVE + fetches Lua deps into lib/
 ├── run.sh                # Runs the game (prefers bin/love.AppImage)
-├── test.sh               # Fast headless Lua tests (no LÖVE window)
+├── test-unit.sh           # Fast headless Lua unit tests (no LÖVE window)
+├── test-integration.sh    # Headless real-stack tests (maps loaded through a love.* mock)
+├── test-e2e.sh            # Headed tests: real LÖVE, real window, frame capture
+├── test-all.sh            # Runs all three tiers
 ├── build.sh              # Interactive makelove packaging (win32/win64/macos/appimage)
 ├── lib/                  # Vendored Lua deps (bump, Slab, tween, hump, sti, etc.)
 ├── src/
 │   ├── main.lua          # Bootstraps globals (conf, utils, Vector, Class, Camera, Tween, Slab, World, Entity, Map, Player, Game, …) and LÖVE callbacks
 │   ├── game.lua          # Top-level Game object; FSM over game states
-│   ├── game_states.lua   # MenuState, InGameState, GameOverState (FSM states)
-│   ├── map.lua           # STI wrapper; loads Tiled object layers into runtime entities, collision, ladders
+│   ├── states/           # MenuState, InGameState, GameOverState (FSM states, one file per state)
+│   ├── map.lua           # Thins STI wrapper; delegates to src/map/init.lua
 │   ├── camera.lua        # Shared auto-zoom camera framing all players
 │   ├── entity.lua        # Base Entity with component lifecycle
 │   ├── world.lua         # Thin wrapper selecting physics backend (bump/love)
+│   ├── map/              # Map system (init, entity_factory, collision_builder, ladder_merger, parallax_renderer, tmx…)
 │   ├── components/       # Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, Switchable, Variable, Flash, Timeline, Path, PathFollow)
 │   ├── entities/         # Map entity implementations; Tiled object `type` must match filename (key → src/entities/key.lua)
 │   ├── player/           # Player entity, movement/ladder/fall states, lives, safe-position respawn
@@ -50,8 +54,8 @@
 │   ├── ui/               # Slab menu UI, map list, lives HUD
 │   └── utils/            # str, tbl, utils, rect, signal
 ├── res/
-│   └── map/              # Tiled .tmx sources + exported .lua maps (STI loads .lua only)
-└── tests/                # Dependency-free headless tests (see tests/README.md)
+│   └── map/              # Tiled .tmx sources (run directly; exported .lua maps are legacy)
+└── tests/                # Headless unit/integration + headed e2e tests (see tests/README.md)
 ```
 
 ---
@@ -62,18 +66,19 @@
 * **`main.lua`**: Loads all globals (`conf`, `utils`, `Vector`, `Class`, `Camera`, `Tween`, `Slab`, `World`, `Entity`, `Map`, `Player`, `Game`, …), parses CLI flags (`debug`, `drawphysics`, `profile`, `map=<file>`), creates `Game()` in `love.load`.
 * **`conf.lua`**: LÖVE config; `t.physics` selects physics backend (`"bump"` or `"love"`).
 
-### 3.2 Game Object & State Machine (`src/game.lua`, `src/game_states.lua`)
+### 3.2 Game Object & State Machine (`src/game.lua`, `src/states/`)
 * **`Game`**: Holds a `StateMachine` (`stateClasses = GameStates`, `entity = self`, `currentState = 'MenuState'`). Delegates all LÖVE callbacks (`update`, `draw`, `keypressed`, …) to `self.fsm`.
-* **States** (`game_states.lua`):
+* **States** (`src/states/`, one file per state):
   * **`MenuState`**: Slab-based map list (`MapList`), handles keyboard/gamepad/mouse/touch to start a map or quit.
   * **`InGameState`**: Loads map via `Map:new()`, creates `World`, `AutoCamera`, spawns 2 `Player` entities at `spawn` objects, manages shared lives pool (`Lives`), handles player death/respawn/game-over, camera framing.
   *   **`GameOverState`**: Simple menu (Restart / Main Menu) with keyboard/gamepad/mouse/touch input.
 
-### 3.3 Map & Entity Loading (`src/map.lua`)
-* Wraps **STI** (`sti(path, {"box2d"})`); proxies STI methods to itself via `utils.proxyClass`.
+### 3.3 Map & Entity Loading (`src/map/`)
+* Wraps **STI**; `.tmx` maps are parsed directly via `src/map/tmx.lua` (then fed to `sti(data, {"box2d"})`) and proxied via `utils.proxyClass`.
 * **Object Layers → Entities**: Iterates object layers; for each object with `type` not in `typeIgnores = {'', 'spawn'}`, `require('src.entities.' .. type)(object)` and inserts into `layer.entities`.
+* **Ladders**: Authored as per-rung template objects (each 32px gid tile, bottom-anchored: `object.y` is the rung's bottom edge). `entity_factory.lua` runs `ladder_merger.lua` per layer to group rungs by column + vertical contiguity into one logical ladder rect, flagging the lowest rung as the family lead. `src/entities/ladder.lua` builds the merged collider/sprite stack on the lead rung; upper rungs are thin aliases. `Ladder:switch` hides (`off`) / restores (`on`) the ladder while keeping its grown size.
 * **Layer Update/Draw**: Injects `update(dt)` and `draw()` onto each object layer to iterate its entities.
-* **Collision**: Reads layer properties `collision=true` and `ladder=true` to create static physics bodies / ladder sensor volumes.
+* **Collision**: Reads layer property `collision=true` to create static physics bodies from ground/tile layers.
 * **Map Boundaries**: Adds four static boundary colliders around the map.
 * **Lua Snippets**: Objects may have properties containing executable Lua (`object:exec`) — treated as trusted map code.
 
@@ -134,10 +139,9 @@ love.load
   → InGameState:load(props)
        → World:new(0, 90.81, true)
        → Map:new(mapPath, world, true)
-            → STI loads map
-            → createEntitiesFromObjectGroupLayers() → require('src.entities.<type>') for each object
+            → Tmx.parse (.tmx) → STI loads map
+            → createEntities() → annotateLadders (merge per-rung objects) → require('src.entities.<type>') for each object
             → createStaticPhysicsBodies (collision layers)
-            → createLadderVolumes (ladder layers)
             → createStaticPhysicsBodyBoundary (map edges)
        → AutoCamera.new({screenW, screenH, mapW, mapH, tileW, tileH})
        → Lives.defaultCount() → LivesHud
@@ -195,7 +199,7 @@ Player:update → queryKillZone() → die(deathType)
 
 6. **Physics**: Go through `Collider`/`World`, not a backend directly, unless the task is backend-specific. The bump backend emulates Box2D-ish semantics; keep the two backends' APIs aligned when changing shared behavior.
 
-7. **Match Nearby Style**: Quotes, indentation — it's mixed. Keep changes small; prefer new entities/components/states over growing `game_states.lua`.
+7. **Match Nearby Style**: Quotes, indentation — it's mixed. Keep changes small; prefer new entities/components/states over growing `src/states/`.
 
 ---
 
@@ -216,7 +220,7 @@ Player:update → queryKillZone() → die(deathType)
 3. Add to `PlayerStates` table; reference in `Player.fsm` `stateClasses`.
 
 ### Adding a New Game State
-1. Create class in `src/game_states.lua` (or new file) following `MenuState`/`InGameState` pattern.
+1. Create class in `src/states/<name>_state.lua` (one file per state) following `MenuState`/`InGameState` pattern.
 2. Add to returned `GameStates` table.
 3. Transition via `game:setGameState('NewStateName')`.
 
@@ -224,8 +228,8 @@ Player:update → queryKillZone() → die(deathType)
 
 ## 7. Validation & Testing
 
-* **Headless Tests**: `./test.sh` (or `./test.sh tests/specific_test.lua`) — runs `tests/run.lua`; no LÖVE window. Add a test when practical for logic changes.
-* **Gameplay Checks**: Targeted manual run, e.g. `love . debug drawphysics map=sandbox.lua`.
+* **Headless Tests**: `./test-unit.sh` (or `./test-unit.sh tests/unit/specific_test.lua`) — runs `tests/unit/run.lua`; no LÖVE window. `./test-integration.sh` runs the real stack through a love mock; `./test-e2e.sh` runs with a real window and frame capture. Add a test when practical for logic changes.
+* **Gameplay Checks**: Targeted manual run, e.g. `love . debug drawphysics map=sandbox`.
 * **Flags** (parsed in `src/main.lua` / `Game:init`):
   * `debug` — starts lldebugger, sets `conf.debug`
   * `drawphysics` — physics debug drawing
@@ -248,9 +252,13 @@ Player:update → queryKillZone() → die(deathType)
 |------|---------|
 | `main.lua` / `conf.lua` | Entrypoint & LÖVE config |
 | `src/main.lua` | Global bootstrap, LÖVE callbacks |
-| `src/game.lua` | Top-level Game object, state FSM |
-| `src/game_states.lua` | Menu / InGame / GameOver states |
-| `src/map.lua` | STI wrapper, entity loading, collision/ladders |
+| `src/game.lua` | Top-level Game object, state FSM (wires `src/states/` stateClasses) |
+| `src/map.lua` | Thin STI wrapper, delegates to `src/map/init.lua` |
+| `src/map/init.lua` | Map class: STI/TMX loading, entities, collisions, boundaries |
+| `src/map/entity_factory.lua` | Tiled object → runtime entity instantiation, ladder annotation |
+| `src/map/ladder_merger.lua` | Pure per-rung → merged ladder rect grouping |
+| `src/map/collision_builder.lua` | Static bodies from collision layers + map boundaries |
+| `src/entities/ladder.lua` | Per-rung ladder entity (lead builds merged rect, aliases, switch on/off) |
 | `src/camera.lua` | Auto-zoom camera framing all players |
 | `src/entity.lua` | Base entity + component lifecycle |
 | `src/components/` | Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, …) |
@@ -258,8 +266,8 @@ Player:update → queryKillZone() → die(deathType)
 | `src/player/` | Player entity, movement states, lives, safe position |
 | `src/physics/` | Swappable backends (bump, love) behind Collider/World |
 | `src/ui/` | Slab menu UI, map list, lives HUD |
-| `res/map/` | Tiled `.tmx` sources + exported `.lua` (STI loads `.lua` only) |
-| `tests/` | Headless Lua tests (run via `./test.sh`) |
+| `res/map/` | Tiled `.tmx` sources (run directly) |
+| `tests/` | Three-tier: `tests/unit` + `tests/integration` (via `./test-unit.sh`/`./test-integration.sh`), `tests/e2e` |
 | `docs/adr/` | Architecture Decision Records |
 
 ---

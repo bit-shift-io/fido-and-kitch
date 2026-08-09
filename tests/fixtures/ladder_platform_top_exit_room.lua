@@ -1,6 +1,6 @@
 -- Hand-authored fixture map (see flat_ground.lua for the STI-shaped,
 -- no-tileset precedent this follows): same platform/ladder/floor geometry
--- as ladder_platform_room.lua (mirrors res/map/ll2.tmx's ladder id 16 --
+-- as ladder_platform_room.lua (mirrors res/map/ll2.tmx's x=128 ladder, rungs 57-60 --
 -- the ladder's own top tile shares its row with adjacent walkable ground),
 -- but with the spawn placed at the base of the ladder instead of the top.
 -- Climbing all the way up and dismounting exits onto the platform that

@@ -21,19 +21,42 @@ def load(path):
             cols[x] += '#' if ((g & 0x80000000) or g > 0) else '.'
     return cols, w, h
 
+def ladders_from(path):
+    content = open(path).read()
+    m = re.search(r'<objectgroup[^>]*name="ladder"[^>]*>(.*?)</objectgroup>', content, re.S)
+    if not m:
+        return []
+    body = m.group(1)
+    rungs = []
+    for om in re.finditer(r'<object\b[^>]*\bid="(\d+)"[^>]*\bx="(\d+(?:\.\d+)?)"[^>]*\by="(\d+(?:\.\d+)?)"', body):
+        rungs.append((int(om.group(1)), int(float(om.group(2))), int(float(om.group(3)))))
+    # group by column, then split into contiguous runs (gap > 32px breaks the column)
+    cols = {}
+    for oid, x, y in rungs:
+        cols.setdefault(x, []).append(y)
+    out = []
+    for x in sorted(cols):
+        bottoms = sorted(cols[x])  # ascending bottom edges, topmost rung first
+        run = [bottoms[0]]
+        for y in bottoms[1:]:
+            if y - run[-1] > 32:
+                top = run[0] - 32
+                out.append((x, top, run[-1], len(run) * 32))
+                run = []
+            run.append(y)
+        if run:
+            out.append((x, run[0] - 32, run[-1], len(run) * 32))
+    return out
+
 def main():
     cols, w, h = load(sys.argv[1])
-    # ladder list: (id, x, y, wpx, hpx) from ll2.tmx ladder layer
-    ladders = [(9,608,256,32,96),(10,352,288,32,224),(12,416,96,32,224),
-               (13,64,96,32,96),(14,192,96,32,96),(15,192,320,32,128),
-               (16,128,192,32,128),(17,0,192,32,128),(18,96,448,32,128),
-               (19,224,448,32,136),(20,608,544,32,168),(21,896,544,32,64),
-               (22,1024,608,32,96)]
-    for lid, x, y, w_, h_ in ladders:
+    # each ladder column: (xpx, top_px, bottom_px, hpx) merged from per-rung objects
+    ladders = ladders_from(sys.argv[1])
+    for x, top, bottom, h_ in ladders:
         col = x // 32
-        r0, r1 = y // 32, (y + h_) // 32
-        print('ladder id=%2d col=%2d rows %2d..%2d (x=%3d y=%3d h=%3d) colMask=%s' %
-              (lid, col, r0, r1, x, y, h_, cols[col]))
+        r0, r1 = top // 32, bottom // 32
+        print('ladder col=%3d rows %2d..%2d (x=%3d top=%3d bottom=%3d h=%3d) colMask=%s' %
+              (col, r0, r1, x, top, bottom, h_, cols[col]))
         solid = [r for r in range(h) if cols[col][r] == '#']
         print('   solid rows at that col:', solid)
 

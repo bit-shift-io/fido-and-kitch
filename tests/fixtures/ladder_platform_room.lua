@@ -1,6 +1,6 @@
 -- Hand-authored fixture map (see flat_ground.lua for the STI-shaped,
 -- no-tileset precedent this follows): mirrors the ladder/platform geometry
--- of res/map/ll2.tmx's ladder id 16 -- a walkway platform and a ladder
+-- of res/map/ll2.tmx's x=128 ladder (rungs 57-60) -- a walkway platform and a ladder
 -- share the same top row (the ladder's own top tile is solid ground too),
 -- so standing on the platform next to the ladder puts the player's feet
 -- exactly flush with the ladder's top edge, not overlapping its rect. The

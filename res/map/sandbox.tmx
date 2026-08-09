@@ -22,9 +22,6 @@
   </data>
  </layer>
  <objectgroup id="16" name="ladder">
-  <properties>
-   <property name="ladder" type="bool" value="false"/>
-  </properties>
   <object id="95" template="../templates/ladder.tx" x="128" y="384"/>
   <object id="96" template="../templates/ladder.tx" x="128" y="352"/>
   <object id="97" template="../templates/ladder.tx" x="128" y="320"/>

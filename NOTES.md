@@ -6,23 +6,30 @@ support real switch on/off.
 
 ## Related code (grounding)
 
-- `res/templates/ladder.tx` — existing template; object `type="ladder"` with
-  `gid`, width/height 32. Rendering art comes from props.tsx tile id 2
+- `res/templates/ladder.tx` — template; object `type="ladder"` with `gid`,
+  width/height 32. Rendering art comes from props.tsx tile id 2
   (`../img/ladder.png`, 128x32, 4 frames).
-- `res/map/*.tmx` — ladders are authored as plain tall rectangles
-  (`type="ladder"`, no gid), one per ladder; loaded via `Tmx.parse`
-  (`src/map/init.lua:12-17`) since only `.tmx` exist under `res/map/`.
-- `src/entities/ladder.lua` — entity builds one sensor collider from the
-  object rect + tiled `ladder.png` sprites; `:tileHeight()`,
-  `:resizeTileHeight(n,'top')` (grows up), `:grow(n)`; `Ladder:switch`
-  currently only reacts to `switch.state=='on'` via `object:exec('switchOn')`.
+- `res/map/*.tmx` — ladders are authored as per-rung template tile objects
+  (`<object template="../templates/ladder.tx" x= y=/>`, no type/width/height),
+  one 32px rung per step, bottom-anchored (object `y` = rung bottom edge).
+  Loaded via `Tmx.parse` (`src/map/tmx.lua`) then STI.
+- `src/map/ladder_merger.lua` — pure: groups same-column rungs by vertical
+  contiguity into one logical `{rect, rungs, properties}`; differing custom
+  properties force a vertical split.
+- `src/map/entity_factory.lua` `annotateLadders` — marks each rung with a
+  shared `ladderFamily` rect + `leadRung` flag (lowest rung is lead).
+- `src/entities/ladder.lua` — lead rung builds one merged sensor collider from
+  the family rect + tiled `ladder.png` sprites; upper rungs are thin aliases
+  forwarding to the lead. `:tileHeight()`, `:resizeTileHeight(n,'top'|'bottom')`
+  (moves only the named edge), `:grow(n)`; `Ladder:switch` hides on `'off'`
+  (removes collider + sprites) and restores on `'on'` (keeping grown size).
 - Switch `target` resolves a single object id (`switch.lua`, `teleport.lua`
   pattern); `map:getObjectById(id).entity` / `object:exec` script plumbing in
-  `src/map/entity_factory.lua:55-71`.
-- `tools/level_generator/main.lua` emits gid-less ladder objects
-  (`buildTerrain`, lines ~263-276, ~318, ~341).
-- `tests/unit/map_card.lua_test` + `tools/level_generator/main.lua:67` note:
-  **gid tile objects are bottom-anchored; gid-less rectangles top-anchored.**
+  `src/map/entity_factory.lua`. Any rung id works as a switch target.
+- `tools/level_generator/main.lua` emits per-rung `template="../../templates/ladder.tx"`
+  objects from `buildTerrain` (bottom-anchored, one per 32px tile).
+- **gid tile objects are bottom-anchored; gid-less rectangles top-anchored.**
+  All ladder geometry is now bottom-anchored.
 
 ## Confirmed decisions (asked + answered)
 
@@ -54,13 +61,12 @@ support real switch on/off.
 
 ## Open / deferred
 
-- **Migration execution**: migrate-all default — all maps + fixtures +
-  generator — but which specific .tmx (ll1, ll2, sandbox, fab1, lurid_2p_01)
-  and whether hand-authored fixtures (`tests/fixtures/ladder_platform_room.lua`
-  etc.) get converted is a decision for the implementer. Keep legacy rect
-  parsing working for .tmx compat if cheap.
-- Backwards-compatible parsing of one-rect tall ladder objects (useful during
-  transition; not yet a hard requirement).
+- **Migration execution**: DONE — all maps (`ll1`, `ll2`, `sandbox`, `fab1`,
+  `lurid_2p_01`) + all hand-authored fixtures + `tools/level_generator` now use
+  per-rung bottom-anchored template rungs. No legacy one-rect ladder objects
+  remain.
+- Backwards-compatible parsing of one-rect tall ladder objects — NOT built;
+  the per-rung model is authoritative (old ladder rects need no legacy support).
 
 ## Risks / gotchas for implementation
 
@@ -70,15 +76,15 @@ support real switch on/off.
   intended bottom-anchored behavior, not a bug to work around: merged ladder
   bounds must be recomputed from the rung union (top = min rung `y` minus its
   height), not trusted from any single object's y alone.
-- `ll2.tmx` has a ladder (id 19) with `height=19` not a multiple of 32
-  (offsets only); per-rung conversion must store/round cleanly.
-- `Ladder:resizeTileHeight(..,'top')` + `grow(5)` moves `rect.y` up — must
-work against merged/owned rung rects, and restored state must persist grown
-   height across the off/on cycle (option: keep the logical rect, only hide
-   the sprites + sensor).
-- Layer-level `properties.ladder` sensor-volume path
-  (`createLadderVolumes`, `src/map/init.lua:94`) also exists — check which
-  maps use it vs entity path before removing/keeping.
+- `ll2.tmx` had a ladder (id 19) with `height=19` not a multiple of 32
+  (offsets only); during migration it was snapped to the 32px grid.
+- `Ladder:resizeTileHeight` + `grow(5)` move the top edge only (bottom stays
+  fixed) against the merged/owned family rect; restored state persists grown
+  height across the off/on cycle (the logical rect is kept, only sprites +
+  sensor hide).
+- The legacy layer-level `properties.ladder` sensor-volume path
+  (`createLadderVolumes`) has been REMOVED — ladders are entity-only, built
+  from per-rung objects via `ladder_merger`.
 
 ## Who reads this
 
