@@ -22,7 +22,7 @@ test('every real map under res/map/ loads and steps a few frames without error',
 	-- returning zero files (e.g. a typo'd pattern after some future
 	-- reorganisation) would otherwise still pass every per-map assertion
 	-- below, covering nothing while looking green.
-	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (ll1, ll2, sandbox, tiny .tmx + drawbridge_fixture .lua), found:\n'
+	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (fab1, ll1, ll2, lurid_2p_01, sandbox), found:\n'
 		.. table.concat(files, '\n'))
 
 	local failures = {}

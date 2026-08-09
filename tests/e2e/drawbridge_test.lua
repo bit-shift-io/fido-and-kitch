@@ -1,7 +1,7 @@
 -- The drawbridge's spatial acceptance criteria -- the deck turning solid
 -- before the player reaches the gap (no fall), and a wrong-side approach
 -- staying blocked -- were previously deferred to a manual
--- `love . drawphysics map=drawbridge_fixture.lua` run, because the headless
+-- `love . drawphysics with the drawbridge fixture` run, because the headless
 -- harness can neither show nor capture the crossing. These two headed
 -- scenarios make that check automated and reviewable (see HANDOFF.md and
 -- .scratch/drawbridge/issues/03-open-on-correct-side.md).
@@ -16,7 +16,7 @@ local Queries = require('tests.support.queries')
 local Capture = require('tests.support.capture')
 
 local FakeInput = FakeInputModule.FakeInput
-local MAP = 'res/map/drawbridge_fixture.lua'
+local MAP = 'tests/fixtures/drawbridge_room.lua'
 
 -- The fixture's lone spawn point sits on the bridge's arrival
 -- (crossingDirection = 'leftToRight') side; walking right from there

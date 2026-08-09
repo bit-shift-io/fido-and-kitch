@@ -26,7 +26,7 @@ end
 test('every real map under res/map/ loads and captures a screenshot', function()
 	local files = listMapFiles()
 	-- Asserted explicitly, not just "> 0" -- see all_maps_load_test.lua.
-	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (ll1, ll2, sandbox, tiny .tmx + drawbridge_fixture .lua), found:\n'
+	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (fab1, ll1, ll2, lurid_2p_01, sandbox), found:\n'
 		.. table.concat(files, '\n'))
 
 	local failures = {}

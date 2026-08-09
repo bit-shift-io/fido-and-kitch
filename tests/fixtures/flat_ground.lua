@@ -1,8 +1,8 @@
 -- Hand-authored fixture map: an empty flat room with a single spawn point,
 -- no special mechanics. No Tiled GUI was available while building this --
 -- author/maintain in Tiled and re-export if you have it, otherwise edit this
--- Lua directly and keep it STI-shaped (see res/map/drawbridge_fixture.lua
--- for the same precedent). No tileset/tile layer is used -- only object
+-- Lua directly and keep it STI-shaped (see
+-- tests/fixtures/drawbridge_room.lua for the same precedent). No tileset/tile layer is used -- only object
 -- layers -- which sidesteps STI's tileset image-caching path entirely.
 --
 -- Layout: a single floor spanning the room width, with a spawn point above

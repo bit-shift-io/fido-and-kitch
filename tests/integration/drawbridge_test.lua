@@ -13,7 +13,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 
-local MAP = 'res/map/drawbridge_fixture.lua'
+local MAP = 'tests/fixtures/drawbridge_room.lua'
 
 local GAP_START_X = 128
 local GAP_END_X = 160
