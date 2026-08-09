@@ -44,6 +44,7 @@ local defaultTestFiles = {
 	'tests/unit/input_manager_test.lua',
 	'tests/unit/settings_test.lua',
 	'tests/unit/map_list_selection_test.lua',
+	'tests/unit/map_card_test.lua',
 }
 
 local tests = {}

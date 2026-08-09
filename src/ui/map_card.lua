@@ -92,6 +92,18 @@ local function titleFor(file, mapData)
 	return titleFromFile(file)
 end
 
+-- The top-left y for drawing an object's rectangle. Tile objects (dragged
+-- from a tileset/template, have a gid) are bottom-anchored in Tiled: object.y
+-- is the bottom edge, so the rect rises height above it. Plain rectangles
+-- (ladder, kill_zone, etc.) are top-anchored and occupy object.y ..
+-- object.y+height. See Rect.centreOfMapObject for the same split in-game.
+local function objectTopY(object, height)
+	if object.gid then
+		return (object.y or 0) - height
+	end
+	return object.y or 0
+end
+
 local function drawMapThumbnail(mapData)
 	local lg = love.graphics
 	local mapPixelWidth = math.max(1, (mapData.width or 1) * (mapData.tilewidth or 32))
@@ -136,7 +148,7 @@ local function drawMapThumbnail(mapData)
 					lg.setColor(color[1], color[2], color[3], 0.6)
 					local width = math.max(object.width or 16, 16)
 					local height = math.max(object.height or 16, 16)
-					lg.rectangle('fill', object.x or 0, (object.y or 0) - height, width, height)
+					lg.rectangle('fill', object.x or 0, objectTopY(object, height), width, height)
 				end
 			end
 		end
@@ -205,6 +217,7 @@ MapCard.baseName = baseName
 MapCard.titleFromFile = titleFromFile
 MapCard.collectEntityTypes = collectEntityTypes
 MapCard.readTile = readTile
+MapCard.objectTopY = objectTopY
 MapCard.drawMapThumbnail = drawMapThumbnail
 
 return MapCard
