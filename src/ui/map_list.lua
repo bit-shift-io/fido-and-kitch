@@ -50,6 +50,10 @@ function MapList:init(props)
 		end
 	end
 
+	if props.selectedFile then
+		self:selectFile(props.selectedFile)
+	end
+
 	self:updateSelection()
 end
 
@@ -122,6 +126,19 @@ function MapList:updateSelection()
 	local card = self.cards[self.selectedIndex]
 	self.selectedFileName = card and card.file or nil
 	self.selectedFile = card and card.path or nil
+end
+
+-- Selects the card for a map file name ('fab1.tmx'); a map that has since been
+-- renamed or deleted just leaves the current selection alone.
+function MapList:selectFile(file)
+	for i, card in ipairs(self.cards) do
+		if card.file == file then
+			self.selectedIndex = i
+			self:updateSelection()
+			return true
+		end
+	end
+	return false
 end
 
 function MapList:select(delta)

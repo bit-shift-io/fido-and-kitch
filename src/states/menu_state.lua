@@ -1,12 +1,14 @@
 local MapList = require('src.ui.map_list')
 local BaseState = require('src.states.base_state')
 local Log = require('src.utils.log')
+local Settings = require('src.utils.settings')
 
 local MenuState = Class{__includes = {Entity, BaseState}}
 
 function MenuState:enter()
     Log.debug('menu enter')
-    self.mapList = MapList{dir='res/map'}
+    -- reopen on whatever was played last (Settings.lastMap, written below)
+    self.mapList = MapList{dir='res/map', selectedFile=Settings.get('lastMap')}
 end
 
 function MenuState:exit()
@@ -14,6 +16,17 @@ end
 
 function MenuState:startGame(props)
     local game = self.entity
+
+    -- Every way into a map from the menu (enter/space, start button, a click or
+    -- tap on the centre card) funnels through here, so this is the one place
+    -- the choice needs remembering.
+    -- ...except a `map=` launch argument, which also calls startGame while the
+    -- menu is the current state but bypasses the list's selection entirely.
+    if self.mapList and self.mapList.selectedFileName
+        and props and props.map == self.mapList.selectedFile then
+        Settings.set('lastMap', self.mapList.selectedFileName)
+    end
+
     game:setGameState('InGameState')
     game:load(props)
 end

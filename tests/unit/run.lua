@@ -41,6 +41,8 @@ local defaultTestFiles = {
 	'tests/unit/level_generator_pushables_test.lua',
 	'tests/unit/level_generator_dressing_test.lua',
 	'tests/unit/input_manager_test.lua',
+	'tests/unit/settings_test.lua',
+	'tests/unit/map_list_selection_test.lua',
 }
 
 local tests = {}

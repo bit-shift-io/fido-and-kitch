@@ -59,6 +59,8 @@ love . debug drawphysics map=sandbox
 - `src/utils/` — utility modules:
   - `asset_manager.lua` — texture caching (`getImage`, `clear`, `getTextureCount`)
   - `event_bus.lua` — global event bus (`emit`, `on`, `off`, `clear`)
+  - `settings.lua` — player preferences persisted as `settings.json` in the save dir (currently `lastMap`, the map the menu reopens on); best-effort, never fatal
+  - `json.lua` — small JSON encode/decode behind `settings.lua`
 - `src/input/` — input management:
   - `input_manager.lua` — keyboard/joystick handling, persistent config
   - `input_config.lua` — persistent key bindings (save/load to `love.filesystem`)

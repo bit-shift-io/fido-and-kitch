@@ -6,7 +6,7 @@ conf.ipc_enabled = false
 function love.conf(t)
     t.graphics = t.graphics or {}       -- LÖVE 12 graphics startup options
 
-    t.identity = nil                    -- The name of the save directory (string)
+    t.identity = "fido-and-kitch"       -- The name of the save directory (string)
     t.appendidentity = false            -- Search files in source directory before save directory (boolean)
     t.console = false                   -- Attach a console (boolean, Windows only)
     t.externalstorage = false           -- True to save files (and read from the save directory) in external storage on Android (boolean)
