@@ -331,19 +331,23 @@ function GameAPI.getTileGrid()
 		end
 	end
 	
-	-- Check object layers for ladders and killzones
+	-- Check object layers for ladders (per-rung gid-based objects, bottom-anchored)
+	-- and killzones.
 	for _, layer in ipairs(map.map.layers) do
 		if layer.type == 'objectgroup' and layer.objects then
 			for _, obj in ipairs(layer.objects) do
 				if obj.properties then
-					local tileX = math.floor(obj.x / tileWidth) + 1
-					local tileY = math.floor(obj.y / tileHeight) + 1
-					
-					if obj.properties.ladder then
-						if grid[tileY] and grid[tileY][tileX] then
-							grid[tileY][tileX] = 2 -- 2 = ladder
+					if obj.type == 'ladder' or obj.properties.ladder then
+						local topY = obj.y - (obj.height or 0)
+						local tileX = math.floor(obj.x / tileWidth) + 1
+						for ty = math.floor(topY / tileHeight) + 1, math.floor(obj.y / tileHeight) do
+							if grid[ty] and grid[ty][tileX] then
+								grid[ty][tileX] = 2 -- 2 = ladder
+							end
 						end
 					elseif obj.properties.killzone then
+						local tileX = math.floor(obj.x / tileWidth) + 1
+						local tileY = math.floor(obj.y / tileHeight) + 1
 						if grid[tileY] and grid[tileY][tileX] then
 							grid[tileY][tileX] = 3 -- 3 = killzone
 						end

@@ -261,19 +261,25 @@ local function buildTerrain(seed, opts)
 	end
 
 	local ladderObjects = {}
-	for i, ladder in ipairs(layout.ladders) do
-		table.insert(ladderObjects, {
-			id = 100 + i,
-			type = 'ladder',
-			name = 'ladder',
-			x = (ladder.x - 1) * TILE,
-			y = surfaceY(ladder.yTop),
-			width = TILE,
-			height = surfaceY(ladder.yBottom) - surfaceY(ladder.yTop),
-		})
+	local rungId = 100
+	for _, ladder in ipairs(layout.ladders) do
+		local x = (ladder.x - 1) * TILE
+		local top = surfaceY(ladder.yTop)
+		-- One template rung per 32px tile, bottom-anchored (object.y = the
+		-- rung's bottom edge), matching the ladder.tx convention in the
+		-- hand-made maps: LadderMerger re-joins them into one logical ladder.
+		for y = top + TILE, surfaceY(ladder.yBottom), TILE do
+			table.insert(ladderObjects, {
+				id = rungId,
+				template = '../../templates/ladder.tx',
+				x = x,
+				y = y,
+			})
+			rungId = rungId + 1
+		end
 	end
 
-	return layout, rows, ladderObjects
+	return layout, rows, ladderObjects, rungId
 end
 
 local function baseMapFields(seed, layout, description, background)
@@ -310,12 +316,12 @@ end
 -- issue 03).
 function Main.buildTerrainMap(seed, opts)
 	opts = opts or {}
-	local layout, rows, ladderObjects = buildTerrain(seed, opts)
+	local layout, rows, ladderObjects, nextRungId = buildTerrain(seed, opts)
 	local groundZone = layout.zones[1]
 	local topZone = layout.zones[#layout.zones]
 
 	local map = baseMapFields(seed, layout, 'Procedurally generated level')
-	map.nextobjectid = 3 + #ladderObjects
+	map.nextobjectid = nextRungId
 	map.layers = {
 		{
 			id = 1,
@@ -353,7 +359,7 @@ end
 function Main.buildObjectiveMap(seed, opts)
 	opts = opts or {}
 	local rng = Rng.new(seed)
-	local layout, rows, ladderObjects = buildTerrain(seed, opts)
+	local layout, rows, ladderObjects, nextRungId = buildTerrain(seed, opts)
 	local plan = Plan.build(rng, #layout.zones)
 
 	local groundZone = layout.zones[1]
@@ -534,7 +540,7 @@ function Main.buildObjectiveMap(seed, opts)
 
 	local map = baseMapFields(seed, layout, 'Procedurally generated level', background)
 	map.width = mapWidth
-	map.nextobjectid = nextId + #ladderObjects
+	map.nextobjectid = math.max(nextId, nextRungId)
 	map.layers = {
 		{
 			id = 1,

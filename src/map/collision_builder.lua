@@ -18,23 +18,6 @@ local function getColliderFromShape(obj)
 	end
 end
 
-local function createLadderVolumes(layer)
-	local volumes = {}
-
-	if layer.type == 'objectgroup' and layer.objects then
-		for i, obj in pairs(layer.objects) do
-			local col = getColliderFromShape(obj)
-			if col then
-				col:setType('static')
-				col:setSensor(true)
-				table.insert(volumes, col)
-			end
-		end
-	end
-
-	return volumes
-end
-
 local function createStaticPhysicsBodies(layer)
 	local colliders = {}
 
@@ -89,10 +72,6 @@ end
 
 function CollisionBuilder:new()
 	return setmetatable({}, CollisionBuilder)
-end
-
-function CollisionBuilder:createLadderVolumes(layer)
-	return createLadderVolumes(layer)
 end
 
 function CollisionBuilder:createStaticPhysicsBodies(layer)

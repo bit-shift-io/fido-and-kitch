@@ -91,9 +91,6 @@ function Map:new(path, world, debug)
 		if layer.properties.collision then
 			self.collisionBuilder:createStaticPhysicsBodies(layer)
 		end
-		if layer.properties.ladder then
-			self.collisionBuilder:createLadderVolumes(layer)
-		end
 	end
 
 	self.collisionBuilder:createStaticPhysicsBodyBoundary(map)

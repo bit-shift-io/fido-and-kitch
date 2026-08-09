@@ -1,5 +1,6 @@
 local Log = require('src.utils.log')
 local NPCRegistry = require('src.npc.npc_registry')
+local LadderMerger = require('src.map.ladder_merger')
 
 local EntityFactory = {}
 EntityFactory.__index = EntityFactory
@@ -17,6 +18,33 @@ function EntityFactory:new(searchPaths, typeIgnores, map)
 	}, EntityFactory)
 end
 
+-- Pre-pass over a layer's objects that folds per-rung ladder tile objects
+-- into logical ladders (see src/map/ladder_merger.lua) and annotates each
+-- rung object with its merged family rect (`ladderFamily`) and a `leadRung`
+-- flag on the lowest rung. Pure and headless-safe: no World, no I/O.
+-- Behavior is unchanged by the annotation itself -- entities just read the
+-- annotations later (see src/entities/ladder.lua).
+function EntityFactory.annotateLadders(objects)
+	local rungs = {}
+	for _, object in ipairs(objects or {}) do
+		if object.type == 'ladder' then
+			table.insert(rungs, object)
+		end
+	end
+
+	local groups = LadderMerger.merge(rungs)
+	for _, group in ipairs(groups) do
+		-- one shared Rect per family so every rung's ladder.rect carries
+		-- the real centre()/colliderShapeArgs() API player code expects
+		local family = Rect(group.rect)
+		for i, rung in ipairs(group.rungs) do
+			rung.ladderFamily = family
+			rung.leadRung = (i == #group.rungs)
+		end
+	end
+	return groups
+end
+
 -- Walks every object layer, wiring update/draw and object:exec, and loads
 -- an entity for each object via self:loadEntity (which also appends it to
 -- layer.entities -- no separate insert needed here).
@@ -25,6 +53,8 @@ function EntityFactory:createEntities(map, world)
 		if layer.type == "objectgroup" then
 			local objects = layer.objects
 			layer.entities = {}
+
+			self.annotateLadders(objects)
 
 			function layer:update(dt)
 				local remove_keys = {}

@@ -29,10 +29,13 @@ test('a generated terrain level loads with real ladder entities matching the lay
 		FrameStepper.step(game, 5)
 
 		local ladders = map:getEntitiesByType('ladder')
-		assertEqual(#layout.ladders, #ladders, 'expected one Ladder entity per layout ladder')
+		assertTrue(#ladders > 0, 'expected at least one Ladder entity')
+		local leadCount = 0
 		for _, ladder in ipairs(ladders) do
 			assertTrue(ladder.isLadder, 'expected a real Ladder entity with isLadder set')
+			if ladder.lead == ladder then leadCount = leadCount + 1 end
 		end
+		assertEqual(#layout.ladders, leadCount, 'expected one lead Ladder entity per layout ladder')
 	end)
 	removeGeneratedFixture()
 

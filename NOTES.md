@@ -1,40 +1,87 @@
-# Grill Notes — Story Entity (2026-08-05)
+# Fido and Kitch — Ladder Props Feature: Confirmed Requirements
 
-## Task
+Grill notes (2026-08-09). Feature: author ladders as per-rung gid "props" in
+Tiled so they render in the editor, keep identical in-game behavior, and
+support real switch on/off.
 
-Pin down the `story` entity design (unimplemented, `TODO.md:9`, specced `CONTEXT.md:251-259`) before building `src/entities/story.lua`.
+## Related code (grounding)
 
-## Verified against code
+- `res/templates/ladder.tx` — existing template; object `type="ladder"` with
+  `gid`, width/height 32. Rendering art comes from props.tsx tile id 2
+  (`../img/ladder.png`, 128x32, 4 frames).
+- `res/map/*.tmx` — ladders are authored as plain tall rectangles
+  (`type="ladder"`, no gid), one per ladder; loaded via `Tmx.parse`
+  (`src/map/init.lua:12-17`) since only `.tmx` exist under `res/map/`.
+- `src/entities/ladder.lua` — entity builds one sensor collider from the
+  object rect + tiled `ladder.png` sprites; `:tileHeight()`,
+  `:resizeTileHeight(n,'top')` (grows up), `:grow(n)`; `Ladder:switch`
+  currently only reacts to `switch.state=='on'` via `object:exec('switchOn')`.
+- Switch `target` resolves a single object id (`switch.lua`, `teleport.lua`
+  pattern); `map:getObjectById(id).entity` / `object:exec` script plumbing in
+  `src/map/entity_factory.lua:55-71`.
+- `tools/level_generator/main.lua` emits gid-less ladder objects
+  (`buildTerrain`, lines ~263-276, ~318, ~341).
+- `tests/unit/map_card.lua_test` + `tools/level_generator/main.lua:67` note:
+  **gid tile objects are bottom-anchored; gid-less rectangles top-anchored.**
 
-- No `src/entities/story.lua` exists. `Map.typeIgnores = {'', 'spawn'}` → `story` is not ignored.
-- Spec (`CONTEXT.md:251-259`): Tiled type `story`, `text` property (`\n` newlines), speech bubble on use, follows entity on screen, auto-dismiss on overlap end, re-trigger cooldown, player keeps full control.
-- Interaction plumbing exists: `Player:checkForUsables` (`src/player/player.lua:152-168`) calls `world:queryOverlap(bounds)` with ±16px box around player, then `usable:canUse(user)`/`usable:use(user)`. Story entity needs a static sensor Collider + `Usable` component to piggyback. Runs every frame.
-- `Usable` component (`src/components/usable.lua`) supports `use`/`canUse`/`enabled`; `use` logs, calls `useFunc(user)`.
-- `Sound` component (`src/components/sound.lua`): `play(name)` warns-and-returns if `love.filesystem.getInfo(path) == nil` → wiring a not-yet-existing WAV is safe (Log.warn only). `res/snd/` has no story/dialogue asset.
-- `res/img/default.png` (32×32) exists but is NOT needed — trigger is invisible.
-- Text rendering precedent: `love.graphics.newFont(size)`, `love.graphics.getFont():getWidth()` (used in `game_hud.lua:134`, states). `love_mock` `newFont` returns `{}`; `getWidth` already added to mock fonts.
-- Camera: pure math (`src/camera.lua`), `InGameState:draw` (`src/states/ingame_state.lua:213-233`) calls `camera:getDrawParams()` → `tx, ty, sx, sy`; `map:draw2(tx,ty,sx,sy)` + `map:drawEntities(tx,ty,sx,sy)` in world space, then `gameHud:draw()` in screen space. World→screen ≈ `(wx + tx) * sx`.
+## Confirmed decisions (asked + answered)
 
-## Confirmed user answers
+1. **Prop form**: "One tile object per rung" — each 32px rung is its own
+   gid'd tile object (`type=ladder`, gid from props.tsx, 32x32), stamped via
+   the existing `res/templates/ladder.tx`, stacked N-high.
+2. **Rung grouping**: "auto merge by column + contiguity + matching custom
+   properties." Engine merges same-column, vertically-adjacent rungs into one
+   ladder when their custom-property sets match — a rung tagged with a
+   differing custom property can force a vertical split. Any rung's object id
+   works as a switch target because all fold into one entity.
+3. **Toggle off**: "Add real off" — switch `off` hides the ladder and removes
+   its climb sensor; switch `on` restores it (keeping grown size). Just extend
+   `Ladder:switch` to also handle `off`.
+4. **Player mid-climb**: climbing player "Falls safely" when the ladder hides
+   (same as letting go of climb mid-air).
+5. **Deliverable**: "Full feature + migrate existing maps" — engine changes,
+   per-rung rung-merging, hide-on-off, AND migrate `res/map/*.tmx` + test
+   fixtures + `tools/level_generator` output to the per-rung gid format, with
+   tests.
+6. **Anchor semantics (amendment from grill)**: "you can change the behaviour
+   to match the prop if that's better long term, from top to bottom." Adopt
+   **bottom-anchored** ladder geometry everywhere, matching Tiled gid props
+   (object `y` = ladder's bottom edge, top = `y - height`). Do NOT preserve
+   top-anchored legacy semantics; merged logical rect, sprite placement,
+   collider, and `resizeTileHeight`/`grow` math are all recomputed against
+   bottom-anchored y. Grow upward keeps the bottom fixed (top rises) — same
+   gameplay result as today, cleaner data model going forward.
 
-- **Trigger visual: NONE (superseded).** Initially "standard image, customisable, default png for now"; later answered the image question with "no image, text only." → Invisible trigger; no sprite. No default image asset needed.
-- **Text wrapping: Designer breaks only.** `\n` only; no auto-wrap; bubble sizes to widest line. Designer must insert `\n` for long text; a long unbroken line could run off-screen.
-- **Bubble styling: Simple rounded box.** Dark/light fill + game default font, positioned above entity with a small tail pointing at it, text centred; pure `love.graphics` primitives, no art asset.
-- **Sound: Wire component, no asset.** Attach `Sound` with a `blip` key pointing at a not-yet-existing WAV (e.g. `res/snd/entity_story_blip.wav`). Safe: `Sound:play` warns-and-returns on missing file. No audible cue until asset added.
-- **Re-trigger: 0.5s + toggle.** Use toggles bubble on/off (respecting 0.5s cooldown for re-open after a dismiss); moving away still auto-dismisses. Cooldown counts from dismissal.
-- **Typewriter: ramp-up, locked in.** Per line: first ~4 chars letter-by-letter (~40 chars/sec), then word-by-word, then remaining slab drops in at once. Total ~0.5s to full reveal regardless of length. `use` mid-type reveals instantly (next press dismisses). NES-authentic opening but never laggy.
-- **Render space: Screen space.** Bubble projected to screen each frame (follows entity through pan/zoom), text readable at any zoom incl. overview. Matches "UI overlay" wording.
+## Open / deferred
 
-## Design notes (implementation decisions)
+- **Migration execution**: migrate-all default — all maps + fixtures +
+  generator — but which specific .tmx (ll1, ll2, sandbox, fab1, lurid_2p_01)
+  and whether hand-authored fixtures (`tests/fixtures/ladder_platform_room.lua`
+  etc.) get converted is a decision for the implementer. Keep legacy rect
+  parsing working for .tmx compat if cheap.
+- Backwards-compatible parsing of one-rect tall ladder objects (useful during
+  transition; not yet a hard requirement).
 
-- **Collider:** static sensor rectangle sized to the Tiled object (so `world:queryOverlap` in `Player:checkForUsables` finds it). `walkable` irrelevant.
-- **Usable:** `Usable{use=...}`; `use(user)` toggles that user's per-player bubble state. Spec: one bubble per player per entity; both players can show bubbles simultaneously → track bubble state per player (key by player id/table), not a single boolean.
-- **Overlap-end detection:** story entity must detect when its triggering player(s) no longer overlap to auto-dismiss. `Usable` has no overlap-end hook; poll `world:queryOverlap` per frame per active bubble's player, or track via sensor. Spec: "auto-hides when the triggering player's overlap ends."
-- **Screen-space draw hook:** bubbles can't be drawn in `map:drawEntities` (world transform active). Need a draw pass after the camera transform (like `gameHud:draw()`): InGameState (or a story-bubble renderer) projects each active bubble's entity world position → screen via `tx,ty,sx,sy`, draws rounded box + tail + centered typewriter text. Likely iterate `map:getEntitiesByType('story')` or a registry of active bubbles.
-- **Typewriter state:** per active bubble — line index, revealed char count, phase (letters/words/slab), timer. Reset on dismiss; `use` mid-type jumps to full.
-- **`text` property:** read from `object.properties.text` in `init` (entity factory passes `object.properties` as props).
-- Tests: unit-test typewriter reveal math and per-player bubble state via `tests/support/headless_bootstrap.lua` (ADR 0005) with `_internal` seam; bubble draw smoke-test with `love_mock` (has `love.graphics.print`, `getWidth`). Integration: overlap → use → bubble state, dismiss on move-away.
+## Risks / gotchas for implementation
 
-## Open questions
+- **Anchor flip is now the model**: converting rect objects → gid tile
+  objects changes top-anchor to bottom-anchor (`tests/unit/map_card.lua:5`,
+  `tools/level_generator/main.lua:67`). Per decision 6 this is now the
+  intended bottom-anchored behavior, not a bug to work around: merged ladder
+  bounds must be recomputed from the rung union (top = min rung `y` minus its
+  height), not trusted from any single object's y alone.
+- `ll2.tmx` has a ladder (id 19) with `height=19` not a multiple of 32
+  (offsets only); per-rung conversion must store/round cleanly.
+- `Ladder:resizeTileHeight(..,'top')` + `grow(5)` moves `rect.y` up — must
+work against merged/owned rung rects, and restored state must persist grown
+   height across the off/on cycle (option: keep the logical rect, only hide
+   the sprites + sensor).
+- Layer-level `properties.ladder` sensor-volume path
+  (`createLadderVolumes`, `src/map/init.lua:94`) also exists — check which
+  maps use it vs entity path before removing/keeping.
 
-None remaining. Grilling complete.
+## Who reads this
+
+Target implementation against `src/entities/ladder.lua`, Tiled `.tmx` objects
+in `res/map/*.tmx`, and `tools/level_generator`; verify formats stay in sync
+with `res/templates/ladder.tx`; run `./test-unit.sh` + `./test-integration.sh`.

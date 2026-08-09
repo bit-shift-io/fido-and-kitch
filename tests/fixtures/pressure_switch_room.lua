@@ -140,9 +140,24 @@ return {
           type = "ladder",
           shape = "rectangle",
           x = 544,
-          y = 160,
+          y = 224,
           width = 32,
-          height = 64,
+          height = 32,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["switchOn"] = "entity:grow(2)"
+          }
+        },
+        {
+          id = 7,
+          name = "target_ladder",
+          type = "ladder",
+          shape = "rectangle",
+          x = 544,
+          y = 192,
+          width = 32,
+          height = 32,
           rotation = 0,
           visible = true,
           properties = {

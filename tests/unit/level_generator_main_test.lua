@@ -63,7 +63,8 @@ test('terrain map still has exactly one spawn and one exit with actor_count 0', 
 	assertEqual(1, exitCount)
 end)
 
-test('terrain map emits a ladder object for every ladder the layout produced', function()
+test('terrain map emits one template rung per ladder tile, bottom-anchored', function()
+	function surfaceY(row) return (row - 1) * 32 end
 	local Layout = require('tools.level_generator.layout')
 	local Rng = require('tools.level_generator.rng')
 	local layout = Layout.generate(Rng.new(42), {size = 'medium'})
@@ -72,9 +73,17 @@ test('terrain map emits a ladder object for every ladder the layout produced', f
 	local ladderLayer = map.layers[#map.layers]
 
 	assertEqual('ladder', ladderLayer.name)
-	assertEqual(#layout.ladders, #ladderLayer.objects)
+	local expectedRungs = 0
+	for _, ladder in ipairs(layout.ladders) do
+		expectedRungs = expectedRungs + (surfaceY(ladder.yBottom) - surfaceY(ladder.yTop)) / 32
+	end
+	assertEqual(expectedRungs, #ladderLayer.objects)
 	for _, object in ipairs(ladderLayer.objects) do
-		assertEqual('ladder', object.type)
+		assertEqual('../../templates/ladder.tx', object.template)
+		assertEqual(nil, object.type)
+		assertEqual(nil, object.width)
+		assertEqual(nil, object.height)
+		assertEqual(0, object.y % 32, 'rung bottom edge must sit on a 32px grid boundary')
 	end
 end)
 

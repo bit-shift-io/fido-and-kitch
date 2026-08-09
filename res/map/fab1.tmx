@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="111">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="20" nextobjectid="124">
  <properties>
   <property name="background" value="night_forest"/>
   <property name="description" value="A new work-in-progress level"/>
@@ -25,10 +25,20 @@
   <properties>
    <property name="ladder" type="bool" value="false"/>
   </properties>
-  <object id="60" name="ladder" type="ladder" x="288" y="192" width="32" height="192"/>
-  <object id="61" name="ladder" type="ladder" x="320" y="384" width="32" height="128"/>
-  <object id="93" name="ladder" type="ladder" x="96" y="512" width="32" height="66.5551"/>
- </objectgroup>
+<object id="111" template="../templates/ladder.tx" x="288" y="384"/>
+   <object id="112" template="../templates/ladder.tx" x="288" y="352"/>
+   <object id="113" template="../templates/ladder.tx" x="288" y="320"/>
+   <object id="114" template="../templates/ladder.tx" x="288" y="288"/>
+   <object id="115" template="../templates/ladder.tx" x="288" y="256"/>
+   <object id="116" template="../templates/ladder.tx" x="288" y="224"/>
+   <object id="117" template="../templates/ladder.tx" x="320" y="512"/>
+   <object id="118" template="../templates/ladder.tx" x="320" y="480"/>
+   <object id="119" template="../templates/ladder.tx" x="320" y="448"/>
+   <object id="120" template="../templates/ladder.tx" x="320" y="416"/>
+   <object id="121" template="../templates/ladder.tx" x="96" y="608"/>
+   <object id="122" template="../templates/ladder.tx" x="96" y="576"/>
+   <object id="123" template="../templates/ladder.tx" x="96" y="544"/>
+  </objectgroup>
  <objectgroup id="19" name="kill">
   <object id="78" name="water_kill" type="kill_zone" x="384" y="592" width="96" height="48">
    <properties>

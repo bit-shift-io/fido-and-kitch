@@ -45,6 +45,10 @@ local defaultTestFiles = {
 	'tests/unit/settings_test.lua',
 	'tests/unit/map_list_selection_test.lua',
 	'tests/unit/map_card_test.lua',
+	'tests/unit/ladder_merge_test.lua',
+	'tests/unit/ladder_annotation_test.lua',
+	'tests/unit/ladder_entity_test.lua',
+	'tests/unit/ladder_toggle_test.lua',
 }
 
 local tests = {}
