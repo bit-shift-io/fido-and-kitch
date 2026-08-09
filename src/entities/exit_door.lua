@@ -14,16 +14,19 @@ function ExitDoor:init(object)
     local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
 	-- visual footprint only -- the collider below stays the map's 1x1 tile;
-	-- the bigger sprite is purely decorative bleed so the art can extend
-	-- beyond the tile the door sits on
-	local sprite_shape_arguments = Rect.shapeArgs(object.width * 2, object.height * 2)
+	-- the bigger sprite is purely decorative art so the art can extend
+	-- beyond the tile the door sits on. The box is 2x the tile, centred on
+	-- the tile centre, which would hang the art 16px past the tile's bottom;
+	-- lift the sprite by half the extra height so it sits back on the ground.
+	local sprite_shape = Rect.shapeArgs(object.width * 2, object.height * 2)
+	local sprite_position = position - Vector(0, object.height * 0.5)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/entity_door.png',
-		frames=1,
+		frames=2,
 		duration=1.0,
 		loop=false,
-		position=position,
-		shape_arguments=sprite_shape_arguments,
+		position=sprite_position,
+		shape_arguments=sprite_shape,
 		finish=utils.bindSelf(ExitDoor.animFinished, self)
 	})
 	local collider = self:addComponent(Collider{

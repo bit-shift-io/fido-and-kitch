@@ -7,14 +7,20 @@ function Teleport:init(object, map)
 	self.target = object.properties.target and map:getObjectById(object.properties.target.id)
 
 	-- visual footprint only -- the collider below stays the map's 1x1 tile;
-	-- the bigger sprite is purely decorative bleed so the art can extend
-	-- beyond the tile the teleporter sits on
-	local sprite_shape_arguments = Rect.shapeArgs(object.width * 2, object.height * 2)
+	-- the bigger sprite is purely decorative art so the art can extend
+	-- beyond the tile the teleporter sits on. The box is 2x the tile,
+	-- centred on the tile centre, which would hang the art 16px past the
+	-- tile's bottom; lift the sprite by half the extra height so it sits
+	-- back on the ground. The sprite's position is set explicitly rather
+	-- than synced from the collider (which would clobber this offset).
+	local sprite_shape = Rect.shapeArgs(object.width * 2, object.height * 2)
+	local sprite_position = position - Vector(0, object.height * 0.5)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/entity_teleporter.png',
 		frames=1,
 		duration=1.0,
-		shape_arguments=sprite_shape_arguments,
+		shape_arguments=sprite_shape,
+		position=sprite_position,
 		loop=false
 	})
 	self.collider = self:addComponent(Collider{
@@ -23,7 +29,6 @@ function Teleport:init(object, map)
 		body_type='static',
 		enter=utils.bindSelf(Teleport.contact, self),
 		sensor=true,
-		sprite=self.sprite,
 		position=position
 	})
 	-- Defaults to enabled, matching every existing map (none author this
