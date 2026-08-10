@@ -1,93 +1,109 @@
-# Fido and Kitch — Ladder Props Feature: Confirmed Requirements
+# Fido and Kitch — Movable Platform Feature: Confirmed Requirements
 
-Grill notes (2026-08-09). Feature: author ladders as per-rung gid "props" in
-Tiled so they render in the editor, keep identical in-game behavior, and
-support real switch on/off.
+Grill notes (2026-08-10). Feature: a rideable moving platform entity that
+travels along a path defined in Tiled and carries standing players with it.
 
 ## Related code (grounding)
 
-- `res/templates/ladder.tx` — template; object `type="ladder"` with `gid`,
-  width/height 32. Rendering art comes from props.tsx tile id 2
-  (`../img/ladder.png`, 128x32, 4 frames).
-- `res/map/*.tmx` — ladders are authored as per-rung template tile objects
-  (`<object template="../templates/ladder.tx" x= y=/>`, no type/width/height),
-  one 32px rung per step, bottom-anchored (object `y` = rung bottom edge).
-  Loaded via `Tmx.parse` (`src/map/tmx.lua`) then STI.
-- `src/map/ladder_merger.lua` — pure: groups same-column rungs by vertical
-  contiguity into one logical `{rect, rungs, properties}`; differing custom
-  properties force a vertical split.
-- `src/map/entity_factory.lua` `annotateLadders` — marks each rung with a
-  shared `ladderFamily` rect + `leadRung` flag (lowest rung is lead).
-- `src/entities/ladder.lua` — lead rung builds one merged sensor collider from
-  the family rect + tiled `ladder.png` sprites; upper rungs are thin aliases
-  forwarding to the lead. `:tileHeight()`, `:resizeTileHeight(n,'top'|'bottom')`
-  (moves only the named edge), `:grow(n)`; `Ladder:switch` hides on `'off'`
-  (removes collider + sprites) and restores on `'on'` (keeping grown size).
-- Switch `target` resolves a single object id (`switch.lua`, `teleport.lua`
-  pattern); `map:getObjectById(id).entity` / `object:exec` script plumbing in
-  `src/map/entity_factory.lua`. Any rung id works as a switch target.
-- `tools/level_generator/main.lua` emits per-rung `template="../../templates/ladder.tx"`
-  objects from `buildTerrain` (bottom-anchored, one per 32px tile).
-- **gid tile objects are bottom-anchored; gid-less rectangles top-anchored.**
-  All ladder geometry is now bottom-anchored.
+- `res/img/entity_mover_platform.png` — platform art already exists (never
+  wired up). `generic_platformer_tiles.png` also available.
+- `src/npc/npc_base.lua:398` — NPCs already anticipate `isMovingPlatform`
+  (reads `other.collider:getLinearVelocity()`); `ridePlatforms` config flag
+  in `npc_config.lua` (default false; rabbit is the only `true`).
+  This is pre-wired but nothing sets `isMovingPlatform` yet.
+- `src/components/path.lua` — `Path{polyline=...}` from a Tiled polyline
+  object; `getPositionV(percent)` is `love.math.newBezierCurve:evaluate` —
+  **a bezier**. For linear point-to-point motion we must NOT use
+  `Path:getPositionV`; do own per-segment constant-speed interpolation.
+- `src/components/path_follow.lua` — drives a sprite/collider via
+  `duration = path.length / speed`, advancing `timePercent`; finishes and
+  restores gravity/velocity. One-shot; bezier-based; used by
+  `jump_pad.lua:75` on the *player* (offset from path start).
+- `src/components/timeline.lua` — supports `loop`, `bounce`, `hold`,
+  `events`, `finish` signal. Candidate for motion driver but position is not
+  linear under its `timePercent`; likely hand-rolled segment stepping is
+  cleaner.
+- `src/components/switchable.lua` — `switchable:switch(switch, user)` +
+  `onStateChange`; drawbridge uses a `Switchable` with `latchedOpen`
+  (`drawbridge.lua:204`), default enabled = true. Switch resolves target via
+  `map:getObjectById(object.properties.target.id)` (`switch.lua:38`).
+- Ground detection is **boolean-only**: `PlayerSensors.queryOnGround`,
+  `GroundSupport.hasGroundAt`/`isFullySupported` return true/false — no
+  "which collider" answer. Delta-carry detection must be done by the
+  platform itself (own-collider overlap vs. each player, or per-player ground
+  probes against platform bounds), not by reading queryOnGround's result.
+- No one-way platform exists anywhere yet. Drawbridge is a solid walkable
+  deck (`collider.walkable = true`, `sensor` toggles only for open/closed);
+  bump has no native directional one-way collision. One-way top-only needs a
+  mechanism (e.g. solid only when the player's feet are above the top edge).
+- `walkable = true` on the platform's collider is REQUIRED or standing
+  players get stuck in FallState (drawbridge gotcha).
+- Entity naming: Tiled object `type` maps to `src/entities/<type>.lua`.
+  Art is named `entity_mover_platform.png`; NPCBase checks `isMovingPlatform`.
+  Artwork/template conventions from `res/templates/*.tx`.
 
 ## Confirmed decisions (asked + answered)
 
-1. **Prop form**: "One tile object per rung" — each 32px rung is its own
-   gid'd tile object (`type=ladder`, gid from props.tsx, 32x32), stamped via
-   the existing `res/templates/ladder.tx`, stacked N-high.
-2. **Rung grouping**: "auto merge by column + contiguity + matching custom
-   properties." Engine merges same-column, vertically-adjacent rungs into one
-   ladder when their custom-property sets match — a rung tagged with a
-   differing custom property can force a vertical split. Any rung's object id
-   works as a switch target because all fold into one entity.
-3. **Toggle off**: "Add real off" — switch `off` hides the ladder and removes
-   its climb sensor; switch `on` restores it (keeping grown size). Just extend
-   `Ladder:switch` to also handle `off`.
-4. **Player mid-climb**: climbing player "Falls safely" when the ladder hides
-   (same as letting go of climb mid-air).
-5. **Deliverable**: "Full feature + migrate existing maps" — engine changes,
-   per-rung rung-merging, hide-on-off, AND migrate `res/map/*.tmx` + test
-   fixtures + `tools/level_generator` output to the per-rung gid format, with
-   tests.
-6. **Anchor semantics (amendment from grill)**: "you can change the behaviour
-   to match the prop if that's better long term, from top to bottom." Adopt
-   **bottom-anchored** ladder geometry everywhere, matching Tiled gid props
-   (object `y` = ladder's bottom edge, top = `y - height`). Do NOT preserve
-   top-anchored legacy semantics; merged logical rect, sprite placement,
-   collider, and `resizeTileHeight`/`grow` math are all recomputed against
-   bottom-anchored y. Grow upward keeps the bottom fixed (top rises) — same
-   gameplay result as today, cleaner data model going forward.
+1. **Core semantics**: "Rideable moving platform" — travels a path; a
+   standing player is carried along. Classic puzzle lift.
+2. **Motion model**: "Freeform path following" — flexible path, configurable
+   end behavior + pauses.
+3. **End-of-path behavior**: user-configurable **`endBehavior` = 'pingpong'
+   | 'loop'** (default **'pingpong'**). Plus pauses at certain points.
+4. **Carry mechanic**: "Delta-carry standing riders" — platform translates a
+   standing player by exactly its own per-frame move delta (smooth, no
+   slip). Player can walk off / free-will ends the ride.
+5. **Collision**: "One-way top-only" — land on top; jump up through from
+   below; pass through from the sides.
+6. **Tiled authoring**: `path` property referencing a polyline object
+   (exact jump_pad convention) + custom props on the platform object
+   (`speed`, `endBehavior`, `pause`).
+7. **Pauses**: single `pause` custom property (seconds) applies at EVERY
+   path point including both ends.
+8. **Carry scope**: players only (P1/P2). Boxes/boulders/physics props just
+   collide normally (slide or stop). NPCs not carried (pre-wired
+   `ridePlatforms` NPC path is out of scope unless trivial).
+9. **Activation**: always-on once running (default enabled) + switch
+   start/stop via `Switchable` (drawbridge latched pattern).
+10. **Interpolation**: LINEAR point-to-point at constant pixel speed, turning
+    at each corner — NOT the bezier in `Path:getPositionV`/PathFollow.
+11. **Blockage**: clip through everything — moves linearly regardless of
+    terrain/entities in the way; level designer keeps the route clear
+    (matches "map code is trusted" posture).
+12. **Config props**: `speed` (px/sec — reference: jump_pad uses 400; pick a
+    sensible default, e.g. 100) and `endBehavior` ('pingpong' default |
+    'loop'), plus `pause` (default 0).
 
 ## Open / deferred
 
-- **Migration execution**: DONE — all maps (`ll1`, `ll2`, `sandbox`, `fab1`,
-  `lurid_2p_01`) + all hand-authored fixtures + `tools/level_generator` now use
-  per-rung bottom-anchored template rungs. No legacy one-rect ladder objects
-  remain.
-- Backwards-compatible parsing of one-rect tall ladder objects — NOT built;
-  the per-rung model is authoritative (old ladder rects need no legacy support).
+- **Tiled `type` / entity filename**: not yet chosen (e.g. `platform` vs
+  `mover_platform`). Art is `entity_mover_platform.png`; pick a name and a
+  `res/templates/*.tx` template if desired.
+- **One-way top-only mechanism**: no existing pattern in bump; needs design
+  (solid-while-above vs. sensor + custom ground). Must keep `walkable=true`
+  so landing works.
+- **Carry detection**: how the platform identifies riders without
+  queryOnGround returning which collider.
+- **Switch start/stop semantics**: pause at path point vs. stop in place;
+  whether the shaft resumes from current position.
+- Whether to also honor NPC `ridePlatforms`/`isMovingPlatform` (pre-wired).
 
 ## Risks / gotchas for implementation
 
-- **Anchor flip is now the model**: converting rect objects → gid tile
-  objects changes top-anchor to bottom-anchor (`tests/unit/map_card.lua:5`,
-  `tools/level_generator/main.lua:67`). Per decision 6 this is now the
-  intended bottom-anchored behavior, not a bug to work around: merged ladder
-  bounds must be recomputed from the rung union (top = min rung `y` minus its
-  height), not trusted from any single object's y alone.
-- `ll2.tmx` had a ladder (id 19) with `height=19` not a multiple of 32
-  (offsets only); during migration it was snapped to the 32px grid.
-- `Ladder:resizeTileHeight` + `grow(5)` move the top edge only (bottom stays
-  fixed) against the merged/owned family rect; restored state persists grown
-  height across the off/on cycle (the logical rect is kept, only sprites +
-  sensor hide).
-- The legacy layer-level `properties.ladder` sensor-volume path
-  (`createLadderVolumes`) has been REMOVED — ladders are entity-only, built
-  from per-rung objects via `ladder_merger`.
+- **Bezier vs linear**: reusing `Path:getPositionV` or `PathFollow` gives
+  curved, non-constant-speed motion — violates decision 10. Write own
+  per-segment speed-based stepper.
+- **Discrete AABB (bump)**: fast platforms can tunnel a rider on a single
+  frame's delta; keep speeds moderate or apply carry before physics step.
+- **One-way framing**: without a mechanism, "one-way top-only" degenerates
+  into a full solid box (side/under block) or a sensor (no standing).
+- **`walkable = true` mandatory**: else riders stick in FallState.
+- Static-body manual moves: set position directly each frame; do not rely on
+  bump impulses for the platform itself.
 
 ## Who reads this
 
-Target implementation against `src/entities/ladder.lua`, Tiled `.tmx` objects
-in `res/map/*.tmx`, and `tools/level_generator`; verify formats stay in sync
-with `res/templates/ladder.tx`; run `./test-unit.sh` + `./test-integration.sh`.
+Target implementation against a new `src/entities/<type>.lua`, the
+`Switchable` component, Tiled `.tmx` polyline objects, and the existing
+`collider.walkable` ground system. Run `./test-unit.sh` +
+`./test-integration.sh`; add unit tests alongside.

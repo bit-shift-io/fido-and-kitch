@@ -7,6 +7,7 @@ A list of tasks that need to be done. Generate docs before starting each task.
 - movable platform - can use as elevators, follows path with pauses
 - replicator entity - spawn boxes etc in the roof?
 - fix npcs
+- parse aschii collision to ai gen for genrating levels? tool
 
 ## Medium Priority
 - `src/entities/exit_door.lua` (`ExitDoor:checkEndGame`): if all players have left the map, trigger game over
