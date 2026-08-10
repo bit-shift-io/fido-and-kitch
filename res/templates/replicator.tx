@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
  <tileset firstgid="1" source="../tilesets/props.tsx"/>
- <object name="replicator" type="replicator" gid="11" width="32" height="32">
+ <object name="replicator" type="replicator" gid="11" width="32" height="32" rotation="0">
   <properties>
-   <property name="interval" type="float" value="3.0"/>
    <property name="spawnType" type="string" value="push_box"/>
-   <property name="enabled" type="bool" value="true"/>
+   <property name="maxSpawns" type="int" value="1"/>
   </properties>
  </object>
 </template>

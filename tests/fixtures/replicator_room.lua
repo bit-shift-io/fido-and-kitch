@@ -1,15 +1,15 @@
 -- Hand-authored fixture map for the replicator entity (see
 -- mover_platform_room.lua for the STI-shaped, no-tileset precedent this
--- follows): a flat floor, a replicator mounted high in the air directly above
--- wide-open space so spawned push boxes fall and land on the floor, and a
--- switch wired to the replicator's Switchable for stop/start.
+-- follows): a flat floor, a replicator mounted high in the ceiling directly
+-- above wide-open space so spawned push boxes fall and land on the floor, and
+-- a switch wired to the replicator's Switchable -- every press spawns once
+-- until maxSpawns (1) is spent.
 --
--- Replicator geometry: object at (192,64) is bottom-anchored (its sprite
--- centre is (208,48) per Rect.centreOfMapObject). The spawned mock object is
--- top-anchored (no gid), so PushableSupport.spawnCentre places each box's
--- centre at y = (object.y - object.height) + object.height*0.5 = 48, i.e. the
--- same hover point as the machine; it then falls 96px onto the floor top
--- (y=160), landing with centre y=144 (box is 32x32).
+-- Replicator geometry: the object is bottom-anchored semantics for emitY
+-- (object.y = bottom edge = 64). A ceiling mount (rotation 0) emits the box
+-- top edge at object.y + object.height = 96, so the spawned push_box has its
+-- top edge at y=96 (centre y=112, per PushableSupport.spawnCentre) and falls
+-- 64px onto the floor top (y=160), landing with centre y=144 (box is 32x32).
 return {
   version = "1.11",
   luaversion = "5.1",
@@ -96,8 +96,8 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["interval"] = 1.0,
-            ["spawnType"] = "push_box"
+            ["spawnType"] = "push_box",
+            ["maxSpawns"] = 1
           }
         },
         {

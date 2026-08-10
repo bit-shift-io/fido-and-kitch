@@ -1,66 +1,108 @@
-# PLAN - Replicator entity (spawn boxes from the roof)
+# PLAN - Rework Replicator to the confirmed switch-pulse contract (NOTES.md)
 
-A ceiling-mounted machine that periodically spawns a box (or any entity archetype) that
-falls into the room. A `replicator` Tiled object with an `interval` (seconds),
-`spawnType` (default `push_box`), optional `maxTotal` capability cap, and `Switchable`
-start/stop (a `switch` can toggle spawning). Spawn reuses the proven runtime-spawn path
-in `src/entities/cage.lua` (`self.map:loadEntity(spawnType, layer, mockObject)`) —
-the same path `GameAPI.spawnEntity` (src/ipc/game_api.lua:363-406) uses. Mock object has
-NO `gid` so `PushableSupport.spawnCentre` treats it top-anchored and the box centre lands
-exactly at the replicator's position; the spawned collider auto-registers in the bumps
-`world` global via `Collider:init`→`world:newCollider`.
+A switch-linked gate mechanism embedded flush in a ceiling (usual) or floor: a
+32px tile that, **on every press of a linked toggle `Switch`**, emits a
+pushable box (default) once. No timer, no interval cadence. Reuse the proven
+runtime spawn path `self.map:loadEntity(spawnType, layer, mockObject)` (the
+same one `GameAPI.spawnEntity` and `src/entities/cage.lua` drive), with the
+mock object top-anchored (NO `gid`) so the spawned prop's centre lands at the
+emit point and it falls/settles immediately as a normal physics body.
 
-Key facts (verified): `EntityFactory:loadEntity` (entity_factory.lua:109-145) constructs
-`err(object, self.map)`, sets `entity.mapData`/`object.entity`, and appends to
-`layer.entities` (so the spawned box updates/draws/falls immediately). `object.layer` is the
-Tiled objectgroup the replicator lives in — spawn into it. `PushableSupport.spawnCentre`
-(object without gid → top-anchored: centre = object.y + height*0.5). `Switchable` component
-(used by mover_platform) wires start/stop; stop in place means freeze the timer, resume
-keeps accumulated time. `Map:loadEntity(entityName, layer, object)` is a passthrough to the
-factory (init.lua:195).
+Confirmed decisions live in `NOTES.md` (2026-08-10 grill). Key contract:
+`maxSpawns` budget (default 1, no refunds), spawn fires from every switch
+press regardless of the switch's on/off state, emit point from Tiled
+`rotation` (0 = ceiling → one tile below the surface; 180 = floor → one tile
+above) unless an optional object `polyline` overrides the exact spawn point,
+spawned item is sized to the replicator's authored `width`/`height`, and the
+spawned prop materialises as an instant solid drop.
 
-Each task touches at most 1-2 files. Run `./test-unit.sh` after logic changes,
-`./test-integration.sh` after map/entity behavior changes.
+Verified grounding:
+- `src/entities/replicator.lua` + `tests/unit/replicator_test.lua` +
+  `tests/integration/replicator_test.lua` + `tests/fixtures/replicator_room.lua`
+  + `res/templates/replicator.tx` ALL implement the old timer design and must
+  be reworked (NOTES.md "Rework of the existing code").
+- `Switchable` (src/components/switchable.lua) sets `enabled` then fires
+  `onStateChange(enabled, switch, user)` on EVERY `switchable:switch(switch,
+  user)` call; `Switch:use` (src/entities/switch.lua:38) resolves
+  `map:getObjectById(object.properties.target.id)` and calls
+  `switchable:switch(self, user)`. The replicator's handler ignores `enabled`
+  and spawns on every callback while budget remains.
+- `PushableSupport.spawnCentre(object)` (pushable_support.lua:49): no `gid` →
+  top-anchored, centre = `object.x + w/2, object.y + h/2`. `pushable_prop.lua`
+  sizes sprite+collider from `object.width/height` and starts `dynamic`.
+- Polyline points ARE absolute when entities read them: `Tmx.parse` emits raw
+  relative points, but `Map:new` feeds the result through `sti(Tmx.parse())`
+  and lib/sti/init.lua `setObjectCoordinates` (lines 473-478) adds
+  `layer.x + object.x` to every vertex in place (fixture
+  `mover_platform_room.lua` path at x=192,y=160 proves it: relative
+  `{0,0},{128,0}` re-anchors to deck line y=160). Do NOT add the object origin
+  again — same contract as `mover_platform`/`jump_pad` (jump_pad.lua:71).
+- `rotation` (degrees) is already parsed by tmx.lua:128 and untouched by STI.
+- Emit geometry (bottom-anchored tile object, `object.y` is the bottom edge):
+  rotation 0 → machine underside at `object.y`, box top edge one tile below →
+  `emitY = object.y + object.height`; rotation 180 → machine top face at
+  `object.y - object.height`, box top edge two tiles up → `emitY =
+  object.y - 2*object.height`. Unknown rotation treated as ceiling.
+  Polyline override: mock `x`/`y` = `object.polyline[1]` directly (absolute).
 
-- [ ] 1. Thin template `res/templates/replicator.tx`: object with `type="replicator"`,
-  `gid` referencing the default.png tile in props.tsx (gid 11, 32x32), width=32 height=32,
-  and tile properties `interval` (float, default 3.0), `spawnType` (string, default
-  'push_box'), `enabled` (bool, default true). No new art needed — default.png is fine.
-- [ ] 2. New entity `src/entities/replicator.lua` skeleton: `init(object, map)` via
-  `Entity.init`; read props `interval` (default 3.0), `spawnType` (default 'push_box'),
-  `enabled` (default true), `maxTotal` (optional); store `self.map`, `self.object`,
-  `self.spawnLayer = object.layer`, timer accumulator `self.elapsed = 0`, `self.spawned =
-  0`; add a Sprite (default.png, 32x32, bottom-anchored via `Rect.centreOfMapObject`) and a
-  `Switchable` component wired to run/stop the timer (initially enabled). NO collider
-  (it's a ceiling machine; only spawned boxes collide). No spawning yet.
-- [ ] 3. Spawn logic in `Replicator:update(dt)`: when enabled, `self.elapsed += dt`; while
-  `self.elapsed >= interval` (and under `maxTotal` when set), fire once: build mockObject
-  `{type=spawnType, name=spawnType, x=object.x, y=object.y, width=32, height=32,
-  properties={}, gid=nil, layer=self.spawnLayer}`, call
-  `self.map:loadEntity(self.spawnType, self.spawnLayer, mockObject)`, `self.spawned += 1`,
-  `self.elapsed -= interval` (keeps cadence on long frames). When switched off, freeze the
-  accumulator (stop in place); on re-enable, resume from the saved elapsed. Expose the pure
-  ticks-to-first-fire / cadence math via a `Replicator._internal` white-box seam
-  (drawbridge/pressure_switch convention) for unit tests.
-- [ ] 4. Add `tests/unit/replicator_test.lua` (headless via
-  `tests/support/headless_bootstrap.lua` + a stub `map` recording `loadEntity` calls):
-  prop defaults (`interval`/`spawnType`/`enabled`/`maxTotal`), first spawn fires exactly at
-  `interval`, cadence stays at `interval` (no drift over long frames), disabled does not
-  fire, re-enable resumes from saved elapsed, `maxTotal` stops spawning at the cap, spawned
-  mockObject carries the right `type`/`x`/`y`/`width`/`height`/`layer` and nil `gid`.
-- [ ] 5. Fixture + integration test: `tests/fixtures/replicator_room.lua` (STI-shaped room
-  with a floor, a `replicator` object mounted high in the air above the floor, and a
-  `switch` object targeting the replicator) + `tests/integration/replicator_test.lua`
-  (GameHarness + FrameStepper): after ~`interval` seconds a `push_box` entity appears in
-  the layer and falls to the floor (dynamic body); spawning cadence ≈ interval; switch off
-  stops new spawns; switch on resumes. Register in `tests/integration/run.lua`.
-- [ ] 6. Demo in `res/map/sandbox.tmx`: add a `replicator` template object (bump
-  `nextobjectid`) mounted in the roof above an open floor area where falling boxes are
-  visible, plus a `switch` object targeting it; set `interval` so drops are observable.
-  Verify with `./run.sh map=sandbox` (boxes drop, can be pushed; switch stops/starts).
-- [ ] 7. Docs + final validation: update `AGENTS.md` (new `src/entities/replicator.lua`
-  bullet + gotcha: runtime-spawned entities go through `map:loadEntity` into `object.layer`;
-  mock objects must be top-anchored — no `gid` — so spawned push-boxes land at the spawn
-  point) and `NOTES.md` (replicator decisions section); then `./test-unit.sh` and
-  `./test-integration.sh` green and confirm no regression (baselines: unit 463 pass,
-  integration 98 pass + 7 known pre-existing failures).
+Each task touches at most 1-2 files. Run `./test-unit.sh` after task 3,
+`./test-integration.sh` after task 4. Baselines for no-regression check:
+unit 463 pass, integration 98 pass + 7 known pre-existing failures.
+
+- [x] 1. Rework `res/templates/replicator.tx` (1 file): drop `interval` and
+  `enabled` properties; keep `spawnType` (string, default 'push_box'); add
+  `maxSpawns` (int, default 1); rotate the gid tile so the default template
+  reads as a ceiling mount (rotation 0).
+- [x] 2. Rework `src/entities/replicator.lua` (1 file): remove the timer
+  machinery (`interval`, `elapsed`, `dueSpawns`, `enabled`, `maxTotal`); read
+  `spawnType` (default 'push_box') and `maxSpawns` (default 1, clamp to >= 0,
+  nil means unlimited); keep the Sprite (default.png, bottom-anchored, no
+  collider) and the `Switchable` component, but its `onStateChange` must
+  **spawn on every press** (call `self:spawn()` whenever budget remains,
+  ignoring the `enabled` value — the switch's on/off state is irrelevant);
+  track `self.spawned`; `spawn()` builds a top-anchored mock object (no gid,
+  `properties = {}`, `layer = self.spawnLayer`), `type`/`name` = `spawnType`,
+  `width`/`height` = the replicator's authored dims, `x` = `object.x`, `y` =
+  the rotation- or polyline-derived emit value (rotation 0: `object.y +
+  object.height`; rotation 180: `object.y - 2*object.height`; polyline
+  present → `object.polyline[1]`), then hands it to `map:loadEntity` and
+  increments `self.spawned`. Expose pure emit-y/spawn logic via a
+  `Replicator._internal` white-box seam (drawbridge/pressure_switch
+  convention) with `DEFAULT_SPAWN_TYPE`, `DEFAULT_MAX_SPAWNS`, and
+  `emitY(object)`.
+- [x] 3. Rework `tests/unit/replicator_test.lua` (1 file, keep the
+  `stubMap`/`makeReplicator` harness): drop all cadence/interval tests;
+  add: prop defaults (`spawnType` push_box, `maxSpawns` 1), override props
+  (`spawnType` boulder, `maxSpawns` 4), press→spawn (calling
+  `switchable:switch({state='on'}, user)` and `{state='off'}` BOTH spawn once
+  each — the on/off state is irrelevant), budget capped at `maxSpawns` with
+  further presses inert once spent, `emitY` rotation 0 == `y+height` and
+  rotation 180 == `y-2*height`, polyline override uses `polyline[1]`
+  verbatim/as absolute, and the spawned mock-object contract
+  (`type`/`name`, `width`/`height` = authored dims, `layer` = object layer,
+  `gid` nil, `properties` empty).
+- [x] 4. Rework fixture + integration test (2 files): update
+  `tests/fixtures/replicator_room.lua` — a floor, a ceiling-mounted
+  `replicator` (rotation 0, high in the air, `spawnType` 'push_box',
+  `maxSpawns` 1) and a `switch` object targeting it via `properties.target =
+  {id = ...}`; update `tests/integration/replicator_test.lua` (already
+  registered in `tests/integration/run.lua:40`) — a `switch:use(player)`
+  immediately spawns one push_box that falls and lands on the floor (dynamic
+  body), a second `switch:use` spawns nothing (budget spent) and further
+  presses stay inert; assert spawned box geometry (lands at the floor).
+- [x] 5. Demo in `res/map/sandbox.tmx` (1 file): add a `replicator` template
+  object (bump `nextobjectid`) embedded flush in the roof above a clear floor
+  area where a falling box is observable, `maxSpawns` set to a visible number,
+  plus a `switch` object targeting it; verified via a temporary integration
+  check through the real stack — a `replicator_switch` press spawns a new
+  push_box that falls onto the floor below. (`./run.sh map=sandbox` analog.)
+  Task note: the demo was placed floating in the air (not literally embedded
+  in a roof) per the user's simplification request.
+- [x] 6. Docs + final validation (2 files): add a `replicator` bullet to
+  `AGENTS.md` (switch-pulse contract — every switch press spawns once until
+  `maxSpawns` is spent; emit point from rotation 0/180 or polyline; mock
+  objects top-anchored, no gid; polyline points are absolute post-STI, do not
+  re-add the origin) and confirm `NOTES.md` captures the design; then
+  `./test-unit.sh` and `./test-integration.sh` green with no regression
+  (unit 481 pass / 0 fail, integration 100 pass + 7 known pre-existing
+  failures).
