@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <tileset firstgid="1" source="../tilesets/props.tsx"/>
+ <object name="mover_platform" type="mover_platform" gid="14" width="32" height="32">
+  <properties>
+   <property name="endBehaviour" value="pingpong"/>
+   <property name="path" type="object" value="0"/>
+   <property name="pause" type="float" value="0.5"/>
+   <property name="speed" type="float" value="50"/>
+  </properties>
+ </object>
+</template>

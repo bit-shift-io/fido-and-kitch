@@ -86,6 +86,25 @@ function World.ignoresEntity(collider, other)
 end
 
 function World.colFilter(a, b)
+	-- Per-collider collision-filter override: either side may install one
+	-- (see Collider:setColFilterFn) and its decision -- 'cross', 'slide', or
+	-- nil (fall through to the global rules below) -- takes precedence over
+	-- the defaults. b is consulted first so an override on the collider being
+	-- hit wins over the moving item's, giving a platform like
+	-- mover_platform the final say in how players collide with it.
+	if b.colFilterFn then
+		local override = b.colFilterFn(a, b)
+		if override ~= nil then
+			return override
+		end
+	end
+	if a.colFilterFn then
+		local override = a.colFilterFn(a, b)
+		if override ~= nil then
+			return override
+		end
+	end
+
 	-- allow a and b to go through each other
 	if (a.sensor or b.sensor) then
 		return 'cross'

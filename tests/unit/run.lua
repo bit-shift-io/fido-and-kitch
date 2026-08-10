@@ -49,6 +49,9 @@ local defaultTestFiles = {
 	'tests/unit/ladder_annotation_test.lua',
 	'tests/unit/ladder_entity_test.lua',
 	'tests/unit/ladder_toggle_test.lua',
+	'tests/unit/mover_platform_test.lua',
+	'tests/unit/mover_platform_physics_test.lua',
+	'tests/unit/replicator_test.lua',
 }
 
 local tests = {}

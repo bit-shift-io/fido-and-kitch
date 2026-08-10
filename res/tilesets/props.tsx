@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="512" tileheight="512" tilecount="12" columns="0">
+<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="714" tileheight="714" tilecount="13" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="../img/default.png" width="32" height="32"/>
@@ -36,5 +36,8 @@
  </tile>
  <tile id="12">
   <image source="../img/entity_wood_sign_post.png" width="128" height="128"/>
+ </tile>
+ <tile id="13">
+  <image source="../img/entity_mover_platform.png" width="714" height="714"/>
  </tile>
 </tileset>

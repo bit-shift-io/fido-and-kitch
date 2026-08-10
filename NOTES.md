@@ -57,7 +57,10 @@ travels along a path defined in Tiled and carries standing players with it.
    below; pass through from the sides.
 6. **Tiled authoring**: `path` property referencing a polyline object
    (exact jump_pad convention) + custom props on the platform object
-   (`speed`, `endBehavior`, `pause`).
+   (`speed`, `endBehavior`, `pause`). The polyline is the **deck line** —
+   the platform hangs half its height below it (top riding surface rides
+   exactly on the drawn line), so an author draws the path along floor
+   heights with no half-height mental math.
 7. **Pauses**: single `pause` custom property (seconds) applies at EVERY
    path point including both ends.
 8. **Carry scope**: players only (P1/P2). Boxes/boulders/physics props just
@@ -76,17 +79,18 @@ travels along a path defined in Tiled and carries standing players with it.
 
 ## Open / deferred
 
-- **Tiled `type` / entity filename**: not yet chosen (e.g. `platform` vs
-  `mover_platform`). Art is `entity_mover_platform.png`; pick a name and a
-  `res/templates/*.tx` template if desired.
-- **One-way top-only mechanism**: no existing pattern in bump; needs design
-  (solid-while-above vs. sensor + custom ground). Must keep `walkable=true`
-  so landing works.
-- **Carry detection**: how the platform identifies riders without
-  queryOnGround returning which collider.
-- **Switch start/stop semantics**: pause at path point vs. stop in place;
-  whether the shaft resumes from current position.
-- Whether to also honor NPC `ridePlatforms`/`isMovingPlatform` (pre-wired).
+All planning items are now **settled and implemented** (`type=mover_platform`,
+one-way via per-collider `colFilterFn`, carry via platform-own overlap probe,
+switch start/stop with stop-in-place + resume). Remaining out of scope:
+
+- **NPC `ridePlatforms`/`isMovingPlatform`**: pre-wired in NPCBase but never
+  activated by the platform (no NPC get carried; they collide solidly).
+- **Loading note (implemented)**: STI re-anchors a polyline object's points
+  in place on map load (lib/sti/init.lua convertObjectShapesToPolygons adds
+  the object's x/y to every vertex), so the points a From-Game entity
+  resolves off `map:getObjectById` are already **absolute** — jump_pad's
+  `use` of `polyline[1]` as an absolute launch origin relies on this same
+  contract. New code resolving paths must not re-add the object origin.
 
 ## Risks / gotchas for implementation
 

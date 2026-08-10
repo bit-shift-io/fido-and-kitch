@@ -154,6 +154,17 @@ function Collider:setSensor(sensor)
 end
 
 
+-- Install an optional per-pair collision filter consulted by World.colFilter
+-- (see src/physics/bump/world.lua). The function receives the two raw
+-- colliders with no guaranteed argument order -- filters that care which
+-- side is which identify their collider by comparing an incoming argument
+-- against a captured reference. Return 'cross', 'slide', or nil (nil means
+-- "no override: fall through to the global defaults").
+function Collider:setColFilterFn(fn)
+	self.colFilterFn = fn
+end
+
+
 function Collider:setFixedRotation(fixed)
 	self.fixedRotation = fixed
 end
