@@ -52,6 +52,7 @@ local defaultTestFiles = {
 	'tests/unit/mover_platform_test.lua',
 	'tests/unit/mover_platform_physics_test.lua',
 	'tests/unit/replicator_test.lua',
+	'tests/unit/export_ascii_test.lua',
 }
 
 local tests = {}

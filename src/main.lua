@@ -103,6 +103,16 @@ local function findE2ETestFile(args)
 	return str.split(e2eArg, '=')[2]
 end
 
+-- export=<map> prints the map's terrain as ASCII and writes it to the save
+-- dir, then quits. Same early-detour style as e2e=: no Game is constructed.
+local function findExportArg(args)
+	local exportArg = tbl.find(args, function(e) return str.startsWith(e, 'export=') end)
+	if not exportArg then
+		return nil
+	end
+	return str.split(exportArg, '=')[2]
+end
+
 function love.load(args)
 	setupConf(args)
 	love.graphics.setDefaultFilter('linear', 'linear')
@@ -113,6 +123,14 @@ function love.load(args)
 		-- love.quit, replacing the ones below for the rest of this process.
 		local E2ERunner = require('tests.e2e.run')
 		E2ERunner.start(e2eTestFile, args)
+		return
+	end
+
+	local exportMapName = findExportArg(args)
+	if exportMapName then
+		local ExportAscii = require('src.export_ascii')
+		ExportAscii.run(exportMapName)
+		love.event.quit(0)
 		return
 	end
 

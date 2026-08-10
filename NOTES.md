@@ -44,7 +44,7 @@ legend, for pasting into an AI agent (e.g. to generate an image).
    - `f` fire
    - `l` lava
    - `s` spikes
-   - `[space]` nothing
+   - `.` nothing
    - Killzone `deathType` maps to its symbol; **unknown/unset deathType
      defaults to `w` (water)**.
 7. **Solid source**: layers (tile or objectgroup) with `collision=true`.
