@@ -52,8 +52,23 @@ function ParallaxRenderer:drawMainLayers(map, tx, ty, sx, sy)
 	lg.setColor(1, 1, 1, 1)
 
 	for _, layer in ipairs(map.layers) do
-		if layer.visible and layer.opacity > 0 and (layer.type == 'tilelayer' or layer.type == 'imagelayer') then
-			map:drawLayer(layer)
+		if layer.visible and layer.opacity > 0 then
+			if layer.type == 'tilelayer' or layer.type == 'imagelayer' then
+				map:drawLayer(layer)
+			elseif layer.type == 'objectgroup' and layer.batches and #layer.entities == 0 then
+				-- tile-gid imagery in a decorative object layer (images placed
+				-- as tile objects in Tiled). Draw only the STI sprite batches
+				-- built by setObjectSpriteBatches -- never the grey debug
+				-- shapes drawObjectLayer renders. Layers that spawned runtime
+				-- entities (e.g. cages/keys authored as gid objects) are drawn
+				-- by Map:drawEntities, so skip them to avoid double-drawing
+				-- the same gid art.
+				for _, batch in pairs(layer.batches) do
+					lg.setColor(1, 1, 1, layer.opacity)
+					lg.draw(batch, 0, 0)
+					lg.setColor(1, 1, 1, 1)
+				end
+			end
 		end
 	end
 
