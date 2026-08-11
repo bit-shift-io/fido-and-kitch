@@ -13,8 +13,8 @@
 --
 -- Invoked via the `export=<map>` run flag, e.g. `love . export=sandbox`:
 -- prints the path + dimensions + color legend to stdout, writes
--- `export_<map>.png` into the LÖVE save dir, then quits. Mirrors the
--- `e2e=<file>` detour in src/main.lua.
+-- `export_<map>.png` into the project root (working directory), then quits.
+-- Mirrors the `e2e=<file>` detour in src/main.lua.
 local Tmx = require('src.map.tmx')
 
 local ExportPng = {}
@@ -173,15 +173,18 @@ function ExportPng.run(mapName)
 	local png = imageData:encode('png')
 
 	local filename = 'export_' .. mapName .. '.png'
-	local ok, err = love.filesystem.write(filename, png)
-	if not ok then
-		print('ERROR: could not write ' .. filename .. ': ' .. tostring(err))
+	local path = love.filesystem.getWorkingDirectory() .. '/' .. filename
+	local file, err = io.open(path, 'wb')
+	if not file then
+		print('ERROR: could not write ' .. path .. ': ' .. tostring(err))
 		return
 	end
+	file:write(png)
+	file:close()
 	print(string.format('Pixel map of %s (%dx%d tiles = %dx%d px, %dpx per tile)', map._exportName or 'map', map.width, map.height, map.width * TILE_BLOCK_SIZE, map.height * TILE_BLOCK_SIZE, TILE_BLOCK_SIZE))
 	print('Colors: (0,0,0) black nothing, (0,255,0) green terrain/collision, (0,0,255) blue killzone/water')
 	print('')
-	print('Wrote ' .. love.filesystem.getSaveDirectory() .. '/' .. filename)
+	print('Wrote ' .. path)
 end
 
 return ExportPng
