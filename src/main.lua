@@ -104,7 +104,8 @@ local function findE2ETestFile(args)
 end
 
 -- export=<map> renders the map's terrain as a pixel map / segmentation map
--- (each tile a 64x64 block) and writes the PNG to the save dir, then quits.
+-- (each tile a TILE_BLOCK_SIZE x TILE_BLOCK_SIZE block, see src/export_png.lua)
+-- and writes the PNG to the project root, then quits.
 -- Same early-detour style as e2e=: no Game is constructed.
 local function findExportArg(args)
 	local exportArg = tbl.find(args, function(e) return str.startsWith(e, 'export=') end)

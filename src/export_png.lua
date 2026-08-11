@@ -179,7 +179,7 @@ function ExportPng.run(mapName)
 		print('ERROR: could not write ' .. path .. ': ' .. tostring(err))
 		return
 	end
-	file:write(png)
+	file:write(png:getString())
 	file:close()
 	print(string.format('Pixel map of %s (%dx%d tiles = %dx%d px, %dpx per tile)', map._exportName or 'map', map.width, map.height, map.width * TILE_BLOCK_SIZE, map.height * TILE_BLOCK_SIZE, TILE_BLOCK_SIZE))
 	print('Colors: (0,0,0) black nothing, (0,255,0) green terrain/collision, (0,0,255) blue killzone/water')
