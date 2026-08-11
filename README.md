@@ -46,21 +46,21 @@ Note: ladders are authored as per-rung template tile objects
 (object `y` = rung's bottom edge). `entity_factory` auto-merges stacked rungs
 into a single ladder; a switch targeted at any rung toggles the whole ladder.  
 
-## ASCII Map Export
+## Pixel-Map Export
 
-Export a map's terrain as ASCII art (one character per tile) with a legend,
-for pasting into an AI agent to generate art:
+Export a map's terrain as a pixel map / segmentation map (each tile drawn
+as a 128x128 block) for feeding an AI agent to generate art:
 
 ```bash
 ./run.sh export=sandbox
 ```
 
-Prints the export to stdout, writes `export_sandbox.txt` into the LÖVE save
-dir, then quits. Legend:
-`#` solid ground (layers with the `collision` property), `w` water, `f` fire,
-`l` lava, `s` spikes (kill_zone objects by `deathType`, unset defaults to
-water), `.` nothing. Gameplay objects (ladders, keys, doors, NPCs, ...)
-are authored in the editor and excluded.
+Writes `export_sandbox.png` (dimensions = the map's tile grid x 128) into the
+LÖVE save dir, prints the path + color legend to stdout, then quits. Colors:
+black `(0,0,0)` nothing, green `(0,255,0)` solid ground (layers with the
+`collision` property), blue `(0,0,255)` killzone/water (`kill_zone` objects,
+any `deathType`). Gameplay objects (ladders, keys, doors, NPCs, ...) are
+authored in the editor and excluded.
 
 ## Controls
 F1 - physics debug overlay

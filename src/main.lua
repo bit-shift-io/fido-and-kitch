@@ -103,8 +103,9 @@ local function findE2ETestFile(args)
 	return str.split(e2eArg, '=')[2]
 end
 
--- export=<map> prints the map's terrain as ASCII and writes it to the save
--- dir, then quits. Same early-detour style as e2e=: no Game is constructed.
+-- export=<map> renders the map's terrain as a pixel map / segmentation map
+-- (each tile a 64x64 block) and writes the PNG to the save dir, then quits.
+-- Same early-detour style as e2e=: no Game is constructed.
 local function findExportArg(args)
 	local exportArg = tbl.find(args, function(e) return str.startsWith(e, 'export=') end)
 	if not exportArg then
@@ -128,8 +129,8 @@ function love.load(args)
 
 	local exportMapName = findExportArg(args)
 	if exportMapName then
-		local ExportAscii = require('src.export_ascii')
-		ExportAscii.run(exportMapName)
+		local ExportPng = require('src.export_png')
+		ExportPng.run(exportMapName)
 		love.event.quit(0)
 		return
 	end
