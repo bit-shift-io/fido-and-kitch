@@ -53,7 +53,7 @@ test('the door plays a close sound when its switch relocks it', function()
 
 	local door = Queries.findEntityByType(map, 'door')
 	flipSwitch(game)
-	FrameStepper.step(game, 60)
+	FrameStepper.step(game, 125) -- let the door finish opening (2s animation)
 	assertEqual('open', door.state, 'fixture check: expected the door to be open before relocking it')
 
 	local spy = SoundSpy.install()

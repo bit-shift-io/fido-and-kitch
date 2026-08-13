@@ -30,7 +30,7 @@ end
 -- as a doorway you are stopped at rather than a wall the width of the art;
 -- derived from the object's own size rather than pixels so a tile-size
 -- change survives.
-local BARRIER_WIDTH_FRACTION = 0.25
+local BARRIER_WIDTH_FRACTION = 0.6
 
 local function barrierDimensions(objectWidth, objectHeight)
 	return objectWidth * BARRIER_WIDTH_FRACTION, objectHeight
@@ -48,8 +48,14 @@ end
 -- anchors on Rect.centreOfMapObject (bottom-anchored, for gid-bearing tile
 -- objects) rather than on the rect's centre.
 local function spriteBoxDimensions(objectWidth, objectHeight)
-	return objectWidth * 2, objectHeight * 2
+	return objectWidth, objectHeight * 2
 end
+
+-- The sprite sits 16px below the rect's centre, purely cosmetic: the
+-- barrier (collision) stays anchored to the object's centre. Tuned so the
+-- door art reads correctly against its frame/lintel without moving the
+-- blocking strip.
+local SPRITE_OFFSET_Y = 12
 
 -- The whole state model, as one pure function of the two live inputs --
 -- the linked switch's reading and whether anything is standing in the
@@ -138,14 +144,14 @@ function Door:init(object)
 	-- a hint about what blocks or what can be stood on
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/entity_door.png',
-		frames = 2, -- todo: make more
+		image = 'res/img/entity_blocker.png',
+		frames = 48, -- todo: make more
 		-- the drawbridge's pace: fast enough that the door finishes opening
 		-- while whoever flipped the switch is still walking toward it
-		duration = 0.3,
+		duration = 2,
 		loop = false,
 		playing = false,
-		position = position,
+		position = position + Vector(0, SPRITE_OFFSET_Y),
 		shape_arguments = {0, 0, spriteBoxWidth, spriteBoxHeight},
 		finish = utils.bindSelf(self.onAnimationFinish, self),
 	})

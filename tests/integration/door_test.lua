@@ -103,7 +103,7 @@ test('flipping the linked switch on lets the player walk through the door', func
 
 	local door = Queries.findEntityByType(map, 'door')
 	flipSwitch(game)
-	FrameStepper.step(game, 60) -- let the door finish opening
+	FrameStepper.step(game, 125) -- let the door finish opening (2s animation)
 
 	assertEqual('open', door.state)
 	walkRight(game, controller, 300)
@@ -119,9 +119,9 @@ test('flipping the switch back off relocks the door and blocks the player again'
 
 	local door = Queries.findEntityByType(map, 'door')
 	flipSwitch(game) -- on
-	FrameStepper.step(game, 60)
+	FrameStepper.step(game, 125) -- let the door finish opening (2s animation)
 	flipSwitch(game) -- off again, with nobody in the doorway
-	FrameStepper.step(game, 60)
+	FrameStepper.step(game, 125) -- let the door finish closing
 
 	assertEqual('closed', door.state)
 
