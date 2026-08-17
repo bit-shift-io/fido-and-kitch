@@ -9,10 +9,10 @@ function Switch:init(object, map)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image='res/img/entity_switch.png',
-		frames=2,
+		frames=5,
 		position=position,
 		shape_arguments=shape_arguments,
-		duration=1.0,
+		duration=0.4,
 		loop=false
 	})
 	self.collider = self:addComponent(Collider{
@@ -41,16 +41,13 @@ end
 function Switch:use(user)
 	Log.debug('switch has been used')
 
-	-- sprite needs a play and play({reverse=true}) method
-	local frameNum = self.sprite.frameNum
-	if frameNum == 1 then
-		frameNum = 2
+	if self.state == 'off' then
 		self.state = 'on'
+		self.sprite:playForward()
 	else
-		frameNum = 1
 		self.state = 'off'
+		self.sprite:playReverse()
 	end
-	self.sprite:setFrameNum(frameNum)
 	self.sound:play(self.state)
 
 	if self.target.entity then

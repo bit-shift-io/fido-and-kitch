@@ -23,6 +23,7 @@ local defaultTestFiles = {
 	'tests/integration/player_sound_test.lua',
 	'tests/integration/drawbridge_sound_test.lua',
 	'tests/integration/switch_sound_test.lua',
+	'tests/integration/switch_animation_test.lua',
 	'tests/integration/switchable_teleport_test.lua',
 	'tests/integration/key_test.lua',
 	'tests/integration/cage_sound_test.lua',
