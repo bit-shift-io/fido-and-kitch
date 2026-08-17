@@ -6,6 +6,7 @@ local DebugOverlay = require('src.ui.debug_overlay')
 local SpriteOutlineOverlay = require('src.ui.sprite_outline_overlay')
 local BaseState = require('src.states.base_state')
 local Log = require('src.utils.log')
+local Diorama = require('src.diorama')
 
 local InGameState = Class{__includes = BaseState}
 
@@ -221,7 +222,13 @@ end
 
 function InGameState:draw()
     local tx, ty, sx, sy = self.camera:getDrawParams()
+    local mapW, mapH = map:getPixelSize()
+
+    -- Diorama layering: void strips -> parallax bg (scissored to the world
+    -- rect) -> world tiles -> frame -> entities
+    Diorama.drawVoid(tx, ty, sx, sy, mapW, mapH)
     map:draw2(tx, ty, sx, sy)
+    Diorama.drawFrame(tx, ty, sx, sy, mapW, mapH)
     map:drawEntities(tx, ty, sx, sy)
 
     -- screen-space speech bubbles (follow the entity through pan/zoom, but the

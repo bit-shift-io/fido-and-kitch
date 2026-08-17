@@ -1,81 +1,94 @@
-# Fido and Kitch — Pixel-Map Export Tool: Confirmed Requirements
+# Fido and Kitch — World-Edge Frame & Void Fill: Confirmed Requirements
 
-Grill notes (2026-08-11). Feature: replace the ASCII map export with a
-pixel map / segmentation map (1 tile -> 1 pixel PNG) for feeding an AI
-agent (e.g. to generate art). Supersedes the ASCII exporter decisions in
-the previous NOTES.md.
-
-## Related code (grounding)
-
-- Run-flag precedent: `e2e=<file>` detours early in `src/main.lua` `love.load`
-  (`findE2ETestFile`, `src/main.lua:98-117`) — `export=<map>` mirrors it:
-  detect arg, hand off, `return` before the normal `Game()` construction.
-- Solid ground: `src/map/init.lua:91` builds static bodies from **any** layer
-  (tile layer or objectgroup) whose `properties.collision` is truthy. ll1 uses
-  a `ground` tile layer with `collision=true`; sandbox uses a `collision`
-  objectgroup (`collision=true`) of rect objects. The exporter must read the
-  same signal, not the layer name.
-- Killzones: `src/entities/kill_zone.lua` reads `properties.deathType`,
-  **defaulting to `'unknown'`**; code supports `water`, `spikes`, `lava`,
-  `fire`. Current maps only use `water` (sandbox.tmx:39, fab1.tmx:42/47).
-  Killzone rects live in objectgroups (sandbox `kill` group).
-- `src/map/tmx.lua` parses `.tmx` directly; maps are tile grids
-  (e.g. ll1 = 36x22, sandbox = 20x20, tile = 32px).
-- Current pixel-map exporter: `src/export_png.lua`, unit tests in
-  `tests/unit/export_png_test.lua` (color-grid and ImageData blocks),
-  run-flag note in `README.md` "Pixel-Map Export".
-- LÖVE 12 can build a PNG headlessly: `love.image.newImageData` + setPixel +
-  `imageData:encode('png')` returns a FileData accepted by
-  `love.filesystem.write` (same save-dir write as today). No window needed —
-  the current `export=` detour already runs without one.
+Grill notes (2026-08-17). Feature: a nice dividing graphic where the game
+world ends but the screen continues. The camera's view rect can extend past
+the map bounds (`Camera.computeFraming`, `src/camera.lua:82-92`) when the
+screen aspect ratio doesn't match the map's, producing empty screen strips
+outside the world (vertical strips for wide screens, horizontal for tall).
 
 ## Confirmed decisions (asked + answered)
 
-1. **Format**: PNG image — `export_<map>.png`, each tile drawn as a
-   **128x128 block** (image dimensions = map.width x 128 by map.height x 128),
-   written to the LÖVE save dir via `love.filesystem.write`. stdout prints
-   the path, tile count, pixel dimensions, and a color legend (not the pixel
-   grid — it's an image now).
-2. **Colors** (fully opaque):
-   - `(0, 0, 0)` black = nothing
-   - `(0, 255, 0)` green = terrain / collision
-   - `(0, 0, 255)` blue = killzone / water
-3. **Hazards collapse to one blue**: water, fire, lava, and spikes all paint
-   the same blue, regardless of `deathType`. The old w/f/l/s distinction is
-   gone (today's maps only use water anyway).
-4. **Replace, don't keep**: `export=<map>` now writes only the PNG. The text
-   rendering (`renderText`, legend table) and its unit tests are deleted; no
-   parallel text flag. README + NOTES.md are rewritten.
-5. **Run flag unchanged**: `love . export=sandbox` / `./run.sh export=sandbox`.
+1. **Divider type**: a border **frame at the world's edge** — the playfield
+   reads as a framed diorama. Not a fade/vignette, pattern void, or world
+   extension.
+2. **Void fill**: a **generic tiling background** fills the out-of-world
+   screen area (the strips) ONLY. It is clipped/scissored to the 4 strips
+   outside the projected world rect so it never shows through transparent
+   gaps in a map's own backdrop. All maps have a background of their own.
+3. **Parallax scope**: parallax backgrounds are "for view in the player
+   world, not outside of it." Today `ParallaxRenderer:drawBackground`
+   (`src/map/parallax_renderer.lua:34`) scales the image to cover the whole
+   screen, so it currently bleeds into the void — it must be clipped to the
+   world rect.
+4. **Frame art**: custom art. **Edge-tile + 4 corner pieces + ornaments**
+   ("ornaments" is the name for the interstitial decorative pieces; corners
+   are "corner pieces"). Tiled edge texture per side; a hero asset at each
+   corner; extra ornaments along each border hide the tiling repetition.
+5. **Frame space**: **world space** — art tiles repeat at world scale and
+   zoom with everything else. No projection math; reuses the world transform.
+6. **Config**: one global code config, **the same for all maps** — it's part
+   of the game, not world settings. **No seeds / no randomization** — fully
+   deterministic, identical dressing every map and every frame.
+7. **Ornament selection**: **pre-configured percentage-based** — each side's
+   pool is a list of `{img, weight}` pairs; ornaments are distributed along
+   the edge proportionally to the weights, in a fixed deterministic pattern.
+8. **Frame placement**: **centered on the world boundary**; drawn after the
+   world tiles; gameplay entities draw over it (existing entity-over-map
+   order in `InGameState:draw` already supports this).
 
-## Semantics carried over from the ASCII exporter
+## Proposed config shape (code)
 
-- **Solid source**: layers (tile layer or objectgroup) with `collision=true`.
-  Tile layer = any nonzero gid paints green; objectgroup = rectangle objects
-  paint green.
-- **Hazard source**: `kill_zone` objects only (any deathType); a cell covered
-  by a killzone rect paints blue, winning over solid green.
-- **Partial overlap**: `paintRect` paints every tile a rect overlaps
-  (top-left-anchored, floor/ceil clamping). Same cell math as today.
-- **Scope**: terrain only. Gameplay objects (ladders, keys, doors, cages,
-  coins, spawns, drawbridges, NPCs, ...) are excluded.
+> Superseded by `Diorama.config` in `src/diorama.lua` (system renamed from
+> "border" to **Diorama**; the asset folder is `res/img/diorama/`; the final
+> config uses `frame.tileSize` (band width, default 16), `frame.outset`
+> (frame line pushed out from the world boundary, default 8),
+> `frame.ornaments.corners` (corners are ornaments, a subsection of
+> `ornaments`), and a fixed small
+> `frame.ornaments.<side>.count` of discrete ornaments per edge — never a
+> spacing-driven tiled row — with a 1:1 tile band where a texture's short
+> dimension maps to `tileSize` and its long dimension repeats along the full
+> edge). The sketch below is kept for provenance only.
 
-## Open / deferred
+```lua
+border = {
+  tiles     = { top="...", bottom="...", left="...", right="..." },
+  corners   = { topLeft="...", topRight="...", bottomLeft="...", bottomRight="..." },
+  spacing   = 64,                    -- px between ornament slots
+  ornaments = {
+    top    = { {img="...", weight=0.4}, {img="...", weight=0.3}, {img="...", weight=0.3} },
+    bottom = {...}, left = {...}, right = {...},
+  },
+}
+```
 
-- Overlapping killzone rects with different deathTypes — last-wins ordering
-  is fine (they're all blue now anyway).
-- Upscaling the tiny PNG (e.g. 20x20) for human viewing is a viewer concern,
-  not the exporter's.
+## Placement algorithm (sketch)
 
-## Who reads this
+- Slot count per edge = `floor(edgeLen / spacing)`; corners are their own
+  pieces at the 4 corners; ornaments fill the slots by weighted draw,
+  deterministic (no per-map seed).
+- Slots/ornaments/corners drawn in world space at the world edge.
 
-Implemented: `src/export_ascii.lua` became `src/export_png.lua`, keyed off
-the existing `export=` flag and reusing `src/map/tmx.lua` / the Map load
-path to rasterize cells without constructing a full `Game`. `renderText`
-was replaced by a pure `buildColorGrid` plus a `buildImageData(grid,
-width, height, scale)` that paints each tile as a `scale`x`scale` block
-(128 in `run()`, a `TILE_BLOCK_SIZE` constant); the encode step is exercised in the real `love . export=`
-run and the ImageData mapping under a stubbed `love.image` in the unit
-tier. `tests/unit/export_ascii_test.lua` became `export_png_test.lua`.
-README carries the "Pixel-Map Export" note. Verify by running
-`love . export=<map>` and checking `export_<map>.png` in the save dir.
+## Render layering (world → screen)
+
+1. Void tiling (screen space, clipped to the 4 strips outside the world rect)
+2. Map parallax background (clipped to the world rect — needs scissor)
+3. World tiles (existing `map:draw2`)
+4. Frame (world space: edge tiles + corners + ornaments, centered on the
+   world boundary)
+5. Entities (existing `map:drawEntities`, over the frame)
+
+## Open / assumed
+
+- Void tiling is assumed **static screen-space** (fixed to screen, not
+  scrolling, not aligned to the world grid).
+- The frame shows whenever its edge is on screen — including overview /
+  game-over full-map views (fine by design).
+- Art assets do not exist yet; the config keys are the contract (`Diorama`
+  skips a missing image with a memoized `Log.warn` so the game runs before
+  art lands). The void texture exists at
+  `res/img/diorama/diorama_void.png`.
+- Implementation home: `src/diorama.lua` (stateless singleton, `Diorama.config`
+  + `drawVoid`/`drawFrame`, pure geometry under `Diorama._internal`), wired
+  into `InGameState:draw` between the void fill / `map:draw2` /
+  `map:drawEntities` calls; the parallax scissor lives in
+  `src/map/parallax_renderer.lua`.

@@ -9,6 +9,7 @@ function ParallaxRenderer:new()
 end
 
 function ParallaxRenderer:drawBackground(map, tx, ty, sx, sy)
+	if not lg then return end
 	if not map.backgroundMap then return end
 
 	local screenW, screenH = lg.getWidth(), lg.getHeight()
@@ -19,6 +20,13 @@ function ParallaxRenderer:drawBackground(map, tx, ty, sx, sy)
 
 	local mapDrawW = map.map.width * map.map.tilewidth * sx
 	local mapDrawH = map.map.height * map.map.tileheight * sy
+
+	-- Parallax backgrounds are "for view in the player world, not outside of
+	-- it": clip them to the projected world rect (floored, matching the
+	-- drawMainLayers translate) so they never bleed into the Diorama void
+	-- strips outside the world. Scissor is set under origin() so its coords
+	-- are plain screen coords; restored before returning.
+	lg.setScissor(math.floor(tx), math.floor(ty), mapDrawW, mapDrawH)
 
 	for _, layer in ipairs(map.backgroundMap.layers) do
 		if layer.visible and layer.type == 'imagelayer' and layer.image and layer.opacity > 0 then
@@ -42,6 +50,8 @@ function ParallaxRenderer:drawBackground(map, tx, ty, sx, sy)
 			lg.setColor(1, 1, 1, 1)
 		end
 	end
+
+	lg.setScissor()
 end
 
 function ParallaxRenderer:drawMainLayers(map, tx, ty, sx, sy)
