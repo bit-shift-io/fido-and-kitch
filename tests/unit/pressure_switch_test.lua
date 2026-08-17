@@ -9,7 +9,7 @@
 --    tests/support/headless_bootstrap, and drive it through
 --    PressureSwitch:update(dt) the way the game does.
 --
--- The target-driving mechanism (a real Ladder/Door reacting to :switch())
+-- The target-driving mechanism (a real Ladder/Blocker reacting to :switch())
 -- and the momentary/latching gameplay scenarios through a real Game/Map
 -- stack stay in tests/integration/pressure_switch_test.lua and
 -- pressure_switch_sound_test.lua; this file covers the plate's own

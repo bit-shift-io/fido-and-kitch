@@ -10,8 +10,8 @@
  <tile id="2" x="96" y="0" width="32" height="32">
   <image source="../img/ladder.png" width="128" height="32"/>
  </tile>
- <tile id="3">
-  <image source="../img/entity_switch.png" width="512" height="512"/>
+ <tile id="3" x="0" y="0" width="128" height="128">
+  <image source="../img/entity_switch.png" width="128" height="128"/>
  </tile>
  <tile id="4">
   <image source="../img/entity_key.png" width="256" height="256"/>

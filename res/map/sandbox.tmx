@@ -81,7 +81,7 @@
     <property name="speed" type="float" value="50"/>
    </properties>
   </object>
-  <object id="107" template="../templates/switch.tx" name="mover_switch" x="128" y="192">
+  <object id="107" template="../templates/switch.tx" name="mover_switch" x="384" y="352">
    <properties>
     <property name="target" type="object" value="106"/>
    </properties>
@@ -114,9 +114,8 @@
     <property name="color" value="blue"/>
    </properties>
   </object>
-  <object id="81" template="../templates/push_box.tx" x="160" y="192"/>
-  <object id="93" template="../templates/door.tx" name="door" x="256" y="160"/>
-  <object id="94" template="../templates/switch.tx" name="door_switch" x="192" y="192">
+  <object id="93" template="../templates/blocker.tx" name="blocker" x="256" y="160"/>
+  <object id="94" template="../templates/switch.tx" name="blocker_switch" x="192" y="192">
    <properties>
     <property name="target" type="object" value="93"/>
    </properties>
