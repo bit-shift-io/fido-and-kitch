@@ -57,9 +57,9 @@ Diorama.config = {
 			ornaments = {
 				corners = {
 					topLeft = { img = 'res/img/diorama/corner_purple.png', scale = { x = 0.7, y = 0.7 } },
-					topRight = { img = 'res/img/diorama/corner_yellow.png', scale = { x = 0.7, y = 0.7 } },
+					topRight = { img = 'res/img/diorama/corner_red.png', scale = { x = 0.7, y = 0.7 } },
 					bottomLeft = { img = 'res/img/diorama/corner_blue.png', scale = { x = 0.7, y = 0.7 } },
-					bottomRight = { img = 'res/img/diorama/corner_red.png', scale = { x = 0.7, y = 0.7 } },
+					bottomRight = { img = 'res/img/diorama/corner_yellow.png', scale = { x = 0.7, y = 0.7 } },
 				},
 				top = {
 					{ img = 'res/img/diorama/ornament_top_hero.png', pos = 0.5, scale = { x = 0.5, y = 0.5 } },

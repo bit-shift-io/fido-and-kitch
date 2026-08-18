@@ -263,3 +263,70 @@ test('getDrawParams centres the camera position on screen at the current zoom', 
 	assertNear(camera.cy, (SCREEN_H / 2 - ty) / sy, 0.01)
 	assertEqual(sx, sy)
 end)
+
+-- ===== Issue 05: world padding =====
+
+test('padding defaults to 0 so existing framing is unchanged', function()
+	local view = Camera.computeFraming({playerRect(600, 500)}, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts())
+	local padded = Camera.computeFraming({playerRect(600, 500)}, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({padding = 0}))
+
+	assertNear(view.x, padded.x, 0.001)
+	assertNear(view.y, padded.y, 0.001)
+	assertNear(view.scale, padded.scale, 0.0001)
+end)
+
+test('the padded full-map view keeps at least pad of void around every map edge', function()
+	local PAD = 16
+	local view = Camera.fullMapView(MAP_W, MAP_H, SCREEN_W, SCREEN_H, PAD)
+
+	assertTrue(view.x <= -PAD + 0.001, 'left edge should be at least pad of void beyond the map')
+	assertTrue(view.y <= -PAD + 0.001, 'top edge should be at least pad of void beyond the map')
+	assertTrue(view.x + view.w >= MAP_W + PAD - 0.001, 'right edge should be at least pad of void beyond the map')
+	assertTrue(view.y + view.h >= MAP_H + PAD - 0.001, 'bottom edge should be at least pad of void beyond the map')
+	assertNear(-PAD, view.y, 0.001, 'the tighter-fitting axis should sit at exactly pad of void')
+end)
+
+test('a camera created with padding starts at the padded full-map view', function()
+	local PAD = 16
+	local camera = Camera.new{screenW = SCREEN_W, screenH = SCREEN_H, mapW = MAP_W, mapH = MAP_H, tileW = TILE, padding = PAD}
+	local full = Camera.fullMapView(MAP_W, MAP_H, SCREEN_W, SCREEN_H, PAD)
+
+	assertNear(full.cx, camera.cx, 0.001)
+	assertNear(full.cy, camera.cy, 0.001)
+	assertNear(full.scale, camera.scale, 0.0001)
+end)
+
+test('follow framing keeps pad of void when targets span the whole map', function()
+	local PAD = 16
+	local a = playerRect(0, 0)
+	local b = playerRect(MAP_W - 20, MAP_H - 30)
+	local view = Camera.computeFraming({a, b}, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({padding = PAD}))
+
+	assertTrue(view.x <= -PAD + 0.001, 'left edge should be at least pad of void beyond the map')
+	assertTrue(view.y <= -PAD + 0.001, 'top edge should be at least pad of void beyond the map')
+	assertTrue(view.x + view.w >= MAP_W + PAD - 0.001, 'right edge should be at least pad of void beyond the map')
+	assertTrue(view.y + view.h >= MAP_H + PAD - 0.001, 'bottom edge should be at least pad of void beyond the map')
+end)
+
+test('padding does not force a zoom-out for targets well inside the map', function()
+	local PAD = 16
+	local view = Camera.computeFraming({playerRect(600, 500)}, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({padding = PAD}))
+
+	assertTrue(view.x >= -0.001, 'small targets should still clamp inside the map, not to the padded bounds')
+	assertTrue(view.y >= -0.001)
+	assertTrue(view.x + view.w <= MAP_W + 0.001)
+	assertTrue(view.y + view.h <= MAP_H + 0.001)
+end)
+
+test('overview mode with padding targets the padded full-map view', function()
+	local PAD = 16
+	local camera = Camera.new{screenW = SCREEN_W, screenH = SCREEN_H, mapW = MAP_W, mapH = MAP_H, tileW = TILE, padding = PAD}
+	camera:setMode('overview')
+
+	local target = camera:computeTargetView({playerRect(600, 500)})
+	local full = Camera.fullMapView(MAP_W, MAP_H, SCREEN_W, SCREEN_H, PAD)
+
+	assertNear(full.cx, target.cx, 0.001)
+	assertNear(full.cy, target.cy, 0.001)
+	assertNear(full.scale, target.scale, 0.0001)
+end)

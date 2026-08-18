@@ -39,6 +39,9 @@ function InGameState:load(props)
         mapH = mapH,
         tileW = map.map.tilewidth,
         tileH = map.map.tileheight,
+        -- keep a gutter of void around the map at the zoom-out limit so the
+        -- diorama frame always has room to show (16 world px = half a tile)
+        padding = 16,
     }
     self.gameOverTimer = nil
 

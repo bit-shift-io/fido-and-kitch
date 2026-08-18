@@ -38,12 +38,19 @@ end
 -- Pure framing math: given world-space target rects ({x, y, w, h}), the map's
 -- pixel size, the screen's pixel size, and options, returns the view rect
 -- {x, y, w, h, scale, cx, cy} that should be shown on screen.
+--
+-- `opts.padding` (world px, default 0) is a gutter of void the camera keeps
+-- visible around every map edge whenever a map edge is on screen: at the
+-- zoom-out limit the view spans the map plus `padding` on each side instead
+-- of fitting the map edge flush to the screen, so the diorama frame always
+-- has room to show.
 function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 	opts = opts or {}
 	local marginTiles = opts.marginTiles or DEFAULT_MARGIN_TILES
 	local minViewTiles = opts.minViewTiles or DEFAULT_MIN_VIEW_TILES
 	local tileW = opts.tileW or DEFAULT_TILE_SIZE
 	local tileH = opts.tileH or tileW
+	local pad = opts.padding or 0
 
 	local minX, minY, maxX, maxY = unionBounds(targets)
 	if not minX then
@@ -67,9 +74,14 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 	if bw < minW then bw = minW end
 	if bh < minH then bh = minH end
 
-	-- never zoom out further than the whole map
-	if bw > mapW then bw = mapW end
-	if bh > mapH then bh = mapH end
+	-- Never show less of the world than the whole map plus `padding` of void
+	-- on every side. When the targets already span the map (full-map view,
+	-- overview, game-over, or players spread to the map edges), widen the
+	-- desired view to the padded size so the edge never sits flush.
+	local paddedW = mapW + 2 * pad
+	local paddedH = mapH + 2 * pad
+	if bw >= mapW then bw = paddedW end
+	if bh >= mapH then bh = paddedH end
 
 	local scale = math.min(screenW / bw, screenH / bh)
 
@@ -79,13 +91,17 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 	local viewX = cx - viewW / 2
 	local viewY = cy - viewH / 2
 
-	if viewW >= mapW then
+	-- A view wider than the map is centred, which leaves `padding` of void
+	-- either side (more when the screen aspect is wider than the map's). A
+	-- view narrower than the map is clamped inside it: no map edge is on
+	-- screen, so no padding is owed.
+	if viewW > mapW then
 		viewX = (mapW - viewW) / 2
 	else
 		viewX = clamp(viewX, 0, mapW - viewW)
 	end
 
-	if viewH >= mapH then
+	if viewH > mapH then
 		viewY = (mapH - viewH) / 2
 	else
 		viewY = clamp(viewY, 0, mapH - viewH)
@@ -103,11 +119,12 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 end
 
 -- The "whole level" framing used for overview, level-start, and game-over.
-function Camera.fullMapView(mapW, mapH, screenW, screenH)
+-- Optional `padding` (world px) keeps that much void around every map edge.
+function Camera.fullMapView(mapW, mapH, screenW, screenH, padding)
 	return Camera.computeFraming(
 		{{x = 0, y = 0, w = mapW, h = mapH}},
 		mapW, mapH, screenW, screenH,
-		{marginTiles = 0, minViewTiles = 0, tileW = 1, tileH = 1}
+		{marginTiles = 0, minViewTiles = 0, tileW = 1, tileH = 1, padding = padding}
 	)
 end
 
@@ -124,12 +141,13 @@ function Camera.new(opts)
 	self.marginTiles = opts.marginTiles or DEFAULT_MARGIN_TILES
 	self.minViewTiles = opts.minViewTiles or DEFAULT_MIN_VIEW_TILES
 	self.decay = opts.decay or DEFAULT_DECAY
+	self.padding = opts.padding or 0
 
 	self.mode = 'follow'
 	self.extraTargets = {}
 
 	-- levels open at the full-map view and ease in on the players
-	local full = Camera.fullMapView(self.mapW, self.mapH, self.screenW, self.screenH)
+	local full = Camera.fullMapView(self.mapW, self.mapH, self.screenW, self.screenH, self.padding)
 	self.cx, self.cy, self.scale = full.cx, full.cy, full.scale
 
 	return self
@@ -177,7 +195,7 @@ end
 -- toward, given this frame's player target rects.
 function Camera:computeTargetView(playerTargets)
 	if self.mode == 'overview' or self.mode == 'gameover' then
-		return Camera.fullMapView(self.mapW, self.mapH, self.screenW, self.screenH)
+		return Camera.fullMapView(self.mapW, self.mapH, self.screenW, self.screenH, self.padding)
 	end
 
 	local targets = {}
@@ -193,6 +211,7 @@ function Camera:computeTargetView(playerTargets)
 		minViewTiles = self.minViewTiles,
 		tileW = self.tileW,
 		tileH = self.tileH,
+		padding = self.padding,
 	})
 end
 
