@@ -7,7 +7,6 @@ local _internal = Diorama._internal
 local worldScreenRect = _internal.worldScreenRect
 local computeVoidRects = _internal.computeVoidRects
 local computeFrame = _internal.computeFrame
-local assignOrnaments = _internal.assignOrnaments
 
 local function makeConfig()
 	return {
@@ -23,38 +22,25 @@ local function makeConfig()
 			},
 			ornaments = {
 				corners = {
-					topLeft = { img = 'res/img/diorama/diorama_corner_tl.png', scale = 1 },
-					topRight = { img = 'res/img/diorama/diorama_corner_tr.png', scale = 1 },
-					bottomLeft = { img = 'res/img/diorama/diorama_corner_bl.png', scale = 1 },
-					bottomRight = { img = 'res/img/diorama/diorama_corner_br.png', scale = 1 },
+					topLeft = { img = 'res/img/diorama/diorama_corner_tl.png', scale = { x = 1, y = 1 } },
+					topRight = { img = 'res/img/diorama/diorama_corner_tr.png', scale = { x = 1, y = 1 } },
+					bottomLeft = { img = 'res/img/diorama/diorama_corner_bl.png', scale = { x = 1, y = 1 } },
+					bottomRight = { img = 'res/img/diorama/diorama_corner_br.png', scale = { x = 1, y = 1 } },
 				},
 				top = {
-					count = 2,
-					items = {
-						{ img = 'res/img/diorama/diorama_orn_top_a.png', weight = 0.4, scale = 1 },
-						{ img = 'res/img/diorama/diorama_orn_top_b.png', weight = 0.3, scale = 0.75 },
-						{ img = 'res/img/diorama/diorama_orn_top_c.png', weight = 0.3, scale = 1.25 },
-					},
+					{ img = 'res/img/diorama/diorama_orn_top_a.png', pos = 1 / 3, scale = { x = 1, y = 1 } },
+					{ img = 'res/img/diorama/diorama_orn_top_b.png', pos = 2 / 3, scale = { x = -1, y = 0.75 } },
 				},
 				bottom = {
-					count = 2,
-					items = {
-						{ img = 'res/img/diorama/diorama_orn_bot_a.png', weight = 0.5, scale = 1 },
-						{ img = 'res/img/diorama/diorama_orn_bot_b.png', weight = 0.5, scale = 1 },
-					},
+					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 0.25 },
+					{ img = 'res/img/diorama/diorama_orn_bot_b.png', pos = 0.75, scale = { x = 2, y = 0.5 } },
 				},
 				left = {
-					count = 1,
-					items = {
-						{ img = 'res/img/diorama/diorama_orn_left_a.png', weight = 1, scale = 1 },
-					},
+					{ img = 'res/img/diorama/diorama_orn_left_a.png', pos = 0.5, scale = { x = 1, y = 1 } },
 				},
 				right = {
-					count = 2,
-					items = {
-						{ img = 'res/img/diorama/diorama_orn_right_a.png', weight = 0.7, scale = 1 },
-						{ img = 'res/img/diorama/diorama_orn_right_b.png', weight = 0.3, scale = 0.5 },
-					},
+					{ img = 'res/img/diorama/diorama_orn_right_a.png', pos = 0.25, scale = { x = 1, y = 1 } },
+					{ img = 'res/img/diorama/diorama_orn_right_b.png', pos = 0.75, scale = { x = 0.5, y = 0.5 } },
 				},
 			},
 		},
@@ -71,18 +57,19 @@ test('config defaults are present and stable', function()
 		assertTrue(type(f.tiles[side]) == 'string', 'frame.tiles.' .. side .. ' should be a path string')
 	end
 	for _, key in ipairs({ 'topLeft', 'topRight', 'bottomLeft', 'bottomRight' }) do
+		local scale = f.ornaments.corners[key].scale
 		assertTrue(type(f.ornaments.corners[key].img) == 'string', 'frame.ornaments.corners.' .. key .. '.img should be a path string')
-		assertTrue(type(f.ornaments.corners[key].scale) == 'number' and f.ornaments.corners[key].scale > 0, 'frame.ornaments.corners.' .. key .. '.scale should be positive')
+		assertTrue(type(scale) == 'table' and type(scale.x) == 'number' and type(scale.y) == 'number', 'frame.ornaments.corners.' .. key .. '.scale should be an {x, y} pair')
 	end
 	for _, side in ipairs({ 'top', 'bottom', 'left', 'right' }) do
 		local orn = f.ornaments[side]
-		assertTrue(type(orn) == 'table', 'frame.ornaments.' .. side .. ' should exist')
-		assertTrue(type(orn.count) == 'number' and orn.count >= 1, 'frame.ornaments.' .. side .. '.count should be a positive number')
-		assertTrue(type(orn.items) == 'table' and #orn.items > 0, 'frame.ornaments.' .. side .. '.items should be a non-empty pool')
-		for _, item in ipairs(orn.items) do
+		assertTrue(type(orn) == 'table' and #orn > 0, 'frame.ornaments.' .. side .. ' should be a non-empty list of ornaments')
+		for _, item in ipairs(orn) do
 			assertTrue(type(item.img) == 'string', 'ornament img should be a path string')
-			assertTrue(type(item.weight) == 'number' and item.weight > 0, 'ornament weight should be positive')
-			assertTrue(type(item.scale) == 'number' and item.scale > 0, 'ornament scale should be a positive number')
+			assertTrue(type(item.pos) == 'number' and item.pos >= 0 and item.pos <= 1, 'ornament pos should be a 0..1 fraction along the edge')
+			if item.scale then
+				assertTrue(type(item.scale.x) == 'number' and type(item.scale.y) == 'number', 'ornament scale should be an {x, y} pair')
+			end
 		end
 	end
 end)
@@ -173,7 +160,8 @@ test('corner ornament entries carry their config image paths and scale', functio
 
 	for _, key in ipairs({ 'topLeft', 'topRight', 'bottomLeft', 'bottomRight' }) do
 		assertEqual(config.frame.ornaments.corners[key].img, frame.cornerOrnaments[key].img, key .. ' img path')
-		assertEqual(config.frame.ornaments.corners[key].scale, frame.cornerOrnaments[key].scale, key .. ' scale')
+		assertEqual(config.frame.ornaments.corners[key].scale.x, frame.cornerOrnaments[key].scale.x, key .. ' scale.x')
+		assertEqual(config.frame.ornaments.corners[key].scale.y, frame.cornerOrnaments[key].scale.y, key .. ' scale.y')
 	end
 end)
 
@@ -196,70 +184,35 @@ test('computeTileCount tiles the whole edge length', function()
 	assertEqual(0, computeTileCount(100, 0), 'degenerate tile length yields no tiles')
 end)
 
-test('ornament slots are a fixed count per edge at even intervals on the outset frame line', function()
-	local frame = computeFrame(640, 480, makeConfig())
+test('ornament slots sit at their configured percentage position on the outset frame line', function()
+	local config = makeConfig()
+	local frame = computeFrame(640, 480, config)
 
-	assertEqual(2, #frame.ornamentSlots.top, 'top edge has its configured count of slots')
+	assertEqual(2, #frame.ornamentSlots.top, 'top edge has one slot per configured ornament')
 	assertEqual(2, #frame.ornamentSlots.bottom)
-	assertEqual(1, #frame.ornamentSlots.left, 'left edge has its configured count of slots')
+	assertEqual(1, #frame.ornamentSlots.left, 'left edge has one slot per configured ornament')
 	assertEqual(2, #frame.ornamentSlots.right)
 
 	local first = frame.ornamentSlots.top[1]
-	assertNear(640 / 3, first.x, 0.000001, 'first top slot is at edgeLen/(count+1), inset from the corner')
-	assertNear(2 * 640 / 3, frame.ornamentSlots.top[2].x, 0.000001, 'second top slot is at 2*edgeLen/(count+1)')
+	assertNear(640 / 3, first.x, 0.000001, 'first top slot is at pos * edgeLen')
+	assertNear(2 * 640 / 3, frame.ornamentSlots.top[2].x, 0.000001, 'second top slot is at 2/3 of the edge length')
 	assertEqual(-8, first.y, 'top slots sit centred on the y=-outset frame line')
+	assertEqual('res/img/diorama/diorama_orn_top_a.png', first.img, 'slot carries its configured image')
+	assertNear(1, first.scale.x, 0.000001, 'slot carries its configured scale.x')
+	assertNear(1, first.scale.y, 0.000001, 'slot carries its configured scale.y')
+
+	local flipped = frame.ornamentSlots.top[2]
+	assertNear(-1, flipped.scale.x, 0.000001, 'a negative scale.x is carried through for flipping')
+	assertNear(0.75, flipped.scale.y, 0.000001)
+
+	local stretched = frame.ornamentSlots.bottom[2]
+	assertNear(2, stretched.scale.x, 0.000001, 'a stretched scale.x is carried through verbatim')
+	assertNear(0.5, stretched.scale.y, 0.000001)
+
+	local bare = frame.ornamentSlots.bottom[1]
+	assertEqual(nil, bare.scale, 'an ornament omitting scale passes nil through')
 
 	local leftSlot = frame.ornamentSlots.left[1]
 	assertEqual(-8, leftSlot.x, 'left slot sits on the x=-outset frame line')
-	assertNear(480 / 2, leftSlot.y, 0.000001, 'a single left slot sits centred on the edge')
-end)
-
-test('assignOrnaments is deterministic and uses every pool item', function()
-	local pool = {
-		{ img = 'a', weight = 0.5, scale = 1 },
-		{ img = 'b', weight = 0.3, scale = 2 },
-		{ img = 'c', weight = 0.2, scale = 0.5 },
-	}
-
-	local first = assignOrnaments(pool, 10)
-	local second = assignOrnaments(pool, 10)
-
-	assertEqual(#first, 10)
-	for i = 1, 10 do
-		assertEqual(first[i].img, second[i].img, 'deterministic: same input, same output')
-	end
-
-	local seen = {}
-	for _, item in ipairs(first) do
-		seen[item.img] = (seen[item.img] or 0) + 1
-	end
-	assertEqual(5, seen.a, 'weight 0.5 of 10 slots')
-	assertEqual(3, seen.b, 'weight 0.3 of 10 slots')
-	assertEqual(2, seen.c, 'weight 0.2 of 10 slots')
-end)
-
-test('assignOrnaments carries each item through with its scale', function()
-	local pool = {
-		{ img = 'a', weight = 0.5, scale = 1 },
-		{ img = 'b', weight = 0.3, scale = 2 },
-		{ img = 'c', weight = 0.2, scale = 0.5 },
-	}
-	local out = assignOrnaments(pool, 10)
-	for _, item in ipairs(out) do
-		assertEqual(pool[item.img == 'a' and 1 or (item.img == 'b' and 2 or 3)].scale, item.scale, 'item keeps its own scale')
-	end
-end)
-
-test('assignOrnaments distributes a single-item pool to every slot', function()
-	local pool = { { img = 'only', weight = 1 } }
-	local out = assignOrnaments(pool, 7)
-	assertEqual(7, #out)
-	for i = 1, 7 do
-		assertEqual('only', out[i].img)
-	end
-end)
-
-test('assignOrnaments returns empty for zero slots', function()
-	local pool = { { img = 'a', weight = 1 } }
-	assertEqual(0, #assignOrnaments(pool, 0))
+	assertNear(480 / 2, leftSlot.y, 0.000001, 'a slot at pos 0.5 sits centred on the edge')
 end)

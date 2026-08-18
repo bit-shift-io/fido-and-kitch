@@ -21,6 +21,10 @@ local Log = require('src.utils.log')
 
 local Diorama = {}
 
+-- Ornament scale is authored as an `{x, y}` pair (negative flips that axis,
+-- arbitrary values stretch); this is the fallback when a piece omits `scale`.
+local UNIT_SCALE = { x = 1, y = 1 }
+
 Diorama.config = {
 		void = { img = 'res/img/diorama/diorama_void.png' },
 		frame = {
@@ -40,52 +44,40 @@ Diorama.config = {
 				left = 'res/img/diorama/diorama_frame_vertical.png',
 				right = 'res/img/diorama/diorama_frame_vertical.png',
 			},
-			-- A small FIXED number of interstitial ornaments per edge (not a
-			-- spacing-driven row): `count` pieces at even intervals along the
-			-- edge, inset from the corners, each drawn from the weighted `items`
-			-- pool deterministically. No tiling -- each side places exactly
-			-- `count` discrete ornaments. Each item may carry a per-ornament
-			-- `scale` (default 1) so individual pieces can be sized independently.
-			-- `corners` is a subsection inside `ornaments` (they are ornaments
-			-- too): four fixed pieces centred on the corners of the frame line,
-			-- each with its own optional `scale`.
+			-- Interstitial ornaments per edge, one list entry per piece, never
+			-- tiled. Each entry is `{img, pos, scale?}` where `pos` is the
+			-- PERCENTAGE position along the edge (0 = left/top corner,
+			-- 1 = right/bottom corner), so authors get exact placement instead
+			-- of a derived even interval. `scale` is an `{x, y}` pair (default
+			-- `{x=1, y=1}`): negative values flip along that axis, arbitrary
+			-- values stretch, and pieces can be sized independently. `corners`
+			-- is a subsection inside `ornaments` (they are ornaments too):
+			-- four fixed pieces centred on the corners of the frame line, each
+			-- with its own optional `scale`.
 			ornaments = {
 				corners = {
-					topLeft = { img = 'res/img/diorama/corner_purple.png', scale = 0.7 },
-					topRight = { img = 'res/img/diorama/corner_yellow.png', scale = 0.7 },
-					bottomLeft = { img = 'res/img/diorama/corner_blue.png', scale = 0.7 },
-					bottomRight = { img = 'res/img/diorama/corner_red.png', scale = 0.7 },
+					topLeft = { img = 'res/img/diorama/corner_purple.png', scale = { x = 0.7, y = 0.7 } },
+					topRight = { img = 'res/img/diorama/corner_yellow.png', scale = { x = 0.7, y = 0.7 } },
+					bottomLeft = { img = 'res/img/diorama/corner_blue.png', scale = { x = 0.7, y = 0.7 } },
+					bottomRight = { img = 'res/img/diorama/corner_red.png', scale = { x = 0.7, y = 0.7 } },
 				},
 				top = {
-					count = 2,
-					items = {
-						{ img = 'res/img/diorama/ornament_top_hero.png', weight = 0.5, scale = 0.5 },
-						{ img = 'res/img/diorama/diorama_orn_top_b.png', weight = 0.3, scale = 0.2 },
-						{ img = 'res/img/diorama/diorama_orn_top_c.png', weight = 0.3, scale = 1.25 },
-					},
+					{ img = 'res/img/diorama/ornament_top_hero.png', pos = 0.5, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/diorama_orn_top_c.png', pos = 2 / 3, scale = { x = 1.25, y = 1.25 } },
 				},
 				bottom = {
-					count = 2,
-					items = {
-						{ img = 'res/img/diorama/diorama_orn_bot_a.png', weight = 0.5, scale = 1 },
-						{ img = 'res/img/diorama/diorama_orn_bot_b.png', weight = 0.5, scale = 1 },
-					},
+					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 1 / 3 },
+					{ img = 'res/img/diorama/diorama_orn_bot_b.png', pos = 2 / 3 },
 				},
-				left = {
-					count = 1,
-                    items = {
-                        { img = 'res/img/diorama/ornament_blue.png',  weight = 0.25, scale = 0.5 },
-                        { img = 'res/img/diorama/ornament_smile.png', weight = 0.5, scale = 0.5 },
-						{ img = 'res/img/diorama/ornament_blue.png', weight = 0.75, scale = 0.5 },
-					},
+                left = {
+    				{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, scale = { x = 0.5, y = 0.5 } },
+                    { img = 'res/img/diorama/ornament_smile.png', pos = 0.5,   scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, scale = { x = 0.5, y = 0.5 } },
 				},
-				right = {
-					count = 2,
-					items = {
-						{ img = 'res/img/diorama/ornament_blue.png', weight = 0.25, scale = 0.5 },
-                        { img = 'res/img/diorama/ornament_smile.png', weight = 0.5, scale = 0.5 },
-						{ img = 'res/img/diorama/ornament_blue.png', weight = 0.75, scale = 0.5 },
-					},
+                right = {
+                    { img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, scale = { x = -0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, scale = { x = 0.5, y = 0.5 } },
 				},
 			},
 		},
@@ -129,71 +121,6 @@ local function computeVoidRects(screenW, screenH, wr)
 	return rects
 end
 
--- Deterministic weighted ornament distribution for one edge. slotCount slots
--- are handed out proportionally to the pool weights (largest-remainder), then
--- interleaved evenly by fractional position so the pattern looks natural.
--- Same input always yields the same output -- no seed, no randomization.
-local function assignOrnaments(pool, slotCount)
-	local out = {}
-	if slotCount <= 0 or not pool or #pool == 0 then
-		return out
-	end
-
-	local total = 0
-	for _, p in ipairs(pool) do
-		total = total + p.weight
-	end
-	if total <= 0 then
-		return out
-	end
-
-	local counts = {}
-	local remainders = {}
-	local allocated = 0
-	for i, p in ipairs(pool) do
-		local exact = slotCount * p.weight / total
-		local c = math.floor(exact)
-		counts[i] = c
-		remainders[i] = exact - c
-		allocated = allocated + c
-	end
-
-	local order = {}
-	for i = 1, #pool do
-		order[i] = i
-	end
-	table.sort(order, function(a, b)
-		return remainders[a] > remainders[b]
-	end)
-	local k = 1
-	while allocated < slotCount do
-		counts[order[k]] = counts[order[k]] + 1
-		k = k + 1
-		allocated = allocated + 1
-	end
-
-	local placements = {}
-	for i, p in ipairs(pool) do
-		local c = counts[i]
-		if c > 0 then
-			local step = slotCount / c
-			for j = 0, c - 1 do
-				table.insert(placements, { pos = (j + 0.5) * step, index = i })
-			end
-		end
-	end
-	table.sort(placements, function(a, b)
-		if math.abs(a.pos - b.pos) > 1e-9 then
-			return a.pos < b.pos
-		end
-		return a.index < b.index
-	end)
-	for i, pl in ipairs(placements) do
-		out[i] = pool[pl.index]
-	end
-	return out
-end
-
 -- How many tile repeats cover an edge span. Tiles the WHOLE length: the
 -- count is ceil'd so the last repeat overruns the far corner and is covered
 -- by the corner ornament drawn on top (no gap at the end of the edge).
@@ -209,19 +136,19 @@ end
 -- hugs the border instead of overlapping the playfield. Corner ornaments sit
 -- centred on the 4 corners of that line; edge tiles run the full edge span
 -- (the repeat step is the tile texture's long dimension, decided at draw
--- time); ornament slots are a fixed small `count` per edge at even intervals,
--- inset from the corners, centred on the frame line -- discrete ornaments,
--- never a tiled row.
+-- time); ornament slots sit centred on the frame line at their configured
+-- percentage (`pos` 0..1) along the edge -- discrete ornaments, never a
+-- tiled row.
 local function computeFrame(mapW, mapH, config)
 	local f = config.frame
 	local tile = f.tileSize or 16
 	local outset = f.outset or 0
 
 	local cornerOrnaments = {
-		topLeft = { x = -outset, y = -outset, img = f.ornaments.corners.topLeft.img, scale = f.ornaments.corners.topLeft.scale or 1 },
-		topRight = { x = mapW + outset, y = -outset, img = f.ornaments.corners.topRight.img, scale = f.ornaments.corners.topRight.scale or 1 },
-		bottomLeft = { x = -outset, y = mapH + outset, img = f.ornaments.corners.bottomLeft.img, scale = f.ornaments.corners.bottomLeft.scale or 1 },
-		bottomRight = { x = mapW + outset, y = mapH + outset, img = f.ornaments.corners.bottomRight.img, scale = f.ornaments.corners.bottomRight.scale or 1 },
+		topLeft = { x = -outset, y = -outset, img = f.ornaments.corners.topLeft.img, scale = f.ornaments.corners.topLeft.scale },
+		topRight = { x = mapW + outset, y = -outset, img = f.ornaments.corners.topRight.img, scale = f.ornaments.corners.topRight.scale },
+		bottomLeft = { x = -outset, y = mapH + outset, img = f.ornaments.corners.bottomLeft.img, scale = f.ornaments.corners.bottomLeft.scale },
+		bottomRight = { x = mapW + outset, y = mapH + outset, img = f.ornaments.corners.bottomRight.img, scale = f.ornaments.corners.bottomRight.scale },
 	}
 
 	local edges = {
@@ -231,25 +158,27 @@ local function computeFrame(mapW, mapH, config)
 		right = { fixed = mapW + outset, from = 0, to = mapH },
 	}
 
-	-- `count` ornament slots at even intervals along an edge, inset from the
-	-- corners (positions edgeLen/(count+1), 2*edgeLen/(count+1), ...).
+	-- Interstitial ornaments sit centred on the frame line, one per configured
+	-- entry, at `pos * edgeLen` along the edge (`pos` is 0..1 along the edge,
+	-- 0 = left/top corner, 1 = right/bottom corner). Each entry carries its
+	-- own `img` and `scale` straight through to the draw pass.
 	local ornamentSlots = {}
-	local function buildSlots(edgeLen, count, fixedAxis, fixedValue)
+	local function buildSlots(edgeLen, list, fixedAxis, fixedValue)
 		local slots = {}
-		for i = 1, count do
-			local coord = i * edgeLen / (count + 1)
+		for _, orn in ipairs(list or {}) do
+			local coord = (orn.pos or 0) * edgeLen
 			if fixedAxis == 'x' then
-				table.insert(slots, { x = fixedValue, y = coord })
+				table.insert(slots, { x = fixedValue, y = coord, img = orn.img, scale = orn.scale })
 			else
-				table.insert(slots, { x = coord, y = fixedValue })
+				table.insert(slots, { x = coord, y = fixedValue, img = orn.img, scale = orn.scale })
 			end
 		end
 		return slots
 	end
-	ornamentSlots.top = buildSlots(mapW, f.ornaments.top.count, 'y', -outset)
-	ornamentSlots.bottom = buildSlots(mapW, f.ornaments.bottom.count, 'y', mapH + outset)
-	ornamentSlots.left = buildSlots(mapH, f.ornaments.left.count, 'x', -outset)
-	ornamentSlots.right = buildSlots(mapH, f.ornaments.right.count, 'x', mapW + outset)
+	ornamentSlots.top = buildSlots(mapW, f.ornaments.top, 'y', -outset)
+	ornamentSlots.bottom = buildSlots(mapW, f.ornaments.bottom, 'y', mapH + outset)
+	ornamentSlots.left = buildSlots(mapH, f.ornaments.left, 'x', -outset)
+	ornamentSlots.right = buildSlots(mapH, f.ornaments.right, 'x', mapW + outset)
 
 	return {
 		cornerOrnaments = cornerOrnaments,
@@ -376,22 +305,19 @@ function Diorama.drawFrame(tx, ty, sx, sy, mapW, mapH)
 	for _, corner in pairs(frame.cornerOrnaments) do
 		local img = loadImage(corner.img)
 		if img then
-			local scale = corner.scale or 1
-			lg.draw(img, corner.x - img:getWidth() * scale / 2, corner.y - img:getHeight() * scale / 2, 0, scale, scale)
+			local scale = corner.scale or UNIT_SCALE
+			lg.draw(img, corner.x - img:getWidth() * scale.x / 2, corner.y - img:getHeight() * scale.y / 2, 0, scale.x, scale.y)
 		end
 	end
 
-	-- Interstitial ornaments, over the tiles. Discrete pieces -- one per slot,
-	-- never tiled. Each item carries its own scale.
+	-- Interstitial ornaments, over the tiles. Discrete pieces -- one per
+	-- configured entry, never tiled, each carrying its own `img` and `scale`.
 	for side, slots in pairs(frame.ornamentSlots) do
-		local items = config.ornaments[side].items
-		local chosen = assignOrnaments(items, #slots)
 		for i, slot in ipairs(slots) do
-			local item = chosen[i]
-			local img = loadImage(item.img)
+			local img = loadImage(slot.img)
 			if img then
-				local scale = item.scale or 1
-				lg.draw(img, slot.x - img:getWidth() * scale / 2, slot.y - img:getHeight() * scale / 2, 0, scale, scale)
+				local scale = slot.scale or UNIT_SCALE
+				lg.draw(img, slot.x - img:getWidth() * scale.x / 2, slot.y - img:getHeight() * scale.y / 2, 0, scale.x, scale.y)
 			end
 		end
 	end
@@ -406,7 +332,6 @@ Diorama._internal = {
 	computeVoidRects = computeVoidRects,
 	computeTileCount = computeTileCount,
 	computeFrame = computeFrame,
-	assignOrnaments = assignOrnaments,
 }
 
 return Diorama

@@ -69,7 +69,7 @@ local function seedPlaceholders()
 
 	for side, orn in pairs(f.ornaments) do
 		if side ~= 'corners' then
-			for _, item in ipairs(orn.items) do
+			for _, item in ipairs(orn) do
 				AssetManager.textures[item.img] = makePlaceholder(c.ornament[1], c.ornament[2], c.ornament[3])
 			end
 		end
