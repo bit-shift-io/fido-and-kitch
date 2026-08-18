@@ -100,7 +100,7 @@ function Map:new(path, world, debug)
 	local bgName = self.map.properties.background
 	if type(bgName) == 'string' and bgName ~= '' then
 		self.backgroundName = bgName
-		self.backgroundMap = loadSti(resolveMapFile('res/backgrounds/' .. bgName))
+		self.backgroundMap = loadSti(resolveMapFile('res/bg/' .. bgName))
 	end
 
 	return self

@@ -15,17 +15,17 @@
 -- Props (all optional):
 --   entity    owning entity (set by Usable:onAttach)
 --   texture   a texture path or array of paths to sparkle from; defaults to all
---             four res/fx/ glows so particles vary
+--             four res/img/fx/ glows so particles vary
 --   range     px of extra space around the box the player must enter to trigger
 --   rate      particles emitted per frame while a player is in range
 --   width,height  emission box override (defaults to the entity's collider box)
 local Particles = require('src.particles')
 
 local TEXTURES = {
-	'res/fx/fx_star_glow.png',
-	'res/fx/fx_star_outline.png',
-	'res/fx/fx_blob_glow.png',
-	'res/fx/fx_square_outline.png',
+	'res/img/fx/fx_star_glow.png',
+	'res/img/fx/fx_star_outline.png',
+	'res/img/fx/fx_blob_glow.png',
+	'res/img/fx/fx_square_outline.png',
 }
 
 local UsableSparkle = Class{}

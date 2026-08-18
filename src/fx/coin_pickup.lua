@@ -17,7 +17,7 @@ function CoinPickup:config()
 		gravity = {x = 0, y = 220},
 		size = {start = 14, ["end"] = 0},
 		colors = {start = {1, 0.9, 0.2, 1}, ["end"] = {1, 0.5, 0, 0}},
-		image = 'res/fx/fx_star_glow.png',
+		image = 'res/img/fx/fx_star_glow.png',
 	}
 end
 

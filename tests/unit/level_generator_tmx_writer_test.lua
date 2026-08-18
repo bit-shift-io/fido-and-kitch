@@ -19,8 +19,8 @@ local function walkingSkeletonMap()
 			{name = 'players', type = 'int', value = 1},
 		},
 		tilesets = {
-			{firstgid = 1, source = '../../tilesets/generic_platformer_tiles.tsx'},
-			{firstgid = 145, source = '../../tilesets/props.tsx'},
+			{firstgid = 1, source = '../../editor/tileset_generic_platformer_tiles.tsx'},
+			{firstgid = 145, source = '../../editor/tileset_props.tsx'},
 		},
 		layers = {
 			{
@@ -47,10 +47,10 @@ local function walkingSkeletonMap()
 				type = 'objectgroup',
 				name = 'game',
 				objects = {
-					{id = 1, template = '../../templates/spawn.tx', name = 'spawn', x = 64, y = 448},
+					{id = 1, template = '../../editor/spawn.tx', name = 'spawn', x = 64, y = 448},
 					{
 						id = 2,
-						template = '../../templates/exit_door.tx',
+						template = '../../editor/exit_door.tx',
 						name = 'exit_door',
 						x = 544,
 						y = 448,

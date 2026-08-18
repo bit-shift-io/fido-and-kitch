@@ -79,7 +79,7 @@ test('terrain map emits one template rung per ladder tile, bottom-anchored', fun
 	end
 	assertEqual(expectedRungs, #ladderLayer.objects)
 	for _, object in ipairs(ladderLayer.objects) do
-		assertEqual('../../templates/ladder.tx', object.template)
+		assertEqual('../../editor/ladder.tx', object.template)
 		assertEqual(nil, object.type)
 		assertEqual(nil, object.width)
 		assertEqual(nil, object.height)

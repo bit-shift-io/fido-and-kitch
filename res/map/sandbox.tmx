@@ -6,9 +6,9 @@
   <property name="name" value="Sandbox"/>
   <property name="players" type="int" value="1"/>
  </properties>
- <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
- <tileset firstgid="145" source="../tilesets/props.tsx"/>
- <tileset firstgid="159" source="../tilesets/levels.tsx"/>
+ <tileset firstgid="1" source="../editor/tileset_generic_platformer_tiles.tsx"/>
+ <tileset firstgid="145" source="../editor/tileset_props.tsx"/>
+ <tileset firstgid="159" source="../editor/tileset_levels.tsx"/>
  <objectgroup id="21" name="level" locked="1">
   <object id="111" gid="159" x="0" y="637" width="638" height="638"/>
  </objectgroup>
@@ -26,16 +26,16 @@
   </data>
  </layer>
  <objectgroup id="16" name="ladder">
-  <object id="95" template="../templates/ladder.tx" x="128" y="384"/>
-  <object id="96" template="../templates/ladder.tx" x="128" y="352"/>
-  <object id="97" template="../templates/ladder.tx" x="128" y="320"/>
-  <object id="98" template="../templates/ladder.tx" x="128" y="288"/>
-  <object id="99" template="../templates/ladder.tx" x="128" y="256"/>
-  <object id="100" template="../templates/ladder.tx" x="128" y="224"/>
-  <object id="101" template="../templates/ladder.tx" x="160" y="512"/>
-  <object id="102" template="../templates/ladder.tx" x="160" y="480"/>
-  <object id="103" template="../templates/ladder.tx" x="160" y="448"/>
-  <object id="104" template="../templates/ladder.tx" x="160" y="416"/>
+  <object id="95" template="../editor/ladder.tx" x="128" y="384"/>
+  <object id="96" template="../editor/ladder.tx" x="128" y="352"/>
+  <object id="97" template="../editor/ladder.tx" x="128" y="320"/>
+  <object id="98" template="../editor/ladder.tx" x="128" y="288"/>
+  <object id="99" template="../editor/ladder.tx" x="128" y="256"/>
+  <object id="100" template="../editor/ladder.tx" x="128" y="224"/>
+  <object id="101" template="../editor/ladder.tx" x="160" y="512"/>
+  <object id="102" template="../editor/ladder.tx" x="160" y="480"/>
+  <object id="103" template="../editor/ladder.tx" x="160" y="448"/>
+  <object id="104" template="../editor/ladder.tx" x="160" y="416"/>
  </objectgroup>
  <objectgroup id="19" name="kill">
   <object id="78" name="water_kill" type="kill_zone" x="224" y="592" width="96" height="112">
@@ -45,58 +45,58 @@
   </object>
  </objectgroup>
  <objectgroup id="13" name="game">
-  <object id="86" template="../templates/drawbridge.tx" name="drawbridge" x="352" y="192"/>
-  <object id="26" template="../templates/teleport.tx" name="teleport" type="teleport" x="193.683" y="511.321">
+  <object id="86" template="../editor/drawbridge.tx" name="drawbridge" x="352" y="192"/>
+  <object id="26" template="../editor/teleport.tx" name="teleport" type="teleport" x="193.683" y="511.321">
    <properties>
     <property name="target" type="object" value="63"/>
    </properties>
   </object>
-  <object id="36" template="../templates/coin.tx" x="480" y="352">
+  <object id="36" template="../editor/coin.tx" x="480" y="352">
    <properties>
     <property name="image" type="file" value="../img/coins.png"/>
    </properties>
   </object>
-  <object id="38" template="../templates/spawn.tx" x="96" y="192"/>
-  <object id="41" template="../templates/cage.tx" name="red_cage" x="32" y="384">
+  <object id="38" template="../editor/spawn.tx" x="96" y="192"/>
+  <object id="41" template="../editor/cage.tx" name="red_cage" x="32" y="384">
    <properties>
     <property name="image" type="file" value="../img/cage/cage.png"/>
     <property name="path" type="object" value="67"/>
     <property name="spawn_type" value="bird"/>
    </properties>
   </object>
-  <object id="43" template="../templates/exit_door.tx" name="exit_door" x="416" y="192">
+  <object id="43" template="../editor/exit_door.tx" name="exit_door" x="416" y="192">
    <properties>
     <property name="actor_count" type="int" value="2"/>
    </properties>
   </object>
-  <object id="44" template="../templates/switch.tx" name="switch" x="288" y="192">
+  <object id="44" template="../editor/switch.tx" name="switch" x="288" y="192">
    <properties>
     <property name="image" type="file" value="../img/entity_switch.png"/>
    </properties>
   </object>
-  <object id="106" template="../templates/mover_platform.tx" name="mover_platform" x="320" y="384">
+  <object id="106" template="../editor/mover_platform.tx" name="mover_platform" x="320" y="384">
    <properties>
     <property name="path" type="object" value="105"/>
     <property name="pause" type="float" value="0.5"/>
     <property name="speed" type="float" value="50"/>
    </properties>
   </object>
-  <object id="107" template="../templates/switch.tx" name="mover_switch" x="384" y="352">
+  <object id="107" template="../editor/switch.tx" name="mover_switch" x="384" y="352">
    <properties>
     <property name="target" type="object" value="106"/>
    </properties>
   </object>
-  <object id="62" template="../templates/key.tx" name="red_key" x="96" y="384">
+  <object id="62" template="../editor/key.tx" name="red_key" x="96" y="384">
    <properties>
     <property name="image" type="file" value="../img/entity_key.png"/>
    </properties>
   </object>
-  <object id="63" template="../templates/teleport.tx" name="teleport" type="teleport" x="384" y="544">
+  <object id="63" template="../editor/teleport.tx" name="teleport" type="teleport" x="384" y="544">
    <properties>
     <property name="target" type="object" value="26"/>
    </properties>
   </object>
-  <object id="68" template="../templates/jump_pad.tx" x="192" y="384">
+  <object id="68" template="../editor/jump_pad.tx" x="192" y="384">
    <properties>
     <property name="image" type="file" value="../img/entity_jump_pad.png"/>
     <property name="path" type="object" value="73"/>
@@ -114,30 +114,30 @@
     <property name="color" value="blue"/>
    </properties>
   </object>
-  <object id="93" template="../templates/blocker.tx" name="blocker" x="256" y="160"/>
-  <object id="94" template="../templates/switch.tx" name="blocker_switch" x="192" y="192">
+  <object id="93" template="../editor/blocker.tx" name="blocker" x="256" y="160"/>
+  <object id="94" template="../editor/switch.tx" name="blocker_switch" x="192" y="192">
    <properties>
     <property name="target" type="object" value="93"/>
    </properties>
   </object>
   <object id="87" name="robot" type="npc_robot" x="29.9128" y="480.308" width="32" height="30.2203"/>
   <object id="88" name="spider" type="npc_spider" x="416.205" y="317.467" width="32" height="32"/>
-  <object id="91" template="../templates/story.tx" x="576" y="544">
+  <object id="91" template="../editor/story.tx" x="576" y="544">
    <properties>
     <property name="text" value="Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"/>
    </properties>
   </object>
-  <object id="92" template="../templates/story.tx" x="352" y="352">
+  <object id="92" template="../editor/story.tx" x="352" y="352">
    <properties>
     <property name="text" value="The inside of this automaton engine isn't made of pistons—it’s an empty nest lined with soft wool and old ribbons. Whatever was kept inside here was taken out very recently."/>
    </properties>
   </object>
-  <object id="109" template="../templates/replicator.tx" name="replicator" x="512" y="384">
+  <object id="109" template="../editor/replicator.tx" name="replicator" x="512" y="384">
    <properties>
     <property name="maxSpawns" type="int" value="3"/>
    </properties>
   </object>
-  <object id="110" template="../templates/switch.tx" name="replicator_switch" x="448" y="544">
+  <object id="110" template="../editor/switch.tx" name="replicator_switch" x="448" y="544">
    <properties>
     <property name="target" type="object" value="109"/>
    </properties>

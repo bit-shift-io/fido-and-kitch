@@ -54,7 +54,7 @@ local function fakeReader(contents)
 end
 
 test('resolves a single-image tileset to an STI-shaped tileset table', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/generic_platformer_tiles.tsx', 1, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_generic_platformer_tiles.tsx', 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSX),
 	})
 
@@ -80,18 +80,18 @@ end)
 
 test('raises a clear error naming the file when the tsx cannot be read', function()
 	local ok, err = pcall(function()
-		ExternalTileset.resolve('res/tilesets/missing.tsx', 1, {
+		ExternalTileset.resolve('res/editor/tileset_missing.tsx', 1, {
 			readFile = function(path) return nil end,
 		})
 	end)
 
 	assertEqual(false, ok)
-	assertTrue(string.find(tostring(err), 'res/tilesets/missing.tsx', 1, true) ~= nil,
+	assertTrue(string.find(tostring(err), 'res/editor/tileset_missing.tsx', 1, true) ~= nil,
 		'expected error to mention the missing file path, got: ' .. tostring(err))
 end)
 
 test('resolves an image-collection tileset to per-tile image entries', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/props.tsx', 145, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_props.tsx', 145, {
 		readFile = fakeReader(PROPS_TSX),
 	})
 
@@ -101,7 +101,7 @@ test('resolves an image-collection tileset to per-tile image entries', function(
 end)
 
 test('an uncropped tile resolves the whole referenced image', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/props.tsx', 145, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_props.tsx', 145, {
 		readFile = fakeReader(PROPS_TSX),
 	})
 
@@ -115,7 +115,7 @@ test('an uncropped tile resolves the whole referenced image', function()
 end)
 
 test('a cropped tile resolves its own sub-region rect, not the full source image', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/props.tsx', 145, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_props.tsx', 145, {
 		readFile = fakeReader(PROPS_TSX),
 	})
 
@@ -136,7 +136,7 @@ test('a cropped tile resolves its own sub-region rect, not the full source image
 end)
 
 test('resolves per-tile custom properties on a grid tileset', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/generic_platformer_tiles_with_metadata.tsx', 1, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_generic_platformer_tiles_with_metadata.tsx', 1, {
 		readFile = fakeReader(GRID_WITH_TILE_METADATA_TSX),
 	})
 
@@ -151,7 +151,7 @@ test('resolves per-tile custom properties on a grid tileset', function()
 end)
 
 test('resolves per-tile animation frames on a grid tileset', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/generic_platformer_tiles_with_metadata.tsx', 1, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_generic_platformer_tiles_with_metadata.tsx', 1, {
 		readFile = fakeReader(GRID_WITH_TILE_METADATA_TSX),
 	})
 
@@ -169,7 +169,7 @@ test('resolves per-tile animation frames on a grid tileset', function()
 end)
 
 test('resolves a per-tile objectGroup (Tile Collision Editor shape) on a grid tileset', function()
-	local tileset = ExternalTileset.resolve('res/tilesets/generic_platformer_tiles_with_metadata.tsx', 1, {
+	local tileset = ExternalTileset.resolve('res/editor/tileset_generic_platformer_tiles_with_metadata.tsx', 1, {
 		readFile = fakeReader(GRID_WITH_TILE_METADATA_TSX),
 	})
 
@@ -194,8 +194,8 @@ test('resolving the same tsx path twice only reads/parses its XML once', functio
 		return GENERIC_PLATFORMER_TILES_TSX
 	end
 
-	ExternalTileset.resolve('res/tilesets/cache_test_a.tsx', 1, { readFile = readFile })
-	local second = ExternalTileset.resolve('res/tilesets/cache_test_a.tsx', 1, { readFile = readFile })
+	ExternalTileset.resolve('res/editor/tileset_cache_test_a.tsx', 1, { readFile = readFile })
+	local second = ExternalTileset.resolve('res/editor/tileset_cache_test_a.tsx', 1, { readFile = readFile })
 
 	assertEqual(1, readCount)
 	assertEqual('res/img/generic_platformer_tiles.png', second.image)
@@ -203,10 +203,10 @@ test('resolving the same tsx path twice only reads/parses its XML once', functio
 end)
 
 test('two different tsx paths are cached independently', function()
-	local tilesetA = ExternalTileset.resolve('res/tilesets/cache_test_b.tsx', 1, {
+	local tilesetA = ExternalTileset.resolve('res/editor/tileset_cache_test_b.tsx', 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSX),
 	})
-	local tilesetB = ExternalTileset.resolve('res/tilesets/cache_test_c.tsx', 145, {
+	local tilesetB = ExternalTileset.resolve('res/editor/tileset_cache_test_c.tsx', 145, {
 		readFile = fakeReader(PROPS_TSX),
 	})
 
@@ -219,20 +219,20 @@ end)
 test('a cached resolution still reflects the firstgid passed on that call', function()
 	local readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSX)
 
-	ExternalTileset.resolve('res/tilesets/cache_test_d.tsx', 1, { readFile = readFile })
-	local second = ExternalTileset.resolve('res/tilesets/cache_test_d.tsx', 50, { readFile = readFile })
+	ExternalTileset.resolve('res/editor/tileset_cache_test_d.tsx', 1, { readFile = readFile })
+	local second = ExternalTileset.resolve('res/editor/tileset_cache_test_d.tsx', 50, { readFile = readFile })
 
 	assertEqual(50, second.firstgid)
 end)
 
 test('raises a clear error naming the file when the tsx is malformed', function()
 	local ok, err = pcall(function()
-		ExternalTileset.resolve('res/tilesets/broken.tsx', 1, {
+		ExternalTileset.resolve('res/editor/tileset_broken.tsx', 1, {
 			readFile = fakeReader('<tileset><image></tileset>'),
 		})
 	end)
 
 	assertEqual(false, ok)
-	assertTrue(string.find(tostring(err), 'res/tilesets/broken.tsx', 1, true) ~= nil,
+	assertTrue(string.find(tostring(err), 'res/editor/tileset_broken.tsx', 1, true) ~= nil,
 		'expected error to mention the broken file path, got: ' .. tostring(err))
 end)

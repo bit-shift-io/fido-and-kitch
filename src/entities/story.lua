@@ -279,7 +279,7 @@ function Story:init(object, map)
 	-- retro blocky font for the speech bubble
 	self.font = nil
 	if love and love.graphics then
-		self.font = love.graphics.newFont('res/fonts/SuperMarioBrosNES.ttf', 14)
+		self.font = love.graphics.newFont('res/fnt/SuperMarioBrosNES.ttf', 14)
 	end
 
 	local position = Rect.centreOfMapObject(object)

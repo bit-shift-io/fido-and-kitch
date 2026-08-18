@@ -79,10 +79,10 @@ test('array image textures are assigned per particle at spawn', function()
 		lifetime = {min = 1, max = 1},
 		speed = {min = 0, max = 0},
 		image = {
-			'res/fx/fx_star_glow.png',
-			'res/fx/fx_star_outline.png',
-			'res/fx/fx_blob_glow.png',
-			'res/fx/fx_square_outline.png',
+			'res/img/fx/fx_star_glow.png',
+			'res/img/fx/fx_star_outline.png',
+			'res/img/fx/fx_blob_glow.png',
+			'res/img/fx/fx_square_outline.png',
 		},
 	}
 	e:emit(80)

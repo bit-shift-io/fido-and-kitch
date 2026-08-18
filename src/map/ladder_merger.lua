@@ -1,4 +1,4 @@
--- Merges per-rung tile objects (type="ladder", gid'd, from res/templates
+-- Merges per-rung tile objects (type="ladder", gid'd, from res/editor
 -- /ladder.tx) into single logical ladders. Tile objects are bottom-anchored
 -- in Tiled: object.y is the BOTTOM edge, the top edge is y - height. Rungs
 -- sharing a column (same x and width) that are vertically contiguous (the

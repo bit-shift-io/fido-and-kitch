@@ -34,7 +34,7 @@ function Rule.apply(rng, layout, startId)
 		objects = {
 			{
 				id = teleportAId,
-				template = '../../templates/teleport.tx',
+				template = '../../editor/teleport.tx',
 				name = 'teleport',
 				type = 'teleport',
 				x = aX,
@@ -43,7 +43,7 @@ function Rule.apply(rng, layout, startId)
 			},
 			{
 				id = teleportBId,
-				template = '../../templates/teleport.tx',
+				template = '../../editor/teleport.tx',
 				name = 'teleport',
 				type = 'teleport',
 				x = bX,
@@ -52,7 +52,7 @@ function Rule.apply(rng, layout, startId)
 			},
 			{
 				id = switchId,
-				template = '../../templates/switch.tx',
+				template = '../../editor/switch.tx',
 				name = 'switch',
 				type = 'switch',
 				x = switchX,

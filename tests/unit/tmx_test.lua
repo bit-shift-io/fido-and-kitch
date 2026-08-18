@@ -20,7 +20,7 @@ end
 -- A minimal but structurally real fixture: map attributes, all supported
 -- property types on the map and on a layer, an external tileset, and one
 -- base64 tile layer -- built from the shape of res/map/ll1.tmx and
--- res/tilesets/generic_platformer_tiles.tsx rather than invented from
+-- res/editor/tileset_generic_platformer_tiles.tsx rather than invented from
 -- scratch, per the planning docs.
 local BASIC_MAP_TMX = [[<?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="4" height="3" tilewidth="32" tileheight="32" infinite="0" nextlayerid="2" nextobjectid="1">

@@ -78,7 +78,7 @@ function Decorate.hazardsForLayout(rng, layout, difficulty)
 end
 
 -- The only three backgrounds that actually exist (src/map/init.lua loads
--- res/backgrounds/<name>.tmx by this map property) -- gradient/cloud_spawner
+-- res/bg/<name>.tmx by this map property) -- gradient/cloud_spawner
 -- objects are documented in CONTEXT.md's glossary but have no implementation
 -- anywhere in src/ (DECISIONS.md Q16), so they're not emitted.
 local BACKGROUNDS = {'night_forest', 'mushroom_cave', 'sky'}

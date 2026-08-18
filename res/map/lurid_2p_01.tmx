@@ -6,8 +6,8 @@
   <property name="name" value="Pesetrus"/>
   <property name="players" type="int" value="2"/>
  </properties>
- <tileset firstgid="1" source="../tilesets/generic_platformer_tiles.tsx"/>
- <tileset firstgid="145" source="../tilesets/props.tsx"/>
+ <tileset firstgid="1" source="../editor/tileset_generic_platformer_tiles.tsx"/>
+ <tileset firstgid="145" source="../editor/tileset_props.tsx"/>
  <layer id="1" name="ground" width="36" height="23">
   <properties>
    <property name="collision" type="bool" value="true"/>
@@ -17,52 +17,52 @@
   </data>
  </layer>
  <objectgroup id="4" name="ladder" class="ladder" visible="0">
-  <object id="44" template="../templates/ladder.tx" x="32" y="384"/>
-  <object id="45" template="../templates/ladder.tx" x="32" y="352"/>
-  <object id="46" template="../templates/ladder.tx" x="32" y="320"/>
-  <object id="47" template="../templates/ladder.tx" x="32" y="288"/>
-  <object id="48" template="../templates/ladder.tx" x="32" y="256"/>
-  <object id="49" template="../templates/ladder.tx" x="32" y="224"/>
-  <object id="50" template="../templates/ladder.tx" x="224" y="512"/>
-  <object id="51" template="../templates/ladder.tx" x="224" y="480"/>
-  <object id="52" template="../templates/ladder.tx" x="224" y="448"/>
-  <object id="53" template="../templates/ladder.tx" x="224" y="416"/>
-  <object id="54" template="../templates/ladder.tx" x="224" y="384"/>
-  <object id="55" template="../templates/ladder.tx" x="224" y="352"/>
-  <object id="56" template="../templates/ladder.tx" x="416" y="640"/>
-  <object id="57" template="../templates/ladder.tx" x="416" y="608"/>
-  <object id="58" template="../templates/ladder.tx" x="416" y="576"/>
-  <object id="59" template="../templates/ladder.tx" x="416" y="544"/>
-  <object id="60" template="../templates/ladder.tx" x="416" y="512"/>
-  <object id="61" template="../templates/ladder.tx" x="416" y="480"/>
-  <object id="62" template="../templates/ladder.tx" x="608" y="704"/>
-  <object id="63" template="../templates/ladder.tx" x="608" y="672"/>
-  <object id="64" template="../templates/ladder.tx" x="608" y="640"/>
-  <object id="65" template="../templates/ladder.tx" x="608" y="608"/>
-  <object id="66" template="../templates/ladder.tx" x="832" y="704"/>
-  <object id="67" template="../templates/ladder.tx" x="832" y="672"/>
-  <object id="68" template="../templates/ladder.tx" x="832" y="640"/>
-  <object id="69" template="../templates/ladder.tx" x="832" y="608"/>
-  <object id="70" template="../templates/ladder.tx" x="896" y="704"/>
-  <object id="71" template="../templates/ladder.tx" x="896" y="672"/>
-  <object id="72" template="../templates/ladder.tx" x="896" y="640"/>
-  <object id="73" template="../templates/ladder.tx" x="896" y="608"/>
-  <object id="74" template="../templates/ladder.tx" x="1120" y="704"/>
-  <object id="75" template="../templates/ladder.tx" x="1120" y="672"/>
-  <object id="76" template="../templates/ladder.tx" x="1120" y="640"/>
-  <object id="77" template="../templates/ladder.tx" x="1120" y="608"/>
-  <object id="78" template="../templates/ladder.tx" x="1024" y="576"/>
-  <object id="79" template="../templates/ladder.tx" x="1024" y="544"/>
-  <object id="80" template="../templates/ladder.tx" x="1024" y="512"/>
-  <object id="81" template="../templates/ladder.tx" x="1024" y="480"/>
-  <object id="82" template="../templates/ladder.tx" x="960" y="448"/>
-  <object id="83" template="../templates/ladder.tx" x="960" y="416"/>
-  <object id="84" template="../templates/ladder.tx" x="960" y="384"/>
-  <object id="85" template="../templates/ladder.tx" x="960" y="352"/>
-  <object id="86" template="../templates/ladder.tx" x="896" y="320"/>
-  <object id="87" template="../templates/ladder.tx" x="896" y="288"/>
-  <object id="88" template="../templates/ladder.tx" x="896" y="256"/>
-  <object id="89" template="../templates/ladder.tx" x="896" y="224"/>
+  <object id="44" template="../editor/ladder.tx" x="32" y="384"/>
+  <object id="45" template="../editor/ladder.tx" x="32" y="352"/>
+  <object id="46" template="../editor/ladder.tx" x="32" y="320"/>
+  <object id="47" template="../editor/ladder.tx" x="32" y="288"/>
+  <object id="48" template="../editor/ladder.tx" x="32" y="256"/>
+  <object id="49" template="../editor/ladder.tx" x="32" y="224"/>
+  <object id="50" template="../editor/ladder.tx" x="224" y="512"/>
+  <object id="51" template="../editor/ladder.tx" x="224" y="480"/>
+  <object id="52" template="../editor/ladder.tx" x="224" y="448"/>
+  <object id="53" template="../editor/ladder.tx" x="224" y="416"/>
+  <object id="54" template="../editor/ladder.tx" x="224" y="384"/>
+  <object id="55" template="../editor/ladder.tx" x="224" y="352"/>
+  <object id="56" template="../editor/ladder.tx" x="416" y="640"/>
+  <object id="57" template="../editor/ladder.tx" x="416" y="608"/>
+  <object id="58" template="../editor/ladder.tx" x="416" y="576"/>
+  <object id="59" template="../editor/ladder.tx" x="416" y="544"/>
+  <object id="60" template="../editor/ladder.tx" x="416" y="512"/>
+  <object id="61" template="../editor/ladder.tx" x="416" y="480"/>
+  <object id="62" template="../editor/ladder.tx" x="608" y="704"/>
+  <object id="63" template="../editor/ladder.tx" x="608" y="672"/>
+  <object id="64" template="../editor/ladder.tx" x="608" y="640"/>
+  <object id="65" template="../editor/ladder.tx" x="608" y="608"/>
+  <object id="66" template="../editor/ladder.tx" x="832" y="704"/>
+  <object id="67" template="../editor/ladder.tx" x="832" y="672"/>
+  <object id="68" template="../editor/ladder.tx" x="832" y="640"/>
+  <object id="69" template="../editor/ladder.tx" x="832" y="608"/>
+  <object id="70" template="../editor/ladder.tx" x="896" y="704"/>
+  <object id="71" template="../editor/ladder.tx" x="896" y="672"/>
+  <object id="72" template="../editor/ladder.tx" x="896" y="640"/>
+  <object id="73" template="../editor/ladder.tx" x="896" y="608"/>
+  <object id="74" template="../editor/ladder.tx" x="1120" y="704"/>
+  <object id="75" template="../editor/ladder.tx" x="1120" y="672"/>
+  <object id="76" template="../editor/ladder.tx" x="1120" y="640"/>
+  <object id="77" template="../editor/ladder.tx" x="1120" y="608"/>
+  <object id="78" template="../editor/ladder.tx" x="1024" y="576"/>
+  <object id="79" template="../editor/ladder.tx" x="1024" y="544"/>
+  <object id="80" template="../editor/ladder.tx" x="1024" y="512"/>
+  <object id="81" template="../editor/ladder.tx" x="1024" y="480"/>
+  <object id="82" template="../editor/ladder.tx" x="960" y="448"/>
+  <object id="83" template="../editor/ladder.tx" x="960" y="416"/>
+  <object id="84" template="../editor/ladder.tx" x="960" y="384"/>
+  <object id="85" template="../editor/ladder.tx" x="960" y="352"/>
+  <object id="86" template="../editor/ladder.tx" x="896" y="320"/>
+  <object id="87" template="../editor/ladder.tx" x="896" y="288"/>
+  <object id="88" template="../editor/ladder.tx" x="896" y="256"/>
+  <object id="89" template="../editor/ladder.tx" x="896" y="224"/>
  </objectgroup>
  <objectgroup id="3" name="game">
   <object id="2" name="key (yellow)" type="key" gid="123" x="736" y="288" width="32" height="32">
@@ -87,16 +87,16 @@
    </properties>
   </object>
   <object id="16" name="teleport" type="teleport" gid="123" x="736" y="480" width="32" height="32"/>
-  <object id="32" template="../templates/spawn.tx" x="544" y="352"/>
-  <object id="33" template="../templates/spawn.tx" x="1088" y="224"/>
-  <object id="35" template="../templates/cage.tx" x="896" y="416"/>
-  <object id="36" template="../templates/key.tx" x="864" y="128"/>
-  <object id="37" template="../templates/drawbridge.tx" x="1024" y="160"/>
-  <object id="39" template="../templates/push_box.tx" x="1056" y="224"/>
-  <object id="40" template="../templates/key.tx" x="800" y="704"/>
-  <object id="41" template="../templates/cage.tx" x="64" y="96"/>
-  <object id="42" template="../templates/coin.tx" x="352" y="64"/>
-  <object id="43" template="../templates/coin.tx" x="576" y="480"/>
+  <object id="32" template="../editor/spawn.tx" x="544" y="352"/>
+  <object id="33" template="../editor/spawn.tx" x="1088" y="224"/>
+  <object id="35" template="../editor/cage.tx" x="896" y="416"/>
+  <object id="36" template="../editor/key.tx" x="864" y="128"/>
+  <object id="37" template="../editor/drawbridge.tx" x="1024" y="160"/>
+  <object id="39" template="../editor/push_box.tx" x="1056" y="224"/>
+  <object id="40" template="../editor/key.tx" x="800" y="704"/>
+  <object id="41" template="../editor/cage.tx" x="64" y="96"/>
+  <object id="42" template="../editor/coin.tx" x="352" y="64"/>
+  <object id="43" template="../editor/coin.tx" x="576" y="480"/>
  </objectgroup>
  <objectgroup id="5" name="waypoints" visible="0"/>
 </map>

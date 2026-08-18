@@ -74,6 +74,8 @@ love . debug drawphysics map=sandbox
   - `input_config.lua` — persistent key bindings (save/load to `love.filesystem`)
   - `action_map.lua` — action to key/button mappings
 - `res/map/` — Tiled `.tmx` sources loaded directly (see `res/map/ladder.tmx`); the game runs `.tmx` via `src/map/tmx.lua`, tilesets must be embedded
+- `res/editor/` — Tiled authoring assets: the Tiled project file (`fido-and-kitch.tiled-project`), object templates (`*.tx`, flat) and external tilesets (`tileset_*.tsx`, flat, `tileset_`-prefixed). Maps reference these via `../editor/...` relative paths; templates reference their tileset as a bare filename; tilesets reference images via `../img/...`. All are parsed at runtime from map/template references (`src/map/tmx_template.lua`, `external_tileset.lua`) — keep them inside `res/` so they ship
+- `res/bg/` — reusable parallax background presets (image-layer maps, `.tmx`), referenced by the `background` map property and loaded via the `res/bg/` prefix in `src/map/init.lua`
 - `tests/` — three test tiers (unit, integration, e2e) plus shared support/fixtures (see `tests/README.md`)
 
 ## Conventions
