@@ -45,15 +45,19 @@ Diorama.config = {
 				right = 'res/img/diorama/diorama_frame_vertical.png',
 			},
 			-- Interstitial ornaments per edge, one list entry per piece, never
-			-- tiled. Each entry is `{img, pos, scale?}` where `pos` is the
-			-- PERCENTAGE position along the edge (0 = left/top corner,
+			-- tiled. Each entry is `{img, pos, offset?, scale?}` where `pos` is
+			-- the PERCENTAGE position along the edge (0 = left/top corner,
 			-- 1 = right/bottom corner), so authors get exact placement instead
-			-- of a derived even interval. `scale` is an `{x, y}` pair (default
-			-- `{x=1, y=1}`): negative values flip along that axis, arbitrary
-			-- values stretch, and pieces can be sized independently. `corners`
-			-- is a subsection inside `ornaments` (they are ornaments too):
-			-- four fixed pieces centred on the corners of the frame line, each
-			-- with its own optional `scale`.
+			-- of a derived even interval. `offset` is world px PERPENDICULAR
+			-- to the edge: positive pushes the piece away from the playfield
+			-- (out into the void), negative toward it; 0 parks it centred on
+			-- the frame line. `scale` is an `{x, y}` pair (default `{x=1,
+			-- y=1}`): negative values flip along that axis, arbitrary values
+			-- stretch, and pieces can be sized independently. `corners` is a
+			-- subsection inside `ornaments` (they are ornaments too): four
+			-- fixed pieces centred on the corners of the frame line, each with
+			-- its own optional `offset` (moves the corner diagonally out) and
+			-- `scale`.
 			ornaments = {
 				corners = {
 					topLeft = { img = 'res/img/diorama/corner_purple.png', scale = { x = 0.7, y = 0.7 } },
@@ -62,22 +66,22 @@ Diorama.config = {
 					bottomRight = { img = 'res/img/diorama/corner_yellow.png', scale = { x = 0.7, y = 0.7 } },
 				},
 				top = {
-					{ img = 'res/img/diorama/ornament_top_hero.png', pos = 0.5, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/diorama_orn_top_c.png', pos = 2 / 3, scale = { x = 1.25, y = 1.25 } },
+					{ img = 'res/img/diorama/ornament_top_hero.png', pos = 0.5, offset = -16, scale = { x = 0.4, y = 0.4 } },
+					{ img = 'res/img/diorama/diorama_orn_top_c.png', pos = 2 / 3, offset = 4, scale = { x = 1.25, y = 1.25 } },
 				},
 				bottom = {
-					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 1 / 3 },
-					{ img = 'res/img/diorama/diorama_orn_bot_b.png', pos = 2 / 3 },
+					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 1 / 3, offset = -6 },
+					{ img = 'res/img/diorama/diorama_orn_bot_b.png', pos = 2 / 3, offset = 6 },
 				},
-                left = {
-    				{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, scale = { x = 0.5, y = 0.5 } },
-                    { img = 'res/img/diorama/ornament_smile.png', pos = 0.5,   scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, scale = { x = 0.5, y = 0.5 } },
+				left = {
+					{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, offset = 6, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, offset = -4, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, offset = 8, scale = { x = 0.5, y = 0.5 } },
 				},
-                right = {
-                    { img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, scale = { x = -0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, scale = { x = 0.5, y = 0.5 } },
+				right = {
+					{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, offset = 6, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, offset = -4, scale = { x = -0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, offset = 8, scale = { x = 0.5, y = 0.5 } },
 				},
 			},
 		},
@@ -137,18 +141,31 @@ end
 -- centred on the 4 corners of that line; edge tiles run the full edge span
 -- (the repeat step is the tile texture's long dimension, decided at draw
 -- time); ornament slots sit centred on the frame line at their configured
--- percentage (`pos` 0..1) along the edge -- discrete ornaments, never a
--- tiled row.
+-- percentage (`pos` 0..1) along the edge, shifted by their optional `offset`
+-- (world px, perpendicular to the edge: positive away from the playfield) --
+-- discrete ornaments, never a tiled row.
 local function computeFrame(mapW, mapH, config)
 	local f = config.frame
 	local tile = f.tileSize or 16
 	local outset = f.outset or 0
 
+	-- A corner ornament's `offset` moves it along the diagonal away from the
+	-- map corner (`outX`/`outY` are +1/-1 per axis so positive is outward).
+	local function cornerSlot(fixedX, fixedY, outX, outY, orn)
+		local offset = orn.offset or 0
+		return {
+			x = fixedX + offset * outX,
+			y = fixedY + offset * outY,
+			img = orn.img,
+			scale = orn.scale,
+		}
+	end
+
 	local cornerOrnaments = {
-		topLeft = { x = -outset, y = -outset, img = f.ornaments.corners.topLeft.img, scale = f.ornaments.corners.topLeft.scale },
-		topRight = { x = mapW + outset, y = -outset, img = f.ornaments.corners.topRight.img, scale = f.ornaments.corners.topRight.scale },
-		bottomLeft = { x = -outset, y = mapH + outset, img = f.ornaments.corners.bottomLeft.img, scale = f.ornaments.corners.bottomLeft.scale },
-		bottomRight = { x = mapW + outset, y = mapH + outset, img = f.ornaments.corners.bottomRight.img, scale = f.ornaments.corners.bottomRight.scale },
+		topLeft = cornerSlot(-outset, -outset, -1, -1, f.ornaments.corners.topLeft),
+		topRight = cornerSlot(mapW + outset, -outset, 1, -1, f.ornaments.corners.topRight),
+		bottomLeft = cornerSlot(-outset, mapH + outset, -1, 1, f.ornaments.corners.bottomLeft),
+		bottomRight = cornerSlot(mapW + outset, mapH + outset, 1, 1, f.ornaments.corners.bottomRight),
 	}
 
 	local edges = {
@@ -160,25 +177,29 @@ local function computeFrame(mapW, mapH, config)
 
 	-- Interstitial ornaments sit centred on the frame line, one per configured
 	-- entry, at `pos * edgeLen` along the edge (`pos` is 0..1 along the edge,
-	-- 0 = left/top corner, 1 = right/bottom corner). Each entry carries its
-	-- own `img` and `scale` straight through to the draw pass.
+	-- 0 = left/top corner, 1 = right/bottom corner), shifted perpendicular to
+	-- the edge by the entry's `offset`. Each entry carries its own `img` and
+	-- `scale` straight through to the draw pass. `outSign` is +1 on
+	-- bottom/right and -1 on top/left so a positive `offset` always points
+	-- away from the playfield.
 	local ornamentSlots = {}
-	local function buildSlots(edgeLen, list, fixedAxis, fixedValue)
+	local function buildSlots(edgeLen, list, fixedAxis, fixedValue, outSign)
 		local slots = {}
 		for _, orn in ipairs(list or {}) do
 			local coord = (orn.pos or 0) * edgeLen
+			local offset = (orn.offset or 0) * outSign
 			if fixedAxis == 'x' then
-				table.insert(slots, { x = fixedValue, y = coord, img = orn.img, scale = orn.scale })
+				table.insert(slots, { x = fixedValue + offset, y = coord, img = orn.img, scale = orn.scale })
 			else
-				table.insert(slots, { x = coord, y = fixedValue, img = orn.img, scale = orn.scale })
+				table.insert(slots, { x = coord, y = fixedValue + offset, img = orn.img, scale = orn.scale })
 			end
 		end
 		return slots
 	end
-	ornamentSlots.top = buildSlots(mapW, f.ornaments.top, 'y', -outset)
-	ornamentSlots.bottom = buildSlots(mapW, f.ornaments.bottom, 'y', mapH + outset)
-	ornamentSlots.left = buildSlots(mapH, f.ornaments.left, 'x', -outset)
-	ornamentSlots.right = buildSlots(mapH, f.ornaments.right, 'x', mapW + outset)
+	ornamentSlots.top = buildSlots(mapW, f.ornaments.top, 'y', -outset, -1)
+	ornamentSlots.bottom = buildSlots(mapW, f.ornaments.bottom, 'y', mapH + outset, 1)
+	ornamentSlots.left = buildSlots(mapH, f.ornaments.left, 'x', -outset, -1)
+	ornamentSlots.right = buildSlots(mapH, f.ornaments.right, 'x', mapW + outset, 1)
 
 	return {
 		cornerOrnaments = cornerOrnaments,

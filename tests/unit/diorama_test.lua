@@ -29,17 +29,17 @@ local function makeConfig()
 				},
 				top = {
 					{ img = 'res/img/diorama/diorama_orn_top_a.png', pos = 1 / 3, scale = { x = 1, y = 1 } },
-					{ img = 'res/img/diorama/diorama_orn_top_b.png', pos = 2 / 3, scale = { x = -1, y = 0.75 } },
+					{ img = 'res/img/diorama/diorama_orn_top_b.png', pos = 2 / 3, scale = { x = -1, y = 0.75 }, offset = 10 },
 				},
 				bottom = {
-					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 0.25 },
+					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 0.25, offset = -5 },
 					{ img = 'res/img/diorama/diorama_orn_bot_b.png', pos = 0.75, scale = { x = 2, y = 0.5 } },
 				},
 				left = {
 					{ img = 'res/img/diorama/diorama_orn_left_a.png', pos = 0.5, scale = { x = 1, y = 1 } },
 				},
 				right = {
-					{ img = 'res/img/diorama/diorama_orn_right_a.png', pos = 0.25, scale = { x = 1, y = 1 } },
+					{ img = 'res/img/diorama/diorama_orn_right_a.png', pos = 0.25, scale = { x = 1, y = 1 }, offset = 6 },
 					{ img = 'res/img/diorama/diorama_orn_right_b.png', pos = 0.75, scale = { x = 0.5, y = 0.5 } },
 				},
 			},
@@ -57,9 +57,13 @@ test('config defaults are present and stable', function()
 		assertTrue(type(f.tiles[side]) == 'string', 'frame.tiles.' .. side .. ' should be a path string')
 	end
 	for _, key in ipairs({ 'topLeft', 'topRight', 'bottomLeft', 'bottomRight' }) do
-		local scale = f.ornaments.corners[key].scale
-		assertTrue(type(f.ornaments.corners[key].img) == 'string', 'frame.ornaments.corners.' .. key .. '.img should be a path string')
+		local orn = f.ornaments.corners[key]
+		local scale = orn.scale
+		assertTrue(type(orn.img) == 'string', 'frame.ornaments.corners.' .. key .. '.img should be a path string')
 		assertTrue(type(scale) == 'table' and type(scale.x) == 'number' and type(scale.y) == 'number', 'frame.ornaments.corners.' .. key .. '.scale should be an {x, y} pair')
+		if orn.offset then
+			assertTrue(type(orn.offset) == 'number', 'frame.ornaments.corners.' .. key .. '.offset should be a number of world px')
+		end
 	end
 	for _, side in ipairs({ 'top', 'bottom', 'left', 'right' }) do
 		local orn = f.ornaments[side]
@@ -69,6 +73,9 @@ test('config defaults are present and stable', function()
 			assertTrue(type(item.pos) == 'number' and item.pos >= 0 and item.pos <= 1, 'ornament pos should be a 0..1 fraction along the edge')
 			if item.scale then
 				assertTrue(type(item.scale.x) == 'number' and type(item.scale.y) == 'number', 'ornament scale should be an {x, y} pair')
+			end
+			if item.offset then
+				assertTrue(type(item.offset) == 'number', 'ornament offset should be a number of world px')
 			end
 		end
 	end
@@ -215,4 +222,39 @@ test('ornament slots sit at their configured percentage position on the outset f
 	local leftSlot = frame.ornamentSlots.left[1]
 	assertEqual(-8, leftSlot.x, 'left slot sits on the x=-outset frame line')
 	assertNear(480 / 2, leftSlot.y, 0.000001, 'a slot at pos 0.5 sits centred on the edge')
+end)
+
+test('ornament offset shifts pieces perpendicular to the edge, away from the playfield when positive', function()
+	local config = makeConfig()
+	local frame = computeFrame(640, 480, config)
+
+	local top = frame.ornamentSlots.top[2]
+	assertNear(2 * 640 / 3, top.x, 0.000001, 'offset must not move the piece along the edge')
+	assertEqual(-18, top.y, 'a positive offset on the top edge pushes out: y = -outset - 10')
+
+	local bottom = frame.ornamentSlots.bottom[1]
+	assertNear(640 * 0.25, bottom.x, 0.000001, 'offset must not move the piece along the edge')
+	assertEqual(483, bottom.y, 'a negative offset on the bottom edge pulls in: y = mapH + outset - 5')
+
+	local right = frame.ornamentSlots.right[1]
+	assertNear(480 * 0.25, right.y, 0.000001, 'offset must not move the piece along the edge')
+	assertEqual(654, right.x, 'a positive offset on the right edge pushes out: x = mapW + outset + 6')
+
+	local left = frame.ornamentSlots.left[1]
+	assertEqual(-8, left.x, 'an ornament without offset stays centred on the frame line')
+end)
+
+test('corner ornament offset moves the corner diagonally away from the map corner', function()
+	local config = makeConfig()
+	config.frame.ornaments.corners.topLeft.offset = 4
+	config.frame.ornaments.corners.bottomRight.offset = 3
+	local frame = computeFrame(640, 480, config)
+
+	assertEqual(-12, frame.cornerOrnaments.topLeft.x, 'topLeft offset pushes x outward')
+	assertEqual(-12, frame.cornerOrnaments.topLeft.y, 'topLeft offset pushes y outward')
+	assertEqual(651, frame.cornerOrnaments.bottomRight.x, 'bottomRight offset pushes x outward')
+	assertEqual(491, frame.cornerOrnaments.bottomRight.y, 'bottomRight offset pushes y outward')
+
+	assertEqual(648, frame.cornerOrnaments.topRight.x, 'an offset-free corner keeps its default position')
+	assertEqual(-8, frame.cornerOrnaments.topRight.y)
 end)
