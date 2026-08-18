@@ -1,5 +1,5 @@
 ---
-name: build-mode
+name: build-steps
 description: Executes tasks one by one from TASKS.md using strict Red-Green-Refactor TDD with minimal token output.
 ---
 

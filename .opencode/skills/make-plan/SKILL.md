@@ -1,5 +1,5 @@
 ---
-name: plan-mode
+name: make-plan
 description: Converts project goals and notes into a bite-sized task checklist without modifying code.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: code-audit
+name: audit-code
 description: Audits a codebase for dead code, unused files, stale comments, poor code structure, and maintainability smells.
 ---
 
