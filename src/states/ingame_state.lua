@@ -233,7 +233,7 @@ function InGameState:draw()
     -- Diorama layering: void strips -> parallax bg (scissored to the world
     -- rect) -> world tiles -> frame -> entities
     Diorama.drawVoid(tx, ty, sx, sy, mapW, mapH)
-    map:draw2(tx, ty, sx, sy)
+    map:draw2(tx, ty, sx, sy, self:collectPlayerTargets())
     Diorama.drawFrame(tx, ty, sx, sy, mapW, mapH)
     map:drawEntities(tx, ty, sx, sy)
 

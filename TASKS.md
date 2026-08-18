@@ -57,7 +57,7 @@ world. Confirmed decisions live in `NOTES.md` (2026-08-18 grill).
 
 ## Tasks
 
-- [ ] 1. Add the zoom-coupled math + shared presets to `src/map/map_parallax.lua`
+- [x] 1. Add the zoom-coupled math + shared presets to `src/map/map_parallax.lua`
   (1 file): module-level constants `ZOOMED_OUT_ALLOWANCE = 0.10` and
   `ZOOMED_IN_ALLOWANCE = 0.30`; `computeZoomT(scale, fullMapScale,
   closestScale)` returning the clamped [0,1] normalization
@@ -70,7 +70,7 @@ world. Confirmed decisions live in `NOTES.md` (2026-08-18 grill).
   params). Keep the module love/sti-free and keep `computeCameraCenter`
   unchanged. Run `./test-unit.sh tests/unit/map_parallax_test.lua` — the old
   tests will fail; that's expected until task 3 lands.
-- [ ] 2. Rework `ParallaxRenderer:drawBackground` in `src/map/parallax_renderer.lua`
+- [x] 2. Rework `ParallaxRenderer:drawBackground` in `src/map/parallax_renderer.lua`
   (1 file): keep the `lg.origin()` + floored world-rect scissor + per-layer
   loop. Per layer: derive `zoomT` from the current camera scale (`sx`) vs the
   full-map view scale and closest (min `6`-tile) view scale computed from
@@ -87,7 +87,7 @@ world. Confirmed decisions live in `NOTES.md` (2026-08-18 grill).
   s)`. Keep the world-rect scissor restore. Run
   `./test-unit.sh tests/unit/map_parallax_test.lua` (still expected to fail
   until task 3).
-- [ ] 3. Update `tests/unit/map_parallax_test.lua` (1 file): keep the
+- [x] 3. Update `tests/unit/map_parallax_test.lua` (1 file): keep the
   `computeCameraCenter` round-trip test; delete the tests that describe the
   replaced semantics (zoom-invariance of the layer draw offset, pan shifts by
   `(1-parallax)*delta`, parallax=1 pinned to its authored offset, parallax=0
@@ -100,7 +100,7 @@ world. Confirmed decisions live in `NOTES.md` (2026-08-18 grill).
   `(1+allowance)*cover*scale` always contains the world rect (slack ≥ slide
   magnitude on each axis). Run `./test-unit.sh tests/unit/map_parallax_test.lua`
   → all green.
-- [ ] 4. Final validation + docs (2 files): update the `src/map/`
+- [x] 4. Final validation + docs (2 files): update the `src/map/`
   `parallax_renderer.lua` and `map_parallax.lua` bullets in `AGENTS.md` to
   describe the zoom-coupled scale, proportional slide, discarded authored
   offsets, and the two shared allowance presets; run `./test-unit.sh` (all

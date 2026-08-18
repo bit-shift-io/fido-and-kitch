@@ -1,6 +1,11 @@
--- Pure math for background-layer parallax offsets. Pulled out of src/map.lua
--- so it can be unit tested without lib.sti/love.graphics -- see
+-- Pure math for zoom-coupled background-layer parallax. Pulled out of
+-- src/map.lua so it can be unit tested without lib.sti/love.graphics -- see
 -- src/map_parallax.lua for the derivation.
+--
+-- Background layers are zoom-coupled: each layer anchors to world-center and
+-- slides proportionally to the recovered camera center (the proportional
+-- slide), clamped so its drawn rect always contains the projected world rect
+-- (cover-guarantees-coverage). Authored offsetx/offsety are discarded.
 local parallax = require('src.map.map_parallax')
 
 local SCREEN_W = 800
@@ -26,58 +31,154 @@ test('camera centre round-trips through computeCameraCenter regardless of zoom',
 	end
 end)
 
-test('changing zoom alone does not change a background layer draw offset', function()
-	local cx, cy = 1234, 567
-	local parallaxx, parallaxy = 0.5, 0.5
+test('proportional slide: p=1 hits -allowance*mapSize/2 at map-left and +allowance*mapSize/2 at map-right', function()
+	local mapW, mapH = 2048, 1536
+	local allowance = 0.2
 
-	local offsets = {}
-	for _, scale in ipairs({0.5, 1, 2, 3.7}) do
-		local tx, ty, sx, sy = drawParamsFor(cx, cy, scale)
-		local ccx, ccy = parallax.computeCameraCenter(tx, ty, sx, sy, SCREEN_W, SCREEN_H)
-		local px, py = parallax.computeLayerOffset(ccx, ccy, parallaxx, parallaxy, 0, 0)
-		table.insert(offsets, {px, py})
-	end
+	local leftX = parallax.computeSlide(allowance, 1, 0, mapW)
+	local rightX = parallax.computeSlide(allowance, 1, mapW, mapW)
+	assertNear(-allowance * mapW * 0.5, leftX, 0.001, 'p=1 at map-left should slide by -allowance*mapW/2')
+	assertNear(allowance * mapW * 0.5, rightX, 0.001, 'p=1 at map-right should slide by +allowance*mapW/2')
 
-	for i = 2, #offsets do
-		assertEqual(offsets[1][1], offsets[i][1], 'px should be zoom-invariant for a fixed camera centre')
-		assertEqual(offsets[1][2], offsets[i][2], 'py should be zoom-invariant for a fixed camera centre')
-	end
+	local leftY = parallax.computeSlide(allowance, 1, 0, mapH)
+	local rightY = parallax.computeSlide(allowance, 1, mapH, mapH)
+	assertNear(-allowance * mapH * 0.5, leftY, 0.001, 'p=1 at map-top should slide by -allowance*mapH/2')
+	assertNear(allowance * mapH * 0.5, rightY, 0.001, 'p=1 at map-bottom should slide by +allowance*mapH/2')
 end)
 
-test('panning the camera shifts a parallax layer offset by (1 - parallax) * delta', function()
-	local scale = 1.5
-	local parallaxx, parallaxy = 0.25, 0.25
+test('proportional slide: p=0 is pinned to world-center', function()
+	local mapW, mapH = 2048, 1536
+	local allowance = 0.2
 
-	local tx1, ty1, sx1, sy1 = drawParamsFor(1000, 500, scale)
-	local cx1, cy1 = parallax.computeCameraCenter(tx1, ty1, sx1, sy1, SCREEN_W, SCREEN_H)
-	local px1, py1 = parallax.computeLayerOffset(cx1, cy1, parallaxx, parallaxy, 0, 0)
-
-	local tx2, ty2, sx2, sy2 = drawParamsFor(1400, 620, scale)
-	local cx2, cy2 = parallax.computeCameraCenter(tx2, ty2, sx2, sy2, SCREEN_W, SCREEN_H)
-	local px2, py2 = parallax.computeLayerOffset(cx2, cy2, parallaxx, parallaxy, 0, 0)
-
-	local expectedDx = (1 - parallaxx) * (1400 - 1000)
-	local expectedDy = (1 - parallaxy) * (620 - 500)
-	assertNear(expectedDx, px2 - px1, 0.001, 'px delta should scale by (1 - parallaxx)')
-	assertNear(expectedDy, py2 - py1, 0.001, 'py delta should scale by (1 - parallaxy)')
+	local px, py = parallax.computeSlide(allowance, 0, 512, mapW), parallax.computeSlide(allowance, 0, 768, mapH)
+	assertNear(0, px, 0.001, 'p=0 should never slide on x')
+	assertNear(0, py, 0.001, 'p=0 should never slide on y')
 end)
 
-test('a parallax of 1 (matches the main map) never shifts beyond its authored offset', function()
-	for _, scale in ipairs({0.5, 1, 2}) do
-		for _, cx in ipairs({0, 500, -300}) do
-			local tx, ty, sx, sy = drawParamsFor(cx, 0, scale)
-			local ccx, _ = parallax.computeCameraCenter(tx, ty, sx, sy, SCREEN_W, SCREEN_H)
-			local px, _ = parallax.computeLayerOffset(ccx, 0, 1, 1, 42, 0)
-			assertEqual(42, px, 'parallax=1 layer should sit exactly at its authored offsetx')
+test('proportional slide: per-axis independence', function()
+	local mapW, mapH = 2048, 1536
+	local allowance = 0.2
+	local centerX, centerY = 2048, 0
+
+	local slideX, slideY = parallax.computeSlide(allowance, 1, centerX, mapW), parallax.computeSlide(allowance, 0.25, centerY, mapH)
+	assertNear(allowance * mapW * 0.5, slideX, 0.001, 'x axis slides with its own parallaxx')
+	assertNear(-allowance * 0.25 * mapH * 0.5, slideY, 0.001, 'y axis slides with its own parallaxy')
+end)
+
+test('computePlayersCenter returns nil with no targets', function()
+	local cx, cy = parallax.computePlayersCenter()
+	assertTrue(cx == nil and cy == nil, 'no targets should yield nil center')
+	assertTrue(parallax.computePlayersCenter({}) == nil, 'empty target list should yield nil')
+end)
+
+test('computePlayersCenter midpoints the union of player rects', function()
+	local cx, cy = parallax.computePlayersCenter({{x = 100, y = 200, w = 40, h = 60}})
+	assertNear(120, cx, 0.001, 'single rect center x')
+	assertNear(230, cy, 0.001, 'single rect center y')
+
+	local cx2, cy2 = parallax.computePlayersCenter({
+		{x = 100, y = 200, w = 40, h = 60},
+		{x = 1500, y = 800, w = 40, h = 60},
+	})
+	assertNear(820, cx2, 0.001, 'union midpoint x should average the outer extents')
+	assertNear(530, cy2, 0.001, 'union midpoint y should average the outer extents')
+end)
+
+test('computePlayersCenter keeps slide nonzero at the zoomed-out extremes', function()
+	local mapW, mapH = 2048, 1536
+	local allowance = 0.2
+
+	-- Both players on the far-left of the map: union midpoint at map-left,
+	-- so the slide reaches its full -allowance*mapSize/2 extreme even though
+	-- the zoomed-out camera center would be pinned to map-center. Zero-extent
+	-- rects hit the exact map edge (a real body lands a body-width in).
+	local leftX, _ = parallax.computePlayersCenter({{x = 0, y = 0, w = 0, h = 0}})
+	local slideLeft = parallax.computeSlide(allowance, 1, leftX, mapW)
+	assertNear(-allowance * mapW * 0.5, slideLeft, 0.001, 'p=1 players at map-left should slide by -allowance*mapW/2')
+
+	local rightX, _ = parallax.computePlayersCenter({{x = mapW, y = 0, w = 0, h = 0}})
+	local slideRight = parallax.computeSlide(allowance, 1, rightX, mapW)
+	assertNear(allowance * mapW * 0.5, slideRight, 0.001, 'p=1 players at map-right should slide by +allowance*mapW/2')
+end)
+
+test('computeZoomT normalizes between full-map and closest scales and clamps at both ends', function()
+	local fullMapScale, closestScale = 0.25, 2.5
+
+	assertNear(0, parallax.computeZoomT(fullMapScale, fullMapScale, closestScale), 0.001, 'zoomT should be 0 at the full-map view')
+	assertNear(1, parallax.computeZoomT(closestScale, fullMapScale, closestScale), 0.001, 'zoomT should be 1 at the closest view')
+	assertNear(0.5, parallax.computeZoomT((fullMapScale + closestScale) * 0.5, fullMapScale, closestScale), 0.001, 'zoomT should lerp linearly between the reference scales')
+
+	assertNear(0, parallax.computeZoomT(fullMapScale - 1, fullMapScale, closestScale), 0.001, 'zoomT should clamp to 0 below the full-map view')
+	assertNear(1, parallax.computeZoomT(closestScale + 10, fullMapScale, closestScale), 0.001, 'zoomT should clamp to 1 above the closest view')
+end)
+
+test('computeAllowance lerps between the shared presets', function()
+	assertNear(parallax.ZOOMED_OUT_ALLOWANCE, parallax.computeAllowance(0), 0.001, 'allowance at zoom-out should be the zoomed-out preset')
+	assertNear(0.20, parallax.computeAllowance(0.5), 0.001, 'allowance at zoomT=0.5 should be the midpoint')
+	assertNear(parallax.ZOOMED_IN_ALLOWANCE, parallax.computeAllowance(1), 0.001, 'allowance at zoom-in should be the zoomed-in preset')
+end)
+
+test('cover-guarantees-coverage: drawn rect contains the world rect for all zooms and aspects', function()
+	local mapW, mapH = 2048, 1536
+	local screenW, screenH = SCREEN_W, SCREEN_H
+	local tileSize = 32
+	local minViewTiles = 6
+
+	local fullMapScale = math.min(screenW / mapW, screenH / mapH)
+	local closestScale = math.min(screenW / (minViewTiles * tileSize), screenH / (minViewTiles * tileSize))
+
+	local aspects = {
+		{1920, 1080},
+		{800, 800},
+		{4096, 1024},
+		{512, 4096},
+		{2048, 2048},
+		{64, 64},
+	}
+	local scales = {
+		fullMapScale * 0.5,
+		fullMapScale,
+		(fullMapScale + closestScale) * 0.25,
+		(fullMapScale + closestScale) * 0.5,
+		(fullMapScale + closestScale) * 0.75,
+		closestScale,
+		closestScale * 1.5,
+	}
+	local parallaxes = {0, 0.5, 1}
+	local centersX = {0, mapW * 0.5, mapW}
+	local centersY = {0, mapH * 0.5, mapH}
+
+	for _, aspect in ipairs(aspects) do
+		local imgW, imgH = aspect[1], aspect[2]
+		for _, scale in ipairs(scales) do
+			local zoomT = parallax.computeZoomT(scale, fullMapScale, closestScale)
+			local allowance = parallax.computeAllowance(zoomT)
+			local cover = parallax.computeCover(mapW, mapH, imgW, imgH)
+			local s = (1 + allowance) * cover * scale
+			local drawW, drawH = imgW * s, imgH * s
+			local worldW, worldH = mapW * scale, mapH * scale
+
+			for _, p in ipairs(parallaxes) do
+				for _, cx in ipairs(centersX) do
+					for _, cy in ipairs(centersY) do
+						local slideX = allowance * p * (cx - mapW * 0.5) * scale
+						local slideY = allowance * p * (cy - mapH * 0.5) * scale
+						local slackX = (drawW - worldW) * 0.5
+						local slackY = (drawH - worldH) * 0.5
+
+						-- EPS absorbs float roundoff: the p=1, camera-at-map-edge
+						-- case has slide == slack exactly, which either float
+						-- path may land a hair below zero on.
+						local EPS = 1e-6
+						assertTrue(slackX + EPS >= math.abs(slideX),
+							string.format('x slack %.6f < slide %.6f (img %dx%d scale %.3f p %.1f cx %d)',
+								slackX, slideX, imgW, imgH, scale, p, cx))
+						assertTrue(slackY + EPS >= math.abs(slideY),
+							string.format('y slack %.6f < slide %.6f (img %dx%d scale %.3f p %.1f cy %d)',
+								slackY, slideY, imgW, imgH, scale, p, cy))
+					end
+				end
+			end
 		end
 	end
-end)
-
-test('a parallax of 0 (fixed background) tracks the camera centre one-to-one', function()
-	local tx, ty, sx, sy = drawParamsFor(777, 333, 2)
-	local cx, cy = parallax.computeCameraCenter(tx, ty, sx, sy, SCREEN_W, SCREEN_H)
-	local px, py = parallax.computeLayerOffset(cx, cy, 0, 0, 10, 20)
-
-	assertNear(777 + 10, px, 0.001, 'parallax=0 layer offset should equal camera centre plus authored offsetx')
-	assertNear(333 + 20, py, 0.001, 'parallax=0 layer offset should equal camera centre plus authored offsety')
 end)

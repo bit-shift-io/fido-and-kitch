@@ -20,11 +20,19 @@ can slide far enough to show a texture edge inside the world.
 2. **Clamp guarantee**: hard-clamp each layer so its drawn rect always
    contains the world rect — a texture edge can never show. Zero/negative
    slack locks the layer to world-center.
-3. **Parallax reference**: the smoothed camera center (recovered from
-   tx/ty/sx/sy). This already equals the average of the two players'
-   positions (`Camera.computeFraming` midpoints the union bounds; the
-   symmetric margin cancels), is steady, and auto-handles overview/game-over
-   (map center → fraction 0.5 → no slide).
+3. **Parallax reference**: the average of the two players' positions —
+   midpoint of the union of player collider bounds (the same rects
+   `Camera.computeFraming` frames). The smoothed camera center was the
+   original reference because it "already equals the players' average", but
+   that equality only holds while the view is narrower than the map:
+   `Camera.computeFraming` pins the view center to the map center whenever
+   `viewW > mapW` (`viewX = (mapW - viewW)/2`), so at every zoomed-out view
+   `center - mapSize/2 = 0` and the slide was always zero — the 10% zoom-out
+   allowance was never spent (verified 2026-08-18). The recovered camera
+   center remains only as a fallback when no player rects are supplied.
+   Overview/game-over with the player reference become a static offset
+   (players frozen → no visible motion), which is visually equivalent to
+   no slide.
 4. **Authored parallaxx/parallaxy are a "guide"**: they weight how much each
    layer participates in the slide. Slide range is player-position-driven,
    not `(1-p)` clamp-saturated.
@@ -68,3 +76,7 @@ can slide far enough to show a texture edge inside the world.
   current `computeLayerOffset` zoom-invariance and `(1-p)*delta` tests no
   longer describe the behaviour. Add tests for: proportional slide extremes,
   allowance lerp between presets, cover-guarantees-coverage at all zooms.
+- Player rects flow into the renderer as `Map:draw2(tx, ty, sx, sy, targets)`
+  (`InGameState:draw` passes `collectPlayerTargets()`); the renderer takes the
+  union-bounds midpoint per axis. No player rects → fall back to the
+  recovered camera center (unchanged legacy behaviour).

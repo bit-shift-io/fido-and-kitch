@@ -145,8 +145,8 @@ function Map:draw()
 	self:draw2(self.tx, self.ty, self.sx, self.sy)
 end
 
-function Map:draw2(tx, ty, sx, sy)
-	self.parallaxRenderer:draw(self, tx, ty, sx, sy)
+function Map:draw2(tx, ty, sx, sy, playerTargets)
+	self.parallaxRenderer:draw(self, tx, ty, sx, sy, playerTargets)
 end
 
 -- Draws every object-layer entity in screen space, using the same tx/ty/sx/sy
