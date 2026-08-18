@@ -65,21 +65,21 @@ Diorama.config = {
 					bottomLeft = { img = 'res/img/diorama/corner_blue.png', scale = { x = 0.7, y = 0.7 } },
 					bottomRight = { img = 'res/img/diorama/corner_yellow.png', scale = { x = 0.7, y = 0.7 } },
 				},
-				top = {
+                top = {
+    				{ img = 'res/img/diorama/ornament_purple.png', pos = 1 / 4, offset = 4, scale = { x = 0.5, y = 0.5 } },
 					{ img = 'res/img/diorama/ornament_top_hero.png', pos = 0.5, offset = -16, scale = { x = 0.4, y = 0.4 } },
-					{ img = 'res/img/diorama/diorama_orn_top_c.png', pos = 2 / 3, offset = 4, scale = { x = 1.25, y = 1.25 } },
+					{ img = 'res/img/diorama/ornament_green.png', pos = 3 / 4, offset = 4, scale = { x = 0.5, y = 0.5 } },
 				},
 				bottom = {
-					{ img = 'res/img/diorama/diorama_orn_bot_a.png', pos = 1 / 3, offset = -6 },
-					{ img = 'res/img/diorama/diorama_orn_bot_b.png', pos = 2 / 3, offset = 6 },
+					{ img = 'res/img/diorama/ornament_bottom.png', pos = 0.5, offset = -6 },
 				},
 				left = {
 					{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
 					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, offset = 8, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_purple.png', pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
 				},
 				right = {
-					{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
+					{ img = 'res/img/diorama/ornament_green.png', pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
 					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, offset = 8, scale = { x = -0.5, y = 0.5 } },
 					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
 				},
