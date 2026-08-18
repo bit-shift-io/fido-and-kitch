@@ -80,6 +80,7 @@ InputManager = require('src.input.input_manager')
 function setupConf(args)
 	conf.args = args
     conf.drawphysics = tbl.includes(conf.args, 'drawphysics')
+    conf.draw_grid = tbl.includes(conf.args, 'drawgrid')
 	conf.debug = tbl.includes(conf.args, 'debug')
     conf.ipc_enabled = tbl.includes(conf.args, 'ipc')
     local portArg = tbl.find(conf.args, function(e) return str.startsWith(e, 'ipc_port=') end)

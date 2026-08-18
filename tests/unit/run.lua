@@ -54,6 +54,7 @@ local defaultTestFiles = {
 	'tests/unit/replicator_test.lua',
 	'tests/unit/export_png_test.lua',
 	'tests/unit/diorama_test.lua',
+	'tests/unit/grid_overlay_test.lua',
 }
 
 local tests = {}

@@ -4,6 +4,7 @@ local AutoCamera = require('src.camera')
 local EventBus = require('src.utils.event_bus')
 local DebugOverlay = require('src.ui.debug_overlay')
 local SpriteOutlineOverlay = require('src.ui.sprite_outline_overlay')
+local GridOverlay = require('src.ui.grid_overlay')
 local BaseState = require('src.states.base_state')
 local Log = require('src.utils.log')
 local Diorama = require('src.diorama')
@@ -58,6 +59,8 @@ function InGameState:load(props)
     self.debugOverlay = DebugOverlay:new()
     -- F3 sprite-outline debug overlay
     self.spriteOverlay = SpriteOutlineOverlay:new()
+    -- F4 grid debug overlay
+    self.gridOverlay = GridOverlay:new()
 
     self.players = {}
     local playerCount = 2
@@ -256,6 +259,14 @@ function InGameState:draw()
         self.spriteOverlay:draw(map, self.players, tx, ty, sx, sy)
     else
         self.spriteOverlay.enabled = false
+    end
+
+    -- F4: world grid overlay
+    if conf.draw_grid and self.gridOverlay then
+        self.gridOverlay.enabled = true
+        self.gridOverlay:draw(mapW, mapH, tx, ty, sx, sy)
+    else
+        self.gridOverlay.enabled = false
     end
 
     self.gameHud:draw()

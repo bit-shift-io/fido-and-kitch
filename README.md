@@ -66,6 +66,7 @@ authored in the editor and excluded.
 F1 - physics debug overlay
 F2 - particle-system outlines
 F3 - sprite outlines
+F4 - world grid (every 32 units)
 F11 / Alt+Enter - toggle fullscreen
 F12 - screenshot
 

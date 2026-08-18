@@ -22,12 +22,14 @@ love . debug drawphysics map=sandbox
 
 - `debug` — starts lldebugger, sets `conf.debug`
 - `drawphysics` — physics debug drawing
+- `drawgrid` — F4 world-grid overlay enabled at startup
 - `profile` — prints a load profile in `InGameState:load`
 - `map=<file>` — skips the menu, loads `res/map/<file>`
 - `F12` — screenshot
 - `F1` — physics debug overlay (hitboxes, sensors, kill zones, safe positions, camera bounds, NPC paths); toggles `conf.drawphysics`
 - `F2` — particle-system outlines (emitter emit-box + per-particle quads); toggles `conf.draw_particles`
 - `F3` — sprite outlines (each entity's rendered art box); toggles `conf.draw_sprite_outlines`
+- `F4` — world grid (gridline every 32 world units, clamped to map bounds); toggles `conf.draw_grid`
 
 ## Layout
 

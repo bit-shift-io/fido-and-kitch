@@ -90,6 +90,11 @@ function Game:keypressed(k)
         conf.draw_sprite_outlines = not conf.draw_sprite_outlines
     end
 
+    if k == "f4" then
+        Log.debug('toggle grid overlay')
+        conf.draw_grid = not conf.draw_grid
+    end
+
     if k == "f11" or (k == "return" and love.keyboard.isDown('lalt', 'ralt')) then
         Log.debug('toggle fullscreen')
         love.window.setFullscreen(not love.window.getFullscreen(), 'desktop')
