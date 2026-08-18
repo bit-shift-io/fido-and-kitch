@@ -4,9 +4,6 @@ local World   = {}
 World.__index = World
 
 function World:new(...)
-   --local w = {}
-   --setmetatable(w, self)
-   --w._world = bump.newWorld(32)
    self.type = 'bump'
    self._world = bump.newWorld(32)
 

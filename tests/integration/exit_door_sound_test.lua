@@ -17,6 +17,6 @@ test('the exit door plays an open sound when the last actor exits (actor_count r
 	door:subtract(1) -- actor_count 1 -> 0, triggers ExitDoor:open()
 
 	spy.uninstall()
-	assertEqual('opening', door.state, 'fixture check: expected the door to start opening')
+	assertEqual('open', door.state, 'fixture check: expected the door to be open once the counter hits zero')
 	assertEqual('open', spy.played[1])
 end)

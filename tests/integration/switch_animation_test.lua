@@ -1,6 +1,6 @@
--- The lever switch carries a 12-frame toggle animation: using it must play the
--- strip forward (off -> on, frames 1..12) or in reverse (on -> off, frames
--- 12..1) rather than snapping to the end frame. Driven through the real
+-- The lever switch carries a 5-frame toggle animation: using it must play the
+-- strip forward (off -> on, frames 1..5) or in reverse (on -> off, frames
+-- 5..1) rather than snapping to the end frame. Driven through the real
 -- Game/Map/World stack on tests/fixtures/switch_room.lua.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
@@ -32,13 +32,13 @@ test('using an off switch plays the forward animation', function()
 	assertEqual('forward', sprite:getDirection())
 	assertEqual(1, sprite.frameNum, 'forward playback should start at frame 1')
 
-	FrameStepper.step(game, 60) -- 1s in, partway through the strip
-	assertTrue(sprite.frameNum > 1 and sprite.frameNum < 12,
+	FrameStepper.step(game, 12) -- 0.2s in, halfway through the 0.4s strip
+	assertTrue(sprite.frameNum > 1 and sprite.frameNum < 5,
 		'expected the animation to have advanced, got frame ' .. sprite.frameNum)
 
 	FrameStepper.step(game, 600) -- run the strip to its end
 	assertFalse(sprite:isPlaying(), 'animation should stop once the strip completes')
-	assertEqual(12, sprite.frameNum, 'switch should rest on the last frame when on')
+	assertEqual(5, sprite.frameNum, 'switch should rest on the last frame when on')
 end)
 
 test('using an on switch plays the reverse animation', function()
@@ -49,16 +49,16 @@ test('using an on switch plays the reverse animation', function()
 	local sprite = switchSprite(game)
 	switch:use(player1(game)) -- on first
 	FrameStepper.step(game, 660) -- let the forward strip finish
-	assertEqual(12, sprite.frameNum)
+	assertEqual(5, sprite.frameNum)
 
 	switch:use(player1(game)) -- now flip it off
 	assertEqual('off', switch.state)
 	assertTrue(sprite:isPlaying(), 'flipping off must start the animation')
 	assertEqual('reverse', sprite:getDirection())
-	assertEqual(12, sprite.frameNum, 'reverse playback should start at frame 12')
+	assertEqual(5, sprite.frameNum, 'reverse playback should start at frame 5')
 
-	FrameStepper.step(game, 60)
-	assertTrue(sprite.frameNum < 12 and sprite.frameNum > 1,
+	FrameStepper.step(game, 12)
+	assertTrue(sprite.frameNum < 5 and sprite.frameNum > 1,
 		'expected reverse playback to have advanced, got frame ' .. sprite.frameNum)
 
 	FrameStepper.step(game, 600)

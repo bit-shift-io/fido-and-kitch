@@ -80,7 +80,7 @@ return {
         {
           id = 3,
           name = "spider1",
-          type = "spider",
+          type = "npc_spider",
           shape = "rectangle",
           x = 80,
           y = 128,

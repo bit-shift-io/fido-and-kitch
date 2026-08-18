@@ -25,6 +25,24 @@ function Joystick:getAxes()
 	return self.axes[1], self.axes[2]
 end
 
+-- consumed by InputManager:pollGamepad (js:getAxis(1) / js:getAxis(2))
+function Joystick:getAxis(axis)
+	return self.axes[axis] or 0
+end
+
+function Joystick:isConnected()
+	return true
+end
+
+function Joystick:isGamepad()
+	-- generic joystick: raw axes + raw button indices, no gamepad-axis layer
+	return false
+end
+
+function Joystick:getName()
+	return 'Fake Joystick'
+end
+
 -- consumed by Player:isDown via love.joystick.getJoysticks()[index]:isDown(1)
 function Joystick:isDown(button)
 	return self.buttons[button] == true
@@ -66,10 +84,16 @@ end
 
 -- assigns a fresh fake joystick to a player index (matching
 -- love.joystick.getJoysticks()[playerIndex] in Player:isDown) and returns it
--- so the caller can drive its axes/buttons.
+-- so the caller can drive its axes/buttons. Player:isDown routes through
+-- inputManager:isDown, so the stick is also wired into the InputManager's
+-- player slot -- under the real game love.joystickadded does that, but the
+-- mock never fires joystick-added callbacks when the stick appears mid-run.
 function FakeInput:assignJoystick(playerIndex)
 	local joystick = newJoystick()
 	self.state.joysticks[playerIndex] = joystick
+	if inputManager and inputManager.players then
+		inputManager.players[playerIndex].joystick = joystick
+	end
 	return joystick
 end
 

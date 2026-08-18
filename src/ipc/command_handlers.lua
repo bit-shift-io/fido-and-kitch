@@ -1,5 +1,24 @@
 local Class = require('lib.hump.class')
 
+-- Map gamepad button names to game actions
+local GAMEPAD_BUTTON_MAP = {
+	a = 'use',
+	b = 'use',
+	start = 'start',
+	back = 'back',
+	guide = 'back',
+}
+
+local VALID_ACTIONS = {left = true, right = true, up = true, down = true, use = true, start = true, back = true}
+
+local function resolveAction(action)
+	return GAMEPAD_BUTTON_MAP[action] or action
+end
+
+local function validateAction(action)
+	return VALID_ACTIONS[action] ~= nil
+end
+
 local CommandHandler = Class{}
 
 function CommandHandler:init(gameAPI)
@@ -50,24 +69,6 @@ function CommandHandler:registerBuiltins()
 		if #args ~= 0 then return nil, 'Usage: MENU (no arguments)' end
 		return self.gameAPI.goToMenu()
 	end)
-
-	-- Map gamepad button names to game actions
-local GAMEPAD_BUTTON_MAP = {
-	a = 'use',
-	b = 'use',
-	start = 'start',
-	back = 'back',
-	guide = 'back',
-}
-
-local function resolveAction(action)
-	return GAMEPAD_BUTTON_MAP[action] or action
-end
-
-local function validateAction(action)
-	local validActions = {left=true, right=true, up=true, down=true, use=true, start=true, back=true}
-	return validActions[action] ~= nil
-end
 
 	self:register('INPUT', function(args)
 		if #args ~= 3 then return nil, 'Usage: INPUT <1|2> <left|right|up|down|use|start|back|a|b> <down|up>' end

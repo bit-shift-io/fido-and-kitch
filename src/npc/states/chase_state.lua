@@ -15,7 +15,7 @@ end
 function ChaseState:update(dt)
     -- Defensive check for dt being a table
     if type(dt) ~= 'number' then
-        print("ERROR ChaseState:update received non-number dt:", type(dt), dt)
+        Log.error("ChaseState:update received non-number dt:", type(dt), dt)
         dt = 1/60  -- fallback
     end
     local entity = self.entity

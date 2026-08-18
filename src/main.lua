@@ -33,7 +33,6 @@ if tbl.includes(arg, 'profile') then
 end
 
 -- includes
---require('lovedebug')
 
 -- global includes to save having to include in other files!
 conf = require('conf')
@@ -44,8 +43,6 @@ Log = require('src.utils.log')
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
 Tween = require('lib.tween.tween')
---suit = require('lib.suit')
---urutora = require('lib.urutora')
 Slab = require('lib.Slab')
 
 Rect = require('src.utils.rect')
@@ -138,7 +135,6 @@ function love.load(args)
 	end
 
 	Slab.Initialize(args)
-	--u = urutora:new()
 	game = Game()
 	inputManager = InputManager()
 

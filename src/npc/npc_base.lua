@@ -11,10 +11,51 @@ local Vector = require('lib.hump.vector')
 
 local NPCBase = Class{__includes = Entity}
 
+-- Spatial probe constants (world px) used by the collision queries below.
+local KILL_ZONE_INSET = 2            -- shrink the hitbox when probing kill zones
+local GROUND_PROBE = {min = 1, max = 3} -- probe band just below the feet
+local WALL_PROBE_DIST = 8            -- how far ahead a wall check reaches
+local WALL_PROBE_INSET = 2           -- vertical inset of the wall probe
+local GROUND_AHEAD_PROBE_DIST = 16   -- how far ahead a ground check reaches
+local GROUND_AHEAD_VERT_RANGE = 8    -- vertical range of the ground probe
+local SPAWN_FLASH_FADE = 0.15        -- per-blink fade duration on respawn
+local SPAWN_FLASH_BLINKS = 8
+
+-- Shared "is anything solid in these bounds" scan used by the ground/wall
+-- probes below. With requireSolid=true only terrain (no owning entity) and
+-- solid entities count; with requireSolid=false any non-sensor collider does.
+local function querySolidIn(world, collider, bounds, requireSolid)
+    local items = world:queryOverlap(bounds)
+    for _, item in ipairs(items) do
+        if item ~= collider and not item.sensor then
+            if not requireSolid or not item.entity or item.solid then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 function NPCBase:init(props, tiledObject)
     props = props or {}
     Entity.init(self, props)
-    
+    self:initPosition(props, tiledObject)
+    self:initCoreState(props)
+    self:initVisuals(props)
+    self:initPhysics(props)
+    self:initStateMachine()
+    self.utilityWeights = {
+        idle = 10,
+        wander = 20,
+        chase = 80,
+        follow = 70,
+        patrol = 30,
+        attack = 90,
+        flee = 60,
+    }
+end
+
+function NPCBase:initPosition(props, tiledObject)
     -- Position: use Rect.centreOfMapObject for Tiled tile objects (bottom-edge
     -- anchored), plain x/y for everything else (cage-spawned NPCs, etc.)
     local position
@@ -27,52 +68,42 @@ function NPCBase:init(props, tiledObject)
     end
     self.x = position.x
     self.y = position.y
-    
+    self.homeX = position.x
+    self.homeY = position.y
+end
+
+function NPCBase:initCoreState(props)
     -- Merge config with defaults
     self.config = NPCConfig.mergeWithDefaults(props)
-    
+
     -- Health system
     self.health = self.config.health
     self.maxHealth = self.config.health
     self.invulnerableTimer = 0
-    
+
     -- Death/respawn system
     self.deathTimer = 0
     self.RESPAWN_DELAY = 2
     self.deathType = nil
-    self.homeX = position.x
-    self.homeY = position.y
-    self.homeFacing = 'right'
-    
-    -- Stun/ban system
-    self.stunTimer = 0
-    self.banTimer = 0
-    self.bans = {}
-    
+
     -- Visual properties
     self.visible = true
     self.alpha = 1
-    
+
     -- Target tracking
     self.target = nil
     self.lastKnownTargetPos = nil
-    
-    -- Patrol state
-    self.currentPatrolIndex = 1
-    self.patrolDirection = 1
-    
+
     -- Facing direction for sprites and patrol
     self.facing = 'right'
-    
-    -- Sprite: idle image from config (each subclass sets idleImage in props)
+end
+
+function NPCBase:initVisuals(props)
     local w = props.width or 16
     local h = props.height or 16
-    local cw = props.colliderWidth or w
-    local ch = props.colliderHeight or h
     -- shape_arguments must include world center position as first 2 values:
     -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
-    local spriteArgs = {position.x, position.y, w, h}
-    local colliderArgs = {position.x, position.y, cw, ch}
+    local spriteArgs = {self.x, self.y, w, h}
     local idleImage = props.idleImage or self.config.idleImage or 'res/img/npc_spider.png'
     -- FlashEffect must be added BEFORE the sprite StateMachine so its draw()
     -- sets the color before the sprite renders (no one-frame delay).
@@ -90,8 +121,16 @@ function NPCBase:init(props, tiledObject)
         entity = self,
         currentState = 'idle',
     })
-    
-    -- Physics setup
+end
+
+function NPCBase:initPhysics(props)
+    local w = props.width or 16
+    local h = props.height or 16
+    local cw = props.colliderWidth or w
+    local ch = props.colliderHeight or h
+    -- shape_arguments must include world center position as first 2 values:
+    -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
+    local colliderArgs = {self.x, self.y, cw, ch}
     self.collider = self:addComponent(Collider{
         shape_type = 'rectangle',
         shape_arguments = colliderArgs,
@@ -108,7 +147,9 @@ function NPCBase:init(props, tiledObject)
     -- use -2 here: nil != -2 → slide, -1 != -2 → slide, -2 == -2 → skip
     -- (NPC-vs-NPC physical collision is unnecessary).
     self.collider:setGroupIndex(-2)
-    
+end
+
+function NPCBase:initStateMachine()
     -- State machine with enhanced FSM states
     local stateMachine = StateMachine{
         stateClasses = {
@@ -125,27 +166,16 @@ function NPCBase:init(props, tiledObject)
         entity = self,
     }
     self.stateMachine = self:addComponent(stateMachine)
-    
-    -- Utility scoring weights (can be overridden per NPC type)
-    self.utilityWeights = {
-        idle = 10,
-        wander = 20,
-        chase = 80,
-        follow = 70,
-        patrol = 30,
-        attack = 90,
-        flee = 60,
-    }
 end
 
 function NPCBase:update(dt)
     -- Check for kill zone collisions directly using global world
     if world then
         local bounds = self.collider:getBounds()
-        bounds.left = bounds.left + 2
-        bounds.right = bounds.right - 2
-        bounds.top = bounds.top + 2
-        bounds.bottom = bounds.bottom - 2
+        bounds.left = bounds.left + KILL_ZONE_INSET
+        bounds.right = bounds.right - KILL_ZONE_INSET
+        bounds.top = bounds.top + KILL_ZONE_INSET
+        bounds.bottom = bounds.bottom - KILL_ZONE_INSET
         
         local cols = world:queryBounds(bounds)
         for _, other in ipairs(cols) do
@@ -360,13 +390,10 @@ function NPCBase:respawn()
     -- Reset any state
     self.target = nil
     self.lastKnownTargetPos = nil
-    self.stunTimer = 0
-    self.banTimer = 0
-    self.bans = {}
     self.stateMachine:setState('IdleState')
     -- Start spawn flash
-    self.flashEffect:fadeIn(0.15 * 8)
-    self.flashEffect:blink(0.15, 8)
+    self.flashEffect:fadeIn(SPAWN_FLASH_FADE * SPAWN_FLASH_BLINKS)
+    self.flashEffect:blink(SPAWN_FLASH_FADE, SPAWN_FLASH_BLINKS)
 end
 
 function NPCBase:applyPush(dx, dy)
@@ -408,15 +435,10 @@ function NPCBase:isOnGround()
         local bounds = {
             left = self.collider.x,
             right = self.collider.x + self.collider.width,
-            top = self.collider.y + self.collider.height + 1,
-            bottom = self.collider.y + self.collider.height + 3,
+            top = self.collider.y + self.collider.height + GROUND_PROBE.min,
+            bottom = self.collider.y + self.collider.height + GROUND_PROBE.max,
         }
-        local items = w:queryOverlap(bounds)
-        for _, item in ipairs(items) do
-            if item ~= self.collider and not item.sensor then
-                return true
-            end
-        end
+        return querySolidIn(w, self.collider, bounds, false)
     end
     return false
 end
@@ -425,29 +447,17 @@ function NPCBase:isWallAhead(direction)
     if not self.collider then return false end
     local w = self.collider.world or world
     if not w then return false end
-    local checkDist = 8
     local bounds = self.collider:getBounds()
     if direction == 'right' then
         bounds.left = bounds.right
-        bounds.right = bounds.right + checkDist
+        bounds.right = bounds.right + WALL_PROBE_DIST
     else
         bounds.right = bounds.left
-        bounds.left = bounds.left - checkDist
+        bounds.left = bounds.left - WALL_PROBE_DIST
     end
-    bounds.top = bounds.top + 2
-    bounds.bottom = bounds.bottom - 2
-    local items = w:queryOverlap(bounds)
-    for _, item in ipairs(items) do
-        if item ~= self.collider then
-            if not item.entity and not item.sensor then
-                return true
-            end
-            if item.entity and item.solid and not item.sensor then
-                return true
-            end
-        end
-    end
-    return false
+    bounds.top = bounds.top + WALL_PROBE_INSET
+    bounds.bottom = bounds.bottom - WALL_PROBE_INSET
+    return querySolidIn(w, self.collider, bounds, true)
 end
 
 function NPCBase:isGroundAhead(direction)
@@ -455,29 +465,16 @@ function NPCBase:isGroundAhead(direction)
     local w = self.collider.world or world
     if not w then return false end
     local bounds = self.collider:getBounds()
-    local checkDist = 16
-    local vertRange = 8
     if direction == 'right' then
         bounds.left = bounds.right
-        bounds.right = bounds.right + checkDist
+        bounds.right = bounds.right + GROUND_AHEAD_PROBE_DIST
     else
         bounds.right = bounds.left
-        bounds.left = bounds.left - checkDist
+        bounds.left = bounds.left - GROUND_AHEAD_PROBE_DIST
     end
-    bounds.top = bounds.bottom - vertRange
-    bounds.bottom = bounds.bottom + vertRange
-    local items = w:queryOverlap(bounds)
-    for _, item in ipairs(items) do
-        if item ~= self.collider then
-            if not item.entity and not item.sensor then
-                return true
-            end
-            if item.entity and item.solid and not item.sensor then
-                return true
-            end
-        end
-    end
-    return false
+    bounds.top = bounds.bottom - GROUND_AHEAD_VERT_RANGE
+    bounds.bottom = bounds.bottom + GROUND_AHEAD_VERT_RANGE
+    return querySolidIn(w, self.collider, bounds, true)
 end
 
 function NPCBase:isDead()
@@ -501,22 +498,9 @@ function NPCBase:despawnToTarget()
         self.collider:setLinearVelocity(0, 0)
     end
     self.stateMachine:setState('IdleState')
-    self.flashEffect:fadeIn(0.15 * 8)
-    self.flashEffect:blink(0.15, 8)
+    self.flashEffect:fadeIn(SPAWN_FLASH_FADE * SPAWN_FLASH_BLINKS)
+    self.flashEffect:blink(SPAWN_FLASH_FADE, SPAWN_FLASH_BLINKS)
 end
 
-
-function NPCBase:stun(duration)
-    self.stunTimer = duration or 0
-end
-
-function NPCBase:isStunned()
-    return self.stunTimer and self.stunTimer > 0
-end
-
-function NPCBase:ban(bans, duration)
-    self.bans = bans or {}
-    self.banTimer = duration or 0
-end
 
 return NPCBase

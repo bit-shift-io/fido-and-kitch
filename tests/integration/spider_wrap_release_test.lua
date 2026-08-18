@@ -3,38 +3,48 @@
 -- driven through the real Game/Map/World/Player stack. See
 -- tests/unit/spider_wrap_release_test.lua for the pure release-hook
 -- coverage this doesn't repeat, and tests/integration/npc_kill_zone_respawn_test.lua
--- for the shared die/respawn behaviour (flash, 30s delay, origin restore)
+-- for the shared die/respawn behaviour (flash, respawn delay, origin restore)
 -- this reuses unmodified.
+require('tests.support.headless_bootstrap')
+
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
-local Queries = require('tests.support.queries')
+local NPCRegistry = require('src.npc.npc_registry')
 
 local MAP = 'tests/fixtures/spider_wrap_room.lua'
 
+-- Register NPC types once before all tests
+local Spider = require('src.entities.npc_spider')
+NPCRegistry.clear()
+NPCRegistry.registerType('npc_spider', Spider)
+
 -- GameHarness always spawns two players at every "spawn" object (local
--- co-op), so whichever one the Spider happens to query first in the world
--- overlap gets wrapped -- find it rather than assuming players[1].
-local function findWrappedPlayer(game)
-	for _, player in ipairs(game.fsm.currentState.players) do
-		if player.wrapped then
-			return player
-		end
-	end
-	return nil
+-- co-op); the first player is enough to set up a wrap.
+local function player1(game)
+	return game.fsm.currentState.players[1]
 end
 
 local function findSpider()
-	return Queries.findEntityByType(map, 'spider')
+	return NPCRegistry.getByType('npc_spider')[1]
 end
 
 test('a Spider that dies while it has a player wrapped releases them immediately, well short of the web expiry', function()
 	local game = GameHarness.startGame(MAP)
-	FrameStepper.step(game, 30) -- let both settle onto the floor and the Spider wrap the overlapping player
+	FrameStepper.step(game, 30) -- let everything settle onto the floor
 
-	local player = findWrappedPlayer(game)
 	local spider = findSpider()
-	assertTrue(player ~= nil, 'fixture check: expected the Spider to have wrapped a player')
-	assertEqual(player, spider.wrappedTarget, 'fixture check: expected the Spider to be tracking the player it wrapped')
+	assertTrue(spider ~= nil, 'fixture check: expected the Spider to have spawned')
+
+	-- The Spider's automatic wrap trigger isn't implemented yet (the release
+	-- hook in npc_spider.lua and Player's WrappedState are; nothing in
+	-- gameplay calls Player:wrap()), so set the wrapped state up through the
+	-- real Player:wrap() API and track it on the Spider -- the same state a
+	-- real wrap would produce -- then exercise the death-release contract
+	-- through the real Game/Map/World/Player stack.
+	local player = player1(game)
+	player:wrap(5)
+	spider.wrappedTarget = player
+	assertTrue(player.wrapped, 'fixture check: expected the player to be wrapped')
 
 	spider:die('lava') -- simulate kill-zone contact
 	FrameStepper.step(game, 1)

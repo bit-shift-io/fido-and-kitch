@@ -146,6 +146,90 @@ end
 -- referenced at a different firstgid by different maps.
 local resolvedShapeCache = {}
 
+--- Builds the base STI-shaped tileset table from the <tileset> attrs.
+local function parseTilesetAttrs(attrs)
+	return {
+		-- A .tmx's <tileset source="..."> carries no name -- it lives only
+		-- in the .tsx -- but STI uses tileset.name as the image-collection
+		-- atlas cache key, and the .tmx parser needs it to populate the
+		-- tileset entry it emits (see src/map/tmx.lua).
+		name       = attrs.name,
+		tilewidth  = toNumber(attrs.tilewidth),
+		tileheight = toNumber(attrs.tileheight),
+		spacing    = toNumber(attrs.spacing, 0),
+		margin     = toNumber(attrs.margin, 0),
+		columns    = toNumber(attrs.columns, 0),
+		tilecount  = toNumber(attrs.tilecount, 0),
+		-- STI's setTiles/setAtlasTiles always index into tileset.tiles
+		-- (even for grid tilesets, where Tiled's own embedded export still
+		-- emits `tiles = {}`); per-tile entries are filled in by a later
+		-- issue (properties/animation/objectGroup).
+		tiles = {},
+		-- Every tile STI builds carries `offset = tileset.tileoffset`;
+		-- Tiled always emits a <tileoffset> in a real .tsx, but default to
+		-- the origin so a hand-authored fixture without one doesn't break.
+		tileoffset = { x = 0, y = 0 },
+	}
+end
+
+--- Reads a <tileoffset> element into `tileset` when present.
+local function applyTileOffset(tileset, tilesetXml)
+	local tileOffsetXml = tilesetXml.tileoffset
+	if tileOffsetXml and tileOffsetXml._attr then
+		tileset.tileoffset = {
+			x = toNumber(tileOffsetXml._attr.x, 0),
+			y = toNumber(tileOffsetXml._attr.y, 0),
+		}
+	end
+end
+
+--- Fills `tileset` for a grid tileset: a single shared <image> sliced into
+-- a grid, with optional sibling <tile> elements carrying only per-tile
+-- metadata (properties/animation/objectgroup) -- no per-tile image/geometry,
+-- which comes from the shared grid instead.
+local function parseGridImage(tileset, tsxPath, tilesetXml)
+	local imageXml = tilesetXml.image
+	local imageAttrs = imageXml._attr
+	tileset.image = stiUtils.format_path(dirname(tsxPath) .. imageAttrs.source)
+	tileset.imagewidth  = toNumber(imageAttrs.width)
+	tileset.imageheight = toNumber(imageAttrs.height)
+
+	if tilesetXml.tile then
+		for _, tileXml in ipairs(asArray(tilesetXml.tile)) do
+			local tile = { id = toNumber(tileXml._attr.id) }
+			mergeTileMetadata(tile, tileXml)
+			table.insert(tileset.tiles, tile)
+		end
+	end
+end
+
+--- Fills `tileset` for an image-collection tileset: one <image> per <tile>,
+-- each optionally cropped to a sub-region of its own referenced image via
+-- x/y/width/height on the <tile> element itself (distinct from the <image>'s
+-- own width/height, its full source dimensions).
+local function parseImageCollection(tileset, tsxPath, tilesetXml)
+	for _, tileXml in ipairs(asArray(tilesetXml.tile)) do
+		local tileImageXml = tileXml.image
+		local tileImageAttrs = tileImageXml and tileImageXml._attr
+
+		local tile = {
+			id    = toNumber(tileXml._attr.id),
+			image = tileImageAttrs and stiUtils.format_path(dirname(tsxPath) .. tileImageAttrs.source) or nil,
+			width  = toNumber(tileXml._attr.width, tileImageAttrs and toNumber(tileImageAttrs.width)),
+			height = toNumber(tileXml._attr.height, tileImageAttrs and toNumber(tileImageAttrs.height)),
+		}
+
+		if tileXml._attr.x ~= nil then
+			tile.x = toNumber(tileXml._attr.x)
+			tile.y = toNumber(tileXml._attr.y, 0)
+		end
+
+		mergeTileMetadata(tile, tileXml)
+
+		table.insert(tileset.tiles, tile)
+	end
+end
+
 --- Parses and shapes a .tsx's tileset/tile data, independent of firstgid
 -- (which callers may vary per map even for the same .tsx path).
 local function resolveShapeUncached(tsxPath, deps)
@@ -169,83 +253,14 @@ local function resolveShapeUncached(tsxPath, deps)
 		error('Malformed external tileset "' .. tsxPath .. '": missing <tileset> root element', 2)
 	end
 
-	local attrs = tilesetXml._attr
-
-	local tileset = {
-		-- A .tmx's <tileset source="..."> carries no name -- it lives only
-		-- in the .tsx -- but STI uses tileset.name as the image-collection
-		-- atlas cache key, and the .tmx parser needs it to populate the
-		-- tileset entry it emits (see src/map/tmx.lua).
-		name       = attrs.name,
-		tilewidth  = toNumber(attrs.tilewidth),
-		tileheight = toNumber(attrs.tileheight),
-		spacing    = toNumber(attrs.spacing, 0),
-		margin     = toNumber(attrs.margin, 0),
-		columns    = toNumber(attrs.columns, 0),
-		tilecount  = toNumber(attrs.tilecount, 0),
-		-- STI's setTiles/setAtlasTiles always index into tileset.tiles
-		-- (even for grid tilesets, where Tiled's own embedded export still
-		-- emits `tiles = {}`); per-tile entries are filled in by a later
-		-- issue (properties/animation/objectGroup).
-		tiles = {},
-		-- Every tile STI builds carries `offset = tileset.tileoffset`;
-		-- Tiled always emits a <tileoffset> in a real .tsx, but default to
-		-- the origin so a hand-authored fixture without one doesn't break.
-		tileoffset = { x = 0, y = 0 },
-	}
-
-	local tileOffsetXml = tilesetXml.tileoffset
-	if tileOffsetXml and tileOffsetXml._attr then
-		tileset.tileoffset = {
-			x = toNumber(tileOffsetXml._attr.x, 0),
-			y = toNumber(tileOffsetXml._attr.y, 0),
-		}
-	end
+	local tileset = parseTilesetAttrs(tilesetXml._attr)
+	applyTileOffset(tileset, tilesetXml)
 
 	local imageXml = tilesetXml.image
 	if imageXml and imageXml._attr then
-		-- Single shared image, sliced into a grid.
-		local imageAttrs = imageXml._attr
-		tileset.image = stiUtils.format_path(dirname(tsxPath) .. imageAttrs.source)
-		tileset.imagewidth  = toNumber(imageAttrs.width)
-		tileset.imageheight = toNumber(imageAttrs.height)
-
-		-- A grid tileset can still have <tile> elements as siblings of
-		-- <image>, carrying only per-tile metadata (properties/animation/
-		-- objectgroup) -- no per-tile image/geometry, which comes from the
-		-- shared grid instead.
-		if tilesetXml.tile then
-			for _, tileXml in ipairs(asArray(tilesetXml.tile)) do
-				local tile = { id = toNumber(tileXml._attr.id) }
-				mergeTileMetadata(tile, tileXml)
-				table.insert(tileset.tiles, tile)
-			end
-		end
+		parseGridImage(tileset, tsxPath, tilesetXml)
 	elseif tilesetXml.tile then
-		-- Image collection: one <image> per <tile>, each optionally
-		-- cropped to a sub-region of its own referenced image via x/y/
-		-- width/height on the <tile> element itself (distinct from the
-		-- <image>'s own width/height, its full source dimensions).
-		for _, tileXml in ipairs(asArray(tilesetXml.tile)) do
-			local tileImageXml = tileXml.image
-			local tileImageAttrs = tileImageXml and tileImageXml._attr
-
-			local tile = {
-				id    = toNumber(tileXml._attr.id),
-				image = tileImageAttrs and stiUtils.format_path(dirname(tsxPath) .. tileImageAttrs.source) or nil,
-				width  = toNumber(tileXml._attr.width, tileImageAttrs and toNumber(tileImageAttrs.width)),
-				height = toNumber(tileXml._attr.height, tileImageAttrs and toNumber(tileImageAttrs.height)),
-			}
-
-			if tileXml._attr.x ~= nil then
-				tile.x = toNumber(tileXml._attr.x)
-				tile.y = toNumber(tileXml._attr.y, 0)
-			end
-
-			mergeTileMetadata(tile, tileXml)
-
-			table.insert(tileset.tiles, tile)
-		end
+		parseImageCollection(tileset, tsxPath, tilesetXml)
 	end
 
 	return tileset

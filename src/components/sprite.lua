@@ -235,7 +235,7 @@ function Sprite:update(dt)
 	end
     -- Defensive check for dt being a table
     if type(dt) ~= 'number' then
-        print("ERROR Sprite:update received non-number dt:", type(dt), dt)
+        Log.error("Sprite:update received non-number dt:", type(dt), dt)
         dt = 1/60  -- fallback
     end
 	self.timeline:update(dt)

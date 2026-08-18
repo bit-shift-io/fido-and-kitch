@@ -12,7 +12,7 @@ end
 function FollowState:update(dt)
     -- Defensive check for dt being a table
     if type(dt) ~= 'number' then
-        print("ERROR FollowState:update received non-number dt:", type(dt), dt)
+        Log.error("FollowState:update received non-number dt:", type(dt), dt)
         dt = 1/60  -- fallback
     end
     local entity = self.entity

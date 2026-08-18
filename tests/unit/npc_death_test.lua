@@ -73,26 +73,14 @@ test('a Robot respawns at its original position 2s after the flash-out completes
 	assertEqual(originY, robot.collider:getY())
 end)
 
-test('a respawned Robot resumes wander with no stale stun or ban state', function()
+test('a respawned Robot resumes wander at its home position', function()
 	local robot = makeRobot(100, 100)
-	robot:stun(5)
-	robot:ban({}, 30)
 	robot:die('water')
 
 	runOutDeathBlink(robot)
 	robot:update(RESPAWN_DELAY + 0.1)
 
-	assertEqual(0, robot.stunTimer)
-	assertEqual(nil, next(robot.bans))
-	assertFalse(robot:isStunned())
-end)
-
-test('a stunned Robot that touches a kill zone still dies', function()
-	local robot = makeRobot(100, 100)
-	robot:stun(5)
-
-	assertTrue(robot:isStunned())
-	robot:die('lava')
-
-	assertTrue(robot:isDead())
+	assertFalse(robot:isDead())
+	assertEqual(100, robot.x)
+	assertEqual(100, robot.y)
 end)

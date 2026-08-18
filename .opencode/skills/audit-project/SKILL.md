@@ -1,6 +1,6 @@
 ---
-name: audit-code
-description: Audits a codebase for dead code, unused files, stale comments, poor code structure, and maintainability smells.
+name: audit-project
+description: Audits a project for dead code, unused files, stale comments, poor code structure, and maintainability smells.
 ---
 
 # Codebase Audit Skill
@@ -23,6 +23,7 @@ When executing a code audit, systematically analyze the target repository across
 1. **Stale/Outdated Comments**: Detect comments describing logic that no longer exists or contradicts current implementations.
 2. **Noise & Low-Value Comments**: Flag commented-out code blocks, redundant commentary stating the obvious (e.g., `// increments i by 1`), and leftover debug statements (`console.log`, `print`, `dbg!`).
 3. **Task Tracking**: Collect and group all `TODO`, `FIXME`, `HACK`, and `XXX` tags by file and severity.
+4. **Outdated Documents**: Detect documents describing systems than longer exists or contradicts current implementations.
 
 ### Phase 4: Code Quality & Complexity Smells
 1. **Function & File Length**: Flag functions exceeding ~50 lines and files exceeding ~400 lines.
@@ -33,6 +34,7 @@ When executing a code audit, systematically analyze the target repository across
 
 ## Output Report Format
 
+Overwrite the old report and write into `AUDIT.md` in the project root.
 Generate the final audit report using the following structure:
 
 ```markdown
@@ -74,6 +76,7 @@ Generate the final audit report using the following structure:
 ---
 
 ## Top Priority Action Plan
-1. **[High]** <Immediate fix recommendation>
-2. **[Medium]** <Secondary cleanup recommendation>
-3. **[Low]** <Minor polish recommendation>
+1. **[High]** <Immediate fix recommendations>
+2. **[Medium]** <Secondary cleanup recommendations>
+3. **[Low]** <Minor polish recommendations>
+```

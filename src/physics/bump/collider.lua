@@ -5,7 +5,6 @@ local Collider = Class{}
 local Motion = require('src.physics.bump.motion')
 local DEFAULT_GRAVITY = 300
 local DEFAULT_MAX_FALL_SPEED = 500
---local set_funcs, lp, lg, COLLIDER_TYPES = unpack(require('utils'))
 
 -- shape arguments: position as first 2 values in the rect case or a circle
 -- which we don't care about supplying, circle just needs a radius
@@ -87,20 +86,6 @@ function Collider:init(props)
 	if props.body_type then
 		self:setType(props.body_type)
 	end
-	--self.collider._collider = self
-	--setmetatable(self.collider, bf.Collider)
-end
-
-function Collider:addShape(props)
-	local collider_type = props.shape_type
-	local shape_arguments = props.shape_arguments
-
-	local args = unpack(shape_arguments)
-
-	--local shape = love.physics['new'..collider_type..'Shape'](unpack(shape_arguments))
-	--local fixture = love.physics.newFixture(self.body, shape, 1)
-	--fixture:setUserData(self)
-	return nil
 end
 
 

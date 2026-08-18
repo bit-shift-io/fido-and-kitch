@@ -51,7 +51,7 @@ function Timeline:update(dt)
     
     -- Defensive check for dt being a table
     if type(dt) ~= 'number' then
-        print("ERROR Timeline:update received non-number dt:", type(dt), dt)
+        Log.error("Timeline:update received non-number dt:", type(dt), dt)
         dt = 1/60  -- fallback
     end
 
@@ -182,7 +182,6 @@ end
 
 function Timeline:reverse()
     self.isReverse = not self.isReverse
-    --self.tween = Tween.new(self.tween.duration, {time=1.0}, {time=0.0})
 end
 
 -- play forward from the start

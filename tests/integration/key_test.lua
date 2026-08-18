@@ -29,3 +29,33 @@ test('walking into a key plays its pickup sound', function()
 	end
 	assertTrue(seen.pickup, 'expected the key to play a pickup sound')
 end)
+
+test('the key tint is wired and drawn before the sprite', function()
+	local game = GameHarness.startGame(MAP)
+	FrameStepper.step(game, 60)
+
+	local key = Queries.findEntityByType(map, 'key')
+	assertTrue(key ~= nil, 'fixture check: key should be present before pickup')
+
+	local tintIndex, spriteIndex = nil, nil
+	local tint = nil
+	for i, component in ipairs(key.components) do
+		if component.type == 'tint' then
+			tintIndex = i
+			tint = component
+		elseif component.type == 'sprite' then
+			spriteIndex = i
+		end
+	end
+
+	assertTrue(tint ~= nil, 'expected the key to carry a Tint component')
+	local expected = {1, 0.2, 0.2, 1}
+	for i = 1, 4 do
+		assertEqual(expected[i], tint.color[i], 'expected the red key fixture to tint red (channel ' .. i .. ')')
+	end
+
+	assertTrue(tintIndex ~= nil, 'expected to find the Tint component in the draw order')
+	assertTrue(spriteIndex ~= nil, 'expected to find the Sprite component in the draw order')
+	assertTrue(tintIndex < spriteIndex,
+		'expected the Tint to be added before the Sprite so its setColor lands before the art renders')
+end)

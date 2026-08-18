@@ -106,8 +106,7 @@
   </object>
   <object id="9" name="coin" type="coin" gid="123" x="800" y="288" width="32" height="32"/>
   <object id="10" name="coin" type="coin" gid="123" x="1024" y="32" width="32" height="32"/>
-  <object id="11" name="time extension" type="time_extension" gid="123" x="544" y="224" width="32" height="32"/>
-  <object id="12" name="draw bridge" type="draw_bridge" gid="123" x="768" y="576" width="32" height="32">
+  <object id="12" name="draw bridge" type="drawbridge" gid="123" x="768" y="576" width="32" height="32">
    <properties>
     <property name="direction" value="left"/>
    </properties>

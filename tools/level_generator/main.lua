@@ -351,33 +351,9 @@ function Main.buildTerrainMap(seed, opts)
 	return map
 end
 
---- Builds the full objective spine on top of the terrain: one spawn, one
--- exit (opens automatically once every cage is used -- DECISIONS.md Q13,
--- there's no bird/actor_count involvement), and a matched key+cage pair per
--- plan objective (tools.level_generator.plan), each placed on its assigned
--- zone.
-function Main.buildObjectiveMap(seed, opts)
-	opts = opts or {}
-	local rng = Rng.new(seed)
-	local layout, rows, ladderObjects, nextRungId = buildTerrain(seed, opts)
-	local plan = Plan.build(rng, #layout.zones)
-
-	local groundZone = layout.zones[1]
-	local topZone = layout.zones[#layout.zones]
-
-	local objects = {
-		spawnObject(1, (groundZone.x1 + 1) * TILE, surfaceY(groundZone.y)),
-		exitObject(2, (topZone.x1 - 1) * TILE, surfaceY(topZone.y), 0),
-	}
-
-	-- --coop required (issue 06) reserves the last plan objective for the
-	-- vault instead of placing it on a normal zone -- see the vault
-	-- construction below.
-	local coopRequired = opts.coop == 'required'
-	local vaultObjective = coopRequired and plan[#plan] or nil
-
-	-- Box-fills-hole (issue 07) reserves one more objective (the last one
-	-- not already claimed by the vault) to sit on the far side of the gap.
+-- Box-fills-hole (issue 07) reserves one objective (the last one not already
+-- claimed by the vault) to sit on the far side of the gap.
+local function selectReservedObjective(plan, vaultObjective)
 	local pushBridgeObjective = nil
 	for i = #plan, 1, -1 do
 		if plan[i] ~= vaultObjective then
@@ -385,8 +361,12 @@ function Main.buildObjectiveMap(seed, opts)
 			break
 		end
 	end
+	return pushBridgeObjective
+end
 
-	local nextId = 3
+-- One matched key+cage pair per plan objective that isn't reserved for the
+-- vault or the box-bridge, each placed on its assigned zone.
+local function placeStandardObjectives(layout, plan, rng, objects, vaultObjective, pushBridgeObjective, nextId)
 	for _, objective in ipairs(plan) do
 		if objective ~= vaultObjective and objective ~= pushBridgeObjective then
 			local keyZone = layout.zones[objective.keyZoneIndex]
@@ -403,15 +383,17 @@ function Main.buildObjectiveMap(seed, opts)
 			nextId = nextId + 1
 		end
 	end
+	return nextId
+end
 
-	-- Optional rule flourishes (DECISIONS.md Q14): never gate anything, so
-	-- they're layered on after the required objects above. Objects with a
-	-- polyline go to a waypoints layer (matching hand-made map convention);
-	-- everything else joins the game objectgroup.
+-- Optional rule flourishes (DECISIONS.md Q14): never gate anything, so
+-- they're layered on after the required objects above. Objects with a
+-- polyline go to a waypoints layer (matching hand-made map convention);
+-- everything else joins the game objectgroup.
+local function applyFlourishes(rng, layout, objects, nextId, difficulty, walkthroughSteps)
 	local waypointObjects = {}
-	local walkthroughSteps = {}
 	local availableRules = RuleSet.discover()
-	local flourishCount = flourishCountForDifficulty(opts.difficulty)
+	local flourishCount = flourishCountForDifficulty(difficulty)
 	for i = 1, flourishCount do
 		local rule = availableRules[((i - 1) % #availableRules) + 1]
 		if rule and rule.canApply(layout) then
@@ -427,117 +409,128 @@ function Main.buildObjectiveMap(seed, opts)
 			table.insert(walkthroughSteps, result.walkthroughStep)
 		end
 	end
+	return waypointObjects, nextId
+end
 
-	-- Hazards (issue 05): one kill-zone band per hazarded ladder gap, scaled
-	-- by --difficulty, plus a matching visual water tile layer. Never on the
-	-- solution route -- see decorate.lua's header comment.
-	local hazards = Decorate.hazardsForLayout(rng, layout, opts.difficulty)
-	local killObjects, waterRows
-	killObjects, waterRows, nextId = buildHazards(hazards, nextId, layout.width, layout.height)
+-- --coop required (issue 06): a walled-off vault beyond the layout's own
+-- width, entered only through a teleport a distant momentary pressure
+-- plate must hold enabled -- see coop.lua's header for why this is
+-- unsolvable solo by construction, not by a post-hoc solver.
+local function extendForVault(layout, rows, waterRows, objects, walkthroughSteps, rng, nextId, mapWidth, vaultObjective, groundZone, topZone)
+	if not vaultObjective then
+		return mapWidth, nextId
+	end
 
-	-- --coop required (issue 06): a walled-off vault beyond the layout's own
-	-- width, entered only through a teleport a distant momentary pressure
-	-- plate must hold enabled -- see coop.lua's header for why this is
-	-- unsolvable solo by construction, not by a post-hoc solver.
-	local mapWidth = layout.width
-	if vaultObjective then
-		local vault = Coop.planVault(layout)
-		mapWidth = vault.newWidth
+	local vault = Coop.planVault(layout)
+	mapWidth = vault.newWidth
 
-		for y = 1, layout.height do
+	for y = 1, layout.height do
+		for x = layout.width + 1, mapWidth do
+			rows[y][x] = 0
+		end
+		if waterRows then
 			for x = layout.width + 1, mapWidth do
-				rows[y][x] = 0
-			end
-			if waterRows then
-				for x = layout.width + 1, mapWidth do
-					waterRows[y][x] = 0
-				end
+				waterRows[y][x] = 0
 			end
 		end
-		for _, cell in ipairs(vault.wallCells) do
-			rows[cell.row][cell.col] = 1
-		end
-
-		local teleportBId = nextId
-		local teleportAId = nextId + 1
-		local switchId = nextId + 2
-		nextId = nextId + 3
-
-		table.insert(objects, teleportObject(teleportBId, vault.interior.teleportX, vault.interior.y, teleportAId, nil))
-		table.insert(objects, keyObject(nextId, vault.interior.keyX, vault.interior.y, vaultObjective.color))
-		nextId = nextId + 1
-		table.insert(objects, cageObject(nextId, vault.interior.cageX, vault.interior.y, vaultObjective.color))
-		nextId = nextId + 1
-
-		local plateZone = groundZone
-		local plateX, plateY = positionOnZone(plateZone, rng:nextInt(0, 1000))
-		table.insert(objects, teleportObject(teleportAId, (topZone.x1) * TILE, surfaceY(topZone.y), teleportBId, false))
-		table.insert(objects, pressureSwitchObject(nextId, plateX, plateY, teleportAId))
-		nextId = nextId + 1
-
-		table.insert(walkthroughSteps, string.format(
-			'Coop required: P1 must stand on the pressure plate (zone %d, ground) to keep the vault teleporter enabled '
-				.. 'while P2 uses it (top zone) to reach the %s key and cage sealed inside the vault -- the plate '
-				.. 'releases the instant P1 steps off, so one player cannot do both.',
-			1, vaultObjective.color
-		))
+	end
+	for _, cell in ipairs(vault.wallCells) do
+		rows[cell.row][cell.col] = 1
 	end
 
-	-- Box-fills-hole (issue 07): additive, like the vault, so it never
-	-- touches the ground zone's own tiles -- see pushables.lua's header.
-	-- Both extensions occupy different rows (vault near the top, this at
-	-- the ground row), so their column ranges can freely overlap; only the
-	-- overall map width needs to cover whichever reaches furthest.
-	if pushBridgeObjective then
-		local bridge = Pushables.planBoxBridge(layout)
-		local previousWidth = mapWidth
-		mapWidth = math.max(mapWidth, bridge.newWidth)
+	local teleportBId = nextId
+	local teleportAId = nextId + 1
+	nextId = nextId + 3 -- teleportAId's own id slot is skipped, preserving the established numbering
 
-		for y = 1, layout.height do
+	table.insert(objects, teleportObject(teleportBId, vault.interior.teleportX, vault.interior.y, teleportAId, nil))
+	table.insert(objects, keyObject(nextId, vault.interior.keyX, vault.interior.y, vaultObjective.color))
+	nextId = nextId + 1
+	table.insert(objects, cageObject(nextId, vault.interior.cageX, vault.interior.y, vaultObjective.color))
+	nextId = nextId + 1
+
+	local plateZone = groundZone
+	local plateX, plateY = positionOnZone(plateZone, rng:nextInt(0, 1000))
+	table.insert(objects, teleportObject(teleportAId, (topZone.x1) * TILE, surfaceY(topZone.y), teleportBId, false))
+	table.insert(objects, pressureSwitchObject(nextId, plateX, plateY, teleportAId))
+	nextId = nextId + 1
+
+	table.insert(walkthroughSteps, string.format(
+		'Coop required: P1 must stand on the pressure plate (zone %d, ground) to keep the vault teleporter enabled '
+			.. 'while P2 uses it (top zone) to reach the %s key and cage sealed inside the vault -- the plate '
+			.. 'releases the instant P1 steps off, so one player cannot do both.',
+		1, vaultObjective.color
+	))
+
+	vaultObjective.relocated = true
+
+	return mapWidth, nextId
+end
+
+-- Box-fills-hole (issue 07): additive, like the vault, so it never
+-- touches the ground zone's own tiles -- see pushables.lua's header.
+-- Both extensions occupy different rows (vault near the top, this at
+-- the ground row), so their column ranges can freely overlap; only the
+-- overall map width needs to cover whichever reaches furthest.
+local function extendForBoxBridge(layout, rows, waterRows, objects, killObjects, walkthroughSteps, nextId, mapWidth, pushBridgeObjective)
+	if not pushBridgeObjective then
+		return mapWidth, nextId
+	end
+
+	local bridge = Pushables.planBoxBridge(layout)
+	local previousWidth = mapWidth
+	mapWidth = math.max(mapWidth, bridge.newWidth)
+
+	for y = 1, layout.height do
+		for x = previousWidth + 1, mapWidth do
+			rows[y][x] = 0
+		end
+		if waterRows then
 			for x = previousWidth + 1, mapWidth do
-				rows[y][x] = 0
-			end
-			if waterRows then
-				for x = previousWidth + 1, mapWidth do
-					waterRows[y][x] = 0
-				end
+				waterRows[y][x] = 0
 			end
 		end
-		for col = bridge.farColumns.first, bridge.farColumns.last do
-			rows[bridge.groundRow][col] = 1
-		end
-
-		table.insert(objects, pushBoxObject(nextId, bridge.boxSpawnX, bridge.boxSpawnY))
-		nextId = nextId + 1
-		table.insert(killObjects, killZoneObject(nextId, bridge.killZone))
-		nextId = nextId + 1
-		table.insert(objects, keyObject(nextId, bridge.farObjectiveX, bridge.farObjectiveY, pushBridgeObjective.color))
-		nextId = nextId + 1
-		table.insert(objects, cageObject(nextId, bridge.farObjectiveX + TILE, bridge.farObjectiveY, pushBridgeObjective.color))
-		nextId = nextId + 1
-
-		table.insert(walkthroughSteps, string.format(
-			'Push the box (right edge of the ground zone) one tile right into the gap to bridge it, then cross to '
-				.. 'reach the %s key and cage on the far side. Falling into the gap before bridging it is a recoverable death, not a dead end.',
-			pushBridgeObjective.color
-		))
-
-		pushBridgeObjective.relocated = true
+	end
+	for col = bridge.farColumns.first, bridge.farColumns.last do
+		rows[bridge.groundRow][col] = 1
 	end
 
-	-- Dressing (issue 08): a real background (DECISIONS.md Q16 -- no
-	-- gradient/cloud_spawner, they don't exist in src/), one coin per zone,
-	-- and difficulty-scaled enemies (never on a ladder column).
+	table.insert(objects, pushBoxObject(nextId, bridge.boxSpawnX, bridge.boxSpawnY))
+	nextId = nextId + 1
+	table.insert(killObjects, killZoneObject(nextId, bridge.killZone))
+	nextId = nextId + 1
+	table.insert(objects, keyObject(nextId, bridge.farObjectiveX, bridge.farObjectiveY, pushBridgeObjective.color))
+	nextId = nextId + 1
+	table.insert(objects, cageObject(nextId, bridge.farObjectiveX + TILE, bridge.farObjectiveY, pushBridgeObjective.color))
+	nextId = nextId + 1
+
+	table.insert(walkthroughSteps, string.format(
+		'Push the box (right edge of the ground zone) one tile right into the gap to bridge it, then cross to '
+			.. 'reach the %s key and cage on the far side. Falling into the gap before bridging it is a recoverable death, not a dead end.',
+		pushBridgeObjective.color
+	))
+
+	pushBridgeObjective.relocated = true
+
+	return mapWidth, nextId
+end
+
+-- Dressing (issue 08): a real background (DECISIONS.md Q16 -- no
+-- gradient/cloud_spawner, they don't exist in src/), one coin per zone,
+-- and difficulty-scaled enemies (never on a ladder column).
+local function addDressing(rng, layout, difficulty, objects, nextId)
 	local background = Decorate.pickBackground(rng)
 	for _, coin in ipairs(Decorate.coinsForLayout(rng, layout)) do
 		table.insert(objects, coinObject(nextId, coin.x, coin.y))
 		nextId = nextId + 1
 	end
-	for _, enemy in ipairs(Decorate.enemiesForLayout(rng, layout, opts.difficulty)) do
+	for _, enemy in ipairs(Decorate.enemiesForLayout(rng, layout, difficulty)) do
 		table.insert(objects, enemyObject(nextId, enemy.x, enemy.y, enemy.type))
 		nextId = nextId + 1
 	end
+	return background, nextId
+end
 
+local function assembleObjectiveMap(seed, layout, mapWidth, rows, ladderObjects, objects, waypointObjects, killObjects, waterRows, nextId, nextRungId, background)
 	local map = baseMapFields(seed, layout, 'Procedurally generated level', background)
 	map.width = mapWidth
 	map.nextobjectid = math.max(nextId, nextRungId)
@@ -588,15 +581,56 @@ function Main.buildObjectiveMap(seed, opts)
 			objects = killObjects,
 		})
 	end
+	return map
+end
 
-	-- Tagged (not removed) so `plan`'s objective count/colors stay a
-	-- complete picture of the level; Main.generate filters this flag out
-	-- before building the walkthrough's per-objective lines, since a
-	-- relocated objective's real location (vault or box-bridge) is already
-	-- described by walkthroughSteps instead of the normal "zone N" phrasing.
-	if vaultObjective then
-		vaultObjective.relocated = true
-	end
+--- Builds the full objective spine on top of the terrain: one spawn, one
+-- exit (opens automatically once every cage is used -- DECISIONS.md Q13,
+-- there's no bird/actor_count involvement), and a matched key+cage pair per
+-- plan objective (tools.level_generator.plan), each placed on its assigned
+-- zone.
+function Main.buildObjectiveMap(seed, opts)
+	opts = opts or {}
+	local rng = Rng.new(seed)
+	local layout, rows, ladderObjects, nextRungId = buildTerrain(seed, opts)
+	local plan = Plan.build(rng, #layout.zones)
+
+	local groundZone = layout.zones[1]
+	local topZone = layout.zones[#layout.zones]
+
+	local objects = {
+		spawnObject(1, (groundZone.x1 + 1) * TILE, surfaceY(groundZone.y)),
+		exitObject(2, (topZone.x1 - 1) * TILE, surfaceY(topZone.y), 0),
+	}
+	local walkthroughSteps = {}
+
+	-- --coop required (issue 06) reserves the last plan objective for the
+	-- vault instead of placing it on a normal zone -- see the vault
+	-- construction below.
+	local coopRequired = opts.coop == 'required'
+	local vaultObjective = coopRequired and plan[#plan] or nil
+	local pushBridgeObjective = selectReservedObjective(plan, vaultObjective)
+
+	local nextId = placeStandardObjectives(layout, plan, rng, objects, vaultObjective, pushBridgeObjective, 3)
+
+	local waypointObjects
+	waypointObjects, nextId = applyFlourishes(rng, layout, objects, nextId, opts.difficulty, walkthroughSteps)
+
+	-- Hazards (issue 05): one kill-zone band per hazarded ladder gap, scaled
+	-- by --difficulty, plus a matching visual water tile layer. Never on the
+	-- solution route -- see decorate.lua's header comment.
+	local hazards = Decorate.hazardsForLayout(rng, layout, opts.difficulty)
+	local killObjects, waterRows
+	killObjects, waterRows, nextId = buildHazards(hazards, nextId, layout.width, layout.height)
+
+	local mapWidth = layout.width
+	mapWidth, nextId = extendForVault(layout, rows, waterRows, objects, walkthroughSteps, rng, nextId, mapWidth, vaultObjective, groundZone, topZone)
+	mapWidth, nextId = extendForBoxBridge(layout, rows, waterRows, objects, killObjects, walkthroughSteps, nextId, mapWidth, pushBridgeObjective)
+
+	local background
+	background, nextId = addDressing(rng, layout, opts.difficulty, objects, nextId)
+
+	local map = assembleObjectiveMap(seed, layout, mapWidth, rows, ladderObjects, objects, waypointObjects, killObjects, waterRows, nextId, nextRungId, background)
 
 	return map, plan, walkthroughSteps
 end

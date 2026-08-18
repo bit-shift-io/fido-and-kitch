@@ -1,0 +1,22 @@
+diff --git a/lib/bump/bump.lua b/lib/bump/bump.lua
+--- a/lib/bump/bump.lua
++++ b/lib/bump/bump.lua
+@@ -100,6 +100,18 @@
+       r = q / p
+       if p < 0 then
+         if     r > ti2 then return nil
+         elseif r > ti1 then ti1,nx1,ny1 = r,nx,ny
++        elseif r >= ti1 - DELTA and ny ~= 0 and ny1 == 0 then
++          -- A mover starting exactly flush against a rect's top or bottom
++          -- edge -- its edge level with the rect's, zero gap, sharing the
++          -- corner -- enters the rect diagonally and the left/right side's
++          -- entry time ties the top/bottom's (both r == ti1 at t = 0).
++          -- Resolving that tie to the side reports a WALL and pins the mover
++          -- at the corner forever; the mover's feet are level with the rect's
++          -- top, so the true first contact is the top/bottom edge -- a step
++          -- or ceiling, not a wall. Prefer the vertical normal on the tie so
++          -- a flush surface (a box filling a one-tile hole, a drawbridge
++          -- deck) reads as walkable instead of trapping the mover.
++          ti1,nx1,ny1 = r,nx,ny
+         end
+       else -- p > 0

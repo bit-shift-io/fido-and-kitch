@@ -97,10 +97,6 @@ function GameAPI.injectKey(playerIdx, key, down)
 	return 'OK: Injected key ' .. key .. '=' .. (down and 'down' or 'up') .. ' for player ' .. playerIdx
 end
 
-function GameAPI.getInjectedInput()
-	return injectedInput
-end
-
 function GameAPI.holdKey(playerIdx, action, duration)
 	-- Press the key
 	GameAPI.injectInput(playerIdx, action, true)

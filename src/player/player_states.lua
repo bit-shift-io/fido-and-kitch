@@ -113,97 +113,110 @@ function LadderState:update(dt)
     local velocityX = 0
     local velocityY = 0
     local movingOnLadder = false
+    local exited = false
 
     if self.mode == 'aligning' then
-        -- Find target centre (nearest ladder centre-x)
-        if #ladderCentres > 0 then
-            self.targetCentreX = PlayerMovement.nearestLadderCentre(playerCentreX, ladderCentres)
-        end
-
-        if self.targetCentreX then
-            local slideSpeed = self.isInitialMount and player.speed or player.slideSpeed
-            local centred = PlayerMovement.isCentred(playerCentreX, self.targetCentreX, slideSpeed, dt)
-
-            if centred then
-                -- Snap exactly to centre and transition to climbing
-                player.collider:setX(self.targetCentreX)
-                self.mode = 'climbing'
-                self.isInitialMount = false
-            else
-                -- Slide toward centre
-                local direction = self.targetCentreX > playerCentreX and 1 or -1
-                velocityX = direction * slideSpeed
-                movingOnLadder = true
-            end
-        else
-            -- No ladders overlapped - should have been caught by fall-off check
-            player.fsm:setState('FallState')
-            return
-        end
+        velocityX, velocityY, movingOnLadder, exited = self:updateAligning(player, playerCentreX, ladderCentres, dt)
     elseif self.mode == 'climbing' then
-        -- Vertical movement when centred
-        if activeAxis == 'vertical' then
-            if upPressed then
-                -- Check if still overlapping any ladder (use queryAllLadders for full overlap check)
-                local ladders = PlayerSensors.queryAllLadders(world, player.collider)
-                if #ladders > 0 then
-                    velocityY = -player.climbSpeed
-                    movingOnLadder = true
-                else
-                    -- No ladder above - check if we can get off at the top (on ground ahead)
-                    local onGround = PlayerSensors.queryOnGround(world, player.collider)
-                    -- Also check if there's ground at the same Y level (for horizontal exit)
-                    local bounds = player.collider:getBounds()
-                    local playerX = player.collider:getX()
-                    -- Temporarily check horizontal position ahead
-                    if onGround then
-                        player.fsm:setState('WalkIdleState')
-                    else
-                        player.fsm:setState('FallState')
-                    end
-                    return
-                end
-            elseif downPressed then
-                local ladderBelow = PlayerSensors.queryLadderBelow(world, player.collider)
-                if ladderBelow then
-                    velocityY = player.climbSpeed
-                    movingOnLadder = true
-                else
-                    player.fsm:setState('FallState')
-                    return
-                end
-            end
-        elseif activeAxis == 'horizontal' then
-            -- Switch to sliding mode
-            self.mode = 'sliding'
-        end
+        velocityX, velocityY, movingOnLadder, exited = self:updateClimbing(player, upPressed, downPressed, activeAxis)
     elseif self.mode == 'sliding' then
-        -- Horizontal sliding along ladder
-        if activeAxis == 'horizontal' then
-            if leftPressed then
-                -- Check for horizontal block on left
-                local blocked = PlayerSensors.queryHorizontalBlock(world, player.collider, 'left')
-                if not blocked then
-                    velocityX = -player.slideSpeed
-                    movingOnLadder = true
-                end
-            elseif rightPressed then
-                -- Check for horizontal block on right
-                local blocked = PlayerSensors.queryHorizontalBlock(world, player.collider, 'right')
-                if not blocked then
-                    velocityX = player.slideSpeed
-                    movingOnLadder = true
-                end
-            end
-        elseif activeAxis == 'vertical' then
-            -- Switch to aligning mode to re-centre (slow speed)
-            self.mode = 'aligning'
-            self.isInitialMount = false
-        end
+        velocityX, velocityY, movingOnLadder, exited = self:updateSliding(player, activeAxis, leftPressed, rightPressed)
     end
+
+    if exited then return end
 
     player.collider:setLinearVelocity(velocityX, velocityY)
     player.animations.currentState.playing = movingOnLadder
+end
+
+-- Per-mode ladder steps. Each returns (velocityX, velocityY, movingOnLadder,
+-- exited); when `exited` is true the step already transitioned to another
+-- state and update() must return without writing velocity.
+function LadderState:updateAligning(player, playerCentreX, ladderCentres, dt)
+    -- Find target centre (nearest ladder centre-x)
+    if #ladderCentres > 0 then
+        self.targetCentreX = PlayerMovement.nearestLadderCentre(playerCentreX, ladderCentres)
+    end
+
+    if not self.targetCentreX then
+        -- No ladders overlapped - should have been caught by fall-off check
+        player.fsm:setState('FallState')
+        return 0, 0, false, true
+    end
+
+    local slideSpeed = self.isInitialMount and player.speed or player.slideSpeed
+    local centred = PlayerMovement.isCentred(playerCentreX, self.targetCentreX, slideSpeed, dt)
+
+    if centred then
+        -- Snap exactly to centre and transition to climbing
+        player.collider:setX(self.targetCentreX)
+        self.mode = 'climbing'
+        self.isInitialMount = false
+        return 0, 0, false, false
+    end
+
+    -- Slide toward centre
+    local direction = self.targetCentreX > playerCentreX and 1 or -1
+    return direction * slideSpeed, 0, true, false
+end
+
+function LadderState:updateClimbing(player, upPressed, downPressed, activeAxis)
+    if activeAxis ~= 'vertical' then
+        -- Switch to sliding mode
+        self.mode = 'sliding'
+        return 0, 0, false, false
+    end
+
+    if upPressed then
+        -- Check if still overlapping any ladder (use queryAllLadders for full overlap check)
+        local ladders = PlayerSensors.queryAllLadders(world, player.collider)
+        if #ladders > 0 then
+            return 0, -player.climbSpeed, true, false
+        end
+
+        -- No ladder above - check if we can get off at the top (on ground ahead)
+        local onGround = PlayerSensors.queryOnGround(world, player.collider)
+        if onGround then
+            player.fsm:setState('WalkIdleState')
+        else
+            player.fsm:setState('FallState')
+        end
+        return 0, 0, false, true
+    elseif downPressed then
+        local ladderBelow = PlayerSensors.queryLadderBelow(world, player.collider)
+        if ladderBelow then
+            return 0, player.climbSpeed, true, false
+        end
+        player.fsm:setState('FallState')
+        return 0, 0, false, true
+    end
+
+    return 0, 0, false, false
+end
+
+function LadderState:updateSliding(player, activeAxis, leftPressed, rightPressed)
+    if activeAxis ~= 'horizontal' then
+        -- Switch to aligning mode to re-centre (slow speed)
+        self.mode = 'aligning'
+        self.isInitialMount = false
+        return 0, 0, false, false
+    end
+
+    if leftPressed then
+        -- Check for horizontal block on left
+        local blocked = PlayerSensors.queryHorizontalBlock(world, player.collider, 'left')
+        if not blocked then
+            return -player.slideSpeed, 0, true, false
+        end
+    elseif rightPressed then
+        -- Check for horizontal block on right
+        local blocked = PlayerSensors.queryHorizontalBlock(world, player.collider, 'right')
+        if not blocked then
+            return player.slideSpeed, 0, true, false
+        end
+    end
+
+    return 0, 0, false, false
 end
 
 

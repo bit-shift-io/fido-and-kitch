@@ -24,6 +24,17 @@ function PickupProp.define(spec)
 		local position = Rect.centreOfMapObject(object)
 		local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
+		-- Color-setting components (Tint, FlashEffect) must be added BEFORE
+		-- the Sprite so Entity:draw() sets the color before the art renders
+		-- (see player.lua / npc_base.lua FlashEffect ordering comments).
+		if spec.components then
+			local comps = spec.components(object)
+			for compName, compProps in pairs(comps) do
+				local Comp = require('src.components.' .. compName:lower())
+				self:addComponent(Comp(compProps))
+			end
+		end
+
 		self.sprite = self:addComponent(Sprite(spec.sprite(object, shape_arguments)))
 
 		self.collider = self:addComponent(Collider{
@@ -57,14 +68,6 @@ function PickupProp.define(spec)
 					map.fx:burst(spec.pickupFx, {x = position.x, y = position.y})
 				end
 			end)
-		end
-
-		if spec.components then
-			local comps = spec.components(object)
-			for compName, compProps in pairs(comps) do
-				local Comp = require('src.components.' .. compName:lower())
-				self:addComponent(Comp(compProps))
-			end
 		end
 	end
 

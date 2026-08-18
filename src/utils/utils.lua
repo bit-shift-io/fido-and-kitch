@@ -20,18 +20,6 @@ function utils.set_funcs(mainobject, subobject)
    end
 end
 
-utils.COLLIDER_TYPES = {
-   CIRCLE = "Circle",
-   CIRC = "Circle",
-   RECTANGLE = "Rectangle",
-   RECT = "Rectangle",
-   POLYGON = "Polygon",
-   POLY = "Polygon",
-   EDGE = 'Edge',
-   CHAIN = 'Chain'
-}
-
-
 function utils.instanceOf(subject, super)
 	super = tostring(super)
 	local mt = getmetatable(subject)

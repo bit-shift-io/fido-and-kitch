@@ -60,7 +60,7 @@ test('a map referencing an external image-collection tileset resolves cropped ti
 	local tileset = stiMap.tilesets[1]
 
 	assertEqual(0, tileset.columns)
-	assertEqual(11, #tileset.tiles)
+	assertEqual(13, #tileset.tiles)
 
 	local switchTile = nil
 	for _, tile in ipairs(tileset.tiles) do
@@ -70,8 +70,8 @@ test('a map referencing an external image-collection tileset resolves cropped ti
 	assertTrue(switchTile ~= nil, 'expected to find the switch tile (id 3) in the resolved tileset')
 	assertEqual(0, switchTile.x)
 	assertEqual(0, switchTile.y)
-	assertEqual(162, switchTile.width)
-	assertEqual(162, switchTile.height)
+	assertEqual(128, switchTile.width)
+	assertEqual(128, switchTile.height)
 
 	FrameStepper.step(game, 5)
 

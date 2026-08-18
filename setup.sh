@@ -56,5 +56,6 @@ cd ..
 echo "🩹 Applying local patches to vendored libraries..."
 git apply patches/sti.patch
 git apply patches/xml2lua.patch
+git apply patches/bump.patch
 
 echo "✅ Install complete! Your environment is ready."
