@@ -24,7 +24,7 @@ local RESTING_Y = 113
 local function spawnEnemy(x)
 	local enemy = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 20, 30},
+		shape_arguments = {20, 30},
 		body_type = 'dynamic',
 		position = {x = x, y = RESTING_Y},
 	}

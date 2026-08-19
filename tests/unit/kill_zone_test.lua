@@ -29,7 +29,7 @@ end
 local function makeKillZone(x, y, width, height, deathType)
 	local collider = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {x, y, width, height},
+		shape_arguments = {width, height},
 		body_type = 'static',
 		sensor = true,
 		position = {x = x, y = y},
@@ -41,7 +41,7 @@ end
 local function makePlayerCollider(x, y)
 	return Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 20, 30},
+		shape_arguments = {20, 30},
 		body_type = 'dynamic',
 		position = {x = x, y = y},
 	}

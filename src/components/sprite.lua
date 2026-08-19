@@ -88,12 +88,13 @@ end
 
 -- Rescales/offsets the sprite so its art fills a shape_arguments box
 -- (width/height from an entity's Tiled object or collider), centred on the
--- sprite's own origin. `frameImageWidth` is a single frame's width -- the
--- full sheet's width divided by frame count for sheet mode, or just the
--- frame's own width otherwise.
+-- sprite's own origin. shape_arguments carry dimensions only ({width,height});
+-- position is never baked into them. `frameImageWidth` is a single frame's
+-- width -- the full sheet's width divided by frame count for sheet mode, or
+-- just the frame's own width otherwise.
 local function fitToShapeArguments(shape_arguments, frameImageWidth, frameImageHeight, scale, offset)
-	local width = shape_arguments[3]
-	local height = shape_arguments[4]
+	local width = shape_arguments[1]
+	local height = shape_arguments[2]
 
 	local x_scale = width / frameImageWidth * scale.x
 	local y_scale = height / frameImageHeight * scale.y

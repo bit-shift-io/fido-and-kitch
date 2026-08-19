@@ -55,7 +55,7 @@ end
 local function makePlayer(centerX, centerY)
 	local c = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = { 0, 0, 50, 50 },
+		shape_arguments = { 50, 50 },
 	}
 	c.entity = { type = 'player' }
 	c:setGroupIndex(-1)
@@ -76,7 +76,7 @@ end
 local function makeSolidSlab()
 	local c = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = { 0, 0, 400, 50 },
+		shape_arguments = { 400, 50 },
 		body_type = 'static',
 	}
 	c:setPositionV(Vector(200, 75)) -- top=50, bottom=100
@@ -218,13 +218,13 @@ test('existing player vs plain-entity collision behaviour is unchanged', functio
 	local p = makePlatform()
 	local player = makePlayer(100, 59)
 
-	local terrain = Collider{ shape_arguments = { 0, 0, 50, 50 } }
+	local terrain = Collider{ shape_arguments = { 50, 50 } }
 	assertEqual('slide', World.colFilter(player, terrain), 'player vs plain terrain stays solid')
 
 	terrain.entity = { type = 'entity' }
 	assertEqual('cross', World.colFilter(player, terrain), 'player vs plain entity still passes through')
 
-	local box = Collider{ shape_arguments = { 0, 0, 32, 32 } }
+	local box = Collider{ shape_arguments = { 32, 32 } }
 	box.entity = { type = 'pushable' }
 	box:setGroupIndex(50) -- real pushables carry a non-nil groupIndex (PushableSupport)
 	-- the platform's colFilterFn returns nil for non-players, so the default

@@ -11,14 +11,28 @@ function Usable:init(props)
     self.entity = props.entity
     self.useFunc = props.use
     self.canUseFunc = props.canUse -- optional override for complex canUse situations
+    -- single required item (sugar) or a table of item/count pairs
     self.requiredItem = props.requiredItem
     self.requiredItemCount = props.requiredItemCount or 1
+    self.requiredItems = props.requiredItems
     self.consumeItems = props.consumeItems or false -- consume on use?
     self.playerAnimationOnUse = props.playerAnimationOnUse
     self.enabled = (props.enabled == nil) and true or props.enabled
     -- Ambient sparkle hint while in range. nil/true = on; false = off; a table
     -- passes per-entity options through to UsableSparkle (texture, range, rate).
     self.sparkles = props.sparkles
+end
+
+-- Normalize the single-item and multi-item requirement forms into one
+-- {[itemName] = count} map (nil when no items are required).
+function Usable:requiredItemsMap()
+    if self.requiredItems then
+        return self.requiredItems
+    end
+    if self.requiredItem then
+        return {[self.requiredItem] = self.requiredItemCount}
+    end
+    return nil
 end
 
 -- Apply the "glow can be used" sparkles to every usable automatically. Attached
@@ -55,14 +69,16 @@ function Usable:canUse(user)
         return false
     end
 
-    if self.requiredItem then
+    local requiredItems = self:requiredItemsMap()
+    if requiredItems then
         -- check the user has the required items in their inventory
         local inventory = user:getComponent(Inventory)
-        if (inventory) then
-            local hasItems = inventory:hasItems(self.requiredItem, self.requiredItemCount)
-            if hasItems == false then
-                Log.warn('cant use usable, missing '..self.requiredItemCount..'x '..self.requiredItem)
-                return false
+        if inventory then
+            for itemName, count in pairs(requiredItems) do
+                if inventory:hasItems(itemName, count) == false then
+                    Log.warn('cant use usable, missing '..count..'x '..itemName)
+                    return false
+                end
             end
         end
     end
@@ -74,10 +90,13 @@ end
 function Usable:use(user)
     Log.debug('usable is being used')
 
-    if self.requiredItem then
+    local requiredItems = self:requiredItemsMap()
+    if requiredItems then
         local inventory = user:getComponent(Inventory)
         if inventory then
-            inventory:removeItems(self.requiredItem, self.requiredItemCount)
+            for itemName, count in pairs(requiredItems) do
+                inventory:removeItems(itemName, count)
+            end
         end
     end
 

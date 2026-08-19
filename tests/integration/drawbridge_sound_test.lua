@@ -16,7 +16,7 @@ test('the drawbridge plays an open sound when it starts lowering', function()
 
 	local enemy = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 20, 30},
+		shape_arguments = {20, 30},
 		body_type = 'dynamic',
 		position = {x = 80, y = 113},
 	}

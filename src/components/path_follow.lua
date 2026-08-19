@@ -22,6 +22,7 @@ function PathFollow:init(props)
     local finish = props.finish
     self.timeline = Timeline({
         duration=duration,
+        easing=props.easing,
         finish=function()
             self:finish()
             if finish then

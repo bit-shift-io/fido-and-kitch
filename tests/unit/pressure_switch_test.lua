@@ -76,7 +76,7 @@ end)
 local function spawnWeight(x, y, props)
 	local weight = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 20, 30},
+		shape_arguments = {20, 30},
 		body_type = 'dynamic',
 		position = {x = x, y = y},
 	}

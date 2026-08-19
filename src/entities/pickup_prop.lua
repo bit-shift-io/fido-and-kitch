@@ -39,7 +39,7 @@ function PickupProp.define(spec)
 
 		self.collider = self:addComponent(Collider{
 			shape_type = 'circle',
-			shape_arguments = {0, 0, spec.pickupRadius or 10},
+			shape_arguments = {spec.pickupRadius or 10},
 			body_type = 'static',
 			sprite = self.sprite,
 			position = position,

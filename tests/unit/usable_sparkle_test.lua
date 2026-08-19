@@ -53,7 +53,7 @@ local function makeUsableEntity(sparkleOption)
 	local entity = Entity{}
 	entity.collider = entity:addComponent(Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {16, 16, 32, 32},
+		shape_arguments = {32, 32},
 		body_type = 'static',
 		position = Vector(16, 16),
 		sensor = true,
@@ -69,7 +69,7 @@ end
 local function addPlayerNearby()
 	local pcol = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {16, 16, 20, 30},
+		shape_arguments = {20, 30},
 		body_type = 'static',
 		position = Vector(16, 16),
 		sensor = true,

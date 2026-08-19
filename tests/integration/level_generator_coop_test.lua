@@ -46,7 +46,7 @@ test('the vault teleport starts disabled and only the pressure plate can enable 
 		-- plate/teleport wiring from pathfinding.
 		local weight = Collider{
 			shape_type = 'rectangle',
-			shape_arguments = {0, 0, 20, 30},
+			shape_arguments = {20, 30},
 			body_type = 'dynamic',
 			position = {x = plate.plateCentreX, y = plate.rect.y + 1},
 		}

@@ -101,9 +101,9 @@ end
 function NPCBase:initVisuals(props)
     local w = props.width or 16
     local h = props.height or 16
-    -- shape_arguments must include world center position as first 2 values:
-    -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
-    local spriteArgs = {self.x, self.y, w, h}
+    -- shape_arguments carry dimensions only ({w, h}); position is supplied
+    -- separately via props.position (Collider's setPositionV)
+    local spriteArgs = {w, h}
     local idleImage = props.idleImage or self.config.idleImage or 'res/img/npc_spider.png'
     -- FlashEffect must be added BEFORE the sprite StateMachine so its draw()
     -- sets the color before the sprite renders (no one-frame delay).
@@ -128,9 +128,9 @@ function NPCBase:initPhysics(props)
     local h = props.height or 16
     local cw = props.colliderWidth or w
     local ch = props.colliderHeight or h
-    -- shape_arguments must include world center position as first 2 values:
-    -- world:newCollider unpacks {cx, cy, w, h} and converts to top-left
-    local colliderArgs = {self.x, self.y, cw, ch}
+    -- shape_arguments carry dimensions only ({w, h}); position is supplied
+    -- separately via props.position (Collider's setPositionV)
+    local colliderArgs = {cw, ch}
     self.collider = self:addComponent(Collider{
         shape_type = 'rectangle',
         shape_arguments = colliderArgs,
@@ -139,6 +139,7 @@ function NPCBase:initPhysics(props)
         sprite = self.animations,
         solid = true,
         walkable = self.config.ridePlatforms,
+        position = Vector(self.x, self.y),
     })
     self.collider.owner = self
     self.collider.entity = self

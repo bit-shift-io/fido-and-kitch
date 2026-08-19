@@ -77,10 +77,10 @@ function JumpPad:use(user)
         path=Path(self.pathObject),
         finish=finish,
 		speed=400,
-		offset=offset
+		offset=offset,
+		easing='outQuad'
     })
 
-	--user.pathFollow.timeline.tween.easing = 'outQuad'
 	user.pathFollow.timeline:play()
 end
 

@@ -12,8 +12,9 @@ local function getColliderFromShape(obj)
 		local center_y = y + height * 0.5
 		return Collider{
 			shape_type = 'rectangle',
-			shape_arguments = {center_x, center_y, width, height},
-			body_type = 'static'
+			shape_arguments = {width, height},
+			body_type = 'static',
+			position = Vector(center_x, center_y)
 		}
 	end
 end
@@ -46,8 +47,9 @@ local function createStaticPhysicsBodies(layer)
 
 				local col = Collider{
 					shape_type = 'rectangle',
-					shape_arguments = {quadX, quadY, width, height},
-					body_type = 'static'
+					shape_arguments = {width, height},
+					body_type = 'static',
+					position = Vector(quadX, quadY)
 				}
 				table.insert(colliders, col)
 			end
@@ -62,10 +64,10 @@ local function createStaticPhysicsBodyBoundary(map)
 	local height = map.height * map.tileheight
 
 	local depth = 10
-	local boundaryLeft = Collider{shape_type='rectangle', shape_arguments={-depth * 0.5, height * 0.5, depth, height + (2 * depth)}, body_type='static'}
-	local boundaryTop = Collider{shape_type='rectangle', shape_arguments={width * 0.5, -depth * 0.5, width + (2 * depth), depth}, body_type='static'}
-	local boundaryRight = Collider{shape_type='rectangle', shape_arguments={width + (depth * 0.5), height * 0.5, depth, height + (2 * depth)}, body_type='static'}
-	local boundaryBottom = Collider{shape_type='rectangle', shape_arguments={width * 0.5, height + (depth * 0.5), width + (2 * depth), depth}, body_type='static'}
+	local boundaryLeft = Collider{shape_type='rectangle', shape_arguments={depth, height + (2 * depth)}, body_type='static', position=Vector(-depth * 0.5, height * 0.5)}
+	local boundaryTop = Collider{shape_type='rectangle', shape_arguments={width + (2 * depth), depth}, body_type='static', position=Vector(width * 0.5, -depth * 0.5)}
+	local boundaryRight = Collider{shape_type='rectangle', shape_arguments={depth, height + (2 * depth)}, body_type='static', position=Vector(width + (depth * 0.5), height * 0.5)}
+	local boundaryBottom = Collider{shape_type='rectangle', shape_arguments={width + (2 * depth), depth}, body_type='static', position=Vector(width * 0.5, height + (depth * 0.5))}
 
 	return {boundaryLeft, boundaryTop, boundaryRight, boundaryBottom}
 end

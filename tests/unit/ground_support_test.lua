@@ -10,7 +10,7 @@ local GroundSupport = require('src.player.ground_support')
 local function makeGround(centreX, centreY, width, height)
 	return Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {centreX, centreY, width, height},
+		shape_arguments = {width, height},
 		body_type = 'static',
 		position = {x = centreX, y = centreY},
 	}

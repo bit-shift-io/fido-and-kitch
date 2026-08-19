@@ -202,7 +202,7 @@ end)
 local function spawnOccupant(x, y)
 	local occupant = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 8, 30},
+		shape_arguments = {8, 30},
 		body_type = 'dynamic',
 		position = {x = x, y = y},
 	}

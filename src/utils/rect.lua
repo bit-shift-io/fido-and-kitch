@@ -13,7 +13,7 @@ function Rect:centre()
 end
 
 function Rect:colliderShapeArgs()
-    return {0, 0, self.width, self.height}
+    return {self.width, self.height}
 end
 
 -- Centre of a Tiled map object authored as a tile object (dragged from a
@@ -29,11 +29,11 @@ function Rect.centreOfMapObject(object)
     return Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 end
 
--- Collider shape_arguments for a rectangle of the given size, local-origin
--- (matches Rect:colliderShapeArgs() for callers that only have raw
--- width/height, not a full Rect instance).
+-- Collider shape_arguments for a rectangle of the given size -- dimensions
+-- only; collider position is supplied separately (Collider props.position),
+-- never as part of the shape arguments.
 function Rect.shapeArgs(width, height)
-    return {0, 0, width, height}
+    return {width, height}
 end
 
 return Rect

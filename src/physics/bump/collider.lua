@@ -6,8 +6,9 @@ local Motion = require('src.physics.bump.motion')
 local DEFAULT_GRAVITY = 300
 local DEFAULT_MAX_FALL_SPEED = 500
 
--- shape arguments: position as first 2 values in the rect case or a circle
--- which we don't care about supplying, circle just needs a radius
+-- shape arguments carry dimensions only: {width, height} for rectangles,
+-- {radius} for circles. Position is supplied separately via props.position
+-- (setPositionV), never baked into the shape arguments.
 function Collider:init(props)
 	self.type = 'collider'
 

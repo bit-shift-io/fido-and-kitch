@@ -8,7 +8,7 @@ function Timeline:init(props)
         self.playing = props.playing
     end
 
-    self.tween = Tween.new(props.duration, {time=0.0}, {time=1.0})
+    self.tween = Tween.new(props.duration, {time=0.0}, {time=1.0}, props.easing)
     self.duration = props.duration
     self.speed = 1
     self.isReverse = false

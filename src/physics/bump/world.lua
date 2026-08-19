@@ -41,26 +41,20 @@ function World:newCollider(collider_type, shape_arguments, table_to_use)
    setmetatable(o, Collider)
 
    if collider_type == 'circle' then
-      local x, y, r = unpack(shape_arguments)
-      o.x = x
-      o.y = y
-      o.width = r
-      o.height = r
-   elseif collider_type == 'rectangle' then
-      local x, y, w, h = unpack(shape_arguments)
-      o.x = x
-      o.y = y
-      o.width = w
-      o.height = h
-   else
-      local u = unpack(shape_arguments)
+      local r = shape_arguments[1]
       o.x = 0
       o.y = 0
-      o.width = 32
-      o.height = 32
+      o.width = r
+      o.height = r
+   else
+      -- rectangle (or unspecified: default to the given dims, else 32x32)
+      o.x = 0
+      o.y = 0
+      o.width = shape_arguments[1] or 32
+      o.height = shape_arguments[2] or 32
    end
 
-   o.collider_type = 'rectangle'
+   o.collider_type = collider_type or 'rectangle'
 
    local halfWidth = o.width / 2
    local halfHeight = o.height / 2

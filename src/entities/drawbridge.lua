@@ -155,7 +155,7 @@ function Drawbridge:init(object)
 		loop = false,
 		playing = false,
 		position = position,
-		shape_arguments = {0, 0, spriteBoxWidth, spriteBoxHeight},
+		shape_arguments = {spriteBoxWidth, spriteBoxHeight},
 		facing = spriteFacing(self.crossingDirection),
 		finish = utils.bindSelf(self.onAnimationFinish, self),
 	})
@@ -188,7 +188,7 @@ function Drawbridge:init(object)
 	self.triggerCentre = position + Vector(triggerOffset, 0)
 	self.trigger = self:addComponent(Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, self.triggerWidth, self.rect.height},
+		shape_arguments = {self.triggerWidth, self.rect.height},
 		body_type = 'static',
 		sensor = true,
 		position = self.triggerCentre,

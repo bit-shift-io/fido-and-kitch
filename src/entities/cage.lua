@@ -33,7 +33,7 @@ function Cage:init(object, map)
 	})
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',
-		shape_arguments={0, 0, 32, 32},
+		shape_arguments={32, 32},
 		body_type='static',
 		sensor=true,
 		position=position

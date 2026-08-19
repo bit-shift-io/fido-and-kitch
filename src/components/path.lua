@@ -25,24 +25,37 @@ function Path:init(props)
 
     self.curve = love.math.newBezierCurve(curveTable)
 
-    -- bezier curves arent linear, so we can iterate with some small step to generate a table
-    -- also we might want to use control points to reduce the curviness?
-
-    -- compute length of polyline
+    -- bezier curves arent linear in t, so sample the curve into a dense table
+    -- and traverse it with piecewise-linear interpolation. This makes travel
+    -- along the path a constant world speed (t=0 -> sample[1], t=1 ->
+    -- sample[#]) instead of easing into/out of the authored points. The
+    -- sampled table also gives us the true arc length for duration math.
+    local SAMPLE_COUNT = 100
+    self.samples = {}
     self.length = 0
-    local pointCount = #self.points
-    for i = 2, pointCount, 1 do
-        self.length = self.length + self.points[i - 1]:dist(self.points[i])
+    local prev
+    for i = 0, SAMPLE_COUNT do
+        local v = Vector(self.curve:evaluate(i / SAMPLE_COUNT))
+        table.insert(self.samples, v)
+        if prev then
+            self.length = self.length + prev:dist(v)
+        end
+        prev = v
     end
 end
 
 function Path:getPositionV(percentage)
-    if self.curve == nil then
+    if #self.samples == 0 then
         return Vector(0, 0)
     end
 
     local t = math.min(1, math.max(0, percentage))
-    return Vector(self.curve:evaluate(t))
+    local scaled = t * (#self.samples - 1)
+    local index = math.floor(scaled)
+    local f = scaled - index
+    local a = self.samples[index + 1]
+    local b = self.samples[math.min(index + 2, #self.samples)]
+    return a + (b - a) * f
 end
 
 function Path:draw()

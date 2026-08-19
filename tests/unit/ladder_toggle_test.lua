@@ -65,7 +65,7 @@ local function makePlayer(x, y)
 	}
 	p.collider = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = { 0, 0, 30, 40 },
+		shape_arguments = { 30, 40 },
 		position = Vector(x, y),
 	}
 	p.fsm = StateMachine{

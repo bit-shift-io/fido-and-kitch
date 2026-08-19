@@ -134,7 +134,7 @@ function Blocker:init(object)
 		loop = false,
 		playing = false,
 		position = position + Vector(0, SPRITE_OFFSET_Y),
-		shape_arguments = {0, 0, spriteBoxWidth, spriteBoxHeight},
+		shape_arguments = {spriteBoxWidth, spriteBoxHeight},
 	})
 
 	-- start at rest closed: the gate fully lowered -- the FIRST frame of the
@@ -149,7 +149,7 @@ function Blocker:init(object)
 	local barrierWidth, barrierHeight = barrierDimensions(self.rect.width, self.rect.height)
 	self.barrier = self:addComponent(Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, barrierWidth, barrierHeight},
+		shape_arguments = {barrierWidth, barrierHeight},
 		body_type = 'static',
 		position = position,
 		sensor = not isBlocking(self.state),

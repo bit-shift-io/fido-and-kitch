@@ -138,13 +138,13 @@ test('playerOverlaps reflects collider overlap in the world', function()
 	})
 	local inside = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 24, 48},
+		shape_arguments = {24, 48},
 		body_type = 'static',
 		position = {x = 144, y = 96},
 	}
 	local outside = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 24, 48},
+		shape_arguments = {24, 48},
 		body_type = 'static',
 		position = {x = 300, y = 300},
 	}
@@ -220,7 +220,7 @@ end
 local function makePlayer(x, y)
 	local collider = Collider{
 		shape_type = 'rectangle',
-		shape_arguments = {0, 0, 24, 48},
+		shape_arguments = {24, 48},
 		body_type = 'static',
 		position = {x = x, y = y},
 	}
