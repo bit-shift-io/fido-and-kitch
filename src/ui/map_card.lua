@@ -104,6 +104,55 @@ local function objectTopY(object, height)
 	return object.y or 0
 end
 
+-- The playable shape of a level comes from its collision, not its tile art:
+-- a map keeps the same collision after a tileset is swapped, and collision
+-- can live in a tile layer (properties.collision=true) or an object group of
+-- rectangles (e.g. sandbox.tmx's "collision" group). Collects every such
+-- collision rect in world pixels.
+local function collisionRects(mapData, decodeFn)
+	decodeFn = decodeFn or function(data)
+		local ok, decoded = pcall(love.data.decode, 'string', 'base64', data)
+		return ok and decoded or nil
+	end
+
+	local rects = {}
+	for _, layer in ipairs(mapData.layers or {}) do
+		local isCollision = layer.properties and layer.properties.collision
+		if layer.visible ~= false and isCollision then
+			if layer.type == 'tilelayer' and type(layer.data) == 'string' then
+				local decoded = decodeFn(layer.data)
+				if decoded then
+					for y = 1, layer.height do
+						for x = 1, layer.width do
+							local gid = readTile(decoded, ((y - 1) * layer.width) + x)
+							if gid > 0 then
+								table.insert(rects, {
+									x = (x - 1) * mapData.tilewidth,
+									y = (y - 1) * mapData.tileheight,
+									w = mapData.tilewidth,
+									h = mapData.tileheight,
+								})
+							end
+						end
+					end
+				end
+			elseif layer.type == 'objectgroup' then
+				for _, object in ipairs(layer.objects or {}) do
+					local width = math.max(object.width or 16, 16)
+					local height = math.max(object.height or 16, 16)
+					table.insert(rects, {
+						x = object.x or 0,
+						y = objectTopY(object, height),
+						w = width,
+						h = height,
+					})
+				end
+			end
+		end
+	end
+	return rects
+end
+
 local function drawMapThumbnail(mapData)
 	local lg = love.graphics
 	local mapPixelWidth = math.max(1, (mapData.width or 1) * (mapData.tilewidth or 32))
@@ -121,17 +170,16 @@ local function drawMapThumbnail(mapData)
 	lg.setColor(0.12, 0.14, 0.18, 1)
 	lg.rectangle('fill', 0, 0, mapPixelWidth, mapPixelHeight)
 
+	-- Non-collision tile art is faint context only; the preview's shape comes
+	-- from the collision silhouette, which reads accurately regardless of the
+	-- tileset.
+	lg.setColor(1, 1, 1, 0.15)
 	for _, layer in ipairs(mapData.layers or {}) do
-		if layer.type == 'tilelayer' and layer.visible ~= false and type(layer.data) == 'string' then
+		local isCollision = layer.properties and layer.properties.collision
+		if layer.visible ~= false and not isCollision
+			and layer.type == 'tilelayer' and type(layer.data) == 'string' then
 			local ok, decoded = pcall(love.data.decode, 'string', 'base64', layer.data)
 			if ok and decoded then
-				local isCollision = layer.properties and layer.properties.collision
-				if isCollision then
-					lg.setColor(1, 1, 1, 0.45)
-				else
-					lg.setColor(1, 1, 1, 0.25)
-				end
-
 				for y = 1, layer.height do
 					for x = 1, layer.width do
 						local gid = readTile(decoded, ((y - 1) * layer.width) + x)
@@ -141,7 +189,18 @@ local function drawMapThumbnail(mapData)
 					end
 				end
 			end
-		elseif layer.type == 'objectgroup' and layer.visible ~= false then
+		end
+	end
+
+	-- Collision silhouette.
+	lg.setColor(1, 1, 1, 0.55)
+	for _, rect in ipairs(collisionRects(mapData)) do
+		lg.rectangle('fill', rect.x, rect.y, rect.w, rect.h)
+	end
+
+	-- Entity markers.
+	for _, layer in ipairs(mapData.layers or {}) do
+		if layer.type == 'objectgroup' and layer.visible ~= false then
 			for _, object in ipairs(layer.objects or {}) do
 				local color = ENTITY_COLORS[object.type]
 				if color then
@@ -218,6 +277,7 @@ MapCard.titleFromFile = titleFromFile
 MapCard.collectEntityTypes = collectEntityTypes
 MapCard.readTile = readTile
 MapCard.objectTopY = objectTopY
+MapCard.collisionRects = collisionRects
 MapCard.drawMapThumbnail = drawMapThumbnail
 
 return MapCard
