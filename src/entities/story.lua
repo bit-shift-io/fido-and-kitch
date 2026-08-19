@@ -26,6 +26,7 @@ local MAX_WIDTH = 500
 local TAIL_HEIGHT = 8
 local TAIL_WIDTH = 16
 local BOX_GAP = 4
+local SCREEN_MARGIN = 4
 
 --
 -- typewriter ramp
@@ -199,6 +200,16 @@ local function tailPoints(x, y, w, h, anchorX, anchorY)
 	}
 end
 
+-- clamp a box's top-left so the whole box fits inside the screen rect
+-- (0,0,sw,sh) with `margin` on every side, pushing it inwards when it would
+-- run off an edge; when the box is wider/taller than the available space it
+-- pins to the top-left so as much stays visible as possible
+local function clampToScreen(x, y, w, h, sw, sh, margin)
+	x = math.max(margin, math.min(x, sw - w - margin))
+	y = math.max(margin, math.min(y, sh - h - margin))
+	return x, y
+end
+
 --
 -- word wrap (pure; measure(line) is injected)
 --
@@ -246,6 +257,7 @@ Story._internal = {
 		CORNER_RADIUS = CORNER_RADIUS,
 		LINE_HEIGHT = LINE_HEIGHT,
 		MAX_WIDTH = MAX_WIDTH,
+		SCREEN_MARGIN = SCREEN_MARGIN,
 	},
 	typewriter = {
 		splitLines = splitLines,
@@ -268,6 +280,7 @@ Story._internal = {
 		boxWidth = boxWidth,
 		boxHeight = boxHeight,
 		tailPoints = tailPoints,
+		clampToScreen = clampToScreen,
 	},
 }
 
@@ -386,6 +399,8 @@ function Story:drawBubbleScreen(tx, ty, sx, sy)
 			local height = boxHeight(#visible, spacing)
 			local boxX = anchorX - width / 2
 			local boxY = anchorY - height - TAIL_HEIGHT - BOX_GAP
+			local sw, sh = love.graphics.getDimensions()
+			boxX, boxY = clampToScreen(boxX, boxY, width, height, sw, sh, SCREEN_MARGIN)
 			local tail = tailPoints(boxX, boxY, width, height, anchorX, anchorY - BOX_GAP)
 
 			love.graphics.push()

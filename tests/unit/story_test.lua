@@ -171,6 +171,34 @@ test('bubble box height is lines times line height plus padding', function()
 	assertEqual(3 * 16 + 2 * Story._internal.CONST.PADDING, B.boxHeight(3, 16))
 end)
 
+test('bubble clampToScreen pushes a box inwards so it fits on screen', function()
+	-- near the left / right edges
+	local x, y = B.clampToScreen(-30, 100, 200, 80, 800, 600, 4)
+	assertEqual(4, x)
+	assertEqual(100, y)
+	x, y = B.clampToScreen(700, 100, 200, 80, 800, 600, 4)
+	assertNear(800 - 200 - 4, x, 1e-6)
+	assertEqual(100, y)
+
+	-- near the top / bottom edges
+	x, y = B.clampToScreen(100, -50, 200, 80, 800, 600, 4)
+	assertEqual(100, x)
+	assertEqual(4, y)
+	x, y = B.clampToScreen(100, 600, 200, 80, 800, 600, 4)
+	assertEqual(100, x)
+	assertNear(600 - 80 - 4, y, 1e-6)
+
+	-- fully inside: left untouched
+	x, y = B.clampToScreen(300, 200, 200, 80, 800, 600, 4)
+	assertEqual(300, x)
+	assertEqual(200, y)
+
+	-- a box bigger than the screen pins to the top-left corner
+	x, y = B.clampToScreen(500, 500, 900, 700, 800, 600, 4)
+	assertEqual(4, x)
+	assertEqual(4, y)
+end)
+
 test('wrapLine leaves a fitting line alone', function()
 	local measure = function(line) return #line * 10 end
 	local out = W.wrapLine('abc', measure, 40)
