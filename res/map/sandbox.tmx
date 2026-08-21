@@ -114,7 +114,7 @@
     <property name="color" value="blue"/>
    </properties>
   </object>
-  <object id="93" template="../editor/blocker.tx" name="blocker" x="256" y="160"/>
+  <object id="93" template="../editor/blocker.tx" name="blocker" x="256" y="192"/>
   <object id="94" template="../editor/switch.tx" name="blocker_switch" x="192" y="192">
    <properties>
     <property name="target" type="object" value="93"/>
