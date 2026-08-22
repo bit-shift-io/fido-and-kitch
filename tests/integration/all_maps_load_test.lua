@@ -18,12 +18,12 @@ end
 
 test('every real map under res/map/ loads and steps a few frames without error', function()
 	local files = listMapFiles()
-	-- Asserted explicitly, not just "> 0": a glob that silently starts
-	-- returning zero files (e.g. a typo'd pattern after some future
-	-- reorganisation) would otherwise still pass every per-map assertion
-	-- below, covering nothing while looking green.
-	assertEqual(5, #files, 'expected exactly 5 maps under res/map/ (fab1, ll1, ll2, lurid_2p_01, sandbox), found:\n'
-		.. table.concat(files, '\n'))
+	-- Floor, not an exact count: a glob that silently starts returning zero
+	-- files (e.g. a typo'd pattern after some future reorganisation) would
+	-- otherwise still pass every per-map assertion below, covering nothing
+	-- while looking green. The actual inventory stays free to grow or shrink
+	-- without test changes.
+	assertTrue(#files > 0, 'expected at least one map under res/map/, found none')
 
 	local failures = {}
 

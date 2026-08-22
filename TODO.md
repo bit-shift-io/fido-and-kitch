@@ -4,6 +4,7 @@ A list of tasks that need to be done. Generate docs before starting each task.
 ## Bugs
 
 ## High Priority
+- luajit in setup.sh
 - new background assets
 - story entity can go offscreen
 

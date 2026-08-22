@@ -64,22 +64,28 @@ function InGameState:load(props)
 
     self.players = {}
     local playerCount = 2
-    local index = 1
+    -- Collect every spawn point first, then hand out one player per point
+    -- round-robin until all players are placed (wrapping if there are more
+    -- players than points) so extra spawn points never duplicate players.
+    local spawnPoints = {}
     for li, layer in ipairs(map.layers) do
         if layer.type == "objectgroup" then
             for _, object in ipairs(layer.objects) do
                 if object.type == 'spawn' then
-                    for i = 1, playerCount, 1 do
-                        local entity = Player{object=object, index=index}
-                        entity.destroySignal:connect(utils.bindSelf(InGameState.onPlayerDestroyed, self))
-                        entity:startSpawnFlash()
-                        table.insert(layer.entities, entity)
-                        table.insert(self.players, entity)
-                        index = index + 1
-                    end
+                    table.insert(spawnPoints, {object = object, layer = layer})
                 end
             end
         end
+    end
+
+    for i = 1, playerCount do
+        local spawnPoint = spawnPoints[(i - 1) % math.max(#spawnPoints, 1) + 1]
+        if not spawnPoint then break end
+        local entity = Player{object=spawnPoint.object, index=i}
+        entity.destroySignal:connect(utils.bindSelf(InGameState.onPlayerDestroyed, self))
+        entity:startSpawnFlash()
+        table.insert(spawnPoint.layer.entities, entity)
+        table.insert(self.players, entity)
     end
 
     -- Make players globally accessible for NPC follow system

@@ -18,8 +18,8 @@ local Spider = require('src.entities.npc_spider')
 NPCRegistry.clear()
 NPCRegistry.registerType('npc_spider', Spider)
 
--- GameHarness always spawns two players at every "spawn" object (local
--- co-op); the first player is enough to set up a wrap.
+-- GameHarness spawns two players round-robin across the "spawn" objects
+-- (local co-op); the first player is enough to set up a wrap.
 local function player1(game)
 	return game.fsm.currentState.players[1]
 end
