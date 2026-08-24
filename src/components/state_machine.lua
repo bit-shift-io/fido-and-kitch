@@ -35,7 +35,10 @@ function StateMachine:tryTransition(name)
     local s = self.states[name];
     if (s:canTransition()) then
         self:setState(name)
+        return true
     end
+
+    return false
 end
 
 function StateMachine:setState(name)

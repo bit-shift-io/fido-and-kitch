@@ -11,25 +11,31 @@ local SoundSpy = require('tests.support.sound_spy')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/ladder_room.lua'
+local MAP = 'tests/fixtures/ladder_fall_catch_room.lua'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]
 end
 
-test('mounting a ladder plays the mount sound', function()
+test('entering a ladder by mounting or fall-catch plays the mount sound', function()
 	local game = GameHarness.startGame(MAP)
-	local controller = FakeInput.new()
-	FrameStepper.step(game, 60) -- settle onto the floor, still overlapping the ladder column
+	local player = player1(game)
 
+	-- The fixture's spawn drops straight down the ladder column's interior,
+	-- so under the no-gravity-zone model the player is caught into
+	-- LadderState during the spawn fall -- same LadderState:enter path a
+	-- deliberate up/down mount takes.
 	local spy = SoundSpy.install()
-	holdFor(game, controller, 'up', 0.5)
+
+	local runUntil = require('tests.support.fake_input').runUntil
+	runUntil(game, function()
+		return player.fsm.currentState.name == 'LadderState'
+	end, 120)
 
 	spy.uninstall()
-	assertEqual('LadderState', player1(game).fsm.currentState.name, 'fixture check: expected the player to have mounted the ladder')
 	local seen = {}
 	for _, name in ipairs(spy.played) do
 		seen[name] = true
 	end
-	assertTrue(seen.mount, 'expected the mount sound to have played')
+	assertTrue(seen.mount, 'expected the mount sound to have played on entering the ladder')
 end)

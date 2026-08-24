@@ -57,9 +57,10 @@ function Player:init(props)
             offset=offset,
         },
         climb=Sprite{
-            frames=string.format('res/img/%s/Jump (${i}).png', character),
+            -- No dedicated climb art yet; reuse the run cycle (matches walk).
+            frames=string.format('res/img/%s/Run (${i}).png', character),
             frameCount=8,
-            duration=1.0,
+            duration=0.65,
             loop=true,
             position=position,
             playing=true,
@@ -105,7 +106,6 @@ function Player:init(props)
 
     self.sound = self:addComponent(Sound{
         sounds = {
-            jump = 'res/snd/character_jump.wav',
             land = 'res/snd/character_land.wav',
             step = 'res/snd/character_walk.wav',
             death = 'res/snd/character_death.wav',

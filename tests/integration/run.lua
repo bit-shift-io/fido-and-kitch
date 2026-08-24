@@ -9,6 +9,13 @@ package.path = './?/init.lua;' .. package.path
 
 local defaultTestFiles = {
 	'tests/integration/harness_smoke_test.lua',
+	'tests/integration/ladder_slab_slide_test.lua',
+	'tests/integration/ladder_top_test.lua',
+	'tests/integration/ladder_switch_test.lua',
+	'tests/integration/ladder_catch_slide_test.lua',
+	'tests/integration/ladder_seam_test.lua',
+	'tests/integration/ladder_flank_test.lua',
+	'tests/integration/npc_ladder_test.lua',
 	'tests/integration/movement_test.lua',
 	'tests/integration/player_spawn_round_robin_test.lua',
 	'tests/integration/all_maps_load_test.lua',

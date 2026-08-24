@@ -2,6 +2,12 @@ local Log = require('src.utils.log')
 
 local Ladder = Class{__includes = Entity}
 
+-- Thickness of the standable one-way slab at the ladder's top edge.
+local TOP_THICKNESS = 8
+-- How far below the top a player counts as "under the deck" and may pass
+-- through it (same tolerance the mover platform's one-way deck uses).
+local LAND_TOL = 6
+
 -- Per-rung tile objects (authoring model):
 --
 -- Each rung is a 32x32 bottom-anchored gid tile object (object.y = BOTTOM
@@ -29,11 +35,11 @@ function Ladder:init(object, map)
 
 	if object.leadRung then
 		self:createCollider()
+		self:createTopCollider()
 		self:createSprites()
 		self.lead = self
 		self.family.entity = self
-	else
-		-- thin alias -- the lead collider/sprites already cover this column
+	else		-- thin alias -- the lead collider/sprites already cover this column
 		self.lead = self.family.entity
 		self.collider = self.lead and self.lead.collider or nil
 	end
@@ -76,6 +82,66 @@ function Ladder:createCollider()
 	return self.collider
 end
 
+-- The bare top of the ladder is a standable one-way platform (see NOTES.md
+-- 2026-08-24 decision 4): a thin solid slab sitting on the top edge so a
+-- player who climbs out of the volume -- or walks across from an adjacent
+-- flush ledge -- can stand there with no terrain beneath.
+function Ladder:createTopCollider()
+	self:removeTopCollider()
+
+	local topEdge = self.rect.y - self.rect.height
+	self.topCollider = self:addComponent(Collider{
+		shape_type='rectangle',
+		shape_arguments=Rect.shapeArgs(self.rect.width, TOP_THICKNESS),
+		body_type='static',
+		sensor=false,
+		position=Vector(self.rect.x + self.rect.width * 0.5, topEdge + TOP_THICKNESS * 0.5),
+		entity=self
+	})
+	-- Entity-owned colliders are not ground by default; opt in so
+	-- queryOnGround treats the slab as something to stand and walk on.
+	self.topCollider.walkable = true
+
+	-- One-way top-only collision, same shape as the mover platform's deck:
+	-- a player whose feet sit more than LAND_TOL below the top is under it
+	-- -> 'cross'; at the top -> 'slide' (land, stand, be held). Anyone else
+	-- returns nil -> global World.colFilter defaults apply unchanged.
+	-- A player currently climbing this ladder always gets 'cross' so the
+	-- climb-through works and LadderState's own sensor-based exit decides
+	-- when they step out onto the slab. Falls from above deliberately do
+	-- NOT cross: the ground-probe lands a falling player on the slab
+	-- (perch-on-top), while falls that begin already inside the volume --
+	-- under the top plane -- are caught by the no-gravity zone.
+	local slab = self.topCollider
+	local function topColFilter(a, b)
+		local other = (a == slab) and b or a
+		local entity = other.entity
+		if entity and entity.type == 'player' then
+			local state = entity.fsm and entity.fsm.currentState
+			if state and state.name == 'LadderState' then
+				return 'cross'
+			end
+			local feet = other.y + other.height
+			if feet > slab.y + LAND_TOL then
+				return 'cross'
+			end
+			return 'slide'
+		end
+		return nil
+	end
+	self.topCollider:setColFilterFn(topColFilter)
+end
+
+function Ladder:removeTopCollider()
+	if self.topCollider then
+		self:removeComponent(self.topCollider)
+		if self.topCollider.destroy then
+			self.topCollider:destroy()
+		end
+		self.topCollider = nil
+	end
+end
+
 -- side 'top' (default): raise the top edge, bottom edge stays fixed.
 -- side 'bottom': lower the bottom edge, top edge stays fixed.
 function Ladder:resizeTileHeight(newTileHeight, side)
@@ -89,6 +155,7 @@ function Ladder:resizeTileHeight(newTileHeight, side)
 	end
 
 	self:createCollider()
+	self:createTopCollider()
 	self:createSprites()
 end
 
@@ -154,6 +221,7 @@ function Ladder:hide()
 		self.collider:destroy()
 	end
 	self.collider = nil
+	self:removeTopCollider()
 	for _, sprite in pairs(self.sprites or {}) do
 		self:removeComponent(sprite)
 	end
@@ -163,6 +231,7 @@ end
 function Ladder:show()
 	self.hidden = false
 	self:createCollider()
+	self:createTopCollider()
 	self:createSprites()
 end
 

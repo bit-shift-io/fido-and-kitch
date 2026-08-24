@@ -148,13 +148,19 @@
 
 **Definition** — Holding left/right while on a ladder to shuffle sideways at a slow, deliberate speed. Sliding can carry the player off a ladder edge, and onto a touching ladder. The player falls (enters FallState) only when the collider fully clears every ladder.
 
-**Boundary** — Horizontal only and gravity stays off while any ladder is under the player. Distinct from ground walking (slower, on a ladder). It never causes a fall while any part of the body still overlaps a ladder.
+**Boundary** — Horizontal only and gravity stays off while any ladder is under the player. Distinct from ground walking (slower, on a ladder). Within the last half-tile below the top a side press finishes the climb to the top hover, then continues across (a platform is likely adjacent there); deeper below the top, a side press slides off the side and falls — a normal dismount. Leaving sideways also happens from the exact-top hover; arriving at the bottom dismounts onto the platform. Releasing mid-slide holds position. Only a fresh directional press slides — a direction already held when the player caught or mounted the ladder is ignored until re-pressed or released, so walking/falling into a ladder while steering doesn't immediately carry you back out of it.
 
 ## Ladder mode
 
 **Definition** — The internal sub-state of `LadderState`: `aligning` (sliding to a ladder centre), `climbing` (centred, moving up/down), or `sliding` (moving sideways). Which mode is active is decided by last-pressed-axis-wins arbitration between the vertical and horizontal keys.
 
 **Boundary** — An implementation-level state inside the single `LadderState`, not a top-level player FSM state. Only meaningful while on a ladder.
+
+## Ladder no-gravity zone
+
+**Definition** — A merged ladder's collider acts as a zero-gravity climbable volume instead of a catcher of falls: a player inside it hangs in place when input is neutral (gravity suspended), climbs with up/down, slides with left/right, and leaves only by climbing/walking out or by a switched-off toggle removing the volume under them. The ladder's top edge carries a thin one-way standable slab, so a player falling onto the bare top lands standing on it (and can walk onto flush adjacent terrain); pressing down on the top descends into the zone below.
+
+**Boundary** — Players-only affordances: props and NPCs pass through both the volume and the top slab (enemies still climb opportunistically via their own AI). Terrain tiles under/around a ladder top are optional for support — the slab is the floor. A switched-off ladder provides neither the zone nor the slab.
 
 ## Enemy
 

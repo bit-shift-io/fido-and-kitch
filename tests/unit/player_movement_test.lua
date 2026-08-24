@@ -149,9 +149,21 @@ test('shouldFallOffLadder returns true when not overlapping any ladder', functio
 	assertTrue(result)
 end)
 
-test('resolveLadderOverlap returns the direct overlaps unchanged when already overlapping', function()
+test('resolveLadderOverlap appends a distinct below-ladder even while already overlapping', function()
 	local ladders = { 'ladderA' }
 	local result = movement.resolveLadderOverlap(ladders, true, 'ladderBelow')
+
+	-- Intent-carrying mounts: while pressing down, the ladder probed below
+	-- is always part of the candidate set (seam perches overlap one column
+	-- directly and probe the down-leading neighbour below).
+	assertEqual(2, #result)
+	assertEqual('ladderA', result[1])
+	assertEqual('ladderBelow', result[2])
+end)
+
+test('resolveLadderOverlap does not duplicate the below-ladder when it is already overlapped', function()
+	local ladders = { 'ladderA' }
+	local result = movement.resolveLadderOverlap(ladders, true, 'ladderA')
 
 	assertEqual(1, #result)
 	assertEqual('ladderA', result[1])
@@ -174,4 +186,39 @@ test('resolveLadderOverlap stays empty when not pressing down, even if a ladder 
 	local result = movement.resolveLadderOverlap({}, false, 'ladderBelow')
 
 	assertEqual(0, #result)
+end)
+
+test('shouldCatchFall catches an airborne player overlapping a ladder volume', function()
+	assertTrue(movement.shouldCatchFall(false, { 'ladderA' }))
+end)
+
+test('shouldCatchFall never catches a grounded player', function()
+	assertFalse(movement.shouldCatchFall(true, { 'ladderA' }))
+end)
+
+test('shouldCatchFall ignores a falling player with no ladder overlap', function()
+	assertFalse(movement.shouldCatchFall(false, {}))
+end)
+
+test('resolveEntryMode aligns when a vertical key is held at entry (mount)', function()
+	assertEqual('aligning', movement.resolveEntryMode(true))
+end)
+
+test('resolveEntryMode hangs without aligning when no vertical key is held at entry (fall catch)', function()
+	assertEqual('climbing', movement.resolveEntryMode(false))
+end)
+
+test('climbUpStep takes a full step when well below the ladder top', function()
+	local step = movement.climbUpStep(240, 192, 30, 1 / 60)
+	assertTrue(math.abs(step - 0.5) < 0.001, 'expected speed*dt (0.5px), got ' .. tostring(step))
+end)
+
+test('climbUpStep glides exactly to the top edge on the last frame', function()
+	local step = movement.climbUpStep(192.2, 192, 30, 1 / 60)
+	assertTrue(math.abs(step - 0.2) < 0.001, 'expected exact remainder (0.2px), got ' .. tostring(step))
+end)
+
+test('climbUpStep returns zero at or above the ladder top', function()
+	assertEqual(0, movement.climbUpStep(192, 192, 30, 1 / 60))
+	assertEqual(0, movement.climbUpStep(180, 192, 30, 1 / 60))
 end)

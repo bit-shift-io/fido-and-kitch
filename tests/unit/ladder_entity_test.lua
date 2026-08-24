@@ -96,3 +96,24 @@ test('growing moves the top edge up, keeping the bottom edge fixed', function()
 	assertEqual(3 * TILE, lead.rect.height)
 	assertEqual(3, lead:tileHeight())
 end)
+test('the one-way top slab is entity-tagged and walkable for NPC probes', function()
+	-- npc_bird's terrain-pass probe keys off item.entity.isLadder on anything
+	-- it overlaps; GroundSupport keys off collider.walkable. The slab must
+	-- carry both so birds treat it as ladder volume and players as ground.
+	local rungs = makeFamilyRungs(2)
+	local lead = makeLead(rungs)
+
+	local slab = lead.topCollider
+	assertTrue(slab ~= nil, 'the lead builds a top slab')
+	assertEqual(lead, slab.entity, 'slab must reference its ladder entity')
+	assertTrue(slab.entity.isLadder, 'bird probe sees isLadder through the slab')
+	assertTrue(slab.walkable, 'GroundSupport treats the slab as walkable ground')
+
+	lead:switch({ state = 'off' })
+	assertEqual(nil, lead.topCollider, 'hide removes the slab with the sensor')
+
+	lead:switch({ state = 'on' })
+	slab = lead.topCollider
+	assertTrue(slab ~= nil, 'show rebuilds the slab')
+	assertEqual(lead, slab.entity, 'rebuilt slab keeps the entity reference')
+end)

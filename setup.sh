@@ -48,6 +48,9 @@ git clone --depth 1 https://github.com/kikito/tween.lua.git tween
 git clone --depth 1 https://github.com/flamendless/Slab.git
 git clone --depth 1 https://github.com/kikito/bump.lua.git bump
 
+# dkjson (single-file JSON lib required by the IPC server's game_api)
+curl -sL -o dkjson.lua https://raw.githubusercontent.com/LuaDist/dkjson/master/dkjson.lua
+
 # 4. Safely return to the project root
 cd ..
 

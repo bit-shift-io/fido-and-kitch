@@ -45,6 +45,9 @@ Note: ladders are authored as per-rung template tile objects
 (`res/editor/ladder.tx`), one 32px rung per step, bottom-anchored
 (object `y` = rung's bottom edge). `entity_factory` auto-merges stacked rungs
 into a single ladder; a switch targeted at any rung toggles the whole ladder.  
+Ladders are no-gravity climbable volumes with a one-way standable top edge:
+terrain tiles under/around the top are optional (the ladder itself is the
+floor there), and NPCs/props pass through an active ladder.
 
 ## Pixel-Map Export
 

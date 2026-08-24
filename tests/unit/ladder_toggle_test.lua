@@ -58,7 +58,12 @@ local function makePlayer(x, y)
 		verticalNewlyPressed = false,
 		horizontalNewlyPressed = false,
 		previousLadderAxis = 'vertical',
-		animations = { currentState = { playing = false } },
+		animations = {
+			currentState = {
+				playing = false,
+				setFrameNum = function() end,
+			},
+		},
 		sound = { play = function() end },
 		setAnimation = function() end,
 		isDown = function() return false end,

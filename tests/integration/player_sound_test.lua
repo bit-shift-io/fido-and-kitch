@@ -1,9 +1,7 @@
--- Player movement sounds (jump/land/step/death), driven through the real
--- Game/Map/World/Player stack. See DECISIONS.md Q16/Q17 under
--- .scratch/sound-component/: there is no dedicated JumpState -- falling
--- (whether from a jump or off a ledge) is the state machine's one "airborne"
--- signal, so 'jump' plays on FallState:enter() and 'land' on the transition
--- back to WalkIdleState.
+-- Player movement sounds (land/step/death), driven through the real
+-- Game/Map/World/Player stack. There is no jump in this game: falling (off a
+-- ledge, out of a ladder, etc.) is the state machine's "airborne" signal and
+-- is silent; 'land' plays on the transition back to WalkIdleState.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')
@@ -18,7 +16,7 @@ local function player1(game)
 	return game.fsm.currentState.players[1]
 end
 
-test('a player falling from spawn plays jump on entering FallState and land on settling', function()
+test('a player falling from spawn stays silent entering FallState and plays land on settling', function()
 	local game = GameHarness.startGame(MAP)
 	local spy = SoundSpy.install()
 
@@ -29,7 +27,7 @@ test('a player falling from spawn plays jump on entering FallState and land on s
 	for _, name in ipairs(spy.played) do
 		seen[name] = true
 	end
-	assertTrue(seen.jump, 'expected a jump sound when entering FallState')
+	assertFalse(seen.jump, 'there is no jump in this game: FallState must stay silent')
 	assertTrue(seen.land, 'expected a land sound when settling back onto the floor')
 end)
 

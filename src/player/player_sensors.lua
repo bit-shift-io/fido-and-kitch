@@ -41,13 +41,21 @@ function PlayerSensors.queryLadderBelow(world, collider, topOffset, bottomOffset
     bounds.bottom = bounds.bottom + (bottomOffset or 5)
 
     local colls = world:queryBounds(bounds)
+    local best = nil
+    local bestDist = nil
     for _, c in ipairs(colls) do
         local entity = c.entity
         if entity and entity.isLadder then
-            return entity
+            -- Multi-hit tiebreak: the ladder whose centre is nearest the
+            -- player's is the one they intend to descend.
+            local dist = math.abs(entity.rect:centre().x - collider:getX())
+            if not best or dist < bestDist then
+                best = entity
+                bestDist = dist
+            end
         end
     end
-    return nil
+    return best
 end
 
 function PlayerSensors.queryAllLadders(world, collider)
@@ -86,6 +94,30 @@ function PlayerSensors.queryOnGround(world, collider)
     return false
 end
 
+-- Like queryOnGround but ignores ladder-owned colliders (the volume sensor
+-- and the one-way top slab). Used by LadderState to detect ARRIVAL at a
+-- ladder's base: standing on real terrain ends the mount, while grounding
+-- against the ladder's own slab (top perch) must not.
+function PlayerSensors.queryOnNonLadderGround(world, collider)
+    local bounds = collider:getBounds()
+    bounds.top = bounds.bottom + 4
+    bounds.bottom = bounds.bottom + 5
+
+    local colls = world:queryBounds(bounds)
+    for _, c in ipairs(colls) do
+        local entity = c.entity
+        if entity and entity.isLadder then
+            -- The ladder itself is never "arriving somewhere"
+        else
+            local other = c.other
+            if entity == nil or (c.walkable and other and not other.sensor) then
+                return c
+            end
+        end
+    end
+    return nil
+end
+
 function PlayerSensors.queryFullySupported(world, bounds)
     return GroundSupport.isFullySupported(world, bounds)
 end
@@ -114,8 +146,14 @@ function PlayerSensors.queryHorizontalBlock(world, collider, direction)
     for _, c in ipairs(colls) do
         local entity = c.entity
         local other = c.other
-        -- Solid collision: entity-owned walkable colliders, or static world geometry (entity == nil)
-        if (entity == nil and not c.sensor) or (c.walkable and other and not other.sensor) then
+        -- Parts of the ladder itself (the volume sensor, the one-way top
+        -- slab) never block sliding: the climber is inside/behind them by
+        -- design. The slab spans the whole column width, so counting it as a
+        -- wall would lock out sideways movement whenever the hang position
+        -- straddles the slab band (e.g. entering from a flush platform).
+        if entity and entity.isLadder then
+            -- skip ladder-owned colliders
+        elseif (entity == nil and not c.sensor) or (c.walkable and other and not other.sensor) then
             return true
         end
     end

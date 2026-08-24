@@ -4,6 +4,11 @@ local Log = require('src.utils.log')
 
 local LadderState = Class{}
 
+-- A side press within the last half-tile below the ladder top finishes the
+-- climb to the top hover (a platform is likely adjacent there); deeper side
+-- presses slide off the side as a normal dismount.
+local HALF_TILE = 16
+
 function LadderState:enter()
     Log.debug('ladder enter')
     local player = self.entity
@@ -12,10 +17,32 @@ function LadderState:enter()
     player.collider:setGravityScale(0)
     player.sound:play('mount')
 
-    -- Initialize ladder mode state
-    self.mode = 'aligning' -- 'aligning', 'climbing', 'sliding'
+    -- Initialize ladder mode state. A mount entered via up/down begins
+    -- aligning to the ladder centre as before; a fall catch (no vertical key
+    -- held) enters straight into climbing so an unattended player hangs in
+    -- place instead of being auto-aligned -- auto-align is reserved for
+   -- actually using the vertical keys (see NOTES.md 2026-08-24).
+    local verticalHeld = player:isDown("up") or player:isDown("down")
+    self.mode = PlayerMovement.resolveEntryMode(verticalHeld) -- 'aligning', 'climbing', 'sliding'
     self.targetCentreX = nil
-    self.isInitialMount = true -- true for first mount from ground, false for re-aligns
+    self.isInitialMount = verticalHeld -- walk-speed slide only for genuine mounts, not catches
+
+    -- A downward mount carries intent: target the below-detected ladder's
+    -- centre rather than whatever else the body grazes (e.g. the up-leading
+    -- column at a seam).
+    if player:isDown("down") then
+        local below = PlayerSensors.queryLadderBelow(world, player.collider)
+        if below then
+            self.targetCentreX = below.rect:centre().x
+        end
+    end
+
+    -- Re-baseline the per-axis held trackers: they are edge-detection state
+    -- maintained by LadderState:update, so keys that were already held before
+    -- this entry (e.g. a direction held throughout the fall that led here)
+    -- would otherwise register as phantom fresh presses on the first update.
+    player.verticalHeld = verticalHeld
+    player.horizontalHeld = player:isDown("left") or player:isDown("right")
 end
 
 function LadderState:exit()
@@ -30,6 +57,13 @@ function LadderState:exit()
     -- a ladder would coast upward past the platform before gravity caught
     -- up with it.
     player.collider:setLinearVelocity(0, 0)
+
+    -- Leaving via a sideways slide is a deliberate dismount: open a short
+    -- catch-grace window so the fall out of the column can't re-mount the
+    -- same ladder on the next frame.
+    if self.mode == 'sliding' then
+        player.ladderCatchGrace = 0.2
+    end
 end
 
 function LadderState:canTransition()
@@ -52,34 +86,79 @@ function LadderState:canTransition()
     return false
 end
 
+-- Place the player's feet exactly on a ground collider's top face so an
+-- eject-to-walk lands without any residual drop. `ground` is the raw bump
+-- record returned by queryOnNonLadderGround (its Collider component is
+-- `other`, not the record itself).
+local function snapOntoGround(player, ground)
+    local b = player.collider:getBounds()
+    local other = ground.other
+    local top = other and other:getBounds().top
+    if not top then return end
+    player.collider:setPosition(player.collider:getX(), top - b.height / 2)
+end
+
 function LadderState:update(dt)
     local player = self.entity
 
     local downPressed = player:isDown("down")
-
-    -- Get all overlapping ladders. When mounting/descending onto a ladder
-    -- flush against the underside of a platform, the collider can still be
-    -- touching (not yet overlapping) the ladder's top edge, so also count a
-    -- ladder detected directly below while descending -- see
-    -- PlayerMovement.resolveLadderOverlap.
-    local directLadders = PlayerSensors.queryAllLadders(world, player.collider)
-    local ladderBelowForOverlap = nil
-    if #directLadders == 0 and downPressed then
-        ladderBelowForOverlap = PlayerSensors.queryLadderBelow(world, player.collider)
-    end
-    local ladders = PlayerMovement.resolveLadderOverlap(directLadders, downPressed, ladderBelowForOverlap)
-
-    -- Check if we should fall off (no ladder overlap at all)
-    if PlayerMovement.shouldFallOffLadder(#ladders > 0) then
-        player.fsm:setState('FallState')
-        return
-    end
-
-    -- Update per-axis edge tracking for last-pressed arbitration
     local upPressed = player:isDown("up")
     local leftPressed = player:isDown("left")
     local rightPressed = player:isDown("right")
 
+    -- Get all overlapping ladders. While descending, also count a ladder
+    -- detected directly below -- even when other ladders ARE overlapped:
+    -- at a seam the body can graze the up-leading column while the intended
+    -- down route is the neighbouring one, and flush-under-platform mounts
+    -- start with only the below-probe hitting. See
+    -- PlayerMovement.resolveLadderOverlap.
+    local directLadders = PlayerSensors.queryAllLadders(world, player.collider)
+    local ladderBelowForOverlap = nil
+    if downPressed then
+        ladderBelowForOverlap = PlayerSensors.queryLadderBelow(world, player.collider)
+    end
+    local ladders = PlayerMovement.resolveLadderOverlap(directLadders, downPressed, ladderBelowForOverlap)
+
+    -- Arriving at the base dismounts: touching down on real ground while
+    -- DESCENDING ends the mount. Guards: the down-press is the descent
+    -- intent (a hanging climber passes THROUGH solids -- a platform
+    -- crossing the column below their feet is not an arrival); a
+    -- below-hit means the descent is still in progress (down-mounts from
+    -- an upper platform start grounded with ladder below).
+    if downPressed and ladderBelowForOverlap == nil then
+        local ground = PlayerSensors.queryOnNonLadderGround(world, player.collider)
+        if ground then
+            -- Snap exactly onto the surface before converting: the eject
+            -- fires while the feet probe first sees ground (1-5px above it),
+            -- and a dynamic body dropped from there lands with a visible
+            -- hop + landing thud.
+            snapOntoGround(player, ground)
+            player.fsm:setState('WalkIdleState')
+            return
+        end
+    end
+
+    -- Check if we should fall off (no ladder overlap at all). Vertical edge
+    -- keys are exempt: pressing up at the top or down at the bottom of a
+    -- column is a no-op (stay mounted). A held horizontal key is NOT --
+    -- sliding clear of the column is the deliberate dismount.
+    if PlayerMovement.shouldFallOffLadder(#ladders > 0)
+        and not upPressed and not downPressed then
+        -- Ground right below means this dismount is a step-off, not a fall:
+        -- land directly so there is no one-frame FallState stutter (velocity
+        -- zeroed) and no landing thud. The slab is excluded by the probe, so
+        -- sliding off a bare top still falls naturally.
+        local ground = PlayerSensors.queryOnNonLadderGround(world, player.collider)
+        if ground then
+            snapOntoGround(player, ground)
+            player.fsm:setState('WalkIdleState')
+        else
+            player.fsm:setState('FallState')
+        end
+        return
+    end
+
+    -- Update per-axis edge tracking for last-pressed arbitration
     local verticalHeld = upPressed or downPressed
     local horizontalHeld = leftPressed or rightPressed
 
@@ -118,23 +197,32 @@ function LadderState:update(dt)
     if self.mode == 'aligning' then
         velocityX, velocityY, movingOnLadder, exited = self:updateAligning(player, playerCentreX, ladderCentres, dt)
     elseif self.mode == 'climbing' then
-        velocityX, velocityY, movingOnLadder, exited = self:updateClimbing(player, upPressed, downPressed, activeAxis)
+        velocityX, velocityY, movingOnLadder, exited = self:updateClimbing(player, upPressed, downPressed, activeAxis, ladderCentres, dt)
     elseif self.mode == 'sliding' then
-        velocityX, velocityY, movingOnLadder, exited = self:updateSliding(player, activeAxis, leftPressed, rightPressed)
+        velocityX, velocityY, movingOnLadder, exited = self:updateSliding(player, activeAxis, leftPressed, rightPressed, ladders, dt)
     end
 
     if exited then return end
 
     player.collider:setLinearVelocity(velocityX, velocityY)
-    player.animations.currentState.playing = movingOnLadder
+    local anim = player.animations.currentState
+    anim.playing = movingOnLadder
+    if not movingOnLadder then
+        -- Freeze on the climb sheet's first frame while hanging: there is
+        -- no dedicated climb art ('climb' aliases the Jump sheet), and
+        -- pausing mid-cycle leaves an airborne-looking pose.
+        anim:setFrameNum(1)
+    end
 end
 
 -- Per-mode ladder steps. Each returns (velocityX, velocityY, movingOnLadder,
 -- exited); when `exited` is true the step already transitioned to another
 -- state and update() must return without writing velocity.
 function LadderState:updateAligning(player, playerCentreX, ladderCentres, dt)
-    -- Find target centre (nearest ladder centre-x)
-    if #ladderCentres > 0 then
+    -- Find target centre (nearest ladder centre-x), but never override an
+    -- intent-carried sticky target set at mount time (down-mounts aim at
+    -- the below-detected ladder even when another is nearer).
+    if not self.targetCentreX and #ladderCentres > 0 then
         self.targetCentreX = PlayerMovement.nearestLadderCentre(playerCentreX, ladderCentres)
     end
 
@@ -160,62 +248,134 @@ function LadderState:updateAligning(player, playerCentreX, ladderCentres, dt)
     return direction * slideSpeed, 0, true, false
 end
 
-function LadderState:updateClimbing(player, upPressed, downPressed, activeAxis)
+function LadderState:updateClimbing(player, upPressed, downPressed, activeAxis, ladderCentres, dt)
     if activeAxis ~= 'vertical' then
-        -- Switch to sliding mode
+        -- Switch to sliding mode -- but only on a fresh directional press.
+        -- A horizontal key already held when the fall-catch happened (e.g.
+        -- walking off a platform into the ladder column) must not slide the
+        -- player straight back out of the volume; it stays ignored until
+        -- re-pressed or released.
+        if activeAxis == 'horizontal' and not player.horizontalNewlyPressed then
+            return 0, 0, false, false
+        end
         self.mode = 'sliding'
         return 0, 0, false, false
+    end
+
+    if (upPressed or downPressed) then
+        -- Vertical movement happens from the ladder centre-x: an off-centre
+        -- hang (e.g. after a slide) realigns first, then climbs. Auto-align
+        -- while up/down is held is the spec'd behavior (NOTES.md 2026-08-24).
+        -- A sticky mount target wins over plain proximity.
+        local centreX = self.targetCentreX
+        if not centreX and #ladderCentres > 0 then
+            centreX = PlayerMovement.nearestLadderCentre(player.collider:getX(), ladderCentres)
+        end
+        if centreX and math.abs(player.collider:getX() - centreX) > 1 then
+            self.targetCentreX = centreX
+            self.mode = 'aligning'
+            self.isInitialMount = false
+            return 0, 0, false, false
+        end
     end
 
     if upPressed then
         -- Check if still overlapping any ladder (use queryAllLadders for full overlap check)
         local ladders = PlayerSensors.queryAllLadders(world, player.collider)
         if #ladders > 0 then
-            return 0, -player.climbSpeed, true, false
+            -- Clamp the upward step at the highest overlapped ladder's top
+            -- edge: with variable frame timing a plain climbSpeed step can
+            -- overshoot the top and leave the player floating above the
+            -- column. A zero step means hover at the top edge.
+            local feetY = player.collider:getBounds().bottom
+            local topY
+            for _, ladder in ipairs(ladders) do
+                local rect = ladder.rect -- bottom-anchored
+                local ladderTop = rect.y - rect.height
+                if not topY or ladderTop < topY then
+                    topY = ladderTop
+                end
+            end
+            local step = PlayerMovement.climbUpStep(feetY, topY, player.climbSpeed, dt)
+            if step <= 0 then
+                return 0, 0, false, false
+            end
+            return 0, -step / dt, true, false
         end
 
-        -- No ladder above - check if we can get off at the top (on ground ahead)
-        local onGround = PlayerSensors.queryOnGround(world, player.collider)
-        if onGround then
-            player.fsm:setState('WalkIdleState')
-        else
-            player.fsm:setState('FallState')
-        end
-        return 0, 0, false, true
+        -- Top of the ladder: up is a no-op -- stay mounted hovering at the
+        -- top rung. Sliding off the side is the way down (user directive).
+        return 0, 0, false, false
     elseif downPressed then
         local ladderBelow = PlayerSensors.queryLadderBelow(world, player.collider)
         if ladderBelow then
             return 0, player.climbSpeed, true, false
         end
-        player.fsm:setState('FallState')
-        return 0, 0, false, true
+        -- Bottom of the ladder: down is a no-op -- stay mounted.
+        return 0, 0, false, false
     end
 
     return 0, 0, false, false
 end
 
-function LadderState:updateSliding(player, activeAxis, leftPressed, rightPressed)
-    if activeAxis ~= 'horizontal' then
-        -- Switch to aligning mode to re-centre (slow speed)
+function LadderState:updateSliding(player, activeAxis, leftPressed, rightPressed, ladders, dt)
+    if activeAxis == 'vertical' then
+        -- Back to realigning on an up/down press: vertical movement happens
+        -- from the ladder centre, so recentre first, then climb.
         self.mode = 'aligning'
         self.isInitialMount = false
         return 0, 0, false, false
+    end
+
+
+    -- Within the last half-tile below the top a platform is likely adjacent:
+    -- finish the climb to the top hover and let the held key carry the
+    -- climber across from there. Deeper down, sliding off the side is just a
+    -- normal dismount.
+    local function finishClimbOrSlide(direction)
+        if not atTop and topY and feet <= topY + HALF_TILE then
+            local rise = PlayerMovement.climbUpStep(feet, topY, player.climbSpeed, dt)
+            if rise > 0 then
+                return 0, -rise / dt, true, false
+            end
+        end
+        return direction * player.slideSpeed, 0, true, false
+    end
+
+    -- From the exact-top hover a side press IS the dismount: skip the
+    -- hold-at-the-edge gate so the slide can carry the climber out of the
+    -- column (the fall-off guard then ejects naturally).
+    local atTop = false
+    local topY
+    local feet = player.collider:getBounds().bottom
+    for _, ladder in ipairs(ladders) do
+        local ladderTop = ladder.rect.y - ladder.rect.height
+        if not topY or ladderTop < topY then
+            topY = ladderTop
+        end
+        if feet <= topY + 3 then
+            atTop = true
+            break
+        end
     end
 
     if leftPressed then
         -- Check for horizontal block on left
         local blocked = PlayerSensors.queryHorizontalBlock(world, player.collider, 'left')
         if not blocked then
-            return -player.slideSpeed, 0, true, false
+            return finishClimbOrSlide(-1)
         end
     elseif rightPressed then
         -- Check for horizontal block on right
         local blocked = PlayerSensors.queryHorizontalBlock(world, player.collider, 'right')
         if not blocked then
-            return player.slideSpeed, 0, true, false
+            return finishClimbOrSlide(1)
         end
     end
 
+    -- Released: hold position. Auto-align is reserved for vertical-key
+    -- mounts (see NOTES.md 2026-08-24); an off-centre spot on the ladder
+    -- is a valid resting place, so sliding must not bounce back to centre-x.
     return 0, 0, false, false
 end
 
@@ -239,6 +399,7 @@ end
 
 function WalkIdleState:update(dt)
     local player = self.entity
+    local og = PlayerSensors.queryOnGround(world, player.collider)
 
     if player.fsm:tryTransition('FallState') then
         return
@@ -296,7 +457,6 @@ function FallState:enter()
     player:setAnimation('fall')
     local v_x, v_y = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(0, v_y)
-    player.sound:play('jump')
 end
 
 function FallState:update(dt)
@@ -307,6 +467,26 @@ function FallState:update(dt)
     local onGround = PlayerSensors.queryOnGround(world, player.collider)
     if onGround then
         player.fsm:setState('WalkIdleState')
+        return
+    end
+
+    -- No-gravity zone: a falling player overlapping the ladder volume is
+    -- caught automatically, no mount key needed. A short grace window after
+    -- deliberately sliding off a ladder suppresses the instant re-catch,
+    -- which would otherwise drop the player straight back onto the same
+    -- ladder (falls carry no horizontal momentum).
+    if player.ladderCatchGrace then
+        player.ladderCatchGrace = player.ladderCatchGrace - dt
+        if player.ladderCatchGrace <= 0 then
+            player.ladderCatchGrace = nil
+        else
+            return
+        end
+    end
+
+    local ladders = PlayerSensors.queryAllLadders(world, player.collider)
+    if PlayerMovement.shouldCatchFall(onGround, ladders) then
+        player.fsm:setState('LadderState')
     end
 end
 
