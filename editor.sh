@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Define the path to the local AppImage
-LOCAL_LOVE="$PWD/bin/love.AppImage"
+EDITOR_LOCAL="$PWD/bin/tiled.AppImage"
 
 # Check if the local AppImage exists
-if [ -f "$LOCAL_LOVE" ]; then
+if [ -f "$EDITOR_LOCAL" ]; then
     echo "Using local bin..."
-    "$LOCAL_LOVE" "$PWD" "$@"
+    "$EDITOR_LOCAL" "$PWD" "$@"
 else
     echo "Local bin not found. Falling back to system default..."
-    love "$PWD" "$@"
+    tiled "$PWD" "$@"
 fi
