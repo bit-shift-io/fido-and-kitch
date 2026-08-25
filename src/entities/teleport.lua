@@ -1,5 +1,6 @@
 local Teleport = Class{__includes = Entity}
 local TeleportTrail = require('src.fx.teleport_trail')
+local TeleportBurst = require('src.fx.teleport_burst')
 
 function Teleport:init(object, map)
 	Entity.init(self, object, 'teleport')
@@ -87,6 +88,13 @@ function Teleport:use(user)
 		local curve = TeleportTrail.generateCurve({x = startX, y = startY}, {x = destX, y = destY})
 		local duration = TeleportTrail.calculateTravelDuration(dist)
 		
+		-- Spawn ENTRY burst at source
+		if self.map and self.map.fx then
+			self.map.fx:add(TeleportBurst{
+				position = {x = startX, y = startY},
+			})
+		end
+		
 		-- Spawn travel particle effect
 		if self.map and self.map.fx then
 			self.map.fx:add(TeleportTrail{
@@ -97,12 +105,21 @@ function Teleport:use(user)
 			})
 		end
 		
+		-- Get camera from InGameState for tracking during travel
+		local camera = nil
+		if game and game.fsm and game.fsm.currentState and game.fsm.currentState.camera then
+			camera = game.fsm.currentState.camera
+		end
+		
 		-- Enter travel state on player
 		user.fsm:setState('TeleportTravelState', {
 			curve = curve,
 			duration = duration,
 			destX = destX,
 			destY = destY,
+			camera = camera,
+			sourceTeleport = self,
+			targetTeleport = self.target.entity,
 		})
 		
 		-- Play exit sound at destination

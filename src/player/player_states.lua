@@ -1,6 +1,7 @@
 local PlayerMovement = require('src.player.player_movement')
 local PlayerSensors = require('src.player.player_sensors')
 local Log = require('src.utils.log')
+local TeleportTrail = require('src.fx.teleport_trail')
 
 local LadderState = Class{}
 
@@ -552,6 +553,9 @@ function TeleportTravelState:enter(prevState, params)
     self.duration = params.duration
     self.destX = params.destX
     self.destY = params.destY
+    self.camera = params.camera
+    self.sourceTeleport = params.sourceTeleport
+    self.targetTeleport = params.targetTeleport
     self.elapsed = 0
     
     -- Hide player
@@ -564,11 +568,33 @@ function TeleportTravelState:enter(prevState, params)
     
     -- Stop any current animation
     player:setAnimation('idle')
+    
+    -- Add camera extra target to track the player during travel
+    if self.camera then
+        self.camera:addExtraTarget('teleport_travel', {
+            x = self.curve.startX - 16,
+            y = self.curve.startY - 16,
+            w = 32,
+            h = 32,
+        })
+    end
 end
 
 function TeleportTravelState:update(dt)
     local player = self.entity
     self.elapsed = self.elapsed + dt
+    
+    -- Update camera extra target position along the curve
+    if self.camera then
+        local t = math.min(self.elapsed / self.duration, 1)
+        local pos = TeleportTrail.computeCurvePoint(self.curve, t)
+        self.camera:addExtraTarget('teleport_travel', {
+            x = pos.x - 16,
+            y = pos.y - 16,
+            w = 32,
+            h = 32,
+        })
+    end
     
     if self.elapsed >= self.duration then
         -- Teleport complete - move player to destination
@@ -580,6 +606,19 @@ end
 
 function TeleportTravelState:exit()
     local player = self.entity
+    
+    -- Spawn EXIT burst at destination
+    if self.targetTeleport and self.targetTeleport.map and self.targetTeleport.map.fx then
+        local TeleportBurst = require('src.fx.teleport_burst')
+        self.targetTeleport.map.fx:add(TeleportBurst{
+            position = {x = self.destX, y = self.destY},
+        })
+    end
+    
+    -- Remove camera extra target
+    if self.camera then
+        self.camera:removeExtraTarget('teleport_travel')
+    end
     
     -- Show player
     player.visible = true
