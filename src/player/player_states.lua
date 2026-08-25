@@ -544,10 +544,57 @@ function WrappedState:update(dt)
     end
 end
 
+local TeleportTravelState = Class{}
+
+function TeleportTravelState:enter(prevState, params)
+    local player = self.entity
+    self.curve = params.curve
+    self.duration = params.duration
+    self.destX = params.destX
+    self.destY = params.destY
+    self.elapsed = 0
+    
+    -- Hide player
+    player.visible = false
+    
+    -- Make collider kinematic with no gravity
+    player.collider:setType('kinematic')
+    player.collider:setGravityScale(0)
+    player.collider:setLinearVelocity(0, 0)
+    
+    -- Stop any current animation
+    player:setAnimation('idle')
+end
+
+function TeleportTravelState:update(dt)
+    local player = self.entity
+    self.elapsed = self.elapsed + dt
+    
+    if self.elapsed >= self.duration then
+        -- Teleport complete - move player to destination
+        player.collider:setPosition(self.destX, self.destY)
+        -- Transition to WalkIdleState
+        player.fsm:setState('WalkIdleState')
+    end
+end
+
+function TeleportTravelState:exit()
+    local player = self.entity
+    
+    -- Show player
+    player.visible = true
+    
+    -- Restore physics
+    player.collider:setType('dynamic')
+    player.collider:setGravityScale(1)
+    player.collider:setLinearVelocity(0, 0)
+end
+
 return {
     LadderState = LadderState,
     WalkIdleState = WalkIdleState,
     FallState = FallState,
     DeadState = DeadState,
     WrappedState = WrappedState,
+    TeleportTravelState = TeleportTravelState,
 }

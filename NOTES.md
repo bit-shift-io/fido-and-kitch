@@ -38,3 +38,41 @@ under ladder tops so the player can walk along the top.
 - `src/player/player_states.lua` — LadderState canTransition/update
 - `src/player/player_sensors.lua` — catch query
 - `src/entities/mover_platform.lua` — one-way colFilterFn pattern reference
+
+---
+
+# Teleporter Travel FX (2026-08-25)
+
+Grill notes. Scope: replace instant teleport with cinematic travel along a
+generated curve.
+
+## Confirmed model (asked + answered)
+
+1. **Travel is cinematic (locked):** player input disabled during travel;
+   a `TeleportTravelState` takes over until arrival.
+2. **Path = auto-generated wobbly curve:** gentle 1/2 sine wave with
+   perpendicular wiggle for magical feel. Control points computed from
+   source/destination positions — no Tiled authoring needed.
+3. **Duration scales with distance:** base ~0.8s + ~0.002s per world pixel
+   (tunable). Min ~0.5s, max ~3s.
+4. **Player hidden, particles only:** player entity becomes invisible;
+   a custom particle effect (`TeleportTrail`) travels the curve, emitting
+   wavy/oscillating magical particles. No ghost sprite.
+5. **Parallel co-op travel:** both players can travel simultaneously on
+   independent curves with independent particle effects.
+6. **New particle preset:** `src/fx/teleport_trail.lua` — oscillating
+   particles along a parametric curve (sine wave + perpendicular noise).
+7. **No beam/link between pads:** only the travel particles; teleporter
+   entities themselves unchanged visually.
+8. **Sound:** keep existing `in`/`out` sounds at source/destination; add
+   optional travel loop sound if asset exists.
+
+## Touchpoints
+
+- `src/entities/teleport.lua` — `use()` becomes async; spawns travel effect,
+  sets player into `TeleportTravelState`
+- `src/player/player_states.lua` — new `TeleportTravelState` class
+- `src/player/player.lua` — add travel state to FSM, handle visibility toggle
+- `src/fx/teleport_trail.lua` — new particle preset (curve + oscillating emit)
+- `src/fx/manager.lua` — register travel effect via `map.fx:add()`
+- `src/map/init.lua` — ensure `map.fx` accessible for teleport to add effect

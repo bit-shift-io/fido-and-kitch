@@ -37,7 +37,7 @@ function StateMachine:tryTransition(name)
     return false
 end
 
-function StateMachine:setState(name)
+function StateMachine:setState(name, ...)
     local prevState = self.currentState;
     local nextState = self.states[name];
 
@@ -50,7 +50,7 @@ function StateMachine:setState(name)
     end
 
     if (nextState ~= nil and nextState.enter ~= nil) then
-      nextState:enter(prevState);
+      nextState:enter(prevState, ...);
     end
 
     self.currentState = nextState;

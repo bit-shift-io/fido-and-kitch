@@ -1,7 +1,9 @@
 local Teleport = Class{__includes = Entity}
+local TeleportTrail = require('src.fx.teleport_trail')
 
 function Teleport:init(object, map)
 	Entity.init(self, object, 'teleport')
+	self.map = map
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 	self.target = object.properties.target and map:getObjectById(object.properties.target.id)
@@ -67,16 +69,43 @@ function Teleport:use(user)
 	if self.target then
 		self.sound:play('in')
 
-		-- center the player in the teleporter
+		-- Calculate travel parameters
 		local user_bounds = user.collider:getBounds()
-
+		local startX = user.collider:getX()
+		local startY = user.collider:getY()
+		
 		local t_x = self.target.x + self.target.width * 0.5
 		local t_y = self.target.y
-
-		local x = t_x
-		local y = t_y - user_bounds.height * 0.5
-		user.collider:setPosition(x, y)
-
+		local destX = t_x
+		local destY = t_y - user_bounds.height * 0.5
+		
+		local dx = destX - startX
+		local dy = destY - startY
+		local dist = math.sqrt(dx*dx + dy*dy)
+		
+		-- Generate curve and calculate duration
+		local curve = TeleportTrail.generateCurve({x = startX, y = startY}, {x = destX, y = destY})
+		local duration = TeleportTrail.calculateTravelDuration(dist)
+		
+		-- Spawn travel particle effect
+		if self.map and self.map.fx then
+			self.map.fx:add(TeleportTrail{
+				curve = curve,
+				duration = duration,
+				start = {x = startX, y = startY},
+				dest = {x = destX, y = destY},
+			})
+		end
+		
+		-- Enter travel state on player
+		user.fsm:setState('TeleportTravelState', {
+			curve = curve,
+			duration = duration,
+			destX = destX,
+			destY = destY,
+		})
+		
+		-- Play exit sound at destination
 		if self.target.entity then
 			self.target.entity.sound:play('out')
 		end
