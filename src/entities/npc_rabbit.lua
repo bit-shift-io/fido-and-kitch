@@ -15,8 +15,8 @@ function RabbitNPC:init(props)
         idleImage = 'res/img/npc_rabbit_idle.png',
         width = 32,
         height = 32,
-        colliderWidth = 16,
-        colliderHeight = 16,
+        colliderWidth = 32,
+        colliderHeight = 32,
         maxSpeed = 80,
         acceleration = 350,
         deceleration = 500,
@@ -33,7 +33,7 @@ function RabbitNPC:init(props)
         triggerSwitches = false,
         invulnerableTime = 0.5,
         followDistance = 40,
-        hopHeight = 120,
+        hopHeight = 60,
         hopCooldown = 0.5,
         despawnDistance = 200,
     }
@@ -46,6 +46,8 @@ function RabbitNPC:init(props)
     
     -- Ensure collider is walkable for platform riding
     self.collider.walkable = true
+    -- Make rabbit pass through players and cages (non-solid vs those entity types)
+    self.collider.nonSolidEntityTypes = { player = true, cage = true }
     self.hopTimer = 0
 end
 

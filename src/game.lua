@@ -49,6 +49,11 @@ function Game:load(props)
 end
 
 function Game:update(dt)
+    if conf.ultraslow then
+        dt = dt * 0.0001  -- 0.01% speed (ultra slow motion)
+    elseif conf.slowmo then
+        dt = dt * 0.1  -- 10% speed (slow motion)
+    end
     self.fsm:update(dt)
 end
 
@@ -93,6 +98,16 @@ function Game:keypressed(k)
     if k == "f4" then
         Log.debug('toggle grid overlay')
         conf.draw_grid = not conf.draw_grid
+    end
+
+    if k == "f5" then
+        Log.debug('toggle slow motion')
+        conf.slowmo = not conf.slowmo
+    end
+
+    if k == "f6" then
+        Log.debug('toggle ultra slow motion')
+        conf.ultraslow = not conf.ultraslow
     end
 
     if k == "f11" or (k == "return" and love.keyboard.isDown('lalt', 'ralt')) then

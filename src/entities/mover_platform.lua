@@ -333,11 +333,11 @@ function MoverPlatform:carryRiders(delta)
 
 	for _, collider in ipairs(overlap) do
 		local entity = collider.entity
-		if entity and entity.type == 'player' then
+		local isPlayer = entity and entity.type == 'player'
+		local canRide = isPlayer or (entity and entity.config and entity.config.ridePlatforms)
+		if entity and canRide then
 			local feet = collider.y + collider.height
 			local onTop = feet >= platTop - RIDER_TOL and feet <= platTop + RIDER_TOL
-			-- horizontal overlap is not implied by the grown query: a player
-			-- off the platform's edge passes the vertical band but not this
 			local horizOverlap = collider.x < bounds.right and collider.x + collider.width > bounds.left
 			if onTop and horizOverlap then
 				collider:setPositionV(collider:getPositionV() + delta)

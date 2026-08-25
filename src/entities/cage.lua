@@ -64,9 +64,14 @@ function Cage:init(object, map)
 	local npcProps = {properties = {}}
 	
 	-- Spawn the NPC at the cage's own position (Tiled tile objects are
-	-- bottom-edge anchored, so preserve gid for Rect.centreOfMapObject)
+	-- bottom-edge anchored). Use the original object so NPCBase.initPosition
+	-- computes the correct center via Rect.centreOfMapObject: for a tile object
+	-- at y (bottom edge), center is at y - height/2. With rabbit height 32,
+	-- this puts rabbit bottom exactly at the cage's bottom (object.y).
 	npcProps.x = object.x
 	npcProps.y = object.y
+	npcProps.width = object.width
+	npcProps.height = object.height
 	npcProps.gid = object.gid
 	
 	self.spawnNpcType = npcType
@@ -90,6 +95,12 @@ function Cage:use(user)
 
 	if self.actor == nil then
 		return
+	end
+	-- Nudge up 16px so rabbit spawns above cage and falls cleanly onto floor
+	if self.actor.collider then
+		local cx, cy = self.actor.x, self.actor.y
+		self.actor.collider:setPosition(cx, cy - 16)
+		self.actor.x, self.actor.y = cx, cy - 16
 	end
 	-- Set the NPC to follow the player who opened the cage
 	if self.actor.setTarget then
