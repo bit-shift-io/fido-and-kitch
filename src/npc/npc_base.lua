@@ -169,57 +169,71 @@ function NPCBase:initStateMachine()
     self.stateMachine = self:addComponent(stateMachine)
 end
 
-function NPCBase:update(dt)
-    -- Check for kill zone collisions directly using global world
-    if world then
-        local bounds = self.collider:getBounds()
-        bounds.left = bounds.left + KILL_ZONE_INSET
-        bounds.right = bounds.right - KILL_ZONE_INSET
-        bounds.top = bounds.top + KILL_ZONE_INSET
-        bounds.bottom = bounds.bottom - KILL_ZONE_INSET
-        
-        local cols = world:queryBounds(bounds)
-        for _, other in ipairs(cols) do
-            if other.entity and other.entity.isKillZone then
-                self:die(other.entity.deathType)
-                return
-            end
+-- Kill-zone overlap check: probe the world just inside the collider bounds
+-- and die immediately if any kill zone is found.
+local function checkKillZones(npc)
+    if not world then return end
+    local bounds = npc.collider:getBounds()
+    bounds.left   = bounds.left   + KILL_ZONE_INSET
+    bounds.right  = bounds.right  - KILL_ZONE_INSET
+    bounds.top    = bounds.top    + KILL_ZONE_INSET
+    bounds.bottom = bounds.bottom - KILL_ZONE_INSET
+
+    local cols = world:queryBounds(bounds)
+    for _, other in ipairs(cols) do
+        if other.entity and other.entity.isKillZone then
+            npc:die(other.entity.deathType)
+            return true
         end
     end
-    
-    -- Detect nearby players for follow/chase behavior
-    if players and #players > 0 then
-        local closest = nil
-        local closestDist = self.config.detectionRadius
-        for _, player in ipairs(players) do
-            if player and not player.dead and player.collider then
-                local px = player.collider:getX()
-                local py = player.collider:getY()
-                local dx = px - self.x
-                local dy = py - self.y
-                local dist = math.sqrt(dx * dx + dy * dy)
-                if dist < closestDist then
-                    closestDist = dist
-                    closest = {x = px, y = py}
-                end
-            end
-        end
-        self:setTarget(closest)
-    end
-    
-    -- Despawn to target if too far away (for friendly NPCs)
-    if self.config.despawnDistance > 0 and self.target and not self:isDead() then
-        local tx, ty = self:getTargetPos()
-        if tx then
-            local dx = tx - self.x
-            local dy = ty - self.y
+    return false
+end
+
+-- Scan all players and set the NPC's target to the closest one within
+-- detection radius.
+local function detectNearestPlayer(npc)
+    if not players or #players == 0 then return end
+    local closest, closestDist = nil, npc.config.detectionRadius
+    for _, player in ipairs(players) do
+        if player and not player.dead and player.collider then
+            local px = player.collider:getX()
+            local py = player.collider:getY()
+            local dx, dy = px - npc.x, py - npc.y
             local dist = math.sqrt(dx * dx + dy * dy)
-            if dist > self.config.despawnDistance then
-                self:despawnToTarget()
+            if dist < closestDist then
+                closestDist = dist
+                closest = {x = px, y = py}
             end
         end
     end
-    
+    npc:setTarget(closest)
+end
+
+-- Despawn a friendly NPC that has wandered beyond its configured radius
+-- from the current target.
+local function checkDespawn(npc)
+    if npc.config.despawnDistance <= 0 or not npc.target or npc:isDead() then
+        return
+    end
+    local tx, ty = npc:getTargetPos()
+    if not tx then return end
+    local dx, dy = tx - npc.x, ty - npc.y
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist > npc.config.despawnDistance then
+        npc:despawnToTarget()
+    end
+end
+
+function NPCBase:update(dt)
+    -- Kill zones first — no update logic should run after death
+    if checkKillZones(self) then return end
+
+    -- Detect nearby players for follow/chase behavior
+    detectNearestPlayer(self)
+
+    -- Despawn to target if too far away (friendly NPCs)
+    checkDespawn(self)
+
     -- Calculate utilities and transition state FIRST
     -- Skip if dead - DeadState handles its own transitions
     if not self:isDead() then
@@ -229,15 +243,15 @@ function NPCBase:update(dt)
             self.stateMachine:setState(bestState)
         end
     end
-    
+
     -- Update invulnerability timer
     if self.invulnerableTimer > 0 then
         self.invulnerableTimer = self.invulnerableTimer - dt
     end
-    
+
     -- Now call Entity.update which will call StateMachine.update -> currentState:update
     Entity.update(self, dt)
-    
+
     -- Sync position from collider after physics
     if self.collider then
         self.x = self.collider:getX()
@@ -249,27 +263,30 @@ function NPCBase:calculateUtilities()
     local utils = {}
     local config = self.config
     local target = self.target
-    
+
     -- Idle: always available, low base score
     utils.idle = self.utilityWeights.idle
-    
+
+    -- Compute target distance once for all branches that need it
+    local tx, ty, dist
+    if target then
+        tx, ty = self:getTargetPos()
+        dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
+    end
+
     -- Wander: available when no target or target far away
     if not target then
         utils.wander = self.utilityWeights.wander
     else
-        local tx, ty = self:getTargetPos()
-        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         if dist > config.detectionRadius * 1.5 then
             utils.wander = self.utilityWeights.wander * 0.5
         else
             utils.wander = 0
         end
     end
-    
+
     -- Chase: high when target detected and hostile
     if target and config.behavior ~= 'follow' then
-        local tx, ty = self:getTargetPos()
-        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         if dist <= config.detectionRadius then
             utils.chase = self.utilityWeights.chase * (1 - dist / config.detectionRadius)
         else
@@ -278,27 +295,23 @@ function NPCBase:calculateUtilities()
     else
         utils.chase = 0
     end
-    
+
     -- Follow: high when behavior is follow and target exists
     if target and config.behavior == 'follow' then
-        local tx, ty = self:getTargetPos()
-        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         utils.follow = self.utilityWeights.follow * (1 - math.min(1, dist / (config.detectionRadius * 2)))
     else
         utils.follow = 0
     end
-    
+
     -- Patrol: active when behavior is 'patrol' and no target
     if config.behavior == 'patrol' and not target then
         utils.patrol = self.utilityWeights.patrol
     else
         utils.patrol = 0
     end
-    
+
     -- Attack: very high when in attack range
     if target then
-        local tx, ty = self:getTargetPos()
-        local dist = (Vector(self.x, self.y) - Vector(tx, ty)):len()
         if dist <= config.attackRange then
             utils.attack = self.utilityWeights.attack
         else
@@ -307,7 +320,7 @@ function NPCBase:calculateUtilities()
     else
         utils.attack = 0
     end
-    
+
     -- Flee: high when low health
     local healthRatio = self.health / self.maxHealth
     if healthRatio <= config.fleeThreshold then
@@ -315,7 +328,7 @@ function NPCBase:calculateUtilities()
     else
         utils.flee = 0
     end
-    
+
     return utils
 end
 
@@ -404,31 +417,6 @@ function NPCBase:applyPush(dx, dy)
     self.collider:setLinearVelocity(vx + dx * force, vy + dy * force)
 end
 
-function NPCBase:onCollision(other, dx, dy)
-    -- Handle pushing other entities
-    if other and other.config and other.config.canBePushed and self.config.canPush then
-        local pushDir = (Vector(other.x - self.x, other.y - self.y)):normalized()
-        other:applyPush(pushDir.x, pushDir.y)
-    end
-    
-    -- Handle trigger/switch interaction
-    if other and other.isSwitch and self.config.triggerSwitches then
-        other:activate(self)
-    end
-    
-    -- Handle kill zone interaction
-    if other and other.isKillZone then
-        self:die(other.deathType)
-        return
-    end
-    
-    -- Handle platform riding (for entities with ridePlatforms = true)
-    if other and other.isMovingPlatform and self.config.ridePlatforms then
-        local otherVx, otherVy = other.collider:getLinearVelocity()
-        self.collider:setLinearVelocity(otherVx, otherVy)
-    end
-end
-
 function NPCBase:isOnGround()
     if self.collider then
         local w = self.collider.world or world
@@ -480,13 +468,6 @@ end
 
 function NPCBase:isDead()
     return self.stateMachine and self.stateMachine.currentState and self.stateMachine.currentState.name == 'DeadState'
-end
-
-function NPCBase:getSprite()
-    if self.animations and self.animations.currentState then
-        return self.animations.currentState
-    end
-    return nil
 end
 
 function NPCBase:despawnToTarget()

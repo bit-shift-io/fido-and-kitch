@@ -1,16 +1,35 @@
 -- Auto-zoom camera: frames all players (plus transient extra targets like a
--- dying player's respawn point), zooming/panning smoothly between a min 5x5
--- tile view and the full map. Pure Lua (no love.* calls) so the framing and
--- smoothing math run under the headless test runner; InGameState supplies
--- screen/map size and reads back draw params each frame.
+-- dying player's respawn point), zooming/panning smoothly between a min 6x6
+-- tile view (DEFAULT_MIN_VIEW_TILES) and the full map. Pure Lua (no love.*
+-- calls) so the framing and smoothing math run under the headless test
+-- runner; InGameState supplies screen/map size and reads back draw params
+-- each frame.
 local Camera = {}
 Camera.__index = Camera
+
+--- A structured record bundling the4 values that describe the current
+--- camera projection. Every draw call that needs to position world-space
+--- content on screen accepts a single ViewRect instead of four loose
+--- positional args, eliminating order-slip bugs.
+---   tx, ty  — top-left corner of the projected world rect (screen px)
+---   sx, sy  — scale factors (always equal; stored as a pair for API compat)
+local ViewRect = {tx = 0, ty = 0, sx = 1, sy = 1}
+ViewRect.__index = ViewRect
+
+function ViewRect.new(tx, ty, sx, sy)
+	return setmetatable({tx = tx or 0, ty = ty or 0, sx = sx or 1, sy = sy or sx or 1}, ViewRect)
+end
 
 local DEFAULT_MARGIN_TILES = 6
 local DEFAULT_MIN_VIEW_TILES = 6
 local DEFAULT_TILE_SIZE = 32
 -- exponential decay rate; ~5 half-lives (1 - e^-6 ~= 0.9975) settle inside 0.5s
 local DEFAULT_DECAY = 12
+
+-- Shared constants for modules that mirror camera framing semantics
+-- (parallax_renderer, etc.) so the values never silently diverge.
+Camera.DEFAULT_MIN_VIEW_TILES = DEFAULT_MIN_VIEW_TILES
+Camera.DEFAULT_TILE_SIZE      = DEFAULT_TILE_SIZE
 
 local function unionBounds(targets)
 	local minX, minY, maxX, maxY
@@ -228,19 +247,14 @@ function Camera:update(dt, playerTargets)
 	return target
 end
 
-function Camera:getCenter()
-	return self.cx, self.cy
-end
-
-function Camera:getZoom()
-	return self.scale
-end
-
 -- tx, ty, sx, sy for Map:draw2 -- centres (cx, cy) on screen at the current zoom.
+-- Returns a ViewRect record instead of four loose positional args.
 function Camera:getDrawParams()
 	local tx = self.screenW / 2 - self.cx * self.scale
 	local ty = self.screenH / 2 - self.cy * self.scale
-	return tx, ty, self.scale, self.scale
+	return ViewRect.new(tx, ty, self.scale, self.scale)
 end
+
+Camera.ViewRect = ViewRect
 
 return Camera

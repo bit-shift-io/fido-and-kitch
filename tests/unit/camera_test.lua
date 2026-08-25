@@ -257,11 +257,11 @@ end)
 
 test('getDrawParams centres the camera position on screen at the current zoom', function()
 	local camera = Camera.new{screenW = SCREEN_W, screenH = SCREEN_H, mapW = MAP_W, mapH = MAP_H, tileW = TILE}
-	local tx, ty, sx, sy = camera:getDrawParams()
+	local vr = camera:getDrawParams()
 
-	assertNear(camera.cx, (SCREEN_W / 2 - tx) / sx, 0.01)
-	assertNear(camera.cy, (SCREEN_H / 2 - ty) / sy, 0.01)
-	assertEqual(sx, sy)
+	assertNear(camera.cx, (SCREEN_W / 2 - vr.tx) / vr.sx, 0.01)
+	assertNear(camera.cy, (SCREEN_H / 2 - vr.ty) / vr.sy, 0.01)
+	assertEqual(vr.sx, vr.sy)
 end)
 
 -- ===== Issue 05: world padding =====

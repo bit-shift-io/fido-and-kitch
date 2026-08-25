@@ -12,11 +12,11 @@
 -- design and DECISIONS.md Q3/Q4 for why the old flag-based model could get
 -- permanently stuck open.
 --
--- Single file, not the multi-file directory ADR 0003 originally called
+-- Single file, not the multi-file directory NOTES.md originally called
 -- for: that split existed solely so the pure decision helpers below could
 -- be required from tests/unit/, which cannot construct a Sprite/Collider-
 -- composing entity headless. tests/support/headless_bootstrap.lua now
--- makes that construction possible directly (see docs/adr/0005), so the
+-- makes that construction possible directly (see NOTES.md), so the
 -- helpers stay private locals here instead of a separate _support module.
 -- See tests/unit/drawbridge_test.lua for the entity-level tests this
 -- enables.

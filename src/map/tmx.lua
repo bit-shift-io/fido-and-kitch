@@ -1,6 +1,6 @@
 -- Parses a Tiled .tmx map directly into the table structure Tiled's Lua
 -- export plugin emits, so the vendored map loader (lib/sti) needs no
--- changes to consume it. See docs/adr/0004-direct-tmx-loading.md for why,
+-- changes to consume it. See NOTES.md for the decision rationale,
 -- and .scratch/tmx-direct-loading/DECISIONS.md for the field-by-field
 -- verification this shape is checked against.
 --

@@ -1,6 +1,7 @@
 -- src/npc/states/flee_state.lua
 local Class = require('lib.hump.class')
 local Vector = require('lib.hump.vector')
+local NpcLocomotion = require('src.npc.npc_locomotion')
 
 local FleeState = Class{}
 
@@ -10,11 +11,7 @@ function FleeState:enter(prevState)
 end
 
 function FleeState:update(dt)
-    -- Defensive check for dt being a table
-    if type(dt) ~= 'number' then
-        Log.error("FleeState:update received non-number dt:", type(dt), dt)
-        dt = 1/60  -- fallback
-    end
+    dt = NpcLocomotion.sanitizeDt(dt, "FleeState")
     local entity = self.entity
     
     if not entity.target then return end
@@ -29,16 +26,7 @@ function FleeState:update(dt)
     if dist < 1 then return end
     
     local dir = Vector(dx, dy):normalized()
-    local accel = entity.config.acceleration or 400
-    local maxSpeed = entity.config.maxSpeed or 100
-    
-    local vx, vy = entity.collider:getLinearVelocity()
-    vx = vx + dir.x * accel * dt
-    
-    if math.abs(vx) > maxSpeed then
-        vx = (vx > 0 and 1 or -1) * maxSpeed
-    end
-    entity.collider:setLinearVelocity(vx, vy)
+    NpcLocomotion.stepHorizontal(entity, dir.x, dt, 400, 100)
 end
 
 function FleeState:exit(prevState)

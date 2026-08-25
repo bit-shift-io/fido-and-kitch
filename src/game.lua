@@ -119,10 +119,5 @@ function Game:touchpressed(id, x, y)
 	self.fsm:touchpressed(id, x, y)
 end
 
-function Game:endGame()
-    Log.debug("end the game peeps!")
-    self:setGameState('MenuState')
-end
-
 
 return Game

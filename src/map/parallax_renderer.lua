@@ -1,6 +1,7 @@
 local ParallaxRenderer = {}
 ParallaxRenderer.__index = ParallaxRenderer
 
+local Camera = require('src.camera')
 local mapParallax = require('src.map.map_parallax')
 local lg = love.graphics
 
@@ -15,10 +16,11 @@ local function clamp(v, lo, hi)
 	return v
 end
 
-function ParallaxRenderer:drawBackground(map, tx, ty, sx, sy, playerTargets)
+function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
 	if not lg then return end
 	if not map.backgroundMap then return end
 
+	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
 	local screenW, screenH = lg.getWidth(), lg.getHeight()
 
 	-- Slide reference: the players' average position (union-bounds midpoint),
@@ -41,8 +43,8 @@ function ParallaxRenderer:drawBackground(map, tx, ty, sx, sy, playerTargets)
 	-- Reference zooms for zoomT, matching Camera.computeFraming semantics:
 	-- the full-map view scale (whole map flush to screen) and the closest
 	-- view scale (the minimum minViewTiles-tile span).
-	local minViewTiles = 6
-	local tileSize = 32
+	local minViewTiles = Camera.DEFAULT_MIN_VIEW_TILES
+	local tileSize     = Camera.DEFAULT_TILE_SIZE
 	local fullMapScale = math.min(screenW / mapW, screenH / mapH)
 	local closestScale = math.min(screenW / (minViewTiles * tileSize), screenH / (minViewTiles * tileSize))
 	local zoomT = mapParallax.computeZoomT(sx, fullMapScale, closestScale)
@@ -102,11 +104,11 @@ function ParallaxRenderer:drawBackground(map, tx, ty, sx, sy, playerTargets)
 	lg.setScissor()
 end
 
-function ParallaxRenderer:drawMainLayers(map, tx, ty, sx, sy)
+function ParallaxRenderer:drawMainLayers(map, viewRect)
 	lg.push()
 	lg.origin()
-	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
-	lg.scale(sx or 1, sy or sx or 1)
+	lg.translate(math.floor(viewRect.tx or 0), math.floor(viewRect.ty or 0))
+	lg.scale(viewRect.sx or 1, viewRect.sy or viewRect.sx or 1)
 	lg.setColor(1, 1, 1, 1)
 
 	for _, layer in ipairs(map.layers) do
@@ -133,9 +135,9 @@ function ParallaxRenderer:drawMainLayers(map, tx, ty, sx, sy)
 	lg.pop()
 end
 
-function ParallaxRenderer:draw(map, tx, ty, sx, sy, playerTargets)
-	self:drawBackground(map, tx, ty, sx, sy, playerTargets)
-	self:drawMainLayers(map, tx, ty, sx, sy)
+function ParallaxRenderer:draw(map, viewRect, playerTargets)
+	self:drawBackground(map, viewRect, playerTargets)
+	self:drawMainLayers(map, viewRect)
 end
 
 return ParallaxRenderer

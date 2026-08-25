@@ -1,6 +1,6 @@
 # Agent Context for Fido and Kitch
 
-Fido and Kitch is a LÖVE 2D (12.0) puzzle-platformer with local couch co-op: two players (dog and cat) solve bite-sized levels built in Tiled. Written in LuaJIT-style Lua. `CLAUDE.md` and `GEMINI.md` point here; `CONTEXT.md` is a glossary of domain terms (camera, framing targets, etc.); design decisions live in `docs/adr/`.
+Fido and Kitch is a LÖVE 2D (12.0) puzzle-platformer with local couch co-op: two players (dog and cat) solve bite-sized levels built in Tiled. Written in LuaJIT-style Lua. `CLAUDE.md` and `GEMINI.md` point here; `CONTEXT.md` is a glossary of domain terms (camera, framing targets, etc.); design decisions live in `NOTES.md`.
 
 ## Commands
 
@@ -84,7 +84,7 @@ love . debug drawphysics map=sandbox
 - **Classes** use hump: `local Thing = Class{}` … `function Thing:init(props)`; entities use `Class{__includes = Entity}` and call `Entity.init(self)` in `init`.
 - **Components** attach via `self:addComponent(Component{...})`; `Entity:update/draw` forward to components. Use `queueRemove()`/`queueDestroy()` instead of removing entities mid-iteration.
 - **State machines** (`src/components/state_machine.lua`) accept `states` (instances) or `stateClasses` (instantiated and wired to `entity`); unknown method calls proxy to `currentState`.
-- **New map entity** = new `src/entities/<type>.lua` + Tiled object with matching `type`. `Map.typeIgnores = {'', 'spawn'}` skips those types. Tiled object properties may contain executable Lua event snippets (`object:exec`) — treat map code as trusted, don't feed it user input. An entity that needs more than one file gets a directory named after the entity type instead (`src/entities/<type>/<type>.lua` + siblings, real filenames kept, no `init.lua`) — stay flat until you need a second file. See ADR 0003 (`docs/adr/0003-multi-file-entity-directories.md`). A pure-logic `_support.lua` split purely to dodge "can't construct headless" is no longer needed — `tests/support/headless_bootstrap.lua` (see ADR 0005) makes a real entity constructible in `tests/unit/`; `src/entities/drawbridge.lua` and `src/entities/pressure_switch.lua` are the examples, each with its own decision helpers kept private and exposed to its test file only via an `_internal` white-box seam (`Drawbridge._internal`, `PressureSwitch._internal`).
+- **New map entity** = new `src/entities/<type>.lua` + Tiled object with matching `type`. `Map.typeIgnores = {'', 'spawn'}` skips those types. Tiled object properties may contain executable Lua event snippets (`object:exec`) — treat map code as trusted, don't feed it user input. An entity that needs more than one file gets a directory named after the entity type instead (`src/entities/<type>/<type>.lua` + siblings, real filenames kept, no `init.lua`) — stay flat until you need a second file. See NOTES.md (multi-file entity directories). A pure-logic `_support.lua` split purely to dodge "can't construct headless" is no longer needed — `tests/support/headless_bootstrap.lua` (see NOTES.md) makes a real entity constructible in `tests/unit/`; `src/entities/drawbridge.lua` and `src/entities/pressure_switch.lua` are the examples, each with its own decision helpers kept private and exposed to its test file only via an `_internal` white-box seam (`Drawbridge._internal`, `PressureSwitch._internal`).
 - **Player entity** is split across `src/player/player.lua` (bootstrap), `src/player/player_sensors.lua` (spatial queries), `src/player/player_movement.lua` (movement math), and `src/player/player_states.lua` (FSM states). New sensor/movement logic goes in the respective module.
 - **Game states** live in `src/states/` — one file per state (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`).
 - **Physics:** go through `Collider`/`World`, not `src.physics.bump` directly, unless the task is backend-specific. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
@@ -108,7 +108,7 @@ local holdFor = require('tests.support.fake_input').holdFor
 local Capture = require('tests.support.capture')  -- e2e tier only
 
 -- Start game (headless integration: omit {real=true}; headed e2e: include it)
-local game = GameHarness.startGame('res/map/level1.lua', {real = true})
+local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
 local controller = FakeInput.new()
 
 -- Keyboard input (P1 uses arrow keys + rshift; P2 uses WASD + Q)
@@ -211,7 +211,6 @@ Set `FIDO_KITCH_IPC_PORT` env var for custom port (default 8081).
 
 ## Gotchas
 
-- CI workflows reference `./install.sh`, which doesn't exist — the script is `setup.sh`.
 - `makelove.toml` `love_files` uses shallow globs (`./src/*`, `./res/*`); verify nested files are included if touching packaging.
 - Controls: P1 arrows + right-shift (use); P2 WASD + Q; joystick axes + button 1.
 - **An entity's own solid collider isn't "ground" by default.** `Player:queryOnGround()`/`GroundSupport` only treat a collider with no owning entity as ground; a custom entity collider a player should be able to stand and walk on (e.g. `src/entities/drawbridge.lua`'s deck) needs `collider.walkable = true` set explicitly, or the player gets stuck in `FallState` — physically supported but unable to walk — the moment they step onto it. Only discovered under real rendering (`tests/e2e/`), since the headless mock never exercises `love.graphics`.

@@ -13,6 +13,48 @@ local InGameState = Class{__includes = BaseState}
 
 local GAME_OVER_ZOOM_DELAY = 0.6
 
+local function spawnPlayers(self, map, playerCount)
+    local players = {}
+    local spawnPoints = {}
+    for _, layer in ipairs(map.layers) do
+        if layer.type == "objectgroup" then
+            for _, object in ipairs(layer.objects) do
+                if object.type == 'spawn' then
+                    table.insert(spawnPoints, {object = object, layer = layer})
+                end
+            end
+        end
+    end
+    for i = 1, playerCount do
+        local spawnPoint = spawnPoints[(i - 1) % math.max(#spawnPoints, 1) + 1]
+        if not spawnPoint then break end
+        local entity = Player{object=spawnPoint.object, index=i}
+        entity.destroySignal:connect(utils.bindSelf(InGameState.onPlayerDestroyed, self))
+        entity:startSpawnFlash()
+        table.insert(spawnPoint.layer.entities, entity)
+        table.insert(players, entity)
+    end
+    return players
+end
+
+local function initCages(self, map)
+    local cages = map:getEntitiesByType('cage')
+    self.totalCages = #cages
+    self.unlockedCages = 0
+    Log.debug('Level has ' .. self.totalCages .. ' cages')
+    for _, cage in ipairs(cages) do
+        cage.totalCages = self.totalCages
+        cage.unlockedCount = 0
+    end
+    self.cageUnlockedHandler = EventBus.on('cage_unlocked', utils.bindSelf(InGameState.onCageUnlocked, self))
+end
+
+local function initCoins(self, map)
+    self.totalCoins = #map:getEntitiesByType('coin')
+    self.coinsCollected = 0
+    self.coinCollectedHandler = EventBus.on('coin_collected', utils.bindSelf(InGameState.onCoinCollected, self))
+end
+
 function InGameState:enter()
     Log.debug('ingame enter')
 end
@@ -22,7 +64,6 @@ function InGameState:load(props)
         profile.start()
     end
 
-    -- Clear NPC registry before loading new map to prevent accumulation across tests
     local NPCRegistry = require('src.npc.npc_registry')
     NPCRegistry.clear()
 
@@ -36,16 +77,11 @@ function InGameState:load(props)
     self.camera = AutoCamera.new{
         screenW = love.graphics.getWidth(),
         screenH = love.graphics.getHeight(),
-        mapW = mapW,
-        mapH = mapH,
-        tileW = map.map.tilewidth,
-        tileH = map.map.tileheight,
-        -- keep a gutter of void around the map at the zoom-out limit so the
-        -- diorama frame always has room to show (16 world px = half a tile)
+        mapW = mapW, mapH = mapH,
+        tileW = map.map.tilewidth, tileH = map.map.tileheight,
         padding = 16,
     }
     self.gameOverTimer = nil
-
     self.lives = Lives.defaultCount()
     local ingame = self
     self.gameHud = GameHud{
@@ -54,64 +90,15 @@ function InGameState:load(props)
         getTotal=function() return ingame.totalCoins end,
         getCameraMode=function() return ingame.camera:getMode() end,
     }
-
-    -- Debug overlay
     self.debugOverlay = DebugOverlay:new()
-    -- F3 sprite-outline debug overlay
     self.spriteOverlay = SpriteOutlineOverlay:new()
-    -- F4 grid debug overlay
     self.gridOverlay = GridOverlay:new()
 
-    self.players = {}
-    local playerCount = 2
-    -- Collect every spawn point first, then hand out one player per point
-    -- round-robin until all players are placed (wrapping if there are more
-    -- players than points) so extra spawn points never duplicate players.
-    local spawnPoints = {}
-    for li, layer in ipairs(map.layers) do
-        if layer.type == "objectgroup" then
-            for _, object in ipairs(layer.objects) do
-                if object.type == 'spawn' then
-                    table.insert(spawnPoints, {object = object, layer = layer})
-                end
-            end
-        end
-    end
-
-    for i = 1, playerCount do
-        local spawnPoint = spawnPoints[(i - 1) % math.max(#spawnPoints, 1) + 1]
-        if not spawnPoint then break end
-        local entity = Player{object=spawnPoint.object, index=i}
-        entity.destroySignal:connect(utils.bindSelf(InGameState.onPlayerDestroyed, self))
-        entity:startSpawnFlash()
-        table.insert(spawnPoint.layer.entities, entity)
-        table.insert(self.players, entity)
-    end
-
-    -- Make players globally accessible for NPC follow system
+    self.players = spawnPlayers(self, map, 2)
     _G.players = self.players
 
-    -- Count total cages in level
-    local cages = map:getEntitiesByType('cage')
-    self.totalCages = #cages
-    self.unlockedCages = 0
-    Log.debug('Level has ' .. self.totalCages .. ' cages')
-
-    -- Set cage counts on each cage entity
-    for _, cage in ipairs(cages) do
-        cage.totalCages = self.totalCages
-        cage.unlockedCount = 0
-    end
-
-    -- Listen for cage unlock events
-    self.cageUnlockedHandler = EventBus.on('cage_unlocked', utils.bindSelf(InGameState.onCageUnlocked, self))
-
-    -- Count total coins in level and listen for collection
-    self.totalCoins = #map:getEntitiesByType('coin')
-    self.coinsCollected = 0
-    self.coinCollectedHandler = EventBus.on('coin_collected', utils.bindSelf(InGameState.onCoinCollected, self))
-
-    -- Listen for player deaths via EventBus
+    initCages(self, map)
+    initCoins(self, map)
     EventBus.on('player_died', utils.bindSelf(InGameState.onPlayerDied, self))
 
     Log.debug('map loaded: ' .. self.currentMap .. ' (' .. #self.players .. ' players, '
@@ -233,20 +220,20 @@ function InGameState:update(dt)
 end
 
 function InGameState:draw()
-    local tx, ty, sx, sy = self.camera:getDrawParams()
+    local vr = self.camera:getDrawParams()
     local mapW, mapH = map:getPixelSize()
 
     -- Diorama layering: void strips -> parallax bg (scissored to the world
     -- rect) -> world tiles -> frame -> entities
-    Diorama.drawVoid(tx, ty, sx, sy, mapW, mapH)
-    map:draw2(tx, ty, sx, sy, self:collectPlayerTargets())
-    Diorama.drawFrame(tx, ty, sx, sy, mapW, mapH)
-    map:drawEntities(tx, ty, sx, sy)
+    Diorama.drawVoid(vr, mapW, mapH)
+    map:draw2(vr, self:collectPlayerTargets())
+    Diorama.drawFrame(vr, mapW, mapH)
+    map:drawEntities(vr)
 
     -- screen-space speech bubbles (follow the entity through pan/zoom, but the
     -- text stays readable at any zoom) -- drawn after entities, before the HUD
     for _, story in ipairs(map:getEntitiesByType('story')) do
-        story:drawBubbleScreen(tx, ty, sx, sy)
+        story:drawBubbleScreen(vr)
     end
 
     -- Debug overlay (hitboxes, ladders, kill zones, safe positions, etc.)
@@ -254,7 +241,7 @@ function InGameState:draw()
         self.debugOverlay.enabled = true
         local targets = self:collectPlayerTargets()
         local cameraFramingBounds = self.camera:computeTargetView(targets)
-        self.debugOverlay:draw(world, map, self.players, tx, ty, sx, sy, cameraFramingBounds)
+        self.debugOverlay:draw(world, map, self.players, vr, cameraFramingBounds)
     else
         self.debugOverlay.enabled = false
     end
@@ -262,7 +249,7 @@ function InGameState:draw()
     -- F3: sprite outlines (drawn after entities, on top of their art)
     if conf.draw_sprite_outlines and self.spriteOverlay then
         self.spriteOverlay.enabled = true
-        self.spriteOverlay:draw(map, self.players, tx, ty, sx, sy)
+        self.spriteOverlay:draw(map, self.players, vr)
     else
         self.spriteOverlay.enabled = false
     end
@@ -270,7 +257,7 @@ function InGameState:draw()
     -- F4: world grid overlay
     if conf.draw_grid and self.gridOverlay then
         self.gridOverlay.enabled = true
-        self.gridOverlay:draw(mapW, mapH, tx, ty, sx, sy)
+        self.gridOverlay:draw(mapW, mapH, vr)
     else
         self.gridOverlay.enabled = false
     end

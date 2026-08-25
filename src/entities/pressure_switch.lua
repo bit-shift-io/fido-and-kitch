@@ -11,13 +11,13 @@
 -- therefore count as one activation and the plate releases only when the last
 -- of them leaves, with no bookkeeping to fall out of step.
 --
--- Single file, not the multi-file directory ADR 0003 originally called for:
+-- Single file, not the multi-file directory NOTES.md originally called for:
 -- that split existed solely so the pure decision helpers below could be
 -- required from tests/unit/, which couldn't construct a Sprite/Collider-
 -- composing entity headless. tests/support/headless_bootstrap.lua now makes
--- that construction possible directly (see ADR 0005, which reversed the
--- drawbridge's identical split first), so the helpers stay private locals
--- here instead of a separate _support module. See
+-- that construction possible directly (NOTES.md also records how this
+-- reversed the drawbridge's identical split), so the helpers stay private
+-- locals here instead of a separate _support module. See
 -- tests/unit/pressure_switch_test.lua for the entity-level tests this enables.
 
 local PressureSwitch = Class{__includes = Entity}
@@ -186,10 +186,9 @@ function PressureSwitch:draw()
 end
 
 -- White-box seam for tests/unit/pressure_switch_test.lua only, mirroring
--- Drawbridge._internal (see ADR 0005). Not for use by production code --
+-- Drawbridge._internal (see NOTES.md). Not for use by production code --
 -- reach for the real entity there.
 PressureSwitch._internal = {
-	TOLERANCE = TOLERANCE,
 	isWeightOn = isWeightOn,
 	nextActivation = nextActivation,
 }

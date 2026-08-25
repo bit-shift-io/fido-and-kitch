@@ -11,9 +11,11 @@ EntityFactory.__index = EntityFactory
 -- lets a unit test construct e.g. Switch/Cage/Teleport directly against a
 -- stub map, without a whole Map/World stack running first.
 function EntityFactory:new(searchPaths, typeIgnores, map)
+	local ignores = {}
+	for _, v in ipairs(typeIgnores or {}) do ignores[v] = true end
 	return setmetatable({
 		searchPaths = searchPaths,
-		typeIgnores = typeIgnores,
+		typeIgnores = ignores,
 		map = map,
 	}, EntityFactory)
 end
@@ -121,8 +123,7 @@ function EntityFactory:loadEntity(entityName, layer, object)
 		end
 	end
 	
-	local in_ignore_list = tbl.findIndexEq(self.typeIgnores, entityName)
-	if in_ignore_list == nil then
+	if not self.typeIgnores[entityName] then
 		local lastErr
 		for k, pattern in pairs(self.searchPaths) do
 			local path = pattern:gsub('%?', entityName)

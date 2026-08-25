@@ -16,11 +16,14 @@ This installs LÖVE through the host package manager when available and checks o
 
 ## Tests
 
-Run the fast headless Lua tests from the repository root:
+Run all three test tiers from the repository root:
 
-    ./test.sh
+    ./test-all.sh
 
-These tests use a tiny dependency-free runner and do not launch a LÖVE window.
+Or individually: `./test-unit.sh` (fast headless Lua tests), `./test-integration.sh`
+(headless real-stack tests), `./test-e2e.sh` (headed, real LÖVE window + rendering).
+
+The unit tier uses a tiny dependency-free runner and does not launch a LÖVE window.
 
 ## To debug in VSCode
 
@@ -59,7 +62,7 @@ as a 128x128 block) for feeding an AI agent to generate art:
 ```
 
 Writes `export_sandbox.png` (dimensions = the map's tile grid x 128) into the
-LÖVE save dir, prints the path + color legend to stdout, then quits. Colors:
+working directory, prints the path + color legend to stdout, then quits. Colors:
 black `(0,0,0)` nothing, green `(0,255,0)` solid ground (layers with the
 `collision` property), blue `(0,0,255)` killzone/water (`kill_zone` objects,
 any `deathType`). Gameplay objects (ladders, keys, doors, NPCs, ...) are
@@ -78,7 +81,7 @@ Arrow keys + right shift
 Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 
 P2
-WASD + left shift
+WASD + Q
 Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 
 ## Key Features

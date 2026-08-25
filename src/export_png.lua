@@ -155,7 +155,7 @@ function ExportPng.buildImageData(grid, width, height, scale)
 end
 
 -- Full export pipeline: parse, decode, build color grid, encode PNG, print
--- diagnostics, write to the save dir. Designed to run from the love.load
+-- diagnostics, write to the working directory. Designed to run from the love.load
 -- detour before a Game is constructed.
 function ExportPng.run(mapName)
 	local path = resolveMapFile('res/map/' .. mapName)

@@ -273,13 +273,8 @@ function GameAPI.loadMap(mapName)
 	local Map = require('src.map')
 	local mapPath = Map.resolveMapFile('res/map/' .. mapName)
 	
-	if game.fsm.currentState and game.fsm.currentState.__class and game.fsm.currentState.__class.name == 'InGameState' then
-		game:setGameState('InGameState')
-		game:load{map = mapPath}
-	else
-		game:setGameState('InGameState')
-		game:load{map = mapPath}
-	end
+	game:setGameState('InGameState')
+	game:load{map = mapPath}
 	
 	return 'OK: Loaded ' .. mapName
 end
@@ -290,7 +285,6 @@ function GameAPI.takeScreenshot(filename)
 	end
 	
 	local cwd = love.filesystem.getWorkingDirectory() .. '/' .. filename .. '.png'
-	love.filesystem.setIdentity("screenshot_ipc")
 	love.graphics.captureScreenshot(cwd)
 	
 	return 'OK: Screenshot saved to ' .. cwd
@@ -331,25 +325,8 @@ function GameAPI.getTileGrid()
 	-- and killzones.
 	for _, layer in ipairs(map.map.layers) do
 		if layer.type == 'objectgroup' and layer.objects then
-			for _, obj in ipairs(layer.objects) do
-				if obj.properties then
-					if obj.type == 'ladder' then
-						local topY = obj.y - (obj.height or 0)
-						local tileX = math.floor(obj.x / tileWidth) + 1
-						for ty = math.floor(topY / tileHeight) + 1, math.floor(obj.y / tileHeight) do
-							if grid[ty] and grid[ty][tileX] then
-								grid[ty][tileX] = 2 -- 2 = ladder
-							end
-						end
-					elseif obj.properties.killzone then
-						local tileX = math.floor(obj.x / tileWidth) + 1
-						local tileY = math.floor(obj.y / tileHeight) + 1
-						if grid[tileY] and grid[tileY][tileX] then
-							grid[tileY][tileX] = 3 -- 3 = killzone
-						end
-					end
-				end
-			end
+			markLadders(grid, layer.objects, tileWidth, tileHeight)
+			markKillzones(grid, layer.objects, tileWidth, tileHeight)
 		end
 	end
 	
@@ -430,6 +407,50 @@ local function getColliderInfo(collider)
 		walkable = collider.walkable == true,
 		bodyType = collider.bodyType or collider.getType and collider:getType() or 'unknown'
 	}
+end
+
+local function serializeMapEntity(entity)
+	if entity.type == 'player' then return nil end  -- already added from state.players
+	if entity.type == 'drawbridge' then return getDrawbridgeInfo(entity) end
+
+	local info = getEntityBaseInfo(entity)
+	if not info then return nil end
+	if entity.state then      info.entityState = entity.state end
+	if entity.itemName then   info.itemName    = entity.itemName end
+	if entity.isLadder then   info.isLadder    = true end
+	if entity.isKillZone then
+		info.isKillZone = true
+		info.deathType  = entity.deathType
+	end
+	return info
+end
+
+-- Mark ladder rung cells (gid tile objects, bottom-anchored) on the grid.
+local function markLadders(grid, objects, tileWidth, tileHeight)
+	for _, obj in ipairs(objects) do
+		if obj.type == 'ladder' then
+			local topY  = obj.y - (obj.height or 0)
+			local tileX = math.floor(obj.x / tileWidth) + 1
+			for ty = math.floor(topY / tileHeight) + 1, math.floor(obj.y / tileHeight) do
+				if grid[ty] and grid[ty][tileX] then
+					grid[ty][tileX] = 2  -- 2 = ladder
+				end
+			end
+		end
+	end
+end
+
+-- Mark killzone cells on the grid.
+local function markKillzones(grid, objects, tileWidth, tileHeight)
+	for _, obj in ipairs(objects) do
+		if obj.properties and obj.properties.killzone then
+			local tileX = math.floor(obj.x / tileWidth) + 1
+			local tileY = math.floor(obj.y / tileHeight) + 1
+			if grid[tileY] and grid[tileY][tileX] then
+				grid[tileY][tileX] = 3  -- 3 = killzone
+			end
+		end
+	end
 end
 
 local function getEntityBaseInfo(entity)
@@ -536,28 +557,7 @@ function GameAPI.getEntities()
 			if layer.entities then
 				for _, entity in ipairs(layer.entities) do
 					if entity and not entity.remove_from_map_flag then
-						local info = nil
-						if entity.type == 'player' then
-							-- Already added from state.players
-						elseif entity.type == 'drawbridge' then
-							info = getDrawbridgeInfo(entity)
-						else
-							info = getEntityBaseInfo(entity)
-							-- Add entity-specific fields
-							if entity.state then
-								info.entityState = entity.state
-							end
-							if entity.itemName then
-								info.itemName = entity.itemName
-							end
-							if entity.isLadder then
-								info.isLadder = true
-							end
-							if entity.isKillZone then
-								info.isKillZone = true
-								info.deathType = entity.deathType
-							end
-						end
+						local info = serializeMapEntity(entity)
 						if info then
 							table.insert(entities, info)
 						end

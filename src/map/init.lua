@@ -141,23 +141,26 @@ function Map:resize(w, h)
 	end
 end
 
+-- Draws all visible tiles and the parallax background using the camera's
+-- current ViewRect (see Camera:getDrawParams / Camera.ViewRect).
+-- self.tx / self.ty / self.sx / self.sy store the most recent ViewRect
+-- components so Map:draw() (no-arg) can replay the last frame.
 function Map:draw()
-	self:draw2(self.tx, self.ty, self.sx, self.sy)
+	self:draw2(self.viewRect or Camera.ViewRect.new(self.tx, self.ty, self.sx, self.sy))
 end
 
-function Map:draw2(tx, ty, sx, sy, playerTargets)
-	self.parallaxRenderer:draw(self, tx, ty, sx, sy, playerTargets)
+function Map:draw2(viewRect, playerTargets)
+	self.viewRect = viewRect
+	self.parallaxRenderer:draw(self, viewRect, playerTargets)
 end
 
--- Draws every object-layer entity in screen space, using the same tx/ty/sx/sy
+-- Draws every object-layer entity in screen space, using the same ViewRect
 -- transform the camera computed for the background/parallax draw (Map:draw2).
--- Kept as its own call (not folded into draw2) so InGameState can interleave
--- the debug overlay and HUD, which draw in a different space.
-function Map:drawEntities(tx, ty, sx, sy)
+function Map:drawEntities(viewRect)
 	lg.push()
 	lg.origin()
-	lg.translate(math.floor(tx or 0), math.floor(ty or 0))
-	lg.scale(sx or 1, sy or sx or 1)
+	lg.translate(math.floor(viewRect.tx or 0), math.floor(viewRect.ty or 0))
+	lg.scale(viewRect.sx or 1, viewRect.sy or viewRect.sx or 1)
 
 	for _, layer in ipairs(self.map.layers) do
 		if layer.type == "objectgroup" and layer.entities then

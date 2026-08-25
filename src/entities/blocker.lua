@@ -127,7 +127,7 @@ function Blocker:init(object)
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image = 'res/img/entity_blocker.png',
-		frames = 48, -- todo: make more
+		frames = 48,
 		-- the gate animation is 2s and purely cosmetic; the barrier opens on
 		-- the 1s telegraph timer regardless of where the art has got to
 		duration = 2,

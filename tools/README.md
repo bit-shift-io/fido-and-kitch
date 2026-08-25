@@ -77,6 +77,7 @@ Headless tests live alongside the rest of the project's suite:
 ## Further reading
 
 The full design rationale — including several corrections made against
-what the game's code actually does versus what earlier docs assumed — is
-in `.scratch/procedural-level-generation/DECISIONS.md` and `HANDOFF.md`
-while that planning directory exists.
+what the game's code actually does versus what earlier docs assumed —
+lived in the historical `.scratch/procedural-level-generation/` planning
+directory (`DECISIONS.md`, `HANDOFF.md`); that directory is no longer in
+the repo, and surviving decisions are consolidated in `NOTES.md`.

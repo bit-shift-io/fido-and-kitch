@@ -1,6 +1,7 @@
 -- src/npc/states/chase_state.lua
 local Class = require('lib.hump.class')
 local Vector = require('lib.hump.vector')
+local NpcLocomotion = require('src.npc.npc_locomotion')
 
 local ChaseState = Class{}
 
@@ -13,11 +14,7 @@ function ChaseState:enter(prevState)
 end
 
 function ChaseState:update(dt)
-    -- Defensive check for dt being a table
-    if type(dt) ~= 'number' then
-        Log.error("ChaseState:update received non-number dt:", type(dt), dt)
-        dt = 1/60  -- fallback
-    end
+    dt = NpcLocomotion.sanitizeDt(dt, "ChaseState")
     local entity = self.entity
     
     if not entity.target or not entity.chaseTarget then
@@ -36,16 +33,7 @@ function ChaseState:update(dt)
     if dist < 5 then return end
     
     local dir = Vector(dx, dy):normalized()
-    local accel = entity.config.acceleration or 300
-    local maxSpeed = entity.config.maxSpeed or 80
-    
-    local vx, vy = entity.collider:getLinearVelocity()
-    vx = vx + dir.x * accel * dt
-    
-    if math.abs(vx) > maxSpeed then
-        vx = (vx > 0 and 1 or -1) * maxSpeed
-    end
-    entity.collider:setLinearVelocity(vx, vy)
+    NpcLocomotion.stepHorizontal(entity, dir.x, dt, 300, 80)
 end
 
 function ChaseState:exit(prevState)

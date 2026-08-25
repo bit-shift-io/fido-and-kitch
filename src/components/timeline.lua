@@ -34,16 +34,6 @@ function Timeline:init(props)
     end
 end
 
---[[
--- clear existing finish func and set new finish event
-function Timeline:setFinishFunc(fn)
-    self.finishEvents = {}
-    if (fn) then
-        table.insert(self.finishEvents, fn)
-    end
-end
-]]--
-
 function Timeline:update(dt)
     if self.playing == false then
  		return

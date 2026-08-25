@@ -268,22 +268,21 @@ Player:update → queryKillZone() → die(deathType)
 | `src/ui/` | Slab menu UI, map list, lives HUD |
 | `res/map/` | Tiled `.tmx` sources (run directly) |
 | `tests/` | Three-tier: `tests/unit` + `tests/integration` (via `./test-unit.sh`/`./test-integration.sh`), `tests/e2e` |
-| `docs/adr/` | Architecture Decision Records |
+| `NOTES.md` | Design decisions & grill notes (former ADRs) |
 
 ---
 
-## 10. ADR Index
+## 10. Decision Index
 
-* **ADR 0001** — Deterministic pushable motion & snap model (tile-perfect hole filling, pressure-plate seating)
-* **ADR 0002** — Solution-first level generation with modular puzzle-rule library (guaranteed solvability by construction)
+* **Snap alignment** — Deterministic pushable motion & snap model (tile-perfect hole filling, pressure-plate seating)
+* **Level generation** — Solution-first level generation with modular puzzle-rule library (guaranteed solvability by construction)
 
-*(See `docs/adr/` for full text.)*
+*(See `NOTES.md` for decisions; older ADRs were consolidated there.)*
 
 ---
 
 ## 11. Gotchas
 
-* CI workflows reference `./install.sh` — the script is actually `setup.sh`.
 * `makelove.toml` `love_files` uses shallow globs (`./src/*`, `./res/*`); verify nested files are included if touching packaging.
 * Controls: P1 arrows + right-shift (use); P2 WASD + Q; joystick axes + button 1.
 * Map code in Tiled object properties (`object:exec`) is trusted — never feed it user input.

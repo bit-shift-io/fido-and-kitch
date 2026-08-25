@@ -126,9 +126,9 @@ test('the void fills the out-of-world strips and the frame sits on the world bou
 	FrameStepper.step(game, 30) -- settle the world/players after the resize
 
 	-- Recover the projected world rect exactly as Diorama sees it.
-	local tx, ty, sx, sy = cam:getDrawParams()
+	local vr = cam:getDrawParams()
 	local internal = Diorama._internal
-	local wr = internal.worldScreenRect(tx, ty, sx, sy, mapW, mapH)
+	local wr = internal.worldScreenRect(vr.tx, vr.ty, vr.sx, vr.sy, mapW, mapH)
 	local rects = internal.computeVoidRects(screenW, screenH, wr)
 
 	assertEqual(2, #rects, 'a wide screen over a 1:1 map yields left and right void strips')

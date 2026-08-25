@@ -1,5 +1,6 @@
 local Tmx = require('src.map.tmx')
 local Log = require('src.utils.log')
+local MapInfo = require('src.ui.map_info')
 
 local MapCard = Class{}
 
@@ -18,17 +19,7 @@ local ENTITY_COLORS = {
 	ladder={0.75, 0.55, 0.3, 1},
 }
 
-local function baseName(file)
-	return file:gsub('%.lua$', ''):gsub('%.tmx$', '')
-end
-
-local function titleFromFile(file)
-	local title = baseName(file):gsub('_', ' '):gsub('-', ' ')
-	return (title:gsub('(%a)([%w_\']*)', function(first, rest)
-		return first:upper() .. rest:lower()
-	end))
-end
-
+-- tile-specific; not in map_info
 local function readTile(data, index)
 	local i = ((index - 1) * 4) + 1
 	local b1, b2, b3, b4 = data:byte(i, i + 3)
@@ -36,60 +27,6 @@ local function readTile(data, index)
 		return 0
 	end
 	return (b1 + (b2 * 256) + (b3 * 65536) + (b4 * 16777216)) % 268435456
-end
-
-local function collectEntityTypes(mapData)
-	local types = {}
-	for _, layer in ipairs(mapData.layers or {}) do
-		if layer.type == 'objectgroup' then
-			for _, object in ipairs(layer.objects or {}) do
-				if object.type and object.type ~= '' and object.type ~= 'spawn' then
-					types[object.type] = true
-				end
-			end
-		end
-	end
-	return types
-end
-
-local function descriptionFor(file, mapData)
-	if mapData.properties and mapData.properties.description then
-		return mapData.properties.description
-	end
-
-	local labels = {}
-	local entityTypes = collectEntityTypes(mapData)
-	local ordered = {
-		{'key', 'keys'},
-		{'cage', 'cages'},
-		{'teleport', 'teleporters'},
-		{'jump_pad', 'jump pads'},
-		{'coin', 'coins'},
-		{'exit_door', 'an exit door'},
-	}
-	for _, item in ipairs(ordered) do
-		if entityTypes[item[1]] then
-			table.insert(labels, item[2])
-		end
-	end
-
-	if #labels == 0 then
-		return 'A bite-sized Fido and Kitch puzzle map.'
-	end
-
-	return 'A bite-sized puzzle featuring ' .. table.concat(labels, ', ') .. '.'
-end
-
-local function titleFor(file, mapData)
-	if mapData.properties and mapData.properties.name then
-		return mapData.properties.name
-	end
-
-	if mapData.properties and mapData.properties.title then
-		return mapData.properties.title
-	end
-
-	return titleFromFile(file)
 end
 
 -- The top-left y for drawing an object's rectangle. Tile objects (dragged
@@ -270,11 +207,11 @@ function MapCard:hitTest(x, y, mx, my, scale)
 	       my >= bounds.y and my <= bounds.y + bounds.h
 end
 
-MapCard.titleFor = titleFor
-MapCard.descriptionFor = descriptionFor
-MapCard.baseName = baseName
-MapCard.titleFromFile = titleFromFile
-MapCard.collectEntityTypes = collectEntityTypes
+MapCard.titleFor = MapInfo.titleFor
+MapCard.descriptionFor = MapInfo.descriptionFor
+MapCard.baseName = MapInfo.baseName
+MapCard.titleFromFile = MapInfo.titleFromFile
+MapCard.collectEntityTypes = MapInfo.collectEntityTypes
 MapCard.readTile = readTile
 MapCard.objectTopY = objectTopY
 MapCard.collisionRects = collisionRects

@@ -34,9 +34,10 @@ Diorama.config = {
 			-- along the edge, repeating until the whole edge is tiled.
 			tileSize = 32,
 			-- How far out from the world boundary the frame line is pushed
-			-- (world px). The band sits centred on that line, so a default of
-			-- tileSize/2 parks the frame flush on the border without overlapping
-			-- the playfield much.
+			-- (world px). The band sits centred on that line, so with the
+			-- default 14 (vs tileSize/2 = 16) the band's inner 2px overlaps
+			-- the playfield edge -- an intentional, barely-visible tuck-in
+			-- that avoids a hairline gap at fractional camera offsets.
 			outset = 14,
 			tiles = {
 				top = 'res/img/diorama/diorama_frame_horizontal.png',
@@ -235,12 +236,13 @@ end
 -- the screen, not scrolling, not aligned to the world grid), scissored per
 -- strip. Call under no pushed transform (the world rect is in plain screen
 -- coords).
-function Diorama.drawVoid(tx, ty, sx, sy, mapW, mapH)
+function Diorama.drawVoid(viewRect, mapW, mapH)
 	local lg = love and love.graphics
 	if not lg then
 		return
 	end
 
+	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
 	local screenW, screenH = lg.getWidth(), lg.getHeight()
 	local wr = worldScreenRect(tx, ty, sx, sy, mapW, mapH)
 	local rects = computeVoidRects(screenW, screenH, wr)
@@ -283,12 +285,13 @@ end
 -- texture authored at tileSize maps 1:1 and tiles the FULL edge, no partial
 -- leftover. Textures are authored landscape for top/bottom edges and portrait
 -- for left/right edges.
-function Diorama.drawFrame(tx, ty, sx, sy, mapW, mapH)
+function Diorama.drawFrame(viewRect, mapW, mapH)
 	local lg = love and love.graphics
 	if not lg then
 		return
 	end
 
+	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
 	local frame = computeFrame(mapW, mapH, Diorama.config)
 	local config = Diorama.config.frame
 	local tile = config.tileSize or 16

@@ -11,10 +11,17 @@ end
 
 function IPCServer:start(port)
 	local socket = require('socket')
-	self.server = assert(socket.bind('127.0.0.1', port or 8081))
+	local ok, srv = pcall(socket.bind, '127.0.0.1', port or 8081)
+	if not ok then
+		Log.warn('[IPC] Could not bind port', port or 8081, '— IPC disabled:', srv)
+		self.running = false
+		return false
+	end
+	self.server = srv
 	self.server:settimeout(0)
 	self.running = true
 	Log.info('IPC Server listening on 127.0.0.1:' .. (port or 8081))
+	return true
 end
 
 function IPCServer:update(dt)

@@ -54,13 +54,13 @@ local function spriteBox(sprite)
 	}
 end
 
-function SpriteOutlineOverlay:draw(map, players, tx, ty, sx, sy)
+function SpriteOutlineOverlay:draw(map, players, viewRect)
 	if not self.enabled or not conf.draw_sprite_outlines then return end
 
 	lg.push()
 	lg.origin()
 
-	tx, ty, sx, sy = tx or 0, ty or 0, sx or 1, sy or 1
+	local tx, ty, sx, sy = viewRect.tx or 0, viewRect.ty or 0, viewRect.sx or 1, viewRect.sy or 1
 	lg.translate(math.floor(tx), math.floor(ty))
 	lg.scale(sx, sy)
 	lg.setLineWidth(2 / math.max(sx, sy))

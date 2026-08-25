@@ -30,12 +30,6 @@ function InputManager:init()
   end
 end
 
--- Force a joystick to be treated as non-gamepad (for generic controllers with bad mappings)
-function InputManager:forceNonGamepad(joystick)
-  forcedNonGamepad[joystick] = true
-  Log.info("[InputManager] Forced non-gamepad mode for:", joystick:getName())
-end
-
 function InputManager:isForcedNonGamepad(joystick)
   return forcedNonGamepad[joystick] == true
 end
@@ -193,11 +187,6 @@ function InputManager:wasPressed(idx, action)
      and not (self.prevActionState[idx] and self.prevActionState[idx][action])
 end
 
-function InputManager:wasReleased(idx, action)
-  return not (self.actionState[idx] and self.actionState[idx][action])
-     and (self.prevActionState[idx] and self.prevActionState[idx][action])
-end
-
 function InputManager:setDeadzone(idx, dz)
   self:ensurePlayer(idx)
   self.players[idx].deadzone = dz
@@ -213,11 +202,6 @@ function InputManager:setForcedNonGamepad(idx, forced)
     self.forcedNonGamepad[self.players[idx].joystick] = forced
     Log.info("[InputManager] Applied forced non-gamepad mode for player", idx, ":", forced)
   end
-end
-
-function InputManager:getAssignedJoystick(idx)
-  self:ensurePlayer(idx)
-  return self.players[idx].joystick
 end
 
 return InputManager

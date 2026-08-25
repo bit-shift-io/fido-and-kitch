@@ -1,4 +1,5 @@
 local Log = require('src.utils.log')
+local PhysicsTolerance = require('src.utils.physics_tolerance')
 
 local Ladder = Class{__includes = Entity}
 
@@ -6,7 +7,7 @@ local Ladder = Class{__includes = Entity}
 local TOP_THICKNESS = 8
 -- How far below the top a player counts as "under the deck" and may pass
 -- through it (same tolerance the mover platform's one-way deck uses).
-local LAND_TOL = 6
+local LAND_TOL = PhysicsTolerance.LAND_TOL
 
 -- Per-rung tile objects (authoring model):
 --

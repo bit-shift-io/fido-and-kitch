@@ -1,6 +1,8 @@
 local InputConfig = {}
 InputConfig.__index = InputConfig
 
+local Log = require('src.utils.log')
+
 local DEFAULT_KEYBOARD_MAPS = {
 	[1] = {left = 'left', right = 'right', up = 'up', down = 'down', use = 'rshift', start = 'return', back = 'escape'},
 	[2] = {left = 'a', right = 'd', up = 'w', down = 's', use = 'q', start = 'tab', back = 'lshift'},
@@ -23,22 +25,6 @@ end
 
 function InputConfig:getKeyboardMap(playerIdx)
 	return self.keyboardMaps[playerIdx] or DEFAULT_KEYBOARD_MAPS[playerIdx] or DEFAULT_KEYBOARD_MAPS[1]
-end
-
-function InputConfig:setKeyboardMap(playerIdx, action, key)
-	if not self.keyboardMaps[playerIdx] then
-		self.keyboardMaps[playerIdx] = {}
-		for k, v in pairs(DEFAULT_KEYBOARD_MAPS[playerIdx] or DEFAULT_KEYBOARD_MAPS[1]) do
-			self.keyboardMaps[playerIdx][k] = v
-		end
-	end
-	self.keyboardMaps[playerIdx][action] = key
-	self:save()
-end
-
-function InputConfig:resetToDefaults(playerIdx)
-	self.keyboardMaps[playerIdx] = nil
-	self:save()
 end
 
 function InputConfig:getDeadzone(playerIdx)
@@ -69,7 +55,12 @@ function InputConfig:save()
 	}
 	
 	local serialized = self:serialize(data)
-	love.filesystem.write(CONFIG_FILE, serialized)
+	-- best-effort persistence: a failed write (read-only save dir, disk
+	-- full) must never take the game down -- matches settings.lua
+	local ok, err = pcall(love.filesystem.write, CONFIG_FILE, serialized)
+	if not ok then
+		Log.warn('[InputConfig] failed to persist config:', err)
+	end
 end
 
 function InputConfig:load()

@@ -1,5 +1,6 @@
 -- src/npc/states/patrol_state.lua
 local Class = require('lib.hump.class')
+local NpcLocomotion = require('src.npc.npc_locomotion')
 
 local PatrolState = Class{}
 
@@ -17,13 +18,8 @@ function PatrolState:enter(prevState)
 end
 
 function PatrolState:update(dt)
-    if type(dt) ~= 'number' then
-        dt = 1/60
-    end
+    dt = NpcLocomotion.sanitizeDt(dt, "PatrolState")
     local entity = self.entity
-    local config = entity.config
-    local accel = config.acceleration or 400
-    local maxSpeed = config.maxSpeed or 80
 
     -- Random idle pause during walk
     if entity.patrolPaused then
@@ -49,15 +45,8 @@ function PatrolState:update(dt)
     end
 
     -- Walk in facing direction (horizontal only — gravity handles vertical)
-    local vx, vy = entity.collider:getLinearVelocity()
     local dirX = entity.facing == 'right' and 1 or -1
-    vx = vx + dirX * accel * dt
-
-    -- Clamp horizontal speed
-    if math.abs(vx) > maxSpeed then
-        vx = (vx > 0 and 1 or -1) * maxSpeed
-    end
-    entity.collider:setLinearVelocity(vx, vy)
+    NpcLocomotion.stepHorizontal(entity, dirX, dt, 400, 80)
 
     -- Random idle pauses during walk
     entity.patrolWalkTimer = entity.patrolWalkTimer + dt
@@ -66,6 +55,7 @@ function PatrolState:update(dt)
         entity.patrolPauseDuration = 0.5 + math.random() * 1.0
         entity.patrolWalkTimer = 0
         entity.patrolNextPause = 2 + math.random() * 3
+        local _, vy = entity.collider:getLinearVelocity()
         entity.collider:setLinearVelocity(0, vy)
     end
 end

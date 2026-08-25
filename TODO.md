@@ -14,4 +14,5 @@ A list of tasks that need to be done. Generate docs before starting each task.
 - teleporter travel FX and curvey spline travel
 
 ## Low Priority
-- sounds (9 referenced files missing: character_death, character_jump, entity_kill_lava/pit/spikes/water, entity_pressure_press/release, entity_story_blip)
+- more blocker gate animation frames (art: currently 48; richer open/close would read better)
+- sounds (8 referenced files missing: character_death, entity_kill_lava/pit/spikes/water, entity_pressure_press/release, entity_story_blip)

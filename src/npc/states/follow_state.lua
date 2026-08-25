@@ -1,6 +1,7 @@
 -- src/npc/states/follow_state.lua
 local Class = require('lib.hump.class')
 local Vector = require('lib.hump.vector')
+local NpcLocomotion = require('src.npc.npc_locomotion')
 
 local FollowState = Class{}
 
@@ -10,11 +11,7 @@ function FollowState:enter(prevState)
 end
 
 function FollowState:update(dt)
-    -- Defensive check for dt being a table
-    if type(dt) ~= 'number' then
-        Log.error("FollowState:update received non-number dt:", type(dt), dt)
-        dt = 1/60  -- fallback
-    end
+    dt = NpcLocomotion.sanitizeDt(dt, "FollowState")
     local entity = self.entity
     
     if not entity.target then return end
@@ -43,31 +40,21 @@ function FollowState:update(dt)
     if dist < 5 then return end
     
     local dir = Vector(dx, dy):normalized()
-    local accel = entity.config.acceleration or 250
+    local accel   = entity.config.acceleration or 250
     local maxSpeed = entity.config.maxSpeed or 60
     
-    local vx, vy = entity.collider:getLinearVelocity()
-    
-    -- Flying NPCs (canFly) move in both X and Y; ground NPCs only move horizontally
+    -- Flying NPCs (canFly) move in both X and Y; ground NPCs only move
+    -- horizontally via the shared helper.
     if entity.config.canFly then
+        local vx, vy = entity.collider:getLinearVelocity()
         vx = vx + dir.x * accel * dt
         vy = vy + dir.y * accel * dt
-        
-        if math.abs(vx) > maxSpeed then
-            vx = (vx > 0 and 1 or -1) * maxSpeed
-        end
-        if math.abs(vy) > maxSpeed then
-            vy = (vy > 0 and 1 or -1) * maxSpeed
-        end
+        if math.abs(vx) > maxSpeed then vx = (vx > 0 and 1 or -1) * maxSpeed end
+        if math.abs(vy) > maxSpeed then vy = (vy > 0 and 1 or -1) * maxSpeed end
+        entity.collider:setLinearVelocity(vx, vy)
     else
-        vx = vx + dir.x * accel * dt
-        
-        if math.abs(vx) > maxSpeed then
-            vx = (vx > 0 and 1 or -1) * maxSpeed
-        end
+        NpcLocomotion.stepHorizontal(entity, dir.x, dt, 250, 60)
     end
-    
-    entity.collider:setLinearVelocity(vx, vy)
 end
 
 function FollowState:exit(prevState)

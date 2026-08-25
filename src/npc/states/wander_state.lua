@@ -1,6 +1,7 @@
 -- src/npc/states/wander_state.lua
 local Class = require('lib.hump.class')
 local Vector = require('lib.hump.vector')
+local NpcLocomotion = require('src.npc.npc_locomotion')
 
 local WanderState = Class{}
 
@@ -17,11 +18,7 @@ function WanderState:enter(prevState)
 end
 
 function WanderState:update(dt)
-    -- Defensive check for dt being a table
-    if type(dt) ~= 'number' then
-        Log.error("WanderState:update received non-number dt:", type(dt), dt)
-        dt = 1/60  -- fallback
-    end
+    dt = NpcLocomotion.sanitizeDt(dt, "WanderState")
     local entity = self.entity
     if not entity.wanderTarget then
         self:enter()
@@ -43,17 +40,7 @@ function WanderState:update(dt)
     
     -- Move toward target (horizontal only — gravity handles vertical)
     local dir = Vector(dx, dy):normalized()
-    local accel = entity.config.acceleration or 200
-    local maxSpeed = entity.config.maxSpeed or 50
-    
-    local vx, vy = entity.collider:getLinearVelocity()
-    vx = vx + dir.x * accel * dt
-    
-    -- Clamp horizontal speed
-    if math.abs(vx) > maxSpeed then
-        vx = (vx > 0 and 1 or -1) * maxSpeed
-    end
-    entity.collider:setLinearVelocity(vx, vy)
+    NpcLocomotion.stepHorizontal(entity, dir.x, dt, 200, 50)
 end
 
 function WanderState:exit(prevState)

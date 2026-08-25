@@ -2,7 +2,7 @@
 
 ## Auto-zoom camera
 
-**Definition** — The single shared camera that automatically frames all framing targets: zooming in when players are close (never below a 5×5-tile view), out as they spread (up to the full-map view), with smooth frame-rate-independent easing on pan and zoom, always clamped to map bounds.
+**Definition** — The single shared camera that automatically frames all framing targets: zooming in when players are close (never below a 6×6-tile view), out as they spread (up to the full-map view), with smooth frame-rate-independent easing on pan and zoom, always clamped to map bounds.
 
 **Boundary** — One camera for one shared screen; it is not split-screen, not per-player, and does not render parallax (it only exposes the centre/zoom parallax will need). HUD and menus live outside its transform.
 
@@ -196,7 +196,7 @@
 
 **Definition** — The completion spine of a level: players collect colored keys to unlock matching cages (each release spawns a bird or rabbit ally that cosmetically follows the releasing player — no scripted path). The level's `InGameState` counts cages on load and listens for each cage's `cage_unlocked` event; once every cage has been used it emits `all_cages_unlocked`, which the exit door opens on directly. The level ends when all players exit through it.
 
-**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. The exit door also carries a legacy `actor_count` `Variable` and `exitInstant`/`exitThroughDoor` methods from an earlier bird-path design; neither is wired to anything and both are dead code — the `all_cages_unlocked` event is the real mechanism.
+**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. The exit door also carries a legacy `actor_count` `Variable` from an earlier bird-path design (the `exitInstant`/`exitThroughDoor` methods were removed as dead code); the variable is not wired to anything and the `all_cages_unlocked` event is the real mechanism.
 
 ## Level generator
 
@@ -224,7 +224,7 @@
 
 ## Snap alignment
 
-**Definition** — The deterministic forcing of a pushable's x to a tile's centre. Occurs only on two events: the prop's centre-x passing over an unsupported tile (it snaps and falls straight in) and a prop coming to rest on a pressure switch (it snaps on push-release when within tolerance). See ADR 0001.
+**Definition** — The deterministic forcing of a pushable's x to a tile's centre. Occurs only on two events: the prop's centre-x passing over an unsupported tile (it snaps and falls straight in) and a prop coming to rest on a pressure switch (it snaps on push-release when within tolerance). See NOTES.md (snap alignment).
 
 **Boundary** — Not the normal resting behaviour: props otherwise rest at whatever x they were left at, and the player can push a prop back out of a snapped position.
 
@@ -323,12 +323,6 @@
 **Definition** — Tiled custom property `spawn_type` on cage objects determining which NPC spawns when unlocked. Values: `"bird"` | `"rabbit"` (default: `"bird"`). Set per-cage in Tiled.
 
 **Boundary** — Map authoring concern only; read once at cage unlock. No runtime mutation.
-
-## Breadcrumb Trail
-
-**Definition** — Timestamped position history recorded by Player (circular buffer, 120 frames = 2 seconds at 60Hz). Used by Rabbit NPC to follow the player's exact path through ladders and puzzles.
-
-**Boundary** — Player-internal state; exposed via `player:getPositionHistory()` for NPC consumption only. Not a replay system or network sync.
 
 ## All Cages Unlocked Event
 

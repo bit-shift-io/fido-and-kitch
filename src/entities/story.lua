@@ -254,10 +254,6 @@ Story._internal = {
 		WORD_PHASE = WORD_PHASE,
 		COOLDOWN = COOLDOWN,
 		PADDING = PADDING,
-		CORNER_RADIUS = CORNER_RADIUS,
-		LINE_HEIGHT = LINE_HEIGHT,
-		MAX_WIDTH = MAX_WIDTH,
-		SCREEN_MARGIN = SCREEN_MARGIN,
 	},
 	typewriter = {
 		splitLines = splitLines,
@@ -279,7 +275,6 @@ Story._internal = {
 		screenPoint = screenPoint,
 		boxWidth = boxWidth,
 		boxHeight = boxHeight,
-		tailPoints = tailPoints,
 		clampToScreen = clampToScreen,
 	},
 }
@@ -375,10 +370,12 @@ end
 -- box, border, tail, and centred text. Called from InGameState:draw after
 -- map:drawEntities and before the HUD, so bubbles follow the entity through
 -- pan/zoom while the text stays readable at any zoom.
-function Story:drawBubbleScreen(tx, ty, sx, sy)
+function Story:drawBubbleScreen(viewRect)
 	if love == nil then
 		return
 	end
+
+	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
 
 	for player, bubble in pairs(self.bubbles) do
 		if bubble.visible then

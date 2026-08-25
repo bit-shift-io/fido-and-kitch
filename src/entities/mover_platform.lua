@@ -3,8 +3,7 @@
 -- referenced by property, linear constant-speed point-to-point motion,
 -- `endBehavior='pingpong'|'loop'`, a `pause` at every path point, delta-carry
 -- of players standing on top, one-way top-only collision (jump/up-through),
--- and switch start/stop. See docs/adr/ -- the grilled decisions live in
--- NOTES.md.
+-- and switch start/stop. The grilled decisions live in NOTES.md.
 
 local MoverPlatform = Class{__includes = Entity}
 
@@ -23,7 +22,8 @@ local RIDER_TOL = 8
 -- under the deck -- jump up-through, and the platform's sides never block a
 -- grounded walker (an intentional simplification of the one-way rule; see
 -- NOTES.md).
-local LAND_TOL = 6
+local PhysicsTolerance = require('src.utils.physics_tolerance')
+local LAND_TOL = PhysicsTolerance.LAND_TOL
 
 -- Absolute waypoints: STI re-anchors a polyline object's points in place on
 -- load (adding the object's own x/y to each vertex, lib/sti/init.lua
@@ -270,11 +270,11 @@ end
 
 -- Advance the platform along its path and carry any standing riders by the
 -- exact per-frame delta. Ordering is already correct: InGameState:update runs
--- map:update(dt) (ingame_state.lua:198) BEFORE world:update(dt) (line 199),
--- so the platform moves first and then nudges riders, and bump's own move()
--- of the player never fights the carry. When switched off, the platform
--- stops in place and simply tracks its current position; re-enabling resumes
--- from wherever it stopped (the stepper's distInLeg was preserved).
+-- map:update(dt) BEFORE world:update(dt), so the platform moves first and then
+-- nudges riders, and bump's own move() of the player never fights the carry.
+-- When switched off, the platform stops in place and simply tracks its current
+-- position; re-enabling resumes from wherever it stopped (the stepper's
+-- distInLeg was preserved).
 function MoverPlatform:update(dt)
 	Entity.update(self, dt)
 
@@ -358,8 +358,6 @@ MoverPlatform._internal = {
 	buildLegs = buildLegs,
 	newStepper = newStepper,
 	advance = advance,
-	RIDER_TOL = RIDER_TOL,
-	LAND_TOL = LAND_TOL,
 }
 
 return MoverPlatform

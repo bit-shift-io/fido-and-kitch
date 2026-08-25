@@ -9,6 +9,36 @@ local Log = require('src.utils.log')
 
 local Player = Class{__includes = Entity}
 
+local function buildAnimations(character, position, shape_arguments, offset)
+    return {
+        idle=Sprite{
+            frames=string.format('res/img/%s/Idle (${i}).png', character),
+            frameCount=10, duration=1.0, loop=true,
+            position=position, playing=true,
+            shape_arguments=shape_arguments, offset=offset,
+        },
+        fall=Sprite{
+            frames=string.format('res/img/%s/Fall (${i}).png', character),
+            frameCount=8, duration=1.0, loop=true,
+            position=position, playing=true,
+            shape_arguments=shape_arguments, offset=offset,
+        },
+        walk=Sprite{
+            frames=string.format('res/img/%s/Run (${i}).png', character),
+            frameCount=8, duration=0.65, loop=true,
+            position=position, playing=true,
+            shape_arguments=shape_arguments, offset=offset,
+        },
+        climb=Sprite{
+            -- No dedicated climb art yet; reuse the run cycle (matches walk).
+            frames=string.format('res/img/%s/Run (${i}).png', character),
+            frameCount=8, duration=0.65, loop=true,
+            position=position, playing=true,
+            shape_arguments=shape_arguments, offset=offset,
+        },
+    }
+end
+
 function Player:init(props)
     Entity.init(self)
 
@@ -25,49 +55,7 @@ function Player:init(props)
     local shape_arguments = {width, height}
     local physics_arguments = {20, 30}
 
-    local animations = {
-        idle=Sprite{
-            frames=string.format('res/img/%s/Idle (${i}).png', character),
-            frameCount=10,
-            duration=1.0,
-            loop=true,
-            position=position,
-            playing=true,
-            shape_arguments=shape_arguments,
-            offset=offset,
-        },
-        fall=Sprite{
-            frames=string.format('res/img/%s/Fall (${i}).png', character),
-            frameCount=8,
-            duration=1.0,
-            loop=true,
-            position=position,
-            playing=true,
-            shape_arguments=shape_arguments,
-            offset=offset,
-        },
-        walk=Sprite{
-            frames=string.format('res/img/%s/Run (${i}).png', character),
-            frameCount=8,
-            duration=0.65,
-            loop=true,
-            position=position,
-            playing=true,
-            shape_arguments=shape_arguments,
-            offset=offset,
-        },
-        climb=Sprite{
-            -- No dedicated climb art yet; reuse the run cycle (matches walk).
-            frames=string.format('res/img/%s/Run (${i}).png', character),
-            frameCount=8,
-            duration=0.65,
-            loop=true,
-            position=position,
-            playing=true,
-            shape_arguments=shape_arguments,
-            offset=offset,
-        }
-    }
+    local animations = buildAnimations(character, position, shape_arguments, offset)
 
     -- FlashEffect must be added BEFORE the animations StateMachine so its
     -- draw() sets the color before the sprite renders (no one-frame delay).
@@ -121,11 +109,6 @@ function Player:init(props)
     })
 
     self.safePosition = SafePosition.new(position.x, position.y)
-
-    -- Position history for NPC breadcrumb following (max 120 entries = 2 seconds at 60Hz)
-    self.positionHistory = {}
-    self.maxPositionHistory = 120
-    self.gameTime = 0
 
     self.visible = true
     self.alpha = 1
@@ -185,18 +168,6 @@ function Player:update(dt)
 
     local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and PlayerSensors.queryFullySupported(world, self.collider:getBounds())
     self.safePosition:update(dt, grounded, self.collider:getX(), self.collider:getY())
-
-    -- Record position history for NPC breadcrumb following
-    self.gameTime = self.gameTime + dt
-    table.insert(self.positionHistory, {
-        x = self.collider:getX(),
-        y = self.collider:getY(),
-        t = self.gameTime
-    })
-    -- Keep buffer at max size (circular buffer)
-    while #self.positionHistory > self.maxPositionHistory do
-        table.remove(self.positionHistory, 1)
-    end
 end
 
 function Player:draw()
@@ -298,15 +269,6 @@ end
 
 function Player:isDown(action)
     return inputManager:isDown(self.index, action)
-end
-
-function Player:getPositionHistory()
-    -- Return a shallow copy to prevent external mutation
-    local copy = {}
-    for i, entry in ipairs(self.positionHistory) do
-        copy[i] = {x = entry.x, y = entry.y, t = entry.t}
-    end
-    return copy
 end
 
 return Player

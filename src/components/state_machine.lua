@@ -27,10 +27,6 @@ function StateMachine:init(props)
     end)
 end
 
-function StateMachine:addState(state)
-    self.states[state.name] = state;
-end
-
 function StateMachine:tryTransition(name)
     local s = self.states[name];
     if (s:canTransition()) then

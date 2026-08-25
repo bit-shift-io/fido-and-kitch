@@ -19,13 +19,13 @@ function DebugOverlay:toggle()
 	self.enabled = not self.enabled
 end
 
-function DebugOverlay:draw(world, map, players, tx, ty, sx, sy, cameraFramingBounds)
+function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 	if not self.enabled or not conf.drawphysics then return end
 
 	lg.push()
 	lg.origin()
 
-	tx, ty, sx, sy = tx or 0, ty or 0, sx or 1, sy or 1
+	local tx, ty, sx, sy = viewRect.tx or 0, viewRect.ty or 0, viewRect.sx or 1, viewRect.sy or 1
 
 	lg.translate(math.floor(tx), math.floor(ty))
 	lg.scale(sx, sy)

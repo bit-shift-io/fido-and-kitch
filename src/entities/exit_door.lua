@@ -6,6 +6,10 @@ local EventBus = require('src.utils.event_bus')
 
 local ExitDoor = Class{__includes = Entity}
 
+-- how far (px, each direction) from the door friendly NPCs are despawned
+-- once the exit is used
+local DESPAWN_RADIUS = 64
+
 function ExitDoor:init(object)
 	Entity.init(self, object, 'exit_door')
 	self.state = 'closed'
@@ -93,23 +97,6 @@ function ExitDoor:event(eventName, component)
 	end
 end
 
--- call this function when an actor exits the scene straight away
--- without going through this door
-function ExitDoor:exitInstant(entity)
-	Log.debug('some birdy left the map!')
-	entity:queueDestroy()
-	self:subtract(1)
-end
-
--- let the given entity through and then destroy the entity
--- reduce the counter
-function ExitDoor:exitThroughDoor(entity)
-	Log.debug('some birdy reached the exit!')
-	self:addWaitingEntity(entity)
-	self:updateState('openThenClose')
-	self:subtract(1)
-end
-
 -- open the door for players to exit
 -- once opened it cannot be closed
 function ExitDoor:open()
@@ -143,10 +130,10 @@ function ExitDoor:despawnNearbyNPCs()
 	local cx = self.sprite.position.x
 	local cy = self.sprite.position.y
 	local bounds = {
-		left = cx - 64,
-		right = cx + 64,
-		top = cy - 64,
-		bottom = cy + 64,
+		left = cx - DESPAWN_RADIUS,
+		right = cx + DESPAWN_RADIUS,
+		top = cy - DESPAWN_RADIUS,
+		bottom = cy + DESPAWN_RADIUS,
 	}
 	local items = world:queryOverlap(bounds)
 	for _, item in ipairs(items) do

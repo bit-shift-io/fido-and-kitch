@@ -399,7 +399,6 @@ end
 
 function WalkIdleState:update(dt)
     local player = self.entity
-    local og = PlayerSensors.queryOnGround(world, player.collider)
 
     if player.fsm:tryTransition('FallState') then
         return
