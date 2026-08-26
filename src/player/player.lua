@@ -2,6 +2,7 @@ local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
 local GroundSupport = require('src.player.ground_support')
 local FlashEffect = require('src.components.flash_effect')
+local SpeedStreak = require('src.components.speed_streak')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
 local MovementConstants = require('src.player.movement_constants')
@@ -101,6 +102,12 @@ function Player:init(props)
         }
     })
     self.stepTimer = 0
+
+    self.speedStreak = self:addComponent(SpeedStreak{
+        entity = self,
+        minSpeed = 200,
+        emitRate = 100
+    })
 
     self.fsm = self:addComponent(StateMachine{
         stateClasses=PlayerStates,

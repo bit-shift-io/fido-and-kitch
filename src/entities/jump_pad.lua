@@ -1,4 +1,5 @@
 local Log = require('src.utils.log')
+local JumpPadStreak = require('src.fx.jump_pad_streak')
 
 local JumpPad = Class{__includes = Entity}
 
@@ -52,18 +53,17 @@ function JumpPad:use(user)
 	self.sound:play('launch')
 	self.sprite.timeline:playForward()
 
+	local center = self.collider:getPositionV()
+	local path_start = self.pathObject.polyline[1]
+	local angle = math.atan2(path_start.y - center.y, path_start.x - center.x)
+	if self.map and self.map.fx then
+		self.map.fx:burst(JumpPadStreak, {x = center.x, y = center.y, angle = angle, count = 16})
+	end
+
 	if user.pathFollow then
 		user.pathFollow:finish()
 		user:removeComponent(user.pathFollow)
 		user.pathFollow = nil
-	end
-
-	local function finish()
-		if user.pathFollow then
-			user:removeComponent(user.pathFollow)
-			user.pathFollow = nil
-		end
-		Log.debug('jump end delete path!')
 	end
 
 	-- calc offset
@@ -72,16 +72,20 @@ function JumpPad:use(user)
 	local offset = user_pos - path_start
 
 	-- add path follow for player
-	user.pathFollow = user:addComponent(PathFollow{
+	local pathFollow = user:addComponent(PathFollow{
 		collider=user.collider,
         path=Path(self.pathObject),
-        finish=finish,
-		speed=400,
+        speed=120,
 		offset=offset,
 		easing='outQuad'
     })
 
-	user.pathFollow.timeline:play()
+	local duration = pathFollow.path.length / 400
+	user.fsm:setState('JumpTravelState', {
+		pathFollow = pathFollow,
+		duration = duration,
+		camera = self.map and self.map.camera
+	})
 end
 
 

@@ -19,7 +19,7 @@
 --   range     px of extra space around the box the player must enter to trigger
 --   rate      particles emitted per frame while a player is in range
 --   width,height  emission box override (defaults to the entity's collider box)
-local Particles = require('src.particles')
+local Particles = require('src.emitters.sprite_emitter')
 
 local TEXTURES = {
 	'res/img/fx/fx_star_glow.png',

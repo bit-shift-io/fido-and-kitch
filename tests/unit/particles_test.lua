@@ -4,7 +4,7 @@
 local LoveMock = require('tests.support.love_mock')
 love = LoveMock.new()
 
-local Particles = require('src.particles')
+local Particles = require('src.emitters.sprite_emitter')
 
 test('new_emitter starts empty and emits up to its cap', function()
 	local e = Particles.new_emitter{}

@@ -18,7 +18,7 @@
 --   color       {r,g,b,a} overrides both colors.start and colors.end
 --   hold        if truthy, build an empty emitter without auto-bursting
 local Class = require('lib.hump.class')
-local Particles = require('src.particles')
+local Particles = require('src.emitters.sprite_emitter')
 
 local FxBase = Class{}
 

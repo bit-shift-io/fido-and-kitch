@@ -3,7 +3,7 @@
 
 local Class = require('lib.hump.class')
 local FxBase = require('src.fx.base')
-local Particles = require('src.particles')
+local Particles = require('src.emitters.sprite_emitter')
 
 local TeleportTrail = Class{__includes = FxBase}
 

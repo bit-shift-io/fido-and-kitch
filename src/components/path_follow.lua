@@ -31,38 +31,48 @@ function PathFollow:init(props)
         end
     })
 
-    -- do we need an option to do this?
+    self._lastPos = nil
+    self._velocity = Vector(0, 0)
+
     if self.sprite then
         local pos = self.path:getPositionV(0)
         self.sprite:setPositionV(pos)
+        self._lastPos = pos
     end
 end
 
 
 function PathFollow:update(dt)
-    -- incase the user wants to manually fudge frame numbers
 	if self.timeline.playing == false then
-		return;
+		return
 	end
 	self.timeline:update(dt)
 
-    if self.sprite then
-        local pos = self.path:getPositionV(self.timeline:timePercent())
-        pos = pos + self.offset
-        self.sprite:setPositionV(pos)
-    end
+	local pos = self.path:getPositionV(self.timeline:timePercent())
+	pos = pos + self.offset
 
-    if self.collider then
-        local pos = self.path:getPositionV(self.timeline:timePercent())
-        pos = pos + self.offset
-        self.collider:setPositionV(pos)
-    end
+	if self.sprite then
+		self.sprite:setPositionV(pos)
+	end
+
+	if self.collider then
+		self.collider:setPositionV(pos)
+	end
+
+	if self._lastPos then
+		self._velocity = (pos - self._lastPos) / dt
+	end
+	self._lastPos = pos
 end
 
 
 function PathFollow:getPositionV()
     local pos = self.path:getPositionV(self.timeline:timePercent())
     return pos
+end
+
+function PathFollow:getVelocity()
+    return self._velocity:clone()
 end
 
 function PathFollow:finish()

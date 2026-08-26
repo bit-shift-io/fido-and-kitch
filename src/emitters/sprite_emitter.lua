@@ -2,7 +2,7 @@
 --
 -- Returns a single module table `Particles` exposing `Particles.new_emitter`:
 --
---   local Particles = require('src.particles')
+--   local SpriteEmitter = require('src.emitters.sprite_emitter')
 --   local e = Particles.new_emitter({ position = {x, y}, ... })
 --   e:emit(n)      -- spawn n particles (capped)
 --   e:update(dt)   -- integrate positions/velocities, expire dead particles

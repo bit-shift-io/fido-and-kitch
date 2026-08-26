@@ -457,6 +457,9 @@ function FallState:enter()
     player:setAnimation('fall')
     local v_x, v_y = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(0, v_y)
+    if player.speedStreak then
+        player.speedStreak:enable()
+    end
 end
 
 function FallState:update(dt)
@@ -466,6 +469,9 @@ function FallState:update(dt)
 
     local onGround = PlayerSensors.queryOnGround(world, player.collider)
     if onGround then
+        if player.speedStreak then
+            player.speedStreak:disable()
+        end
         player.fsm:setState('WalkIdleState')
         return
     end
@@ -486,6 +492,9 @@ function FallState:update(dt)
 
     local ladders = PlayerSensors.queryAllLadders(world, player.collider)
     if PlayerMovement.shouldCatchFall(onGround, ladders) then
+        if player.speedStreak then
+            player.speedStreak:disable()
+        end
         player.fsm:setState('LadderState')
     end
 end
@@ -569,6 +578,11 @@ function TeleportTravelState:enter(prevState, params)
     -- Stop any current animation
     player:setAnimation('idle')
     
+    -- Disable speed streak during teleport
+    if player.speedStreak then
+        player.speedStreak:disable()
+    end
+    
     -- Add camera extra target to track the player during travel
     if self.camera then
         self.camera:addExtraTarget('teleport_travel', {
@@ -620,8 +634,93 @@ function TeleportTravelState:exit()
         self.camera:removeExtraTarget('teleport_travel')
     end
     
-    -- Show player
+-- Show player
     player.visible = true
+    
+    -- Restore physics
+    player.collider:setType('dynamic')
+    player.collider:setGravityScale(1)
+    player.collider:setLinearVelocity(0, 0)
+end
+
+
+local JumpTravelState = Class{}
+
+function JumpTravelState:enter(prevState, params)
+    local player = self.entity
+    self.pathFollow = params.pathFollow
+    self.duration = params.duration
+    self.camera = params.camera
+    self.elapsed = 0
+    
+    -- Start the path follow timeline
+    if self.pathFollow and self.pathFollow.timeline then
+        self.pathFollow.timeline:play()
+    end
+    
+    -- Make collider kinematic with no gravity
+    player.collider:setType('kinematic')
+    player.collider:setGravityScale(0)
+    player.collider:setLinearVelocity(0, 0)
+    
+    -- Set launch animation
+    player:setAnimation('fall')
+    
+    -- Add camera extra target to track the player during travel
+    if self.camera then
+        local pos = self.pathFollow:getPositionV()
+        self.camera:addExtraTarget('jump_travel', {
+            x = pos.x - 16,
+            y = pos.y - 16,
+            w = 32,
+            h = 32,
+        })
+    end
+    
+    -- Enable speed streak
+    if player.speedStreak then
+        player.speedStreak:enable()
+    end
+end
+
+function JumpTravelState:update(dt)
+    local player = self.entity
+    self.elapsed = self.elapsed + dt
+    
+    -- Update path follow to move player along spline
+    if self.pathFollow then
+        self.pathFollow:update(dt)
+    end
+    
+    -- Update camera extra target position
+    if self.camera and self.pathFollow then
+        local pos = self.pathFollow:getPositionV()
+        self.camera:addExtraTarget('jump_travel', {
+            x = pos.x - 16,
+            y = pos.y - 16,
+            w = 32,
+            h = 32,
+        })
+    end
+    
+    if self.elapsed >= self.duration then
+        -- Travel complete
+        player.fsm:setState('FallState')
+    end
+end
+
+function JumpTravelState:exit()
+    local player = self.entity
+    
+    -- Remove camera extra target
+    if self.camera then
+        self.camera:removeExtraTarget('jump_travel')
+    end
+    
+    -- Disable speed streak (FallState will re-enable if still airborne)
+    if player.speedStreak then
+        player.speedStreak:disable()
+    end
     
     -- Restore physics
     player.collider:setType('dynamic')
@@ -636,4 +735,5 @@ return {
     DeadState = DeadState,
     WrappedState = WrappedState,
     TeleportTravelState = TeleportTravelState,
+    JumpTravelState = JumpTravelState,
 }

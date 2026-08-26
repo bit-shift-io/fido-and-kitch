@@ -4,7 +4,7 @@
 -- real bump World can stand in for the game's proximity query.
 local HeadlessBootstrap = require('tests.support.headless_bootstrap')
 
-local Particles = require('src.particles')
+local Particles = require('src.emitters.sprite_emitter')
 local UsableSparkle = require('src.components.usable_sparkle')
 
 --
