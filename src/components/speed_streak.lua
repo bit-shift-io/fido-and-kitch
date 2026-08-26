@@ -2,6 +2,7 @@
 -- Attaches to a player entity and emits a continuous mesh ribbon trail while airborne.
 local Class = require('lib.hump.class')
 local MeshRibbonEmitter = require('src.emitters.mesh_ribbon_emitter')
+local Log = require('src.utils.log')
 
 local SpeedStreak = Class{}
 
@@ -27,12 +28,12 @@ end
 
 function SpeedStreak:enable()
     self.enabled = true
-    print("SpeedStreak ENABLED - resetting emitter")
+    Log.debug("SpeedStreak ENABLED - resetting emitter")
     self.emitter:reset()
 end
 
 function SpeedStreak:disable()
-    print("SpeedStreak DISABLED")
+    Log.debug("SpeedStreak DISABLED")
     self.enabled = false
 end
 

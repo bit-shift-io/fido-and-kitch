@@ -1,33 +1,40 @@
-# Teleporter Travel Implementation Tasks
+# Cleanup Tasks from Audit
 
-## Core Implementation
+## High Priority
 
-- [x] Create `src/fx/teleport_trail.lua` — new particle preset with oscillating curve emission
-- [x] Add `TeleportTravelState` to `src/player/player_states.lua`
-- [x] Register `TeleportTravelState` in `src/player/player.lua` FSM
-- [x] Modify `Teleport:use()` in `src/entities/teleport.lua` to spawn travel effect and enter travel state
-- [x] Add player visibility toggle (hidden during travel) in `src/player/player.lua`
-- [x] Ensure `map.fx` accessible for teleport to register effect (verify `src/map/init.lua`)
+- [x] Delete `src/emitters/ribbon_emitter.lua` (unused, superseded by mesh_ribbon_emitter.lua)
+- [x] Replace debug `print()` calls in `src/components/speed_streak.lua:30,35` with `Log.debug()`
 
-## Curve Math & Configuration
+## Medium Priority
 
-- [x] Implement curve generation: half-sine wave + perpendicular noise in `teleport_trail.lua`
-- [x] Add distance-based duration calculation (base 0.8s + 0.002s/px, clamp 0.5-3s)
+- [x] Create `src/player/states/` directory
+- [x] Extract `LadderState` from `src/player/player_states.lua` to `src/player/states/ladder_state.lua`
+- [x] Extract `WalkIdleState` from `src/player/player_states.lua` to `src/player/states/walk_idle_state.lua`
+- [x] Extract `FallState` from `src/player/player_states.lua` to `src/player/states/fall_state.lua`
+- [x] Extract `DeadState` from `src/player/player_states.lua` to `src/player/states/dead_state.lua`
+- [x] Extract `WrappedState` from `src/player/player_states.lua` to `src/player/states/wrapped_state.lua`
+- [x] Extract `TeleportTravelState` from `src/player/player_states.lua` to `src/player/states/teleport_travel_state.lua`
+- [x] Extract `JumpTravelState` from `src/player/player_states.lua` to `src/player/states/jump_travel_state.lua`
+- [x] Update `src/player/player_states.lua` to require and re-export all state classes
+- [x] Update `src/player/player.lua` to use new state module paths (no change needed - already uses `PlayerStates` table)
 
-## Particle Effects
+- [x] Split `src/ipc/game_api.lua` into domain handlers:
+  - [x] Create `src/ipc/handlers/player.lua` (getPlayerPos, movePlayer, injectInput, holdKey)
+  - [x] Create `src/ipc/handlers/map.lua` (loadMap, getTileGrid, restartLevel, goToMenu)
+  - [x] Create `src/ipc/handlers/entity.lua` (getEntities, spawnEntity, getState)
+  - [x] Create `src/ipc/handlers/debug.lua` (toggleDebugDraw, takeScreenshot, resize, stepFrames, toggleCamera)
+  - [x] Update `src/ipc/game_api.lua` to delegate to handlers
+  - [x] Update `src/ipc/command_handlers.lua` to use new handler structure (no change needed - uses gameAPI delegation)
 
-- [x] Design oscillating particle behavior (spawn along curve, wavy motion, fade)
-- [x] Add particle color/tint configuration (cyan/magical palette)
+## Low Priority
 
-## Integration & Polish
+- [ ] Move inline TODO from `src/entities/blocker.lua:130` to `TODO.md`
+- [ ] Add missing sound assets (8 files listed in TODO.md) or remove references
+- [ ] Add `Tint = require('src.components.tint')` to `src/main.lua` globals
+- [ ] Consider extracting dialogue rendering from `src/entities/story.lua` into a component
 
-- [x] Wire travel sound loop (optional, if asset exists) - no dedicated asset, existing sounds work
-- [x] Test parallel co-op travel (two players simultaneously) - verified via integration tests
-- [x] Verify existing `in`/`out` sounds still play at source/destination
-- [x] Add unit test for curve generation math
-- [x] Add integration test for full travel sequence
+## Done
 
-## Cleanup
-
-- [x] Remove instant teleport code path from `Teleport:use()`
-- [x] Update any debug overlays to handle travel state - no changes needed
+- [x] Audit complete - findings documented in `AUDIT.md`
+- [x] High priority cleanup tasks completed
+- [x] Medium priority cleanup tasks completed (player states extraction, IPC handler split)
