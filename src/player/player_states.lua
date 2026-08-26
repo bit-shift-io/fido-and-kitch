@@ -652,6 +652,7 @@ function JumpTravelState:enter(prevState, params)
     self.duration = params.duration
     self.camera = params.camera
     self.elapsed = 0
+    self._lastVelocity = Vector(0, 0)
     
     -- Start the path follow timeline
     if self.pathFollow and self.pathFollow.timeline then
@@ -690,6 +691,11 @@ function JumpTravelState:update(dt)
     -- Update path follow to move player along spline
     if self.pathFollow then
         self.pathFollow:update(dt)
+        -- Store velocity BEFORE path finishes (finish callback zeros it)
+        local vel = self.pathFollow:getVelocity()
+        if vel and (vel.x ~= 0 or vel.y ~= 0) then
+            self._lastVelocity = vel:clone()
+        end
     end
     
     -- Update camera extra target position
@@ -722,11 +728,10 @@ function JumpTravelState:exit()
         player.speedStreak:disable()
     end
     
-    -- Restore physics - preserve downward velocity from path for smooth transition
+    -- Restore physics - use stored velocity from path for smooth transition
     local vx, vy = 0, 0
-    if self.pathFollow then
-        local vel = self.pathFollow:getVelocity()
-        vx, vy = vel.x, vel.y
+    if self._lastVelocity and (self._lastVelocity.x ~= 0 or self._lastVelocity.y ~= 0) then
+        vx, vy = self._lastVelocity.x, self._lastVelocity.y
     end
     -- Ensure downward velocity is at least terminal velocity for seamless fall
     local TERMINAL_VELOCITY = 500

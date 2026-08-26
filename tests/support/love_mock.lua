@@ -194,10 +194,24 @@ function LoveMock.new()
 		end,
 	}
 
+	local function newFakeMesh()
+		local mesh = {
+			vertices = {},
+			texture = nil,
+		}
+		function mesh:setVertices(verts) self.vertices = verts end
+		function mesh:getVertices() return self.vertices end
+		function mesh:setTexture(tex) self.texture = tex end
+		function mesh:draw() end
+		function mesh:getVertexCount() return #self.vertices end
+		return mesh
+	end
+
 	love.graphics = {
 		newImage = function(source) return newFakeImage() end,
 		newQuad = newFakeQuad,
 		newSpriteBatch = newFakeSpriteBatch,
+		newMesh = function(vertexFormat, vertices, drawMode) return newFakeMesh() end,
 		-- STI's atlas packer (used for image-collection tilesets, e.g.
 		-- props.tsx in the real maps) treats the returned canvas as an
 		-- image afterwards (tileset.image:getWidth() etc.), so it needs

@@ -42,6 +42,9 @@ function Emitter:init(opts)
     self.textureScaleV = opts.textureScaleV or 1.0
     self.textureScroll = opts.textureScroll or 0
     self.minSpeed = opts.minSpeed or 50
+    self.fadeInTime = opts.fadeInTime or 0.1
+    self.fadeOutTime = opts.fadeOutTime or 0.5
+    self.debugAlphaColor = opts.debugAlphaColor or false
     
     self._segments = {}  -- {pos, age, velocity}
     self._mesh = nil
@@ -83,17 +86,13 @@ function Emitter:update(dt, pos, vel)
             dirX, dirY = vel.x / speed, vel.y / speed
         end
         
-        -- Perpendicular for ribbon width
-        local perpX, perpY = -dirY, dirX
-        
+        -- Direction is stored per segment; perpendicular computed dynamically in _rebuildMesh
         local segment = {
             x = pos.x,
             y = pos.y,
             age = 0,
             dirX = dirX,
             dirY = dirY,
-            perpX = perpX,
-            perpY = perpY,
             halfWidth = self.width * 0.5,
             speed = speed,
         }
@@ -140,19 +139,13 @@ function Emitter:_rebuildMesh()
     local verts = {}
     local segCount = #self._segments
     
-    -- Fade params
-    local fadeInTime = self.fadeInTime or 0.1   -- 10% of lifetime
-    local fadeOutTime = self.fadeOutTime or 0.5 -- 50% of lifetime
+    local fadeInTime = self.fadeInTime or 0.1
+    local fadeOutTime = self.fadeOutTime or 0.5
     
     for i = 1, segCount do
         local s = self._segments[i]
         local t = clamp(s.age / self.lifetime, 0, 1)
         
-        -- Interpolate color
-        local r = math.floor(lerp(self.colorStart[1], self.colorEnd[1], t) * 255)
-        local g = math.floor(lerp(self.colorStart[2], self.colorEnd[2], t) * 255)
-        local b = math.floor(lerp(self.colorStart[3], self.colorEnd[3], t) * 255)
-        
         -- Alpha with fade-in/fade-out
         local baseAlpha = lerp(self.colorStart[4], self.colorEnd[4], t)
         local alpha = baseAlpha
@@ -160,49 +153,43 @@ function Emitter:_rebuildMesh()
         -- Fade in at start (ease-in)
         if t < fadeInTime then
             local ft = t / fadeInTime
-            alpha = alpha * (ft * ft * (3 - 2 * ft)) -- smoothstep
+            alpha = alpha * (ft * ft * (3 - 2 * ft))
         end
         
         -- Fade out at end (ease-out)
         if t > 1 - fadeOutTime then
             local ft = (t - (1 - fadeOutTime)) / fadeOutTime
-            alpha = alpha * (1 - ft * ft * (3 - 2 * ft)) -- smoothstep out
+            alpha = alpha * (1 - ft * ft * (3 - 2 * ft))
         end
         
         local a = math.floor(alpha * 255)
         
--- Interpolate color
-        local r = math.floor(lerp(self.colorStart[1], self.colorEnd[1], t) * 255)
-        local g = math.floor(lerp(self.colorStart[2], self.colorEnd[2], t) * 255)
-        local b = math.floor(lerp(self.colorStart[3], self.colorEnd[3], t) * 255)
-        
-        -- Alpha with fade-in/fade-out
-        local baseAlpha = lerp(self.colorStart[4], self.colorEnd[4], t)
-        local alpha = baseAlpha
-        
-        -- Fade in at start (ease-in)
-        if t < fadeInTime then
-            local ft = t / fadeInTime
-            alpha = alpha * (ft * ft * (3 - 2 * ft)) -- smoothstep
+        -- Color: either from colorStart/colorEnd, or debug alpha visualization
+        local r, g, b
+        if self.debugAlphaColor then
+            -- Debug: visualize ACTUAL alpha (with fadeIn/fadeOut easing) as color
+            -- white=opaque, blue=transparent
+            local alphaNorm = alpha  -- already computed with fadeIn/fadeOut
+            r = math.floor(alphaNorm * 255)
+            g = math.floor(alphaNorm * 255)
+            b = math.floor((1 - alphaNorm) * 255)
+        else
+            r = math.floor(lerp(self.colorStart[1], self.colorEnd[1], t) * 255)
+            g = math.floor(lerp(self.colorStart[2], self.colorEnd[2], t) * 255)
+            b = math.floor(lerp(self.colorStart[3], self.colorEnd[3], t) * 255)
         end
-        
-        -- Fade out at end (ease-out)
-        if t > 1 - fadeOutTime then
-            local ft = (t - (1 - fadeOutTime)) / fadeOutTime
-            alpha = alpha * (1 - ft * ft * (3 - 2 * ft)) -- smoothstep out
-        end
-        
-        local a = math.floor(alpha * 255)
         
         -- UV coordinates
-        local u = 0  -- left edge
-        local u2 = 1 -- right edge
-        -- V goes from 0 at head to 1 at tail (or scaled)
+        local u = 0
+        local u2 = 1
         local v = (i - 1) / math.max(1, segCount - 1) * self.textureScaleV + self._scrollOffset
         
-        -- Left vertex (flat format for LÖVE 12)
-        table.insert(verts, s.x - s.perpX * s.halfWidth)
-        table.insert(verts, s.y - s.perpY * s.halfWidth)
+        -- Compute perpendicular from stored direction
+        local perpX, perpY = -s.dirY, s.dirX
+        
+        -- Left vertex
+        table.insert(verts, s.x - perpX * s.halfWidth)
+        table.insert(verts, s.y - perpY * s.halfWidth)
         table.insert(verts, u)
         table.insert(verts, v)
         table.insert(verts, r)
@@ -211,8 +198,8 @@ function Emitter:_rebuildMesh()
         table.insert(verts, a)
         
         -- Right vertex
-        table.insert(verts, s.x + s.perpX * s.halfWidth)
-        table.insert(verts, s.y + s.perpY * s.halfWidth)
+        table.insert(verts, s.x + perpX * s.halfWidth)
+        table.insert(verts, s.y + perpY * s.halfWidth)
         table.insert(verts, u2)
         table.insert(verts, v)
         table.insert(verts, r)
@@ -221,20 +208,22 @@ function Emitter:_rebuildMesh()
         table.insert(verts, a)
     end
     
-    -- Build vertices as table of tables (one table per vertex)
+    -- Build table of tables for LÖVE 12 format+location syntax
+    -- Each vertex is a table with 8 values: x, y, u, v, r, g, b, a
+    -- Normalize color to 0-1 range for floatvec4 format
     local meshVerts = {}
     for i = 1, #verts, 8 do
         table.insert(meshVerts, {
-            verts[i], verts[i+1],      -- VertexPosition (x, y)
-            verts[i+2], verts[i+3],    -- VertexTexCoord (u, v)
-            verts[i+4], verts[i+5], verts[i+6], verts[i+7]  -- VertexColor (r, g, b, a)
+            verts[i], verts[i+1],                              -- VertexPosition (x, y)
+            verts[i+2], verts[i+3],                            -- VertexTexCoord (u, v)
+            verts[i+4]/255, verts[i+5]/255, verts[i+6]/255, verts[i+7]/255  -- VertexColor (r, g, b, a) 0-1
         })
     end
     
     self._mesh = love.graphics.newMesh({
-        {format = "floatvec2", location = 0},    -- VertexPosition (vec2)
-        {format = "floatvec2", location = 1},    -- VertexTexCoord (vec2)
-        {format = "unorm8vec4", location = 2},   -- VertexColor (RGBA byte, normalized)
+        {name = "VertexPosition", format = "floatvec2", location = 0},
+        {name = "VertexTexCoord", format = "floatvec2", location = 1},
+        {name = "VertexColor", format = "floatvec4", location = 2},
     }, meshVerts, "strip")
     
     if not self._mesh then
@@ -256,12 +245,21 @@ function Emitter:draw()
     end
     
     if self._mesh then
-        local prevBlendMode, prevAlphaMode = love.graphics.getBlendMode()
-        love.graphics.setBlendMode("alpha")
-        -- Use white with alpha=1 to show vertex alpha (vertex colors already have fade)
         love.graphics.setColor(1, 1, 1, 1)
+        
+        -- Use provided texture, or 1x1 white fallback (needed for vertex colors to render)
+        local tex = self._texture
+        if not tex then
+            if not self._whiteTexture then
+                local imgData = love.image.newImageData(1, 1)
+                imgData:setPixel(0, 0, 1, 1, 1, 1)
+                self._whiteTexture = love.graphics.newImage(imgData)
+            end
+            tex = self._whiteTexture
+        end
+        self._mesh:setTexture(tex)
+        
         love.graphics.draw(self._mesh)
-        love.graphics.setBlendMode(prevBlendMode, prevAlphaMode)
     end
 end
 

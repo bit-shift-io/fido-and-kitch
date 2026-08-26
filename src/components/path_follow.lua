@@ -74,6 +74,9 @@ function PathFollow:getPositionV()
 end
 
 function PathFollow:getVelocity()
+    if self.finished then
+        return Vector(0, 0)
+    end
     return self._velocity:clone()
 end
 

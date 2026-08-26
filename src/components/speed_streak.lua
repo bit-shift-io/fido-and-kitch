@@ -21,14 +21,18 @@ function SpeedStreak:init(props)
         minSpeed = 0,
         fadeInTime = 0.08,   -- 8% lifetime fade in
         fadeOutTime = 0.6,   -- 60% lifetime fade out
+        debugAlphaColor = true, -- DEBUG: visualize alpha as white-to-blue gradient
     })
 end
 
 function SpeedStreak:enable()
     self.enabled = true
+    print("SpeedStreak ENABLED - resetting emitter")
+    self.emitter:reset()
 end
 
 function SpeedStreak:disable()
+    print("SpeedStreak DISABLED")
     self.enabled = false
 end
 
