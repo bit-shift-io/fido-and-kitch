@@ -77,10 +77,10 @@ function JumpPad:use(user)
         path=Path(self.pathObject),
         speed=120,
 		offset=offset,
-		easing='outQuad'
+		easing='linear'
     })
 
-	local duration = pathFollow.path.length / 400
+	local duration = pathFollow.path.length / 120
 	user.fsm:setState('JumpTravelState', {
 		pathFollow = pathFollow,
 		duration = duration,

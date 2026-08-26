@@ -48,7 +48,8 @@ function PathFollow:update(dt)
 	end
 	self.timeline:update(dt)
 
-	local pos = self.path:getPositionV(self.timeline:timePercent())
+	local distance = self.timeline:timePercent() * self.path.length
+	local pos = self.path:getPositionV(distance)
 	pos = pos + self.offset
 
 	if self.sprite then
@@ -67,7 +68,8 @@ end
 
 
 function PathFollow:getPositionV()
-    local pos = self.path:getPositionV(self.timeline:timePercent())
+    local distance = self.timeline:timePercent() * self.path.length
+    local pos = self.path:getPositionV(distance)
     return pos
 end
 

@@ -722,10 +722,21 @@ function JumpTravelState:exit()
         player.speedStreak:disable()
     end
     
-    -- Restore physics
+    -- Restore physics - preserve downward velocity from path for smooth transition
+    local vx, vy = 0, 0
+    if self.pathFollow then
+        local vel = self.pathFollow:getVelocity()
+        vx, vy = vel.x, vel.y
+    end
+    -- Ensure downward velocity is at least terminal velocity for seamless fall
+    local TERMINAL_VELOCITY = 500
+    if vy < TERMINAL_VELOCITY then
+        vy = TERMINAL_VELOCITY
+    end
+    
     player.collider:setType('dynamic')
     player.collider:setGravityScale(1)
-    player.collider:setLinearVelocity(0, 0)
+    player.collider:setLinearVelocity(vx, vy)
 end
 
 return {

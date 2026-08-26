@@ -1,5 +1,5 @@
 -- Path component
--- just a somple path utility class
+-- just a simple path utility class
 
 local Log = require('src.utils.log')
 
@@ -26,10 +26,9 @@ function Path:init(props)
     self.curve = love.math.newBezierCurve(curveTable)
 
     -- bezier curves arent linear in t, so sample the curve into a dense table
-    -- and traverse it with piecewise-linear interpolation. This makes travel
-    -- along the path a constant world speed (t=0 -> sample[1], t=1 ->
-    -- sample[#]) instead of easing into/out of the authored points. The
-    -- sampled table also gives us the true arc length for duration math.
+    -- at uniform arc-length intervals. This makes travel along the path a
+    -- constant world speed instead of easing into/out of the authored points.
+    -- The sampled table also gives us the true arc length for duration math.
     local SAMPLE_COUNT = 100
     self.samples = {}
     self.length = 0
@@ -42,20 +41,51 @@ function Path:init(props)
         end
         prev = v
     end
+
+    -- Build arc-length parameterization: cumulative distances at each sample
+    self.arcLengths = {0}
+    for i = 2, #self.samples do
+        local dist = self.samples[i-1]:dist(self.samples[i])
+        self.arcLengths[i] = self.arcLengths[i-1] + dist
+    end
 end
 
-function Path:getPositionV(percentage)
+function Path:getPositionV(distance)
     if #self.samples == 0 then
         return Vector(0, 0)
     end
 
-    local t = math.min(1, math.max(0, percentage))
-    local scaled = t * (#self.samples - 1)
-    local index = math.floor(scaled)
-    local f = scaled - index
-    local a = self.samples[index + 1]
-    local b = self.samples[math.min(index + 2, #self.samples)]
+    -- distance is arc length along the curve (0 to self.length)
+    local d = math.min(self.length, math.max(0, distance))
+
+    -- Find the segment containing this distance
+    local i = 1
+    while i < #self.arcLengths and self.arcLengths[i+1] < d do
+        i = i + 1
+    end
+
+    if i >= #self.samples then
+        return self.samples[#self.samples]:clone()
+    end
+
+    local segStart = self.arcLengths[i]
+    local segEnd = self.arcLengths[i+1]
+    local segLen = segEnd - segStart
+
+    if segLen <= 0 then
+        return self.samples[i]:clone()
+    end
+
+    local f = (d - segStart) / segLen
+    local a = self.samples[i]
+    local b = self.samples[i+1]
     return a + (b - a) * f
+end
+
+-- Backward compatibility: if called with a percentage (0-1), treat as arc-length fraction
+function Path:getPositionAtPercent(percent)
+    local t = math.min(1, math.max(0, percent))
+    return self:getPositionV(t * self.length)
 end
 
 function Path:draw()
