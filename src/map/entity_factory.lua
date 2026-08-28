@@ -68,7 +68,9 @@ function EntityFactory:createEntities(map, world)
 					end
 				end
 
-				for i, v in pairs(remove_keys) do
+				table.sort(remove_keys)
+				for i = #remove_keys, 1, -1 do
+					local v = remove_keys[i]
 					local entity = self.entities[v]
 					table.remove(self.entities, v)
 					if entity.destroy_flag then
