@@ -133,8 +133,32 @@ local function resolveEmbeddedTileset(ts, firstgid, mapDir)
 	return tileset
 end
 
---- Parses an object from TMJ format.
-local function parseObject(obj, tsFirstgidByGid)
+--- Resolves template-local gid into map-global gid using the tileset allocator.
+local function resolveTemplateGid(template, firstgidFor, deps)
+	local tmpl = template
+	if tmpl.tilesetRef and tmpl.object.gid then
+		local mapFirstgid = firstgidFor(tmpl.tilesetRef.path, deps)
+		return tmpl.object.gid - tmpl.tilesetRef.firstgid + mapFirstgid
+	end
+	return nil
+end
+
+--- Parses an object from TMJ format, resolving template references when present.
+-- @param firstgidFor Function to resolve a template's tileset path to a map
+--   firstgid (from the allocator), same contract as tmx.lua's firstgidFor.
+local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
+	-- Resolve template: the template provides defaults for type, gid, name,
+	-- width, height, and properties. Instance fields override.
+	local base = { properties = {} }
+	local templateGid = nil
+
+	if obj.template then
+		local templatePath = stiUtils.format_path(mapDir .. obj.template)
+		local template = TmxTemplate.resolve(templatePath, deps)
+		base = template.object
+		templateGid = resolveTemplateGid(template, firstgidFor, deps)
+	end
+
 	local shape = obj.shape or 'rectangle'
 	local shapeKey, points = nil, nil
 
@@ -160,25 +184,54 @@ local function parseObject(obj, tsFirstgidByGid)
 
 	local object = {
 		id = tonumber(obj.id),
-		name = obj.name or '',
-		type = obj.type or obj.class or '',
+		name = obj.name or base.name or '',
+		type = obj.type or obj.class or base.type or '',
 		shape = shape,
 		x = tonumber(obj.x) or 0,
 		y = tonumber(obj.y) or 0,
-		width = tonumber(obj.width) or 0,
-		height = tonumber(obj.height) or 0,
+		width = tonumber(obj.width) or base.width or 0,
+		height = tonumber(obj.height) or base.height or 0,
 		rotation = tonumber(obj.rotation) or 0,
 		opacity = tonumber(obj.opacity) or 1,
 		visible = obj.visible ~= false,
 		properties = {},
 	}
 
-	if obj.gid then
-		object.gid = tonumber(obj.gid)
+	-- Gid: instance explicit > template remapped > nothing
+	local gid = tonumber(obj.gid) or templateGid
+	if gid then
+		object.gid = gid
 	end
 
 	if shapeKey then
 		object[shapeKey] = points
+	end
+
+	-- Properties: merge template defaults with instance overrides.
+	-- TmxTemplate.resolve returns a template's properties either as a keyed
+	-- table (name -> value, when parsed from a .tx) or as the raw JSON array
+	-- form ([{name,type,value}, ...], when parsed from a .tj). Normalise both
+	-- to keyed values, then overlay the instance's parsed keyed properties.
+	if base.properties then
+		if base.properties[1] and base.properties[1].name then
+			-- JSON array form from a .tj template
+			for _, prop in ipairs(base.properties) do
+				local val = prop.value
+				if prop.type == 'bool' then
+					val = prop.value == true or prop.value == 'true'
+				elseif prop.type == 'int' or prop.type == 'float' then
+					val = tonumber(prop.value)
+				elseif prop.type == 'object' then
+					val = { id = tonumber(prop.value) }
+				end
+				object.properties[prop.name] = val
+			end
+		else
+			-- Keyed form from a .tx template
+			for name, val in pairs(base.properties) do
+				object.properties[name] = val
+			end
+		end
 	end
 
 	if obj.properties then
@@ -218,7 +271,7 @@ local function parseProperties(props)
 end
 
 --- Parses a layer from TMJ format.
-local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, allocator, deps)
+local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, deps)
 	local layerType = layer.type
 
 	if layerType == 'tilelayer' then
@@ -252,7 +305,7 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, a
 		local objects = {}
 		if layer.objects then
 			for _, obj in ipairs(layer.objects) do
-				table.insert(objects, parseObject(obj, tsFirstgidByGid))
+				table.insert(objects, parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps))
 			end
 		end
 		return {
@@ -291,7 +344,7 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, a
 		local layers = {}
 		if layer.layers then
 			for _, childLayer in ipairs(layer.layers) do
-				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, allocator, deps))
+				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, deps))
 			end
 		end
 		return {
@@ -443,7 +496,7 @@ function Tmj.parse(tmjPath)
 	if mapData.layers then
 		local deps = { readFile = readFile }
 		for _, layer in ipairs(mapData.layers) do
-			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir, allocator, deps))
+			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir, firstgidFor, deps))
 		end
 	end
 	return map

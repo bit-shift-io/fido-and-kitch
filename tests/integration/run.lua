@@ -50,6 +50,7 @@ local defaultTestFiles = {
 	'tests/integration/pressure_switch_sound_test.lua',
 	'tests/integration/external_tileset_test.lua',
 	'tests/integration/tmx_test.lua',
+	'tests/integration/tmj_template_resolve_test.lua',
 	'tests/integration/coin_tracking_test.lua',
 	'tests/integration/player_died_payload_test.lua',
 	'tests/integration/story_test.lua',
