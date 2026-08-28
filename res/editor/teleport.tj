@@ -1,26 +1,26 @@
 {
-    "type": "template",
-    "tileset": {
-        "firstgid": 1,
-        "source": "tileset_props.tsj"
-    },
-    "object": {
-        "name": "teleporter",
-        "type": "teleport",
-        "width": 32,
-        "height": 32,
-        "gid": 9,
-        "properties": [
-            {
-                "name": "image",
-                "type": "file",
-                "value": "../img/teleporter_1.png"
-            },
-            {
-                "name": "target",
-                "type": "object",
-                "value": "28"
-            }
-        ]
-    }
+  "tileset": {
+    "source": "teleport.tsj",
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "file",
+        "name": "image",
+        "value": "../img/teleporter_1.png"
+      },
+      {
+        "type": "object",
+        "name": "target",
+        "value": "28"
+      }
+    ],
+    "type": "teleport",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "teleporter"
+  }
 }

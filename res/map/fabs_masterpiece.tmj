@@ -4,34 +4,8 @@
   "infinite": false,
   "layers": [
     {
-      "draworder": "topdown",
-      "id": 21,
-      "locked": true,
-      "name": "level",
-      "objects": [
-        {
-          "gid": 160,
-          "height": 638,
-          "id": 111,
-          "name": "",
-          "opacity": 1,
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 638,
-          "x": 0,
-          "y": 637
-        }
-      ],
-      "opacity": 1,
-      "type": "objectgroup",
-      "visible": true,
-      "x": 0,
-      "y": 0
-    },
-    {
       "compression": "",
-      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAgAAACoAAAAqAAAAKgAAACoAAAAqAAAAKgAAACoAAAAAAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAACoAAAAqAAAAKgAAACoAAAAqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAACoAAAAqAAAAKgAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAKgAAACoAAAAqAAAAKgAAACoAAAAqAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAACcAAAAAAAAAAAAAAAAAAAAFAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAADgAAAA4AAAAOAAAADgAAAA4AAAAOAAAAJwAAAAAAAAAAAAAAAAAAABwAAAAOAAAADgAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAA4AAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAA==",
+      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAKgAAACoAAAAqAAAAAAAAACoAAAAqAAAAKgAAAAoAAAAqAAAAKgAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAqAAAAKgAAACoAAAAqAAAACgAAAAoAAAAKAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAqAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAAAAKgAAACoAAAAqAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAoAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACYAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAnAAAAAAAAAAAAAAAAAAAABQAAAAYAAAAAAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAoAAAAAAAAAAAAAAAAAAAAAAAAACgAAAAoAAAAKAAAACgAAACYAAAAmAAAAAAAAAAAAAAAAAAAAAAAAABkAAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAKAAAADgAAAA4AAAAOAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJgAAACYAAAAmAAAAJgAAACYAAAAmAAAAAwAAAAMAAAADAAAAAwAAAA4AAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAAYAAAAGAAAABgAAAAoAAAAKAAAACAAAAAAAAAAAAAAA",
       "encoding": "base64",
       "height": 20,
       "id": 1,
@@ -45,22 +19,22 @@
         }
       ],
       "type": "tilelayer",
-      "visible": false,
-      "width": 20,
+      "visible": true,
+      "width": 30,
       "x": 0,
       "y": 0
     },
     {
       "compression": "",
-      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGkAAABpAAAAaQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeQAAAHkAAABxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaQAAAGkAAABpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeQAAAHkAAABxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGkAAABpAAAA",
       "encoding": "base64",
       "height": 20,
       "id": 14,
       "name": "water",
       "opacity": 1,
       "type": "tilelayer",
-      "visible": false,
-      "width": 20,
+      "visible": true,
+      "width": 30,
       "x": 0,
       "y": 0
     },
@@ -72,132 +46,171 @@
         {
           "gid": 147,
           "height": 32,
-          "id": 95,
+          "id": 111,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 128,
+          "x": 288,
           "y": 384
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 96,
+          "id": 112,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 128,
+          "x": 288,
           "y": 352
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 97,
+          "id": 113,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 128,
+          "x": 288,
           "y": 320
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 98,
+          "id": 114,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 128,
+          "x": 288,
           "y": 288
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 99,
+          "id": 115,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 128,
+          "x": 288,
           "y": 256
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 100,
+          "id": 116,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 128,
+          "x": 288,
           "y": 224
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 101,
+          "id": 117,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 160,
+          "x": 320,
           "y": 512
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 102,
+          "id": 118,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 160,
+          "x": 320,
           "y": 480
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 103,
+          "id": 119,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 160,
+          "x": 320,
           "y": 448
         },
         {
           "gid": 147,
           "height": 32,
-          "id": 104,
+          "id": 120,
           "name": "",
           "opacity": 1,
           "rotation": 0,
           "type": "ladder",
           "visible": true,
           "width": 32,
-          "x": 160,
+          "x": 320,
           "y": 416
+        },
+        {
+          "gid": 147,
+          "height": 32,
+          "id": 121,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "ladder",
+          "visible": true,
+          "width": 32,
+          "x": 96,
+          "y": 608
+        },
+        {
+          "gid": 147,
+          "height": 32,
+          "id": 122,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "ladder",
+          "visible": true,
+          "width": 32,
+          "x": 96,
+          "y": 576
+        },
+        {
+          "gid": 147,
+          "height": 32,
+          "id": 123,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "ladder",
+          "visible": true,
+          "width": 32,
+          "x": 96,
+          "y": 544
         }
       ],
       "opacity": 1,
@@ -212,7 +225,7 @@
       "name": "kill",
       "objects": [
         {
-          "height": 112,
+          "height": 48,
           "id": 78,
           "name": "water_kill",
           "opacity": 1,
@@ -227,8 +240,27 @@
           "type": "kill_zone",
           "visible": true,
           "width": 96,
-          "x": 224,
+          "x": 384,
           "y": 592
+        },
+        {
+          "height": 32,
+          "id": 103,
+          "name": "water_kill",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "deathType",
+              "type": "string",
+              "value": "water"
+            }
+          ],
+          "rotation": 0,
+          "type": "kill_zone",
+          "visible": true,
+          "width": 64,
+          "x": 896,
+          "y": 608
         }
       ],
       "opacity": 1,
@@ -259,7 +291,7 @@
           "type": "drawbridge",
           "visible": true,
           "width": 32,
-          "x": 352,
+          "x": 384,
           "y": 192
         },
         {
@@ -284,8 +316,8 @@
           "type": "teleport",
           "visible": true,
           "width": 32,
-          "x": 193.683,
-          "y": 511.321
+          "x": 288,
+          "y": 608
         },
         {
           "gid": 151,
@@ -304,7 +336,7 @@
           "type": "coin",
           "visible": true,
           "width": 32,
-          "x": 480,
+          "x": 640,
           "y": 352
         },
         {
@@ -317,8 +349,8 @@
           "type": "spawn",
           "visible": true,
           "width": 32,
-          "x": 96,
-          "y": 192
+          "x": 32,
+          "y": 576
         },
         {
           "gid": 154,
@@ -352,7 +384,7 @@
           "type": "cage",
           "visible": true,
           "width": 32,
-          "x": 32,
+          "x": 192,
           "y": 384
         },
         {
@@ -372,8 +404,8 @@
           "type": "exit_door",
           "visible": true,
           "width": 32,
-          "x": 416,
-          "y": 192
+          "x": 0,
+          "y": 576
         },
         {
           "gid": 148,
@@ -397,63 +429,8 @@
           "type": "switch",
           "visible": true,
           "width": 32,
-          "x": 288,
+          "x": 480,
           "y": 192
-        },
-        {
-          "gid": 158,
-          "height": 32,
-          "id": 106,
-          "name": "mover_platform",
-          "opacity": 1,
-          "properties": [
-            {
-              "name": "endBehaviour",
-              "type": "string",
-              "value": "pingpong"
-            },
-            {
-              "name": "path",
-              "type": "object",
-              "value": 105
-            },
-            {
-              "name": "pause",
-              "type": "float",
-              "value": 0.5
-            },
-            {
-              "name": "speed",
-              "type": "float",
-              "value": 50
-            }
-          ],
-          "rotation": 0,
-          "type": "mover_platform",
-          "visible": true,
-          "width": 32,
-          "x": 320,
-          "y": 384
-        },
-        {
-          "gid": 148,
-          "height": 32,
-          "id": 107,
-          "name": "mover_switch",
-          "opacity": 1,
-          "properties": [
-            {
-              "name": "target",
-              "type": "object",
-              "value": 106
-            }
-          ],
-          "rotation": 0,
-          "type": "switch",
-          "visible": true,
-          "width": 32,
-          "x": 384,
-          "y": 352
         },
         {
           "gid": 149,
@@ -477,8 +454,8 @@
           "type": "key",
           "visible": true,
           "width": 32,
-          "x": 96,
-          "y": 384
+          "x": 224,
+          "y": 608
         },
         {
           "gid": 153,
@@ -502,8 +479,8 @@
           "type": "teleport",
           "visible": true,
           "width": 32,
-          "x": 384,
-          "y": 544
+          "x": 704,
+          "y": 608
         },
         {
           "gid": 155,
@@ -527,48 +504,83 @@
           "type": "jump_pad",
           "visible": true,
           "width": 32,
-          "x": 192,
-          "y": 384
+          "x": 864,
+          "y": 608
         },
         {
-          "gid": 159,
-          "height": 64,
-          "id": 93,
-          "name": "blocker",
-          "opacity": 1,
-          "properties": [
-            {
-              "name": "spriteOffsetY",
-              "type": "float",
-              "value": -6
-            }
-          ],
-          "rotation": 0,
-          "type": "blocker",
-          "visible": true,
-          "width": 32,
-          "x": 256,
-          "y": 224
-        },
-        {
-          "gid": 148,
+          "gid": 123,
           "height": 32,
-          "id": 94,
-          "name": "blocker_switch",
+          "id": 75,
+          "name": "blue_cage",
           "opacity": 1,
           "properties": [
             {
-              "name": "target",
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            },
+            {
+              "name": "path",
               "type": "object",
-              "value": 93
+              "value": 77
+            },
+            {
+              "name": "spawn_type",
+              "type": "string",
+              "value": "rabbit"
             }
           ],
           "rotation": 0,
-          "type": "switch",
+          "type": "cage",
           "visible": true,
           "width": 32,
-          "x": 192,
-          "y": 192
+          "x": 672,
+          "y": 256
+        },
+        {
+          "gid": 123,
+          "height": 32,
+          "id": 76,
+          "name": "blue_key",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            }
+          ],
+          "rotation": 0,
+          "type": "key",
+          "visible": true,
+          "width": 32,
+          "x": 704,
+          "y": 544
+        },
+        {
+          "gid": 146,
+          "height": 32,
+          "id": 81,
+          "name": "push_box",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "allowPushWhenStoodOn",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "image",
+              "type": "file",
+              "value": "../img/pushable_crate_wood.png"
+            }
+          ],
+          "rotation": 0,
+          "type": "push_box",
+          "visible": true,
+          "width": 32,
+          "x": 768,
+          "y": 544
         },
         {
           "height": 30.2203,
@@ -579,8 +591,8 @@
           "type": "npc_robot",
           "visible": true,
           "width": 32,
-          "x": 29.9128,
-          "y": 480.308
+          "x": 608,
+          "y": 512
         },
         {
           "height": 32,
@@ -591,7 +603,7 @@
           "type": "npc_spider",
           "visible": true,
           "width": 32,
-          "x": 416.205,
+          "x": 576.205,
           "y": 317.467
         },
         {
@@ -611,8 +623,8 @@
           "type": "story",
           "visible": true,
           "width": 32,
-          "x": 576,
-          "y": 544
+          "x": 800,
+          "y": 256
         },
         {
           "gid": 157,
@@ -631,98 +643,73 @@
           "type": "story",
           "visible": true,
           "width": 32,
-          "x": 352,
+          "x": 512,
           "y": 352
+        },
+        {
+          "gid": 151,
+          "height": 32,
+          "id": 94,
+          "name": "coin",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "image",
+              "type": "file",
+              "value": "../img/coins.png"
+            }
+          ],
+          "rotation": 0,
+          "type": "coin",
+          "visible": true,
+          "width": 32,
+          "x": 640,
+          "y": 352
+        },
+        {
+          "gid": 151,
+          "height": 32,
+          "id": 95,
+          "name": "coin",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "image",
+              "type": "file",
+              "value": "../img/coins.png"
+            }
+          ],
+          "rotation": 0,
+          "type": "coin",
+          "visible": true,
+          "width": 32,
+          "x": 928,
+          "y": 448
         },
         {
           "gid": 155,
           "height": 32,
-          "id": 109,
-          "name": "replicator",
+          "id": 106,
+          "name": "jump_pad",
           "opacity": 1,
           "properties": [
-            {
-              "name": "maxSpawns",
-              "type": "int",
-              "value": 3
-            },
-            {
-              "name": "spawnType",
-              "type": "string",
-              "value": "push_box"
-            }
-          ],
-          "rotation": 0,
-          "type": "replicator",
-          "visible": true,
-          "width": 32,
-          "x": 512,
-          "y": 384
-        },
-        {
-          "gid": 148,
-          "height": 32,
-          "id": 110,
-          "name": "replicator_switch",
-          "opacity": 1,
-          "properties": [
-            {
-              "name": "target",
-              "type": "object",
-              "value": 109
-            }
-          ],
-          "rotation": 0,
-          "type": "switch",
-          "visible": true,
-          "width": 32,
-          "x": 448,
-          "y": 544
-        },
-        {
-          "gid": 149,
-          "height": 32,
-          "id": 112,
-          "name": "key",
-          "opacity": 1,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "blue"
-            },
             {
               "name": "image",
               "type": "file",
-              "value": "../img/entity_key.png"
-            }
-          ],
-          "rotation": 0,
-          "type": "key",
-          "visible": true,
-          "width": 32,
-          "x": 608,
-          "y": 256
-        },
-        {
-          "gid": 154,
-          "height": 32,
-          "id": 113,
-          "name": "cage",
-          "opacity": 1,
-          "properties": [
+              "value": "../img/entity_jump_pad.png"
+            },
             {
-              "name": "color",
-              "type": "string",
-              "value": "blue"
+              "name": "path",
+              "type": "object",
+              "value": 108
             }
           ],
           "rotation": 0,
-          "type": "cage",
+          "type": "jump_pad",
           "visible": true,
           "width": 32,
-          "x": 512,
-          "y": 256
+          "x": 480,
+          "y": 544
         }
       ],
       "opacity": 1,
@@ -743,66 +730,124 @@
           "opacity": 1,
           "polyline": [
             {
-              "x": 0,
-              "y": 0
+              "x": 213.185,
+              "y": 121.563
             },
             {
-              "x": 16,
-              "y": -48
+              "x": 200.311,
+              "y": 50.4949
             },
             {
-              "x": 48,
-              "y": -80
+              "x": 187.975,
+              "y": 19.4781
             },
             {
-              "x": 96,
-              "y": -96
+              "x": 166.789,
+              "y": 2.85675
             },
             {
-              "x": 128,
-              "y": -88
+              "x": 143.638,
+              "y": -4.47075
             },
             {
-              "x": 152,
-              "y": -64
+              "x": 122.991,
+              "y": 9.83188
             },
             {
-              "x": 160,
-              "y": -32
+              "x": 113.16,
+              "y": 30.5717
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
           "width": 0,
-          "x": 208,
-          "y": 384
+          "x": 672,
+          "y": 480
         },
         {
           "height": 0,
-          "id": 105,
-          "name": "mover_path",
+          "id": 107,
+          "name": "jump_path",
           "opacity": 1,
           "polyline": [
             {
-              "x": 144,
-              "y": 256
+              "x": 213.185,
+              "y": 121.563
             },
             {
-              "x": 96,
-              "y": 192
+              "x": 208.176,
+              "y": 49.5117
             },
             {
-              "x": 144,
-              "y": 64
+              "x": 193.874,
+              "y": 18.4949
+            },
+            {
+              "x": 166.789,
+              "y": 2.85675
+            },
+            {
+              "x": 148.554,
+              "y": 15.193
+            },
+            {
+              "x": 143.638,
+              "y": 39.3275
+            },
+            {
+              "x": 140.689,
+              "y": 59.0841
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
           "width": 0,
-          "x": 192,
-          "y": 288
+          "x": 864,
+          "y": 512
+        },
+        {
+          "height": 0,
+          "id": 108,
+          "name": "jump_path",
+          "opacity": 1,
+          "polyline": [
+            {
+              "x": 213.185,
+              "y": 121.563
+            },
+            {
+              "x": 198.344,
+              "y": 80.9737
+            },
+            {
+              "x": 180.109,
+              "y": 53.8896
+            },
+            {
+              "x": 157.94,
+              "y": 39.2347
+            },
+            {
+              "x": 131.84,
+              "y": 36.8231
+            },
+            {
+              "x": 106.277,
+              "y": 53.0921
+            },
+            {
+              "x": 83.6641,
+              "y": 87.5965
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 288,
+          "y": 416
         }
       ],
       "opacity": 1,
@@ -824,8 +869,8 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 256,
-          "x": 96,
+          "width": 128,
+          "x": 256,
           "y": 192
         },
         {
@@ -837,7 +882,7 @@
           "type": "",
           "visible": true,
           "width": 96,
-          "x": 384,
+          "x": 544,
           "y": 192
         },
         {
@@ -849,7 +894,7 @@
           "type": "",
           "visible": true,
           "width": 32,
-          "x": 32,
+          "x": 192,
           "y": 192
         },
         {
@@ -860,8 +905,8 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 192,
-          "x": 448,
+          "width": 288,
+          "x": 608,
           "y": 256
         },
         {
@@ -873,7 +918,7 @@
           "type": "",
           "visible": true,
           "width": 160,
-          "x": 352,
+          "x": 512,
           "y": 352
         },
         {
@@ -885,7 +930,7 @@
           "type": "",
           "visible": true,
           "width": 224,
-          "x": 0,
+          "x": 160,
           "y": 384
         },
         {
@@ -896,8 +941,8 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 224,
-          "x": 0,
+          "width": 64,
+          "x": 320,
           "y": 512
         },
         {
@@ -908,8 +953,140 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 320,
-          "x": 320,
+          "width": 128,
+          "x": 576,
+          "y": 544
+        },
+        {
+          "height": 64,
+          "id": 96,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 0,
+          "y": 576
+        },
+        {
+          "height": 128,
+          "id": 97,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 64,
+          "x": 128,
+          "y": 512
+        },
+        {
+          "height": 32,
+          "id": 98,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 192,
+          "y": 512
+        },
+        {
+          "height": 32,
+          "id": 99,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 192,
+          "y": 608
+        },
+        {
+          "height": 32,
+          "id": 100,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 704,
+          "y": 544
+        },
+        {
+          "height": 32,
+          "id": 101,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 192,
+          "x": 704,
+          "y": 608
+        },
+        {
+          "height": 32,
+          "id": 102,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 96,
+          "x": 864,
+          "y": 448
+        },
+        {
+          "height": 32,
+          "id": 104,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 224,
+          "x": 416,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 105,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 32,
+          "x": 96,
+          "y": 512
+        },
+        {
+          "height": 64,
+          "id": 109,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 32,
+          "x": 544,
+          "y": 576
+        },
+        {
+          "height": 96,
+          "id": 110,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 64,
+          "x": 480,
           "y": 544
         }
       ],
@@ -927,8 +1104,8 @@
       "y": 0
     }
   ],
-  "nextlayerid": 22,
-  "nextobjectid": 114,
+  "nextlayerid": 20,
+  "nextobjectid": 124,
   "orientation": "orthogonal",
   "properties": [
     {
@@ -939,17 +1116,17 @@
     {
       "name": "description",
       "type": "string",
-      "value": "A compact test level."
+      "value": "A new work-in-progress level."
     },
     {
       "name": "name",
       "type": "string",
-      "value": "Sandbox"
+      "value": "Fab's Masterpiece"
     },
     {
       "name": "players",
       "type": "int",
-      "value": 1
+      "value": 2
     }
   ],
   "renderorder": "right-down",
@@ -1098,33 +1275,10 @@
         }
       ],
       "tilewidth": 714
-    },
-    {
-      "columns": 0,
-      "firstgid": 160,
-      "grid": {
-        "height": 1,
-        "orientation": "orthogonal",
-        "width": 1
-      },
-      "margin": 0,
-      "name": "levels",
-      "spacing": 0,
-      "tilecount": 1,
-      "tileheight": 1024,
-      "tiles": [
-        {
-          "id": 0,
-          "image": "../img/world/sandbox.png",
-          "imageheight": 1024,
-          "imagewidth": 1024
-        }
-      ],
-      "tilewidth": 1024
     }
   ],
   "tilewidth": 32,
   "type": "map",
   "version": "1.11",
-  "width": 20
+  "width": 30
 }

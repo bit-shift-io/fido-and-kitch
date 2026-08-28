@@ -1,13 +1,13 @@
 {
-    "type": "template",
-    "tileset": {
-        "firstgid": 1,
-        "source": "tileset_props.tsj"
-    },
-    "object": {
-        "type": "ladder",
-        "width": 32,
-        "height": 32,
-        "gid": 3
-    }
+  "tileset": {
+    "source": "ladder.tsj",
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "gid": 1,
+    "width": 32,
+    "type": "ladder",
+    "height": 32
+  }
 }

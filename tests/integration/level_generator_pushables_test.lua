@@ -13,7 +13,7 @@ local Main = require('tools.level_generator.main')
 
 local FakeInput = FakeInputModule.FakeInput
 
-local GENERATED_PATH = 'res/map/generated/_test_pushables.tmx'
+local GENERATED_PATH = 'res/map/generated/_test_pushables.tmj'
 
 local function writeGeneratedFixture(seed, size, difficulty)
 	local result = Main.generate({seed = seed, count = 1, size = size, difficulty = difficulty})[1]

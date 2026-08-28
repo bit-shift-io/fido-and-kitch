@@ -1,36 +1,36 @@
 {
-    "type": "template",
-    "tileset": {
-        "firstgid": 1,
-        "source": "tileset_props.tsj"
-    },
-    "object": {
-        "name": "mover_platform",
-        "type": "mover_platform",
-        "width": 32,
-        "height": 32,
-        "gid": 14,
-        "properties": [
-            {
-                "name": "endBehaviour",
-                "type": "string",
-                "value": "pingpong"
-            },
-            {
-                "name": "path",
-                "type": "object",
-                "value": "0"
-            },
-            {
-                "name": "pause",
-                "type": "float",
-                "value": 0.5
-            },
-            {
-                "name": "speed",
-                "type": "float",
-                "value": 50.0
-            }
-        ]
-    }
+  "tileset": {
+    "source": "mover_platform.tsj",
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "endBehaviour",
+        "value": "pingpong"
+      },
+      {
+        "type": "object",
+        "name": "path",
+        "value": "0"
+      },
+      {
+        "type": "float",
+        "name": "pause",
+        "value": 0.5
+      },
+      {
+        "type": "float",
+        "name": "speed",
+        "value": 50
+      }
+    ],
+    "type": "mover_platform",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "mover_platform"
+  }
 }

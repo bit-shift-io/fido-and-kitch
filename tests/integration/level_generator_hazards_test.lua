@@ -9,7 +9,7 @@ local Main = require('tools.level_generator.main')
 local Layout = require('tools.level_generator.layout')
 local Rng = require('tools.level_generator.rng')
 
-local GENERATED_PATH = 'res/map/generated/_test_hazards.tmx'
+local GENERATED_PATH = 'res/map/generated/_test_hazards.tmj'
 
 local function writeGeneratedFixture(seed, size, difficulty)
 	local result = Main.generate({seed = seed, count = 1, size = size, difficulty = difficulty})[1]

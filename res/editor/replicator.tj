@@ -1,27 +1,27 @@
 {
-    "type": "template",
-    "tileset": {
-        "firstgid": 1,
-        "source": "tileset_props.tsj"
-    },
-    "object": {
-        "name": "replicator",
-        "type": "replicator",
-        "width": 32,
-        "height": 32,
-        "gid": 11,
-        "rotation": 0,
-        "properties": [
-            {
-                "name": "spawnType",
-                "type": "string",
-                "value": "push_box"
-            },
-            {
-                "name": "maxSpawns",
-                "type": "int",
-                "value": 1
-            }
-        ]
-    }
+  "tileset": {
+    "source": "replicator.tsj",
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "spawnType",
+        "value": "push_box"
+      },
+      {
+        "type": "int",
+        "name": "maxSpawns",
+        "value": 1
+      }
+    ],
+    "type": "replicator",
+    "height": 32,
+    "rotation": 0,
+    "gid": 1,
+    "width": 32,
+    "name": "replicator"
+  }
 }

@@ -6,7 +6,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Main = require('tools.level_generator.main')
 
-local GENERATED_PATH = 'res/map/generated/_test_end_to_end.tmx'
+local GENERATED_PATH = 'res/map/generated/_test_end_to_end.tmj'
 
 local function writeGeneratedFixture(seed)
 	local result = Main.generate({seed = seed, count = 1, size = 'large', difficulty = 5, coop = 'required'})[1]

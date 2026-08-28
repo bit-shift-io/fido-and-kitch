@@ -1,26 +1,26 @@
 {
-    "type": "template",
-    "tileset": {
-        "firstgid": 1,
-        "source": "tileset_props.tsj"
-    },
-    "object": {
-        "name": "key",
-        "type": "key",
-        "width": 32,
-        "height": 32,
-        "gid": 5,
-        "properties": [
-            {
-                "name": "color",
-                "type": "string",
-                "value": "red"
-            },
-            {
-                "name": "image",
-                "type": "file",
-                "value": "../img/entity_key.png"
-            }
-        ]
-    }
+  "tileset": {
+    "source": "key.tsj",
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "color",
+        "value": "red"
+      },
+      {
+        "type": "file",
+        "name": "image",
+        "value": "../img/entity_key.png"
+      }
+    ],
+    "type": "key",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "key"
+  }
 }

@@ -6,23 +6,34 @@ local GENERIC_PLATFORMER_TILES_TSX = [[<?xml version="1.0" encoding="UTF-8"?>
 </tileset>
 ]]
 
-local PROPS_TSX = [[<?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="1000" tileheight="1000" tilecount="11" columns="0">
- <grid orientation="orthogonal" width="1" height="1"/>
- <tile id="0">
-  <image source="../img/default.png" width="32" height="32"/>
- </tile>
- <tile id="1">
-  <image source="../img/pushable_crate_wood.png" width="256" height="256"/>
- </tile>
- <tile id="2" x="96" y="0" width="32" height="32">
-  <image source="../img/ladder.png" width="128" height="32"/>
- </tile>
- <tile id="3" x="0" y="0" width="162" height="162">
-  <image source="../img/entity_switch.png" width="488" height="162"/>
- </tile>
-</tileset>
-]]
+local SWITCH_TSJ = [[{
+  "columns": 0,
+  "grid": {
+    "height": 1,
+    "orientation": "orthogonal",
+    "width": 1
+  },
+  "margin": 0,
+  "name": "switch",
+  "spacing": 0,
+  "tilecount": 1,
+  "tiledversion": "1.12.2",
+  "tileheight": 128,
+  "tiles": [
+    {
+      "id": 0,
+      "image": "../img/entity_switch.png",
+      "imageheight": 128,
+      "imagewidth": 640,
+      "width": 128,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "tilewidth": 128,
+  "type": "tileset",
+  "version": "1.11"
+}]]
 
 local GRID_WITH_TILE_METADATA_TSX = [[<?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.5" tiledversion="1.7.2" name="generic_platformer_tiles" tilewidth="32" tileheight="32" tilecount="144" columns="8">
@@ -90,49 +101,43 @@ test('raises a clear error naming the file when the tsx cannot be read', functio
 		'expected error to mention the missing file path, got: ' .. tostring(err))
 end)
 
-test('resolves an image-collection tileset to per-tile image entries', function()
-	local tileset = ExternalTileset.resolve('res/editor/tileset_props.tsx', 145, {
-		readFile = fakeReader(PROPS_TSX),
+test('resolves a single-tile tileset to per-tile image entries', function()
+	local tileset = ExternalTileset.resolve('res/editor/switch.tsj', 1, {
+		readFile = fakeReader(SWITCH_TSJ),
 	})
 
 	assertEqual(0, tileset.columns)
 	assertEqual(nil, tileset.image)
-	assertEqual(4, #tileset.tiles)
+	assertEqual(1, #tileset.tiles)
 end)
 
 test('an uncropped tile resolves the whole referenced image', function()
-	local tileset = ExternalTileset.resolve('res/editor/tileset_props.tsx', 145, {
-		readFile = fakeReader(PROPS_TSX),
+	local tileset = ExternalTileset.resolve('res/editor/switch.tsj', 1, {
+		readFile = fakeReader(SWITCH_TSJ),
 	})
 
-	local pushableCrate = tileset.tiles[2]
-	assertEqual(1, pushableCrate.id)
-	assertEqual('res/img/pushable_crate_wood.png', pushableCrate.image)
-	assertEqual(256, pushableCrate.width)
-	assertEqual(256, pushableCrate.height)
-	assertEqual(nil, pushableCrate.x)
-	assertEqual(nil, pushableCrate.y)
+	local switchTile = tileset.tiles[1]
+	assertEqual(0, switchTile.id)
+	assertEqual('../img/entity_switch.png', switchTile.image)
+	assertEqual(640, switchTile.width)
+	assertEqual(128, switchTile.height)
+	assertEqual(nil, switchTile.x)
+	assertEqual(nil, switchTile.y)
 end)
 
 test('a cropped tile resolves its own sub-region rect, not the full source image', function()
-	local tileset = ExternalTileset.resolve('res/editor/tileset_props.tsx', 145, {
-		readFile = fakeReader(PROPS_TSX),
+	-- The switch tile is cropped (has x,y,width,height)
+	local tileset = ExternalTileset.resolve('res/editor/switch.tsj', 1, {
+		readFile = fakeReader(SWITCH_TSJ),
 	})
 
-	local switch = tileset.tiles[4]
-	assertEqual(3, switch.id)
-	assertEqual('res/img/entity_switch.png', switch.image)
-	assertEqual(0, switch.x)
-	assertEqual(0, switch.y)
-	assertEqual(162, switch.width)
-	assertEqual(162, switch.height)
-
-	local ladder = tileset.tiles[3]
-	assertEqual(2, ladder.id)
-	assertEqual(96, ladder.x)
-	assertEqual(0, ladder.y)
-	assertEqual(32, ladder.width)
-	assertEqual(32, ladder.height)
+	local switchTile = tileset.tiles[1]
+	assertEqual(0, switchTile.id)
+	assertEqual('../img/entity_switch.png', switchTile.image)
+	assertEqual(0, switchTile.x)
+	assertEqual(0, switchTile.y)
+	assertEqual(128, switchTile.width)
+	assertEqual(128, switchTile.height)
 end)
 
 test('resolves per-tile custom properties on a grid tileset', function()
@@ -207,13 +212,13 @@ test('two different tsx paths are cached independently', function()
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSX),
 	})
 	local tilesetB = ExternalTileset.resolve('res/editor/tileset_cache_test_c.tsx', 145, {
-		readFile = fakeReader(PROPS_TSX),
+		readFile = fakeReader(SWITCH_TSJ),
 	})
 
 	assertEqual('res/img/generic_platformer_tiles.png', tilesetA.image)
 	assertEqual(8, tilesetA.columns)
 	assertEqual(0, tilesetB.columns)
-	assertEqual(4, #tilesetB.tiles)
+	assertEqual(1, #tilesetB.tiles)
 end)
 
 test('a cached resolution still reflects the firstgid passed on that call', function()

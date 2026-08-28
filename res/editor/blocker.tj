@@ -1,21 +1,21 @@
 {
-    "type": "template",
-    "tileset": {
-        "firstgid": 1,
-        "source": "tileset_props.tsj"
-    },
-    "object": {
-        "name": "blocker",
-        "type": "blocker",
-        "width": 32,
-        "height": 64,
-        "gid": 15,
-        "properties": [
-            {
-                "name": "spriteOffsetY",
-                "type": "float",
-                "value": -6.0
-            }
-        ]
-    }
+  "tileset": {
+    "source": "blocker.tsj",
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "float",
+        "name": "spriteOffsetY",
+        "value": -6
+      }
+    ],
+    "type": "blocker",
+    "height": 64,
+    "gid": 1,
+    "width": 32,
+    "name": "blocker"
+  }
 }

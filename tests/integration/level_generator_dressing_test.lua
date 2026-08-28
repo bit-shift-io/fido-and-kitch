@@ -22,7 +22,7 @@ local function countNpcsByType(typeName)
 	return count
 end
 
-local GENERATED_PATH = 'res/map/generated/_test_dressing.tmx'
+local GENERATED_PATH = 'res/map/generated/_test_dressing.tmj'
 
 local function writeGeneratedFixture(seed, size, difficulty)
 	local result = Main.generate({seed = seed, count = 1, size = size, difficulty = difficulty})[1]

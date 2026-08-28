@@ -3,13 +3,13 @@
     "commands": [
         {
             "arguments": "",
-            "command": "/home/bronson/Projects/fido-and-kitch/run.sh",
+            "command": "../../run.sh",
             "enabled": true,
             "name": "run",
             "saveBeforeExecute": true,
             "shortcut": null,
             "showOutput": true,
-            "workingDirectory": "/home/bronson/Projects/fido-and-kitch/res"
+            "workingDirectory": "../res"
         }
     ],
     "extensionsPath": "extensions",

@@ -1,9 +1,9 @@
 -- CLI orchestration: parses flags, builds a level map table, serialises it
--- via TmxWriter, and writes it to res/map/generated/. Kept as a pure,
+-- via TmjWriter, and writes it to res/map/generated/. Kept as a pure,
 -- side-effect-free `generate` core (testable without touching the
 -- filesystem) plus a thin `run` wrapper that does CLI parsing and file I/O.
 local Rng = require('tools.level_generator.rng')
-local TmxWriter = require('tools.level_generator.tmx_writer')
+local TmjWriter = require('tools.level_generator.tmj_writer')
 local Layout = require('tools.level_generator.layout')
 local Plan = require('tools.level_generator.plan')
 local Walkthrough = require('tools.level_generator.walkthrough')
@@ -24,7 +24,6 @@ local WATER_TILE_GID = 105
 
 local TILESETS = {
 	{firstgid = 1, source = '../../editor/tileset_generic_platformer_tiles.tsj'},
-	{firstgid = 145, source = '../../editor/tileset_props.tsj'},
 }
 
 local function surfaceY(row)
@@ -159,7 +158,7 @@ local function buildHazards(hazards, startId, width, height)
 		-- that, for hazard.height/TILE rows, are the strictly-empty band
 		-- decorate.lua actually carved out (already clearance-shrunk).
 		local firstRow = hazard.ladder.yTop + 1
-		local lastRow = hazard.ladder.yTop + (hazard.height / TILE) - 1
+		local lastRow = hazard.ladder.yTop + (hazard.height / TILE)
 		for row = firstRow, lastRow do
 			for col = firstCol, lastCol do
 				waterRows[row][col] = WATER_TILE_GID
@@ -660,12 +659,12 @@ function Main.generate(opts)
 				table.insert(walkthroughPlan, objective)
 			end
 		end
-		local xml = TmxWriter.write(map)
+		local tmj = TmjWriter.write(map)
 		local solutionText = Walkthrough.build(walkthroughPlan, flourishSteps)
 		table.insert(results, {
 			seed = itemSeed,
-			filename = string.format('%d.tmx', itemSeed),
-			xml = xml,
+			filename = string.format('%d.tmj', itemSeed),
+			xml = tmj,
 			solutionFilename = string.format('%d-solution.md', itemSeed),
 			solutionText = solutionText,
 		})
@@ -726,7 +725,7 @@ local function writeFile(path, contents)
 	file:close()
 end
 
---- CLI entrypoint: parses argv, generates, writes .tmx files to
+--- CLI entrypoint: parses argv, generates, writes .tmj files to
 -- res/map/generated/, and prints each seed (so unseeded/random runs can be
 -- reproduced later).
 function Main.run(argv, outputDir)

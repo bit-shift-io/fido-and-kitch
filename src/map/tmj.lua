@@ -3,6 +3,8 @@
 -- changes to consume it. This is the JSON equivalent of tmx.lua.
 local json = require('src.utils.json')
 local stiUtils = require('lib.sti.utils')
+local TmxTemplate = require('src.map.tmx_template')
+local ExternalTileset = require('src.map.external_tileset')
 
 local Tmj = {}
 
@@ -216,7 +218,7 @@ local function parseProperties(props)
 end
 
 --- Parses a layer from TMJ format.
-local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir)
+local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, allocator, deps)
 	local layerType = layer.type
 
 	if layerType == 'tilelayer' then
@@ -289,7 +291,7 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir)
 		local layers = {}
 		if layer.layers then
 			for _, childLayer in ipairs(layer.layers) do
-				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir))
+				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, allocator, deps))
 			end
 		end
 		return {
@@ -386,20 +388,47 @@ function Tmj.parse(tmjPath)
 		end
 	end
 
-	-- Resolve tilesets (embedded in TMJ)
+	-- 	-- Resolve tilesets (embedded in TMJ)
 	for _, ts in ipairs(mapData.tilesets) do
 		local firstgid = tonumber(ts.firstgid)
 		local resolved = resolveEmbeddedTileset(ts, firstgid, mapDir)
 		table.insert(map.tilesets, resolved)
 	end
 
-	-- Parse layers
-	if mapData.layers then
-		for _, layer in ipairs(mapData.layers) do
-			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir))
+	-- Tileset allocator for template auto-registration (same as tmx.lua)
+	local allocator = {
+		tilesets = map.tilesets,
+		byPath = {},
+		nextFirstgid = 1,
+	}
+	for _, ts in ipairs(map.tilesets) do
+		allocator.byPath[ts.image and ts.image:gsub('^%.%.', '') or ''] = ts.firstgid
+		if ts.firstgid >= allocator.nextFirstgid then
+			allocator.nextFirstgid = ts.firstgid + (ts.tilecount or 0)
 		end
 	end
 
+	local function firstgidFor(tsxPath, deps)
+		local existing = allocator.byPath[tsxPath]
+		if existing then
+			return existing
+		end
+
+		local firstgid = allocator.nextFirstgid
+		local resolved = ExternalTileset.resolve(tsxPath, firstgid, deps)
+		table.insert(allocator.tilesets, { name = resolved.name, firstgid = firstgid, filename = tsxPath })
+		allocator.byPath[tsxPath] = firstgid
+		allocator.nextFirstgid = firstgid + (resolved.tilecount or 0)
+		return firstgid
+	end
+
+	-- Parse layers
+	if mapData.layers then
+		local deps = { readFile = readFile }
+		for _, layer in ipairs(mapData.layers) do
+			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir, allocator, deps))
+		end
+	end
 	return map
 end
 

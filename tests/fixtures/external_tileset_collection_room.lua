@@ -1,13 +1,6 @@
--- Hand-authored fixture map exercising an external image-collection
--- tileset (columns = 0, one <image> per <tile>) through the real
--- Map/STI stack.
--- Reuses the real res/editor/tileset_props.tsj (the repo's props tileset --
--- external tilesets live in res/editor/ as tileset_*.tsj) rather than a
--- synthetic copy, per the "use real fixtures already on disk" note.
---
--- A single "switch" tile object (tileset_props.tsj tile id 3, a 128x128
--- crop of entity_switch.png) is placed as a tile object so
--- Map:setObjectSpriteBatches resolves it through the atlas path.
+-- Hand-authored fixture map exercising an external single-tile
+-- tileset (the new individual tsj per template) through the real
+-- Map/STI stack. Uses the switch.tsj which has one tile.
 return {
   version = "1.11",
   luaversion = "5.1",
@@ -24,9 +17,9 @@ return {
   properties = {},
   tilesets = {
     {
-      name = "props",
+      name = "switch",
       firstgid = 1,
-      filename = "../../res/editor/tileset_props.tsj"
+      filename = "../../res/editor/switch.tsj"
     }
   },
   layers = {
@@ -98,7 +91,7 @@ return {
           width = 128,
           height = 128,
           rotation = 0,
-          gid = 4,
+          gid = 1,
           visible = true,
           properties = {}
         }

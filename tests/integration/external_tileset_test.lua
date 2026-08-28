@@ -53,25 +53,21 @@ test('per-tile animation frames on an external tileset animate the same way embe
 	assertEqual(2, animatedTile.frame)
 end)
 
-test('a map referencing an external image-collection tileset resolves cropped tile images and steps frames without error', function()
+test('a map referencing an external single-tile tileset resolves cropped tile images and steps frames without error', function()
 	local game = GameHarness.startGame('tests/fixtures/external_tileset_collection_room.lua')
 
 	local stiMap = map.map
 	local tileset = stiMap.tilesets[1]
 
-	assertEqual(0, tileset.columns)
-	assertEqual(14, #tileset.tiles)
+	assertEqual(1, #tileset.tiles)
 
 	local switchTile = nil
 	for _, tile in ipairs(tileset.tiles) do
-		if tile.id == 3 then switchTile = tile end
+		if tile.id == 0 then switchTile = tile end
 	end
 
-	assertTrue(switchTile ~= nil, 'expected to find the switch tile (id 3) in the resolved tileset')
-	assertEqual(0, switchTile.x)
-	assertEqual(0, switchTile.y)
-	assertEqual(128, switchTile.width)
-	assertEqual(128, switchTile.height)
+	assertTrue(switchTile ~= nil, 'expected to find the switch tile (id 0) in the resolved tileset')
+	assertEqual('../img/entity_switch.png', switchTile.image)
 
 	FrameStepper.step(game, 5)
 

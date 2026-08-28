@@ -1,0 +1,25 @@
+{
+  "tilewidth": 714,
+  "name": "mover_platform",
+  "version": "1.11",
+  "columns": 0,
+  "grid": {
+    "height": 1,
+    "width": 1,
+    "orientation": "orthogonal"
+  },
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "image": "../img/entity_mover_platform.png",
+      "imageheight": 714,
+      "id": 0,
+      "imagewidth": 714
+    }
+  ],
+  "spacing": 0,
+  "margin": 0,
+  "tiledversion": "1.12.2",
+  "tileheight": 714
+}

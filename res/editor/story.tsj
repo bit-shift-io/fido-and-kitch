@@ -1,0 +1,25 @@
+{
+  "tilewidth": 128,
+  "name": "story",
+  "version": "1.11",
+  "columns": 0,
+  "grid": {
+    "height": 1,
+    "width": 1,
+    "orientation": "orthogonal"
+  },
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "image": "../img/entity_wood_sign_post.png",
+      "imageheight": 128,
+      "id": 0,
+      "imagewidth": 128
+    }
+  ],
+  "spacing": 0,
+  "margin": 0,
+  "tiledversion": "1.12.2",
+  "tileheight": 128
+}

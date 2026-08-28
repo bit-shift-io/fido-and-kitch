@@ -20,7 +20,6 @@ local function walkingSkeletonMap()
 		},
 		tilesets = {
 			{firstgid = 1, source = '../../editor/tileset_generic_platformer_tiles.tsx'},
-			{firstgid = 145, source = '../../editor/tileset_props.tsx'},
 		},
 		layers = {
 			{
