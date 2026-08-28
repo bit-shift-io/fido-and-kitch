@@ -10,7 +10,7 @@ local Queries = require('tests.support.queries')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/story_room.lua'
+local MAP = 'tests/fixtures/story_room.tmj'
 
 -- story1 occupies x:160..192, y:128..160 (floor top is y=160; Tiled objects are
 -- bottom-anchored). A resting player (20x30 collider, centre y=145) overlaps it

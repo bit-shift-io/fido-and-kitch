@@ -13,7 +13,7 @@ local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
 test('a story bubble shows, reveals, and renders over its entity', function()
-	local game = GameHarness.startGame('tests/fixtures/story_room.lua', {real = true})
+	local game = GameHarness.startGame('tests/fixtures/story_room.tmj', {real = true})
 	local controller = FakeInput.new()
 
 	FrameStepper.step(game, 60) -- land and settle

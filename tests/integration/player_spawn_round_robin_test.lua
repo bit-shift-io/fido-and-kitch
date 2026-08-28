@@ -13,7 +13,7 @@ local function colliderCentre(player)
 end
 
 test('two spawn points yield exactly two players, one per point, not duplicates', function()
-	local game = GameHarness.startGame('tests/fixtures/two_spawn_room.lua')
+	local game = GameHarness.startGame('tests/fixtures/two_spawn_room.tmj')
 	FrameStepper.step(game, 10)
 
 	local ingame = game.fsm.currentState
@@ -31,7 +31,7 @@ test('two spawn points yield exactly two players, one per point, not duplicates'
 end)
 
 test('more players than spawn points wraps around instead of dropping players', function()
-	local game = GameHarness.startGame('tests/fixtures/spider_wrap_room.lua') -- single spawn point
+	local game = GameHarness.startGame('tests/fixtures/spider_wrap_room.tmj') -- single spawn point
 	FrameStepper.step(game, 10)
 
 	local ingame = game.fsm.currentState

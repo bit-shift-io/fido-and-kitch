@@ -10,7 +10,7 @@ local Capture = require('tests.support.capture')
 
 local function listMapFiles()
 	local files = {}
-	local pipe = io.popen('ls res/map/*.lua res/map/*.tmx 2>/dev/null')
+	local pipe = io.popen('ls res/map/*.tmj 2>/dev/null')
 	for path in pipe:lines() do
 		table.insert(files, path)
 	end
@@ -20,7 +20,7 @@ local function listMapFiles()
 end
 
 local function captureNameFor(path)
-	return path:match('([^/]+)%.lua$') or path:match('([^/]+)%.tmx$') or path
+	return path:match('([^/]+)%.tmj$') or path
 end
 
 test('every real map under res/map/ loads and captures a screenshot', function()

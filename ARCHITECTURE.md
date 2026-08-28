@@ -15,8 +15,8 @@
 * **Class System:** hump.class
 * **Tweening:** hump.tween
 * **Vector Math:** hump.vector
-* **Map Loader:** STI (Simple Tiled Implementation) — loads maps; `.tmx` sources are parsed directly (via `src/map/tmx.lua`) then fed to STI
-* **Tiled Map Editor:** `.tmx` sources in `res/map/`; embedded tilesets required
+* **Map Loader:** STI (Simple Tiled Implementation) — loads maps; `.tmj` sources are parsed directly (via `src/map/tmj.lua`) then fed to STI
+* **Tiled Map Editor:** `.tmj` sources in `res/map/`; external templates (`.tj`) and tilesets (`.tsj`) in `res/editor/`
 * **Testing:** Headless Lua tests in `tests/` (run via `./test-unit.sh`)
 
 ---
@@ -54,7 +54,7 @@
 │   ├── ui/               # Slab menu UI, map list, lives HUD
 │   └── utils/            # str, tbl, utils, rect, signal
 ├── res/
-│   └── map/              # Tiled .tmx sources (run directly; exported .lua maps are legacy)
+│   └── map/              # Tiled .tmj sources (run directly; exported .lua maps are legacy)
 └── tests/                # Headless unit/integration + headed e2e tests (see tests/README.md)
 ```
 
@@ -74,7 +74,7 @@
   *   **`GameOverState`**: Simple menu (Restart / Main Menu) with keyboard/gamepad/mouse/touch input.
 
 ### 3.3 Map & Entity Loading (`src/map/`)
-* Wraps **STI**; `.tmx` maps are parsed directly via `src/map/tmx.lua` (then fed to `sti(data, {"box2d"})`) and proxied via `utils.proxyClass`.
+* Wraps **STI**; `.tmj` maps are parsed directly via `src/map/tmj.lua` (then fed to `sti(data, {"box2d"})`) and proxied via `utils.proxyClass`.
 * **Object Layers → Entities**: Iterates object layers; for each object with `type` not in `typeIgnores = {'', 'spawn'}`, `require('src.entities.' .. type)(object)` and inserts into `layer.entities`.
 * **Ladders**: Authored as per-rung template objects (each 32px gid tile, bottom-anchored: `object.y` is the rung's bottom edge). `entity_factory.lua` runs `ladder_merger.lua` per layer to group rungs by column + vertical contiguity into one logical ladder rect, flagging the lowest rung as the family lead. `src/entities/ladder.lua` builds the merged collider/sprite stack on the lead rung; upper rungs are thin aliases. `Ladder:switch` hides (`off`) / restores (`on`) the ladder while keeping its grown size.
 * **Layer Update/Draw**: Injects `update(dt)` and `draw()` onto each object layer to iterate its entities.
@@ -139,7 +139,7 @@ love.load
   → InGameState:load(props)
        → World:new(0, 90.81, true)
        → Map:new(mapPath, world, true)
-            → Tmx.parse (.tmx) → STI loads map
+            → Tmj.parse (.tmj) → STI loads map
             → createEntities() → annotateLadders (merge per-rung objects) → require('src.entities.<type>') for each object
             → createStaticPhysicsBodies (collision layers)
             → createStaticPhysicsBodyBoundary (map edges)
@@ -254,7 +254,8 @@ Player:update → queryKillZone() → die(deathType)
 | `src/main.lua` | Global bootstrap, LÖVE callbacks |
 | `src/game.lua` | Top-level Game object, state FSM (wires `src/states/` stateClasses) |
 | `src/map.lua` | Thin STI wrapper, delegates to `src/map/init.lua` |
-| `src/map/init.lua` | Map class: STI/TMX loading, entities, collisions, boundaries |
+| `src/map/init.lua` | Map class: STI/JSON loading, entities, collisions, boundaries |
+| `src/map/tmj.lua` | JSON map parser (the only loader), resolves `.tj` templates / `.tsj` tilesets |
 | `src/map/entity_factory.lua` | Tiled object → runtime entity instantiation, ladder annotation |
 | `src/map/ladder_merger.lua` | Pure per-rung → merged ladder rect grouping |
 | `src/map/collision_builder.lua` | Static bodies from collision layers + map boundaries |
@@ -266,7 +267,7 @@ Player:update → queryKillZone() → die(deathType)
 | `src/player/` | Player entity, movement states, lives, safe position |
 | `src/physics/` | Swappable backends (bump, love) behind Collider/World |
 | `src/ui/` | Slab menu UI, map list, lives HUD |
-| `res/map/` | Tiled `.tmx` sources (run directly) |
+| `res/map/` | Tiled `.tmj` sources (run directly) |
 | `tests/` | Three-tier: `tests/unit` + `tests/integration` (via `./test-unit.sh`/`./test-integration.sh`), `tests/e2e` |
 | `NOTES.md` | Design decisions & grill notes (former ADRs) |
 

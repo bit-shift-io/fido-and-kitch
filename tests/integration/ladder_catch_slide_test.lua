@@ -9,7 +9,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/ladder_fall_catch_room.lua'
+local MAP = 'tests/fixtures/ladder_fall_catch_room.tmj'
 local CENTRE_X = 144 -- merged ladder centre-x in the fixture
 
 local function player1(game)

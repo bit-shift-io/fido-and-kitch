@@ -14,7 +14,7 @@ local Queries = require('tests.support.queries')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/pressure_switch_room.lua'
+local MAP = 'tests/fixtures/pressure_switch_room.tmj'
 
 -- see the fixture's header diagram
 local SURFACE_TOP = 224

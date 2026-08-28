@@ -10,7 +10,7 @@ local GENERATED_PATH = 'res/map/generated/_test_walking_skeleton.tmj'
 local function writeGeneratedFixture()
 	local result = Main.generate({seed = 4242, count = 1})[1]
 	local file = io.open(GENERATED_PATH, 'w')
-	file:write(result.xml)
+	file:write(result.tmj)
 	file:close()
 end
 

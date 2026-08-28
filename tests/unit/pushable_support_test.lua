@@ -7,7 +7,7 @@ local PushableSupport = require('src.components.pushable.pushable_support')
 
 -- A plain rectangle object (no gid) is top-anchored: Tiled's y is the top
 -- edge. This is the shape the hand-edited push_box objects already in
--- res/map/sandbox.tmx have.
+-- res/map/sandbox.tmj have.
 test('a gid-less object is top-anchored -- its centre is half a tile below its y', function()
 	local centreX, centreY = PushableSupport.spawnCentre({x = 160, y = 192, width = 32, height = 32})
 
@@ -15,7 +15,7 @@ test('a gid-less object is top-anchored -- its centre is half a tile below its y
 	assertEqual(208, centreY)
 end)
 
--- A tile object (with a gid, which is what res/editor/push_box.tx
+-- A tile object (with a gid, which is what res/editor/push_box.tj
 -- produces when dragged in from Tiled's palette) is BOTTOM-anchored: Tiled's
 -- y is the tile's bottom edge, so the centre sits half a tile ABOVE it. Same
 -- convention src/entities/switch.lua already assumes for its gid object.

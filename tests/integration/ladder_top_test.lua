@@ -10,7 +10,7 @@ local Queries = require('tests.support.queries')
 local FakeInput = FakeInputModule.FakeInput
 local runUntil = FakeInputModule.runUntil
 
-local MAP = 'tests/fixtures/ladder_top_room.lua'
+local MAP = 'tests/fixtures/ladder_top_room.tmj'
 
 local TOP_EDGE_Y = 192 -- merged column spans y [192, 352]; nothing under the top
 

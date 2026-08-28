@@ -7,7 +7,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 
 local function listMapFiles()
 	local files = {}
-	local pipe = io.popen('ls res/map/*.lua res/map/*.tmx res/map/*.tmj 2>/dev/null')
+	local pipe = io.popen('ls res/map/*.tmj 2>/dev/null')
 	for path in pipe:lines() do
 		table.insert(files, path)
 	end

@@ -11,7 +11,7 @@ local GENERATED_PATH = 'res/map/generated/_test_end_to_end.tmj'
 local function writeGeneratedFixture(seed)
 	local result = Main.generate({seed = seed, count = 1, size = 'large', difficulty = 5, coop = 'required'})[1]
 	local file = io.open(GENERATED_PATH, 'w')
-	file:write(result.xml)
+	file:write(result.tmj)
 	file:close()
 	return result
 end

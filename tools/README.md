@@ -11,12 +11,12 @@ sh tools/generate.sh --seed 42
 sh tools/generate.sh --size large --difficulty 5 --coop required --count 3
 ```
 
-Output goes to `res/map/generated/<seed>.tmx` plus a matching
-`<seed>-solution.md` walkthrough. The game loads `.tmx` directly, so a
+Output goes to `res/map/generated/<seed>.tmj` plus a matching
+`<seed>-solution.md` walkthrough. The game loads `.tmj` directly, so a
 generated level is immediately playable:
 
 ```sh
-./run.sh map=generated/42.tmx
+./run.sh map=generated/42.tmj
 ```
 
 `res/map/generated/` is gitignored — candidates are disposable by default.

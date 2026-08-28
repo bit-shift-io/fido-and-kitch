@@ -5,7 +5,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local SoundSpy = require('tests.support.sound_spy')
 
-local MAP = 'tests/fixtures/kill_zone_room.lua'
+local MAP = 'tests/fixtures/kill_zone_room.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]

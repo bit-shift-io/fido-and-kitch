@@ -1,4 +1,4 @@
--- Generic recursive table-equality check used by the .tmx golden
+-- Generic recursive table-equality check used by the golden map
 -- differential tests: walks two values in parallel and collects every
 -- mismatching leaf path (e.g. ".layers.3.objects.2.gid"), rather than just
 -- reporting the first difference, so a failing test shows the whole set of

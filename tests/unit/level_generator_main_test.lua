@@ -5,7 +5,7 @@ test('generate with an explicit seed reproduces byte-identical output', function
 	local a = Main.generate({seed = 42, count = 1})
 	local b = Main.generate({seed = 42, count = 1})
 
-	assertEqual(a[1].xml, b[1].xml)
+	assertEqual(a[1].tmj, b[1].tmj)
 	assertEqual(42, a[1].seed)
 end)
 
@@ -23,7 +23,7 @@ test('--count N produces N independently reproducible items', function()
 	assertEqual(3, #batchA)
 	for i = 1, 3 do
 		assertEqual(batchA[i].seed, batchB[i].seed)
-		assertEqual(batchA[i].xml, batchB[i].xml)
+		assertEqual(batchA[i].tmj, batchB[i].tmj)
 	end
 
 	assertFalse(batchA[1].seed == batchA[2].seed)
@@ -88,8 +88,17 @@ test('terrain map emits one template rung per ladder tile, bottom-anchored', fun
 end)
 
 test('generate() (the CLI pipeline) uses terrain, not just the walking skeleton', function()
+	local json = require('lib.dkjson')
 	local result = Main.generate({seed = 42, count = 1, size = 'medium'})[1]
-	assertTrue(result.xml:find('name="ladder"') ~= nil, 'expected a ladder layer in the generated output')
+	local decoded = json.decode(result.tmj)
+	assertTrue(decoded ~= nil, 'generated output must be valid tmj JSON')
+	local ladderLayerFound = false
+	for _, layer in ipairs(decoded.layers) do
+		if layer.name == 'ladder' and layer.type == 'objectgroup' then
+			ladderLayerFound = true
+		end
+	end
+	assertTrue(ladderLayerFound, 'expected a ladder layer in the generated output')
 end)
 
 test('objective map has a matched key and cage per objective, and still one spawn/exit', function()
@@ -269,7 +278,7 @@ test('difficulty 1 objective maps have no enemies; difficulty 5 has at least one
 	assertTrue(enemyCount(deadly) >= 1)
 end)
 
-test('generate() writes a solution walkthrough alongside the .tmx', function()
+test('generate() writes a solution walkthrough alongside the .tmj', function()
 	local result = Main.generate({seed = 42, count = 1, size = 'medium'})[1]
 	assertTrue(result.solutionFilename ~= nil)
 	assertTrue(result.solutionText:find('exit opens automatically') ~= nil)

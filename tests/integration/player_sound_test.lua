@@ -10,7 +10,7 @@ local SoundSpy = require('tests.support.sound_spy')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/flat_ground.lua'
+local MAP = 'tests/fixtures/flat_ground.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]

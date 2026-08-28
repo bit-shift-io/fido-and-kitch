@@ -67,7 +67,7 @@ function InGameState:load(props)
     local NPCRegistry = require('src.npc.npc_registry')
     NPCRegistry.clear()
 
-    self.currentMap = props.map or 'res/map/sandbox.tmx'
+    self.currentMap = props.map or 'res/map/sandbox.tmj'
     Log.debug('loading map: ' .. self.currentMap)
 
     _G.world = World:new(0, 90.81, true)

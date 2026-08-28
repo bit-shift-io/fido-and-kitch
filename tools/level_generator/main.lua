@@ -19,7 +19,7 @@ local MAP_HEIGHT = 15
 local TILE = 32
 local GROUND_ROW = MAP_HEIGHT -- 1-indexed: the bottom row
 
--- Matches res/map/sandbox.tmx's own water tile gids (generic_platformer_tiles.tsx).
+-- Matches res/map/sandbox.tmj's own water tile gids (generic_platformer_tiles.tsj).
 local WATER_TILE_GID = 105
 
 local TILESETS = {
@@ -62,7 +62,7 @@ local function teleportObject(id, x, y, targetId, enabled)
 end
 
 -- A plain rect object, NOT a template reference: real usage
--- (tests/fixtures/pressure_switch_room.lua) authors it as a bare rectangle,
+-- (tests/fixtures/pressure_switch_room.tmj) authors it as a bare rectangle,
 -- top-left anchored like kill_zone/ladder, not a tile-object with a gid.
 local function pressureSwitchObject(id, x, y, targetId)
 	return {
@@ -265,7 +265,7 @@ local function buildTerrain(seed, opts)
 		local x = (ladder.x - 1) * TILE
 		local top = surfaceY(ladder.yTop)
 		-- One template rung per 32px tile, bottom-anchored (object.y = the
-		-- rung's bottom edge), matching the ladder.tx convention in the
+		-- rung's bottom edge), matching the ladder.tj convention in the
 		-- hand-made maps: LadderMerger re-joins them into one logical ladder.
 		for y = top + TILE, surfaceY(ladder.yBottom), TILE do
 			table.insert(ladderObjects, {
@@ -635,7 +635,7 @@ function Main.buildObjectiveMap(seed, opts)
 end
 
 --- Pure generation core: given a base seed and item count, returns one
--- {seed, filename, xml} entry per level. No filesystem access, so it's
+-- {seed, filename, tmj} entry per level. No filesystem access, so it's
 -- directly unit-testable. Item i's seed is derived from the base seed
 -- (Rng.deriveSeed) so each item in a batch is independently reproducible.
 function Main.generate(opts)
@@ -664,7 +664,7 @@ function Main.generate(opts)
 		table.insert(results, {
 			seed = itemSeed,
 			filename = string.format('%d.tmj', itemSeed),
-			xml = tmj,
+			tmj = tmj,
 			solutionFilename = string.format('%d-solution.md', itemSeed),
 			solutionText = solutionText,
 		})
@@ -744,7 +744,7 @@ function Main.run(argv, outputDir)
 	local results = Main.generate(opts)
 	for _, result in ipairs(results) do
 		local path = outputDir .. '/' .. result.filename
-		writeFile(path, result.xml)
+		writeFile(path, result.tmj)
 		writeFile(outputDir .. '/' .. result.solutionFilename, result.solutionText)
 		print(string.format('seed=%d -> %s', result.seed, path))
 	end

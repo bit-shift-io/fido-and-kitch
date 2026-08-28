@@ -10,7 +10,7 @@ local Queries = require('tests.support.queries')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/pushable_room.lua'
+local MAP = 'tests/fixtures/pushable_room.tmj'
 
 -- see the fixture's header diagram
 local SURFACE_TOP = 224
@@ -386,7 +386,7 @@ end)
 -- into water just keeps going until the map's own bottom boundary catches it.
 -- It must not be destroyed, and must not stick to the sensor on the way down.
 test('a box pushed into a bottomless water gap sinks to the map\'s bottom border', function()
-	local PIT_MAP = 'tests/fixtures/pushable_pit_room.lua'
+	local PIT_MAP = 'tests/fixtures/pushable_pit_room.tmj'
 	-- the fixture is 10 tiles tall, so the boundary's inner face is at y=320
 	local MAP_BOTTOM = 320
 

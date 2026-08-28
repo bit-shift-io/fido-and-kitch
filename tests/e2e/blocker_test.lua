@@ -5,7 +5,7 @@
 -- tests/integration/blocker_test.lua; what only a real window can give is a
 -- reviewable frame of each state, plus real physics driving the crossing.
 --
--- Runs against res/map/sandbox.tmx -- the demo placement a level designer
+-- Runs against res/map/sandbox.tmj -- the demo placement a level designer
 -- would author (template-instanced blocker, switch wired to it), not a
 -- purpose-built fixture.
 local GameHarness = require('tests.support.game_harness')
@@ -15,9 +15,9 @@ local Queries = require('tests.support.queries')
 local Capture = require('tests.support.capture')
 
 local FakeInput = FakeInputModule.FakeInput
-local MAP = 'res/map/sandbox.tmx'
+local MAP = 'res/map/sandbox.tmj'
 
--- the blocker object spans x=256..288 (see res/map/sandbox.tmx); its
+-- the blocker object spans x=256..288 (see res/map/sandbox.tmj); its
 -- barrier is the middle 60% of that, centred on x=272
 local BLOCKER_CENTRE_X = 272
 local BARRIER_HALF_WIDTH = 9.6

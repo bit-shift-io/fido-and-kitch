@@ -9,8 +9,8 @@ local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')
 local Queries = require('tests.support.queries')
 
-local SEAM_MAP = 'tests/fixtures/ladder_seam_room.lua'
-local CATCH_MAP = 'tests/fixtures/ladder_fall_catch_room.lua'
+local SEAM_MAP = 'tests/fixtures/ladder_seam_room.tmj'
+local CATCH_MAP = 'tests/fixtures/ladder_fall_catch_room.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]

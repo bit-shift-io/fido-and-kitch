@@ -9,7 +9,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/mover_platform_room.lua'
+local MAP = 'tests/fixtures/mover_platform_room.tmj'
 
 -- Player collider is 30 tall, so a body resting on the deck (top y=160) has
 -- its center at y=145.

@@ -7,7 +7,7 @@
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 
-local MAP = 'tests/fixtures/kill_zone_room.lua'
+local MAP = 'tests/fixtures/kill_zone_room.tmj'
 
 test('player_died carries a table payload with player and deathType', function()
 	local game = GameHarness.startGame(MAP)

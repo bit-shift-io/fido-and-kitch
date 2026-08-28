@@ -213,7 +213,7 @@ function LoveMock.new()
 		newSpriteBatch = newFakeSpriteBatch,
 		newMesh = function(vertexFormat, vertices, drawMode) return newFakeMesh() end,
 		-- STI's atlas packer (used for image-collection tilesets, e.g.
-		-- props.tsx in the real maps) treats the returned canvas as an
+		-- props.tsj in the real maps) treats the returned canvas as an
 		-- image afterwards (tileset.image:getWidth() etc.), so it needs
 		-- the same shape as newImage's fake.
 		newCanvas = function(w, h) return newFakeImage(w, h) end,

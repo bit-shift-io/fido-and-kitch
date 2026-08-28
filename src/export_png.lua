@@ -15,7 +15,7 @@
 -- prints the path + dimensions + color legend to stdout, writes
 -- `export_<map>.png` into the project root (working directory), then quits.
 -- Mirrors the `e2e=<file>` detour in src/main.lua.
-local Tmx = require('src.map.tmx')
+local Tmj = require('src.map.tmj')
 
 local ExportPng = {}
 
@@ -32,13 +32,13 @@ local TILE_BLOCK_SIZE = 128
 local GID_MASK = 0x10000000
 
 local function resolveMapFile(basePath)
-	if basePath:match('%.tmx$') or basePath:match('%.lua$') then
+	if basePath:match('%.tmj$') then
 		return basePath
 	end
-	if love and love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(basePath .. '.tmx') then
-		return basePath .. '.tmx'
+	if love and love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(basePath .. '.tmj') then
+		return basePath .. '.tmj'
 	end
-	return basePath .. '.lua'
+	return basePath .. '.tmj'
 end
 
 local function fileStem(path)
@@ -159,7 +159,7 @@ end
 -- detour before a Game is constructed.
 function ExportPng.run(mapName)
 	local path = resolveMapFile('res/map/' .. mapName)
-	local map = Tmx.parse(path)
+	local map = Tmj.parse(path)
 	map._exportName = fileStem(path)
 
 	for _, layer in ipairs(map.layers) do

@@ -5,7 +5,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 local SoundSpy = require('tests.support.sound_spy')
 
-local MAP = 'tests/fixtures/drawbridge_room.lua'
+local MAP = 'tests/fixtures/drawbridge_room.tmj'
 
 test('the drawbridge plays an open sound when it starts lowering', function()
 	local game = GameHarness.startGame(MAP)

@@ -1,12 +1,12 @@
 -- The lever switch carries a 5-frame toggle animation: using it must play the
 -- strip forward (off -> on, frames 1..5) or in reverse (on -> off, frames
 -- 5..1) rather than snapping to the end frame. Driven through the real
--- Game/Map/World stack on tests/fixtures/switch_room.lua.
+-- Game/Map/World stack on tests/fixtures/switch_room.tmj.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/switch_room.lua'
+local MAP = 'tests/fixtures/switch_room.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]

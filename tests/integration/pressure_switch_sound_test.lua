@@ -5,7 +5,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 local SoundSpy = require('tests.support.sound_spy')
 
-local MAP = 'tests/fixtures/pressure_switch_room.lua'
+local MAP = 'tests/fixtures/pressure_switch_room.tmj'
 
 local SURFACE_TOP = 224
 local PLATE_CENTRE_X = 304

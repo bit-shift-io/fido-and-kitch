@@ -41,7 +41,7 @@ local holdFor = require('tests.support.fake_input').holdFor
 local Capture = require('tests.support.capture')  -- e2e tier only
 
 -- Start game (headless integration: omit {real=true}; headed e2e: include it)
-local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
 local controller = FakeInput.new()
 
 -- Keyboard input (P1 uses arrow keys + rshift; P2 uses WASD + Q)
@@ -99,7 +99,7 @@ No special prompts needed — the test infrastructure *is* the control layer.
 An e2e test file looks exactly like an integration test — same `test()`/`assert*` surface, same `GameHarness`/`FrameStepper`/`FakeInput`/`Queries` helpers — with two differences:
 
 ```lua
-local game = GameHarness.startGame('res/map/my_fixture.lua', {real = true})  -- {real = true}, not the mock
+local game = GameHarness.startGame('res/map/my_fixture.tmj', {real = true})  -- {real = true}, not the mock
 local controller = FakeInput.new()  -- still shims love.keyboard/love.joystick, now in front of real LÖVE's own
 ```
 

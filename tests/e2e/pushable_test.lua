@@ -20,7 +20,7 @@ local FakeInput = FakeInputModule.FakeInput
 local MAX_FRAMES = 900
 
 test('a box is pushed into a hole, fills it, and the player walks across -- rendered', function()
-	local game = GameHarness.startGame('tests/fixtures/pushable_room.lua', {real = true})
+	local game = GameHarness.startGame('tests/fixtures/pushable_room.tmj', {real = true})
 	local controller = FakeInput.new()
 
 	FrameStepper.step(game, 60) -- land and settle
@@ -57,7 +57,7 @@ test('a box is pushed into a hole, fills it, and the player walks across -- rend
 end)
 
 test('a boulder is shoved and rolls on under its own momentum -- rendered', function()
-	local game = GameHarness.startGame('tests/fixtures/boulder_room.lua', {real = true})
+	local game = GameHarness.startGame('tests/fixtures/boulder_room.tmj', {real = true})
 	local controller = FakeInput.new()
 
 	FrameStepper.step(game, 60)
@@ -90,7 +90,7 @@ test('a boulder is shoved and rolls on under its own momentum -- rendered', func
 end)
 
 test('a pressure plate renders its active state and a box seats onto it -- rendered', function()
-	local game = GameHarness.startGame('tests/fixtures/pressure_switch_room.lua', {real = true})
+	local game = GameHarness.startGame('tests/fixtures/pressure_switch_room.tmj', {real = true})
 
 	FrameStepper.step(game, 60)
 

@@ -233,7 +233,7 @@ function GameAPI.getState()
 
 	local mapName = state.currentMap or 'unknown'
 	if type(mapName) == 'string' then
-		mapName = mapName:match('([^/]+)%.tmx$') or mapName
+		mapName = mapName:match('([^/]+)%.tmj$') or mapName
 	end
 
 	local p1Pos = p1.collider and p1.collider.getPositionV and p1.collider:getPositionV()

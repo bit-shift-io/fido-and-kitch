@@ -4,7 +4,7 @@
 local MapInfo = {}
 
 function MapInfo.baseName(file)
-	return file:gsub('%.lua$', ''):gsub('%.tmx$', '')
+	return file:gsub('%.tmj$', '')
 end
 
 function MapInfo.titleFromFile(file)

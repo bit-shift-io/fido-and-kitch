@@ -8,7 +8,7 @@ local SoundSpy = require('tests.support.sound_spy')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/coin_room.lua'
+local MAP = 'tests/fixtures/coin_room.tmj'
 
 test('walking into a coin plays its pickup sound', function()
 	local game = GameHarness.startGame(MAP)

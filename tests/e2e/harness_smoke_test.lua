@@ -6,7 +6,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local Capture = require('tests.support.capture')
 
 test('flat_ground loads under real LÖVE and steps frames without error', function()
-	local game = GameHarness.startGame('tests/fixtures/flat_ground.lua', {real = true})
+	local game = GameHarness.startGame('tests/fixtures/flat_ground.tmj', {real = true})
 
 	FrameStepper.step(game, 10)
 

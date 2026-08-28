@@ -8,8 +8,8 @@ local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/ladder_flank_room.lua'
-local MAP2 = 'tests/fixtures/ladder_side_entry.lua'
+local MAP = 'tests/fixtures/ladder_flank_room.tmj'
+local MAP2 = 'tests/fixtures/ladder_side_entry.tmj'
 local CENTRE_X = 144
 
 local function player1(game)

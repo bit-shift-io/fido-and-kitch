@@ -10,7 +10,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local NPCRegistry = require('src.npc.npc_registry')
 
-local MAP = 'tests/fixtures/enemy_kill_zone_room.lua'
+local MAP = 'tests/fixtures/enemy_kill_zone_room.tmj'
 
 local FLASH_INTERVAL = 0.15
 local FLASH_BLINKS = 8

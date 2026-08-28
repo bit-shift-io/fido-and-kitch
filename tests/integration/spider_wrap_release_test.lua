@@ -11,7 +11,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local NPCRegistry = require('src.npc.npc_registry')
 
-local MAP = 'tests/fixtures/spider_wrap_room.lua'
+local MAP = 'tests/fixtures/spider_wrap_room.tmj'
 
 -- Register NPC types once before all tests
 local Spider = require('src.entities.npc_spider')

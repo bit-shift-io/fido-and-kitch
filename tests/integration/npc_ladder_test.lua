@@ -8,7 +8,7 @@
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 
-local MAP = 'tests/fixtures/ladder_top_room.lua'
+local MAP = 'tests/fixtures/ladder_top_room.tmj'
 
 -- Drop point centred in the ladder column (x=128..160), just under the
 -- perched player's feet (y=192) and well above the floor at y=352. Set via

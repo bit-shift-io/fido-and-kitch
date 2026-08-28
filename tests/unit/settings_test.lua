@@ -27,32 +27,32 @@ end
 
 test('a saved setting is written to settings.json as JSON', function()
 	withMockedSave({}, function(files)
-		Settings.set('lastMap', 'fab1.tmx')
+		Settings.set('lastMap', 'fab1.tmj')
 
-		assertEqual('fab1.tmx', json.decode(files['settings.json']).lastMap,
+		assertEqual('fab1.tmj', json.decode(files['settings.json']).lastMap,
 			'the map started from the menu must survive a restart')
 	end)
 end)
 
 test('settings are read back from an existing settings.json', function()
-	withMockedSave({['settings.json'] = '{ "lastMap": "sandbox.tmx" }'}, function()
-		assertEqual('sandbox.tmx', Settings.get('lastMap'))
+	withMockedSave({['settings.json'] = '{ "lastMap": "sandbox.tmj" }'}, function()
+		assertEqual('sandbox.tmj', Settings.get('lastMap'))
 	end)
 end)
 
 test('a missing setting falls back to the given default', function()
 	withMockedSave({['settings.json'] = '{}'}, function()
-		assertEqual('fallback.tmx', Settings.get('lastMap', 'fallback.tmx'))
+		assertEqual('fallback.tmj', Settings.get('lastMap', 'fallback.tmj'))
 	end)
 end)
 
 test('a corrupt settings.json is ignored rather than fatal', function()
 	withMockedSave({['settings.json'] = 'not json at all'}, function()
-		assertEqual('fallback.tmx', Settings.get('lastMap', 'fallback.tmx'))
+		assertEqual('fallback.tmj', Settings.get('lastMap', 'fallback.tmj'))
 
 		-- and it must still be possible to save over the broken file
-		assertTrue(Settings.set('lastMap', 'fab1.tmx'))
-		assertEqual('fab1.tmx', Settings.get('lastMap'))
+		assertTrue(Settings.set('lastMap', 'fab1.tmj'))
+		assertEqual('fab1.tmj', Settings.get('lastMap'))
 	end)
 end)
 
@@ -61,7 +61,7 @@ test('saving without a filesystem (headless) does not error', function()
 	love = nil
 	Settings.reset()
 
-	local ok = pcall(Settings.set, 'lastMap', 'fab1.tmx')
+	local ok = pcall(Settings.set, 'lastMap', 'fab1.tmj')
 
 	love = previousLove
 	Settings.reset()
@@ -69,10 +69,10 @@ test('saving without a filesystem (headless) does not error', function()
 end)
 
 test('json round trips the values settings stores', function()
-	local encoded = json.encode({lastMap = 'fab1.tmx', volume = 0.5, muted = false, count = 3})
+	local encoded = json.encode({lastMap = 'fab1.tmj', volume = 0.5, muted = false, count = 3})
 	local decoded = json.decode(encoded)
 
-	assertEqual('fab1.tmx', decoded.lastMap)
+	assertEqual('fab1.tmj', decoded.lastMap)
 	assertEqual(0.5, decoded.volume)
 	assertEqual(false, decoded.muted)
 	assertEqual(3, decoded.count)

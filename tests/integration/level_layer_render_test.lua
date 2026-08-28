@@ -7,7 +7,7 @@
 local GameHarness = require('tests.support.game_harness')
 
 test('drawMainLayers renders decorative object-layer gid art, skips entity layers', function()
-	local game = GameHarness.startGame('res/map/sandbox.tmx')
+	local game = GameHarness.startGame('res/map/sandbox.tmj')
 	-- require after startGame installs the love mock (ParallaxRenderer grabs
 	-- love.graphics at module load)
 	local ParallaxRenderer = require('src.map.parallax_renderer')

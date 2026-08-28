@@ -1,4 +1,3 @@
-local Tmx = require('src.map.tmx')
 local Tmj = require('src.map.tmj')
 local Log = require('src.utils.log')
 local MapInfo = require('src.ui.map_info')
@@ -22,18 +21,9 @@ function MapList:init(props)
 	table.sort(files)
 
 	for _, file in ipairs(files) do
-		if str.endsWith(file, '.lua') or str.endsWith(file, '.tmx') or str.endsWith(file, '.tmj') then
+		if str.endsWith(file, '.tmj') then
 			local path = self.dir .. '/' .. file
-			local ok, mapData
-			if str.endsWith(file, '.tmx') then
-				ok, mapData = pcall(Tmx.parse, path)
-			elseif str.endsWith(file, '.tmj') then
-				ok, mapData = pcall(Tmj.parse, path)
-			else
-				local loadOk, chunk = pcall(love.filesystem.load, path)
-				ok = loadOk and chunk ~= nil
-				mapData = ok and chunk()
-			end
+			local ok, mapData = pcall(Tmj.parse, path)
 			if ok and mapData then
 				local title = MapInfo.titleFor(file, mapData)
 				local description = MapInfo.descriptionFor(file, mapData)
@@ -67,7 +57,7 @@ function MapList:updateSelection()
 	self.selectedFile = card and card.path or nil
 end
 
--- Selects the card for a map file name ('fab1.tmx'); a map that has since been
+-- Selects the card for a map file name ('fab1.tmj'); a map that has since been
 -- renamed or deleted just leaves the current selection alone.
 function MapList:selectFile(file)
 	for i, card in ipairs(self.cards) do
@@ -204,7 +194,7 @@ function MapList:draw()
 	if not card then
 		lg.setFont(self.bodyFont)
 		lg.setColor(1, 1, 1, 0.82)
-		lg.printf('No exported .lua/.tmx/.tmj maps found in ' .. self.dir, contentX, h * 0.38, contentW, 'center')
+		lg.printf('No exported .tmj maps found in ' .. self.dir, contentX, h * 0.38, contentW, 'center')
 		lg.setColor(1, 1, 1, 1)
 		return
 	end

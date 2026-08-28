@@ -44,7 +44,7 @@ end
 -- Both shapes exist in this project's maps for the same prop type, so the
 -- anchoring can't be assumed: src/entities/switch.lua's gid object needs the
 -- second rule, while the hand-edited push_box objects in
--- res/map/sandbox.tmx need the first. Guessing wrong buries a
+-- res/map/sandbox.tmj need the first. Guessing wrong buries a
 -- template-placed prop a full tile inside the floor.
 function PushableSupport.spawnCentre(object)
 	local centreX = object.x + object.width * 0.5

@@ -12,7 +12,7 @@ local Queries = require('tests.support.queries')
 local FakeInput = FakeInputModule.FakeInput
 local runUntil = FakeInputModule.runUntil
 
-local CATCH_MAP = 'tests/fixtures/ladder_fall_catch_room.lua'
+local CATCH_MAP = 'tests/fixtures/ladder_fall_catch_room.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]

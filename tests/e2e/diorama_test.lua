@@ -4,7 +4,7 @@
 -- right pixels: the tiling void fills the out-of-world strips and the
 -- world-space frame sits centred on the world boundary.
 --
--- Runs against res/map/sandbox.tmx (20x20 tiles = 640x640px) at a wide
+-- Runs against res/map/sandbox.tmj (20x20 tiles = 640x640px) at a wide
 -- 1200x500 window so the camera's view is wider than the map and the screen
 -- has left/right void strips. The camera is forced to the deterministic
 -- full-map overview so the projected world rect is exact:
@@ -22,7 +22,7 @@ local AssetManager = require('src.utils.asset_manager')
 local Diorama = require('src.diorama')
 local Camera = require('src.camera')
 
-local MAP = 'res/map/sandbox.tmx'
+local MAP = 'res/map/sandbox.tmj'
 
 local COLORS = {
 	void = { 255, 255, 255 },

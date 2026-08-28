@@ -9,7 +9,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/replicator_room.lua'
+local MAP = 'tests/fixtures/replicator_room.tmj'
 
 -- A 32px box resting on the floor (top y=160) has its centre at y=144.
 local BOX_RESTING_Y = 144

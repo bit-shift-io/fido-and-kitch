@@ -8,7 +8,7 @@ local SoundSpy = require('tests.support.sound_spy')
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/key_room.lua'
+local MAP = 'tests/fixtures/key_room.tmj'
 
 test('walking into a key plays its pickup sound', function()
 	local game = GameHarness.startGame(MAP)

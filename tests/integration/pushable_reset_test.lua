@@ -11,7 +11,7 @@ local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/pressure_switch_room.lua'
+local MAP = 'tests/fixtures/pressure_switch_room.tmj'
 
 local SURFACE_TOP = 224
 local BOX_RESTING_Y = SURFACE_TOP - 16

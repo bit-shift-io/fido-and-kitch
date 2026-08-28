@@ -12,19 +12,19 @@ local function listOf(...)
 end
 
 test('the last map played is restored as the selected card', function()
-	local list = listOf('a.tmx', 'b.tmx', 'c.tmx')
+	local list = listOf('a.tmj', 'b.tmj', 'c.tmj')
 
-	assertTrue(list:selectFile('c.tmx'))
+	assertTrue(list:selectFile('c.tmj'))
 
-	assertEqual('res/map/c.tmx', list.selectedFile)
-	assertEqual('c.tmx', list.selectedFileName)
+	assertEqual('res/map/c.tmj', list.selectedFile)
+	assertEqual('c.tmj', list.selectedFileName)
 end)
 
 test('a remembered map that no longer exists leaves the first card selected', function()
-	local list = listOf('a.tmx', 'b.tmx')
+	local list = listOf('a.tmj', 'b.tmj')
 	list:updateSelection()
 
-	assertFalse(list:selectFile('deleted.tmx'))
+	assertFalse(list:selectFile('deleted.tmj'))
 
-	assertEqual('res/map/a.tmx', list.selectedFile)
+	assertEqual('res/map/a.tmj', list.selectedFile)
 end)

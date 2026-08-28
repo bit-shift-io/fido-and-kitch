@@ -1,78 +1,60 @@
-# Ladder remodel: no-gravity zone + standable top
+# Remove old Lua map system + old TMX/XML systems (2026-08-28)
 
-Grill notes (2026-08-24). Scope: climbing/mounting; the core bug is
-side-entry fall-through — a player falling into a ladder volume passes
-through it instead of catching. Today mounting also requires terrain blocks
-under ladder tops so the player can walk along the top.
+Grill notes. Scope: kill every non-JSON map path. Target end-state: only
+`.tmj`/`.tj`/`.tsj` JSON survives for map/template/tileset loading.
 
 ## Confirmed model (asked + answered)
 
-1. **Ladder volume = no-gravity zone.**
-2. **Catch rules:** auto-catch any falling player overlapping the volume
-   (no input needed). Grounded players are NEVER auto-caught — walking
-   through a base column behaves like normal ground. `up`/`down` mounts
-   from ground still work as today.
-3. **Alignment:** auto-align to centre-x ONLY while `up`/`down` held;
-   `left`/`right` passes through the column without aligning.
-4. **Ladder top = one-way platform** on the lead rung: top-only collision
-   via `colFilterFn` + `walkable=true` (mover_platform pattern).
-   Standable/walkable with NO terrain beneath; press down on top to
-   descend inside.
-5. **NPCs:** players-first; verify spider/robot/rabbit unaffected,
-   minimal patch only on regression.
+1. **Kill ALL non-JSON paths** — Gen 1 `.lua` maps (STI loader) AND Gen 2
+   `.tmx`/`.tx`/`.tsx` XML. Only TMJ/JSON survives.
+2. **Test fixtures: triage** — `tests/fixtures/*.lua` (~35 Gen-1 maps):
+   keep only what's consumed by tests, convert those to `.tmj`, delete the
+   rest.
+3. **Migration tools + xml2lua: delete all** — `tools/tx_to_tj.py`,
+   `tools/convert_to_templates.lua`, `lib/xml2lua`. (Delete all.)
+4. **Rename dual-format modules** — `tmx_template.lua` →
+   `tj_template.lua`, `external_tileset.lua` → JSON-only name. Strip XML
+   branches internally.
+5. **STI: KEEP for rendering** (confirmed active): `parallax_renderer.lua:117`
+   calls `map:drawLayer` → STI `drawTileLayer`; object-layer sprite batches
+   are STI-built. Full removal would require reimplementing tile rendering.
+   Delete only the `.lua`/`.tmx` loader entry points; render path stays.
+6. **export_png.lua + tools/level_generator/tmx_writer.lua: port to JSON
+   first**, then delete the XML paths. (Not just delete.)
+7. **Docs: update all in-scope** — AGENTS.md, ARCHITECTURE.md, CONTEXT.md,
+   README.md, tests/README.md, tools/README.md (`.tmx`/`.tx`/`.tsx` refs).
+8. **Fix all broken test refs** — ~5 files still reference `sandbox.tmx`
+   (level_layer_render_test, blocker_test, diorama_test, npc_visual_test).
+9. **UI: strip old formats** — `map_list.lua`/`map_card.lua` only need
+   `.tmj`; remove `.lua`/`.tmx` branches + `map_card.lua`'s `src.map.tmx`
+   require.
 
-## Carried defaults (veto here if wrong)
+## Files in play (map system, 11 files)
 
-- Switch-off (hidden) ladders: no catch, no top platform.
-- Edge keys are no-ops (user directive, vetoed the old down→FallState
-  default): pressing down at the bottom of a ladder / up at the top is
-  ignored — the player stays mounted. Leaving is by sliding off the side.
-- Base arrival dismounts (user directive, refines the edge-key no-op):
-  touching down on real (non-ladder) ground at the bottom auto-ejects to
-  walking; up-at-top remains a no-op hover on the slab.
-- Existing maps keep terrain under ladder tops harmlessly (flush surfaces).
+- `src/map/init.lua` — loader dispatch; kill `.tmx`/`.lua` branches of
+  `loadSti`/`resolveMapFile` (keep `.tmj`)
+- `src/map/tmx.lua` — XML map parser → DELETE
+- `src/map/tmx_xml.lua` — XML DOM helper (plus its `lib.xml2lua`) → DELETE
+- `src/map/tmj.lua` — JSON map parser → KEEP
+- `src/map/tmx_template.lua` — dual-format; strip XML, rename → tj_template.lua
+- `src/map/external_tileset.lua` — dual-format; strip XML, rename → JSON-only
+- `src/map/{entity_factory,ladder_merger,collision_builder,parallax_renderer,map_parallax}.lua` — format-agnostic → KEEP
 
-## Touchpoints seen during codebase recon
+## Knock-on fixes
 
-- `src/entities/ladder.lua` — add top collider
-- `src/player/player_states.lua` — LadderState canTransition/update
-- `src/player/player_sensors.lua` — catch query
-- `src/entities/mover_platform.lua` — one-way colFilterFn pattern reference
+- `src/export_png.lua` (TMX-only + `require src.map.tmx`) → port JSON
+- `src/ui/map_list.lua`, `src/ui/map_card.lua` (3-format branches) → strip
+- `tools/level_generator/tmx_writer.lua` (XML writer) → port/remove
+- `lib/sti/init.lua` STI `.lua`/`.tmx` loader entry points → remove
+- `tests/fixtures/tmx/tmx_room.tmx/.tsx` → remove (XML-only test fixture)
+- XML-path unit tests (`tmx_test.lua`, `tmx_template_test.lua`,
+  `external_tileset_test.lua`, `level_generator_tmx_writer_test.lua`) → update/remove
+- 5 call sites pass `sandbox.tmx` (now `.tmj`)
+- Remove stale `.scratch/DECISIONS.md` code-comment references if encounterable
 
----
+## Known stale docs (update in task)
 
-# Teleporter Travel FX (2026-08-25)
-
-Grill notes. Scope: replace instant teleport with cinematic travel along a
-generated curve.
-
-## Confirmed model (asked + answered)
-
-1. **Travel is cinematic (locked):** player input disabled during travel;
-   a `TeleportTravelState` takes over until arrival.
-2. **Path = auto-generated wobbly curve:** gentle 1/2 sine wave with
-   perpendicular wiggle for magical feel. Control points computed from
-   source/destination positions — no Tiled authoring needed.
-3. **Duration scales with distance:** base ~0.8s + ~0.002s per world pixel
-   (tunable). Min ~0.5s, max ~3s.
-4. **Player hidden, particles only:** player entity becomes invisible;
-   a custom particle effect (`TeleportTrail`) travels the curve, emitting
-   wavy/oscillating magical particles. No ghost sprite.
-5. **Parallel co-op travel:** both players can travel simultaneously on
-   independent curves with independent particle effects.
-6. **New particle preset:** `src/fx/teleport_trail.lua` — oscillating
-   particles along a parametric curve (sine wave + perpendicular noise).
-7. **No beam/link between pads:** only the travel particles; teleporter
-   entities themselves unchanged visually.
-8. **Sound:** keep existing `in`/`out` sounds at source/destination; add
-   optional travel loop sound if asset exists.
-
-## Touchpoints
-
-- `src/entities/teleport.lua` — `use()` becomes async; spawns travel effect,
-  sets player into `TeleportTravelState`
-- `src/player/player_states.lua` — new `TeleportTravelState` class
-- `src/player/player.lua` — add travel state to FSM, handle visibility toggle
-- `src/fx/teleport_trail.lua` — new particle preset (curve + oscillating emit)
-- `src/fx/manager.lua` — register travel effect via `map.fx:add()`
-- `src/map/init.lua` — ensure `map.fx` accessible for teleport to add effect
+AGENTS.md (`tmx.lua`, `res/map/*.tmx`, `*.tx`/`*.tsx`), ARCHITECTURE.md
+(`.tmx`), CONTEXT.md (`.tmx` sole source of truth), README.md ("Save map as
+tmx"), tools/README.md (`<seed>.tmx` → `.tmj`), tests/README.md
+(`sandbox.tmx` example).

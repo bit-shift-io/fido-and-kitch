@@ -11,7 +11,7 @@ local Queries = require('tests.support.queries')
 
 local FakeInput = FakeInputModule.FakeInput
 
-local MAP = 'tests/fixtures/blocker_room.lua'
+local MAP = 'tests/fixtures/blocker_room.tmj'
 
 -- see the fixture's header diagram
 local BLOCKER_CENTRE_X = 304
@@ -149,19 +149,16 @@ test('flipping the switch back off relocks the blocker instantly -- solid again 
 		'expected the relocked blocker to stop the player at the barrier again')
 end)
 
--- Regression guard for the real blocker.tx template (res/editor/blocker.tx):
+-- Regression guard for the real blocker.tj template (res/editor/blocker.tj):
 -- its spriteOffsetY property must actually reach an instance through the
--- full template -> object merge, and must shift ONLY the art. Notably, when
--- this template was authored by hand with a self-closed <object/> and the
--- <properties> block dangling outside it, the xml parser rejected the whole
--- file ("Unbalanced Tag (/object)") and sandbox.tmx stopped loading entirely
+-- full template -> object merge, and must shift ONLY the art.
 -- -- this test exists to make that failure mode loud.
-test('the real blocker.tx template feeds spriteOffsetY into the sandbox instance, shifting only the art', function()
+test('the real blocker.tj template feeds spriteOffsetY into the sandbox instance, shifting only the art', function()
 	local game = GameHarness.startGame('res/map/sandbox.tmj')
 	FrameStepper.step(game, 30)
 
 	local blocker = Queries.findEntityByType(map, 'blocker')
-	assertTrue(blocker ~= nil, 'expected sandbox to load a blocker -- a malformed blocker.tx fails the whole map load')
+	assertTrue(blocker ~= nil, 'expected sandbox to load a blocker -- a malformed blocker.tj fails the whole map load')
 
 -- sandbox blocker object: x=256 y=224, 32x64 -> bottom-anchored centre
 -- (272, 192); the template's spriteOffsetY=-6 raises only the sprite

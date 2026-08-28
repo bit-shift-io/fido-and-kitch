@@ -7,7 +7,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 local SoundSpy = require('tests.support.sound_spy')
 
-local MAP = 'tests/fixtures/teleport_room.lua'
+local MAP = 'tests/fixtures/teleport_room.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]

@@ -3,8 +3,8 @@
 -- changes to consume it. This is the JSON equivalent of tmx.lua.
 local json = require('src.utils.json')
 local stiUtils = require('lib.sti.utils')
-local TmxTemplate = require('src.map.tmx_template')
-local ExternalTileset = require('src.map.external_tileset')
+local TjTemplate = require('src.map.tj_template')
+local TjTileset = require('src.map.tj_tileset')
 
 local Tmj = {}
 
@@ -154,7 +154,7 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
 
 	if obj.template then
 		local templatePath = stiUtils.format_path(mapDir .. obj.template)
-		local template = TmxTemplate.resolve(templatePath, deps)
+		local template = TjTemplate.resolve(templatePath, deps)
 		base = template.object
 		templateGid = resolveTemplateGid(template, firstgidFor, deps)
 	end
@@ -182,10 +182,18 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
 		shape = 'point'
 	end
 
+	-- An empty-string type (e.g. a generated .tmj writing `type: ""` for a
+	-- template instance) must fall through to the template's type, not win
+	-- over it: in Lua '' is truthy and would mask the template default.
+	local instanceType = obj.type
+	if instanceType == '' then instanceType = nil end
+	local instanceClass = obj.class
+	if instanceClass == '' then instanceClass = nil end
+
 	local object = {
 		id = tonumber(obj.id),
 		name = obj.name or base.name or '',
-		type = obj.type or obj.class or base.type or '',
+		type = instanceType or instanceClass or base.type or '',
 		shape = shape,
 		x = tonumber(obj.x) or 0,
 		y = tonumber(obj.y) or 0,
@@ -208,8 +216,8 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
 	end
 
 	-- Properties: merge template defaults with instance overrides.
-	-- TmxTemplate.resolve returns a template's properties either as a keyed
-	-- table (name -> value, when parsed from a .tx) or as the raw JSON array
+	-- TjTemplate.resolve returns a template's properties either as a keyed
+	-- table (name -> value, when parsed from a .tj) or as the raw JSON array
 	-- form ([{name,type,value}, ...], when parsed from a .tj). Normalise both
 	-- to keyed values, then overlay the instance's parsed keyed properties.
 	if base.properties then
@@ -227,7 +235,7 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
 				object.properties[prop.name] = val
 			end
 		else
-			-- Keyed form from a .tx template
+			-- Keyed form from a .tj template
 			for name, val in pairs(base.properties) do
 				object.properties[name] = val
 			end
@@ -447,7 +455,7 @@ function Tmj.parse(tmjPath)
 		if ts.source then
 			-- External tileset reference
 			local tsxPath = stiUtils.format_path(mapDir .. ts.source)
-			local resolved = ExternalTileset.resolve(tsxPath, firstgid, { readFile = readFile })
+			local resolved = TjTileset.resolve(tsxPath, firstgid, { readFile = readFile })
 			table.insert(map.tilesets, resolved)
 		else
 			-- Embedded tileset
@@ -485,7 +493,7 @@ function Tmj.parse(tmjPath)
 		end
 
 		local firstgid = allocator.nextFirstgid
-		local resolved = ExternalTileset.resolve(tsxPath, firstgid, deps)
+		local resolved = TjTileset.resolve(tsxPath, firstgid, deps)
 		table.insert(allocator.tilesets, { name = resolved.name, firstgid = firstgid, filename = tsxPath })
 		allocator.byPath[tsxPath] = firstgid
 		allocator.nextFirstgid = firstgid + (resolved.tilecount or 0)

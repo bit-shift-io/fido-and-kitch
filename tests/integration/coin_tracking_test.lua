@@ -6,7 +6,7 @@ local GameHarness = require('tests.support.game_harness')
 local FakeInput = require('tests.support.fake_input').FakeInput
 local FrameStepper = require('tests.support.frame_stepper')
 
-local MAP = 'tests/fixtures/coin_room.lua'
+local MAP = 'tests/fixtures/coin_room.tmj'
 
 test('walking onto a coin emits coin_collected with the coin position', function()
 	local game = GameHarness.startGame(MAP)

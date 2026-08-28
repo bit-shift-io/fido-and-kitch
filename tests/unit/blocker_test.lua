@@ -138,7 +138,7 @@ test('spriteOffsetY shifts only the sprite -- the barrier keeps its authored cen
 end)
 
 -- A blocker authored with no switch pointing at it is a permanent wall, not
--- an error: switch wiring lives on the switch (switch.tx's `target`), so a
+-- an error: switch wiring lives on the switch (switch.tj's `target`), so a
 -- freshly-placed blocker legitimately has nothing referencing it yet.
 test('a blocker with no switch wired stays locked and solid across many frames', function()
 	local blocker = makeBlocker()

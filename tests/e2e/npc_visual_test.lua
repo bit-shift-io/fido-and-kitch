@@ -37,7 +37,7 @@ end
 -- Test sandbox map which has spider and robot NPCs
 test('sandbox map loads with spider and robot NPCs and captures screenshot', function()
     registerNPCTypes()
-    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
 
     FrameStepper.step(game, 10)
 
@@ -62,9 +62,7 @@ end)
 -- Test all maps that might contain NPCs
 test('all maps with NPCs load and capture without errors', function()
     local mapFiles = {
-        'res/map/sandbox.tmx',
-        'res/map/ll1.tmx',
-        'res/map/ll2.tmx',
+        'res/map/sandbox.tmj',
     }
 
     local failures = {}
@@ -99,7 +97,7 @@ end)
 -- Test spider chases player when in range
 test('spider chases player when in range', function()
     registerNPCTypes()
-    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
     local controller = FakeInput.new()
 
     FrameStepper.step(game, 10)
@@ -129,7 +127,7 @@ end)
 -- Test robot patrols
 test('robot follows patrol path', function()
     registerNPCTypes()
-    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
 
     FrameStepper.step(game, 10)
 
@@ -151,7 +149,7 @@ end)
 -- Test rabbit follows player
 test('rabbit follows player when in range', function()
     registerNPCTypes()
-    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
     local controller = FakeInput.new()
 
     FrameStepper.step(game, 10)
@@ -186,7 +184,7 @@ end)
 -- Test robot detects player and reacts visually
 test('robot detects player when nearby', function()
     registerNPCTypes()
-    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
 
     FrameStepper.step(game, 10)
 
@@ -218,7 +216,7 @@ end)
 -- Test NPC pushing: spider and robot near each other interact
 test('NPCs coexist and update when placed near each other', function()
     registerNPCTypes()
-    local game = GameHarness.startGame('res/map/sandbox.tmx', {real = true})
+    local game = GameHarness.startGame('res/map/sandbox.tmj', {real = true})
 
     FrameStepper.step(game, 10)
 

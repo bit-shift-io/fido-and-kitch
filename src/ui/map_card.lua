@@ -1,4 +1,3 @@
-local Tmx = require('src.map.tmx')
 local Log = require('src.utils.log')
 local MapInfo = require('src.ui.map_info')
 
@@ -44,7 +43,7 @@ end
 -- The playable shape of a level comes from its collision, not its tile art:
 -- a map keeps the same collision after a tileset is swapped, and collision
 -- can live in a tile layer (properties.collision=true) or an object group of
--- rectangles (e.g. sandbox.tmx's "collision" group). Collects every such
+-- rectangles (e.g. sandbox.tmj's "collision" group). Collects every such
 -- collision rect in world pixels.
 local function collisionRects(mapData, decodeFn)
 	decodeFn = decodeFn or function(data)

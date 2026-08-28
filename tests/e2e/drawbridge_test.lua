@@ -16,7 +16,7 @@ local Queries = require('tests.support.queries')
 local Capture = require('tests.support.capture')
 
 local FakeInput = FakeInputModule.FakeInput
-local MAP = 'tests/fixtures/drawbridge_room.lua'
+local MAP = 'tests/fixtures/drawbridge_room.tmj'
 
 -- The fixture's lone spawn point sits on the bridge's arrival
 -- (crossingDirection = 'leftToRight') side; walking right from there

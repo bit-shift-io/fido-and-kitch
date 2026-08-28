@@ -11,7 +11,7 @@ local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 local runUntil = FakeInputModule.runUntil
 
-local MAP = 'tests/fixtures/flat_ground.lua'
+local MAP = 'tests/fixtures/flat_ground.tmj'
 
 -- let both players fall from their spawn onto the floor and settle into
 -- WalkIdleState before driving any horizontal input

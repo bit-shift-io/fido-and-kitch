@@ -9,7 +9,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')
 local Queries = require('tests.support.queries')
 
-local MAP = 'tests/fixtures/ladder_fall_catch_room.lua'
+local MAP = 'tests/fixtures/ladder_fall_catch_room.tmj'
 -- Column x[128,160], volume y[192,352], top slab band y[192,200].
 -- Centre y=196 puts the 30px-tall body squarely across the slab band.
 local DROP_X, DROP_Y = 144, 196

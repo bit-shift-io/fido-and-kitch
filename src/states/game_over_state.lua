@@ -17,7 +17,7 @@ function GameOverState:enter()
 end
 
 function GameOverState:load(props)
-    self.map = props and props.map or 'res/map/sandbox.tmx'
+    self.map = props and props.map or 'res/map/sandbox.tmj'
 end
 
 function GameOverState:exit()

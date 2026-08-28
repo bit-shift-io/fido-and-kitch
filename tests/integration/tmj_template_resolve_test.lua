@@ -1,8 +1,8 @@
 -- Object templates: the TMJ parser must read template data from the .tj
 -- files so template-referencing objects resolve their type (which is the
 -- entity filename EntityFactory loads), plus inherit their gid/size and
--- merge properties. See NOTES.md / DECISIONS.md Q5/Q6 for the TMX contract
--- this mirrors; sandbox.tmj references res/editor/*.tj templates.
+-- merge properties. See CONTEXT.md's "Object template" glossary entry /
+-- NOTES.md for the resolution contract; sandbox.tmj references res/editor/*.tj templates.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 

@@ -58,7 +58,7 @@ end
 
 -- The sprite fills the object's own rect, 1:1 -- not the drawbridge's 2x
 -- box. The blocker is authored in Tiled as a gid-bearing tile object whose
--- rect is sized to match its art's 1:2 ratio (template blocker.tx: 32x64
+-- rect is sized to match its art's 1:2 ratio (template blocker.tj: 32x64
 -- against the 128x256 entity_blocker.png frames), so drawing at the object's
 -- own size reproduces the editor placement exactly, with no bleed and no
 -- stretch. (The old 2x-height rule only looked right while the template was
@@ -118,7 +118,7 @@ function Blocker:init(object)
 	-- The blocker object is a gid-bearing tile object, bottom-anchored like
 	-- every other gid entity (switch, key, cage, exit_door, ladder): object
 	-- `y` is the gate's BOTTOM edge, so the centre sits half a height above
-	-- it. The sandbox instance (blocker.tx at x=256, y=224, 32x64) therefore
+	-- it. The sandbox instance (blocker.tj at x=256, y=224, 32x64) therefore
 	-- occupies y=160..224 -- a 64px gate rising out of the walkway -- not
 	-- top-anchored at y=224..288, which hung the whole gate below the
 	-- passage. This is the same bottom-anchored centre the exit door lifts

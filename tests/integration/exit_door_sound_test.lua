@@ -4,7 +4,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 local SoundSpy = require('tests.support.sound_spy')
 
-local MAP = 'tests/fixtures/exit_door_room.lua'
+local MAP = 'tests/fixtures/exit_door_room.tmj'
 
 test('the exit door plays an open sound when the last actor exits (actor_count reaches 0)', function()
 	local game = GameHarness.startGame(MAP)
