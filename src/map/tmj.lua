@@ -388,11 +388,19 @@ function Tmj.parse(tmjPath)
 		end
 	end
 
-	-- 	-- Resolve tilesets (embedded in TMJ)
+	-- Resolve tilesets (embedded or external)
 	for _, ts in ipairs(mapData.tilesets) do
 		local firstgid = tonumber(ts.firstgid)
-		local resolved = resolveEmbeddedTileset(ts, firstgid, mapDir)
-		table.insert(map.tilesets, resolved)
+		if ts.source then
+			-- External tileset reference
+			local tsxPath = stiUtils.format_path(mapDir .. ts.source)
+			local resolved = ExternalTileset.resolve(tsxPath, firstgid, { readFile = readFile })
+			table.insert(map.tilesets, resolved)
+		else
+			-- Embedded tileset
+			local resolved = resolveEmbeddedTileset(ts, firstgid, mapDir)
+			table.insert(map.tilesets, resolved)
+		end
 	end
 
 	-- Tileset allocator for template auto-registration (same as tmx.lua)
@@ -401,10 +409,19 @@ function Tmj.parse(tmjPath)
 		byPath = {},
 		nextFirstgid = 1,
 	}
-	for _, ts in ipairs(map.tilesets) do
-		allocator.byPath[ts.image and ts.image:gsub('^%.%.', '') or ''] = ts.firstgid
-		if ts.firstgid >= allocator.nextFirstgid then
-			allocator.nextFirstgid = ts.firstgid + (ts.tilecount or 0)
+	for _, ts in ipairs(mapData.tilesets) do
+		local firstgid = tonumber(ts.firstgid)
+		if ts.source then
+			-- Track external tileset by its .tsj path
+			local tsxPath = stiUtils.format_path(mapDir .. ts.source)
+			allocator.byPath[tsxPath] = firstgid
+		else
+			-- Embedded tileset - track by image path
+			local resolved = resolveEmbeddedTileset(ts, firstgid, mapDir)
+			allocator.byPath[resolved.image and resolved.image:gsub('^%.%.', '') or ''] = firstgid
+		end
+		if firstgid >= allocator.nextFirstgid then
+			allocator.nextFirstgid = firstgid + (ts.tilecount or 0)
 		end
 	end
 
