@@ -1,5 +1,4 @@
 local GameAPI = {}
-local json = require('lib.dkjson')
 local ActionMap = require('src.input.action_map')
 
 local P1_KEYS = ActionMap.KEYBOARD_MAPS[1]

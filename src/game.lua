@@ -66,12 +66,10 @@ function Game:resize(w, h)
 end
 
 function Game:textinput(t)
-    --suit.textinput(t)
     self.fsm:textinput(t)
 end
 
 function Game:keypressed(k)
-    --suit.keypressed(key)
 
     if k == "f12" then
         Log.debug('screenshot')

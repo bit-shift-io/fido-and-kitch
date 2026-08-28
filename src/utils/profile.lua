@@ -55,13 +55,6 @@ function profile.hooker(event, line, info)
   end
 end
 
---- Sets a clock function to be used by the profiler.
--- @tparam function func Clock function that returns a number
-function profile.setclock(f)
-  assert(type(f) == "function", "clock must be a function")
-  clock = f
-end
-
 --- Starts collecting data.
 function profile.start()
   if rawget(_G, 'jit') then

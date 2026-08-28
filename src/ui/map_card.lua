@@ -1,4 +1,3 @@
-local Log = require('src.utils.log')
 local MapInfo = require('src.ui.map_info')
 
 local MapCard = Class{}

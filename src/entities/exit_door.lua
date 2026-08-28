@@ -1,5 +1,5 @@
 -- Exit for actors and players
--- also includes a variable counter to allow counting down to zero when the door will open
+-- opens on the all_cages_unlocked event (or when its actor counter reaches zero)
 
 local Log = require('src.utils.log')
 local EventBus = require('src.utils.event_bus')
@@ -119,7 +119,6 @@ function ExitDoor:addWaitingEntity(entity)
 	if (self.state == 'open') then
 		entity:queueDestroy()
 		self:despawnNearbyNPCs()
-		self:checkEndGame()
 		return
 	end
 
@@ -179,7 +178,6 @@ function ExitDoor:animFinished()
 		end
 		self.entitysWaiting = {}
 		self:despawnNearbyNPCs()
-		self:checkEndGame()
 		if (self.enableUsableOnOpen) then
 			self.usable.enabled = true
 		end
@@ -192,9 +190,6 @@ function ExitDoor:animFinished()
 			self:updateState('closed')
 		end
 	end
-end
-
-function ExitDoor:checkEndGame()
 end
 
 function ExitDoor:destroy()

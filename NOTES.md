@@ -1,5 +1,10 @@
 # Remove old Lua map system + old TMX/XML systems (2026-08-28)
 
+> **STATUS: COMPLETED.** All tasks in phase A–H (see `TASKS.md`) are done as of
+> the TMX→TMJ migration (verified: `.tmx`/`.tx`/`.tsx`/`.lua` map paths removed;
+> only `.tmj`/`.tj`/`.tsj` JSON survives). Kept here as a historical record of
+> the migration plan.
+
 Grill notes. Scope: kill every non-JSON map path. Target end-state: only
 `.tmj`/`.tj`/`.tsj` JSON survives for map/template/tileset loading.
 

@@ -78,42 +78,6 @@
 
 **Boundary** — A seam should preserve runtime behavior and stay narrowly focused. It is not a broad refactor away from the project's current global-oriented architecture.
 
-## Background prop
-
-**Definition** — A decorative entity (tree, bush, cloud) spawned from a tile object in a map's `background` objectgroup layer, placed in Tiled via a template backed by the `props` image-collection tileset so the real art shows in the editor. May move (procedurally and/or via frame animation) and react to nearby players.
-
-**Boundary** — Pure visuals: never has a physics collider and never obstructs or affects player movement. Not a gameplay volume (contrast with kill zone) and not a foreground/overlay element.
-
-## Gradient object
-
-**Definition** — A rect object of type `gradient` in the background layer carrying `colorTop`/`colorBottom` colours and a `coverMap` flag; the game draws a vertical colour gradient behind everything (full-map when `coverMap` is set).
-
-**Boundary** — Data authored in the map, rendered in code; Tiled cannot preview it. It is the backmost visual only, not lighting or tinting of other layers.
-
-## Cloud spawner
-
-**Definition** — A rect object of type `cloud_spawner` that, at level load, populates its region with a fixed count of clouds picked from a pool of Tiled templates; clouds drift with the wind and wrap around the map edges.
-
-**Boundary** — Seeds a stable population once; it does not continuously spawn/despawn and is not a weather system.
-
-## Wind
-
-**Definition** — A global per-map value (map custom property `windX`, signed direction+strength, with a code default when absent) that drives background motion — cloud drift and prop sway — scaled per object by a `windScale` multiplier.
-
-**Boundary** — Affects background visuals only; it never applies forces to players or gameplay entities.
-
-## Depth
-
-**Definition** — A number carried by every background element (default 1.0) reserved as its parallax factor for the planned camera rework.
-
-**Boundary** — Stored and plumbed but currently visually inert; it does not control draw order (layer/object order does).
-
-## Proximity component
-
-**Definition** — A generic entity component configured with a radius that watches player distance each update and emits enter/exit signals, letting the owning entity react (e.g. a bush rustles when a player runs past).
-
-**Boundary** — Read-only detection; it creates no collider and applies no gameplay effect itself — reactions belong to the owning entity.
-
 ## Pushable
 
 **Definition** — A shared entity component giving a prop the ability to be shoved horizontally by a grounded player walking into it. Handles slide-while-pushed (push box) and momentum-roll-after-a-shove (boulder), the "can this move right now?" gating (grounded pusher holding a direction, nothing pushable on top, no player on top unless opted in, not airborne), and the deterministic fall-and-snap into holes.
@@ -196,7 +160,7 @@
 
 **Definition** — The completion spine of a level: players collect colored keys to unlock matching cages (each release spawns a bird or rabbit ally that cosmetically follows the releasing player — no scripted path). The level's `InGameState` counts cages on load and listens for each cage's `cage_unlocked` event; once every cage has been used it emits `all_cages_unlocked`, which the exit door opens on directly. The level ends when all players exit through it.
 
-**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. The exit door also carries a legacy `actor_count` `Variable` from an earlier bird-path design (the `exitInstant`/`exitThroughDoor` methods were removed as dead code); the variable is not wired to anything and the `all_cages_unlocked` event is the real mechanism.
+**Boundary** — The structural objective, not a scoring system: coins and other pickups are optional extras. The exit door also carries an `actor_count` `Variable` (seeded from the Tiled object property and driven via its `add`/`subtract`/`event` methods): whenever the counter reaches zero the door opens. In current maps nothing writes to the counter, so the `all_cages_unlocked` event is the mechanism actually exercised, but the counter path remains functional (see the door's `Variable:event` handler and `exit_door_sound_test`).
 
 ## Level generator
 

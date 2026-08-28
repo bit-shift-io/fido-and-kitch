@@ -30,10 +30,6 @@ function InputManager:init()
   end
 end
 
-function InputManager:isForcedNonGamepad(joystick)
-  return forcedNonGamepad[joystick] == true
-end
-
 function InputManager:ensurePlayer(idx)
   if not self.players[idx] then
     local km = self.config:getKeyboardMap(idx)

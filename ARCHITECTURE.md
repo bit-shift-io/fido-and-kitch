@@ -10,7 +10,7 @@
 
 ### Key Technology Stack
 * **Runtime:** LÖVE 12.0 (LuaJIT)
-* **Physics Backend:** `bump.lua` (AABB) — default; `love.physics` (Box2D) available via `conf.t.physics`
+* **Physics Backend:** `bump.lua` (AABB) behind `Collider`/`World`
 * **UI:** Slab (immediate-mode UI) for menus/HUD
 * **Class System:** hump.class
 * **Tweening:** hump.tween
@@ -26,7 +26,7 @@
 ```text
 .
 ├── main.lua              # LÖVE entrypoint (loads src/main.lua)
-├── conf.lua              # LÖVE config (t.physics selects physics backend)
+├── conf.lua              # LÖVE config
 ├── ARCHITECTURE.md       # This file
 ├── AGENTS.md             # AI agent guidelines, commands, conventions
 ├── CONTEXT.md            # Glossary of domain terms (camera, framing targets, etc.)
@@ -45,16 +45,25 @@
 │   ├── map.lua           # Thins STI wrapper; delegates to src/map/init.lua
 │   ├── camera.lua        # Shared auto-zoom camera framing all players
 │   ├── entity.lua        # Base Entity with component lifecycle
-│   ├── world.lua         # Thin wrapper selecting physics backend (bump/love)
-│   ├── map/              # Map system (init, entity_factory, collision_builder, ladder_merger, parallax_renderer, tmx…)
-│   ├── components/       # Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, Switchable, Variable, Flash, Timeline, Path, PathFollow)
+│   ├── world.lua         # Collider/World physics API backed by bump
+│   ├── map/              # Map system (init, entity_factory, collision_builder, ladder_merger, parallax_renderer, tmj, tj_template, tj_tileset, map_parallax)
+│   ├── components/       # Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, Switchable, Variable, Flash, Timeline, Path, PathFollow, Sound, Tint, UsableSparkle, Pushable, SpeedStreak)
 │   ├── entities/         # Map entity implementations; Tiled object `type` must match filename (key → src/entities/key.lua)
-│   ├── player/           # Player entity, movement/ladder/fall states, lives, safe-position respawn
-│   ├── physics/          # Swappable backends (bump, love/Box2D) behind Collider/World
-│   ├── ui/               # Slab menu UI, map list, lives HUD
-│   └── utils/            # str, tbl, utils, rect, signal
+│   ├── player/           # Player entity + subsystems (states/, movement, sensors, lives, safe-position)
+│   ├── npc/              # NPC base, config, locomotion, registry, states/
+│   ├── ipc/              # TCP IPC server + command handlers (OpenCode control layer)
+│   ├── physics/          # bump backend behind Collider/World
+│   ├── emitters/         # Low-level emitter engines (sprite_emitter, mesh_ribbon_emitter)
+│   ├── fx/               # One-shot particle effect presets
+│   ├── ui/               # Slab menu UI, map list, lives HUD, overlays
+│   └── utils/            # str, tbl, utils, rect, signal, json, log, profile, settings, event_bus, asset_manager, physics_tolerance
 ├── res/
-│   └── map/              # Tiled .tmj sources (run directly; exported .lua maps are legacy)
+│   ├── map/              # Tiled .tmj sources (run directly; exported .lua maps are legacy)
+│   ├── bg/               # Parallax background presets (image-layer .tmj)
+│   ├── editor/           # Tiled project, object templates (.tj) and tilesets (.tsj)
+│   ├── img/              # Textures
+│   ├── snd/              # Sound effects
+│   └── fnt/              # Fonts
 └── tests/                # Headless unit/integration + headed e2e tests (see tests/README.md)
 ```
 
@@ -64,7 +73,7 @@
 
 ### 3.1 Core & Entrypoint (`src/main.lua`, `conf.lua`)
 * **`main.lua`**: Loads all globals (`conf`, `utils`, `Vector`, `Class`, `Camera`, `Tween`, `Slab`, `World`, `Entity`, `Map`, `Player`, `Game`, …), parses CLI flags (`debug`, `drawphysics`, `profile`, `map=<file>`), creates `Game()` in `love.load`.
-* **`conf.lua`**: LÖVE config; `t.physics` selects physics backend (`"bump"` or `"love"`).
+* **`conf.lua`**: LÖVE config (window, modules, save identity).
 
 ### 3.2 Game Object & State Machine (`src/game.lua`, `src/states/`)
 * **`Game`**: Holds a `StateMachine` (`stateClasses = GameStates`, `entity = self`, `currentState = 'MenuState'`). Delegates all LÖVE callbacks (`update`, `draw`, `keypressed`, …) to `self.fsm`.
@@ -92,15 +101,20 @@
 ### 3.5 Entity & Component System (`src/entity.lua`, `src/components/`)
 * **`Entity`**: Base class; holds `components[]`, `destroySignal`; `update(dt)`/`draw()` forward to components; `queueRemove()`/`queueDestroy()` for safe mid-iteration removal.
 * **Components** (attach via `self:addComponent(Component{…})`):
-  * **`Collider`**: Physics body wrapper (delegates to backend via `src/physics/<backend>/collider.lua`).
+  * **`Collider`**: Physics body wrapper (delegates to the bump backend via `src/physics/bump/collider.lua`).
   * **`Sprite`**: Animated sprite sheets (frame count, duration, loop, offset, facing).
   *   **`StateMachine`**: Generic FSM; accepts `states` (instances) or `stateClasses` (instantiated & wired to `entity`); unknown method calls proxy to `currentState`.
   * **`Inventory`**: Simple item count map (`addItems`, `hasItem`, `removeItem`).
   * **`Pickup`**: Marks entity as collectible (`itemName`, `itemCount`); player `Inventory` picks up on contact.
   * **`Usable`**: Interaction target (`canUse(player)`, `use(player)`).
+  * **`UsableSparkle`**: Gentle sparkles hovering over a usable while a player is in range (auto-attached by `Usable`).
   * **`Switchable`**: gate an entity on/off driven by a linked switch's state (`:switch(switch, user)`, `enabled` default true).
   * **`Variable`**: Named value storage for map-triggered logic.
   * **`Flash`**: Timed visibility toggling (spawn/respawn blink).
+  * **`Sound`**: Plays sound effects via the Sound manager.
+  * **`Tint`**: Color tint applied to a sprite.
+  * **`Pushable`**: Mark an entity as pushable (moves with push logic).
+  * **`SpeedStreak`**: Motion-stretch sprite effect.
   * **`Timeline` / `Path` / `PathFollow`**: Scripted movement along waypoints.
 
 ### 3.6 Player (`src/player/`)
@@ -111,11 +125,9 @@
 *   **Death/Respawn**: `die(deathType)` → `DeadState` → flash → `resolveDeath()` signals `InGameState` → `respawn()` teleports to safe position + spawn flash.
 
 ### 3.7 Physics (`src/physics/`)
-* **Backend Selection**: `conf.t.physics` (`"bump"` or `"love"`).
-* **`World`**: Thin wrapper; `newCollider`, `update(dt)`, `draw()`, `queryRectangleArea`, `queryBounds`.
+* **`World`**: Thin wrapper over the bump world; `newCollider`, `update(dt)`, `draw()`, `queryRectangleArea`, `queryBounds`.
 * **`Collider`**: Unified API (`setPosition`, `getBounds`, `setType`, `setSensor`, `setGroupIndex`, callbacks: `enter`, `exit`, `preSolve`, `postSolve`).
-* **Bump Backend** (`src/physics/bump/`): `bump.lua` world; emulates Box2D-ish semantics (slide response, sensor cross, group-index filtering, kinematic cross).
-* **Love/Box2D Backend** (`src/physics/love/`): Thin wrapper over `love.physics`.
+* **Bump Backend** (`src/physics/bump/`): `bump.lua` world; emulates Box2D-ish semantics (slide response, sensor cross, group-index filtering, kinematic cross). The Box2D/love backend was removed for implementing too little of the Collider contract to actually run the game; re-add it as a real, fully-implemented backend if ever needed.
 
 ### 3.8 Map Entities (`src/entities/`)
 * **Convention**: New entity = new file `src/entities/<type>.lua` + Tiled object with matching `type`.
@@ -197,7 +209,7 @@ Player:update → queryKillZone() → die(deathType)
 
 5. **New Map Entity** = new `src/entities/<type>.lua` + Tiled object with matching `type`. `Map.typeIgnores = {'', 'spawn'}` skips those types. Tiled object properties may contain executable Lua snippets (`object:exec`) — treat map code as trusted, don't feed it user input.
 
-6. **Physics**: Go through `Collider`/`World`, not a backend directly, unless the task is backend-specific. The bump backend emulates Box2D-ish semantics; keep the two backends' APIs aligned when changing shared behavior.
+6. **Physics**: Go through `Collider`/`World`, not `src.physics.bump` directly, unless the task is backend-specific. The bump backend emulates Box2D-ish semantics (slide response, sensor cross, group-index filtering, kinematic cross).
 
 7. **Match Nearby Style**: Quotes, indentation — it's mixed. Keep changes small; prefer new entities/components/states over growing `src/states/`.
 
@@ -265,7 +277,7 @@ Player:update → queryKillZone() → die(deathType)
 | `src/components/` | Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, …) |
 | `src/entities/` | Map entity implementations (type → file) |
 | `src/player/` | Player entity, movement states, lives, safe position |
-| `src/physics/` | Swappable backends (bump, love) behind Collider/World |
+| `src/physics/` | bump backend behind Collider/World |
 | `src/ui/` | Slab menu UI, map list, lives HUD |
 | `res/map/` | Tiled `.tmj` sources (run directly) |
 | `tests/` | Three-tier: `tests/unit` + `tests/integration` (via `./test-unit.sh`/`./test-integration.sh`), `tests/e2e` |

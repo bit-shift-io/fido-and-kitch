@@ -62,7 +62,7 @@ love . debug drawphysics map=sandbox
   - `ground_support.lua` — `isFullySupported`
   - `lives.lua` — lives management
 - `src/physics/bump/` — the physics backend (bump.lua), behind `Collider`/`World`. A Box2D/love backend was removed for implementing too little of the Collider contract to actually run the game; re-add it as a real, fully-implemented backend if ever needed, not a partial one
-- `src/fx/` — one-shot particle presets (`coin_pickup.lua`, `dust_burst.lua`, `spark_trail.lua` built on `src/fx/base.lua`); `src/particles.lua` is the low-level emitter engine behind them
+- `src/fx/` — one-shot particle presets (`base.lua`, `manager.lua`, `coin_pickup.lua`, `dust_burst.lua`, `spark_trail.lua`, `jump_pad_streak.lua`, `teleport_burst.lua`, `teleport_trail.lua`); `src/emitters/sprite_emitter.lua` is the low-level emitter engine behind them
 - `src/ui/` — Slab menu UI, map list, lives HUD, debug overlay, sprite-outline overlay
 - `src/utils/` — utility modules:
   - `asset_manager.lua` — texture caching (`getImage`, `clear`, `getTextureCount`)

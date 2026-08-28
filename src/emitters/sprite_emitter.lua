@@ -1,4 +1,4 @@
--- particles.lua — a tiny, dependency-free particle emitter engine.
+-- sprite_emitter.lua — a tiny, dependency-free particle emitter engine.
 --
 -- Returns a single module table `Particles` exposing `Particles.new_emitter`:
 --

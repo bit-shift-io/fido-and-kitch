@@ -1,5 +1,4 @@
 local PlayerMovement = require('src.player.player_movement')
-local Log = require('src.utils.log')
 
 local WalkIdleState = Class{}
 

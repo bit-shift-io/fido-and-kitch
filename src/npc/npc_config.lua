@@ -43,33 +43,6 @@ function NPCConfig.getDefaults()
     return copy
 end
 
-function NPCConfig.getBehaviorTypes()
-    local types = {}
-    for k, v in pairs(NPCConfig.BehaviorTypes) do
-        types[k] = v
-    end
-    return types
-end
-
-function NPCConfig.validate(props)
-    if props.behavior and not NPCConfig.BehaviorTypes[props.behavior] then
-        return false, 'Invalid behavior type: ' .. tostring(props.behavior)
-    end
-    if props.maxSpeed and props.maxSpeed < 0 then
-        return false, 'maxSpeed must be non-negative'
-    end
-    if props.detectionRadius and props.detectionRadius < 0 then
-        return false, 'detectionRadius must be non-negative'
-    end
-    if props.health and props.health < 0 then
-        return false, 'health must be non-negative'
-    end
-    if props.patrolPoints and type(props.patrolPoints) ~= 'table' then
-        return false, 'patrolPoints must be a table'
-    end
-    return true, nil
-end
-
 function NPCConfig.mergeWithDefaults(props)
     local defaults = NPCConfig.getDefaults()
     local result = {}

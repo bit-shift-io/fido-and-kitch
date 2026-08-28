@@ -2,7 +2,6 @@
 local Class = require('lib.hump.class')
 local NPCBase = require('src.npc.npc_base')
 local NPCRegistry = require('src.npc.npc_registry')
-local Vector = require('lib.hump.vector')
 
 local RabbitNPC = Class{__includes = NPCBase}
 

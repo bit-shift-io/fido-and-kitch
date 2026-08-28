@@ -70,11 +70,6 @@ function Emitter:_loadTexture()
     end
 end
 
-function Emitter:setTexture(tex)
-    self.texture = tex
-    self:_loadTexture()
-end
-
 -- Update ribbon: add new segment at current position with velocity, age existing, trim tail
 function Emitter:update(dt, pos, vel)
     local speed = vel and math.sqrt(vel.x * vel.x + vel.y * vel.y) or 0

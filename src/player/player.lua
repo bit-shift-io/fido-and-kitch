@@ -1,6 +1,5 @@
 local PlayerStates = require('src.player.player_states')
 local SafePosition = require('src.player.safe_position')
-local GroundSupport = require('src.player.ground_support')
 local FlashEffect = require('src.components.flash_effect')
 local SpeedStreak = require('src.components.speed_streak')
 local Web = require('src.npc.web')

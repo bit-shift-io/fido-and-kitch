@@ -1,64 +1,52 @@
-# Remove old Lua map system + old TMX/XML systems
+# Cleanup audit findings (grill 2026-08-29)
 
-Plan from `NOTES.md` (grill 2026-08-28). Target end-state: only `.tmj`/`.tj`/`.tsj`
-JSON survives for map/template/tileset loading. All decisions recorded in `NOTES.md`.
-Ordered bottom-up (delete leaves before dependents; port tooling before removing loaders).
+Plan from `AUDIT.md` (2026-08-29 audit). Target end-state: remove dead code,
+fix stale/inaccurate docs, and reconcile the three stale docs (ARCHITECTURE.md,
+CONTEXT.md, NOTES.md) with reality. Ordered bottom-up (delete leaves before
+dependents; docs last). Each task affects at most 1-2 files.
 
-## Phase A — Port tooling to JSON
+## Phase A — Remove dead globals + dead functions
 
-- [x] `src/export_png.lua` — port from `.tmx` to JSON: use `src/map/tmj.lua`, drop `require('src.map.tmx')`; update `resolveMapFile` to only consider `.tmj`/`.lua`→`.tmj`. Keep `tests/unit/export_png_test.lua` (pure functions).
-- [x] `tools/level_generator/tmx_writer.lua` — XML writer; remove it and its unit test `tests/unit/level_generator_tmx_writer_test.lua` (main.lua already writes `.tmj` via `tmj_writer.lua`); drop `tmx_writer_test` entry from `tests/unit/run.lua`.
-- [x] Rewrite `tools/README.md` generation note: `<seed>.tmx` → `<seed>.tmj`.
+- [x] `src/main.lua` — remove dead globals `DustBurst = require('src.fx.dust_burst')` (line 67) and `SparkTrail = require('src.fx.spark_trail')` (line 68). Keep the modules themselves (used via `map.fx:add/burst` in real code paths if any).
+- [x] `src/input/input_manager.lua` — remove dead + broken method `InputManager:isForcedNonGamepad(joystick)` (lines 33-35); it references undefined global `forcedNonGamepad` and is never called.
+- [x] `src/input/action_map.lua` — remove dead export `GAMEPAD_AXES` (lines 19-22) from the return table (`pollGamepad` in input_manager.lua uses hard-coded axes instead).
+- [x] `src/utils/profile.lua` — remove dead `profile.setclock(f)` (line 60), keep live `start/stop/reset/report/query`.
+- [x] `src/utils/utils.lua` — remove dead `utils.set_funcs` (line 5) after removing its only caller, the commented-out call in `src/physics/bump/world.lua:12` (Phase B).
+- [x] `src/emitters/mesh_ribbon_emitter.lua` — remove dead public method `Emitter:setTexture(tex)` (line 73); internal texture setup uses `self._mesh:setTexture` directly.
 
-### Phase A follow-ups (cleanup, done with A)
-- [x] Rename legacy `result.xml` field → `result.tmj` in `tools/level_generator/main.lua` (used at main.lua:638,662-669,747; field is actually tmj content). Update `tests/unit/level_generator_main_test.lua` refs (`a[1].xml`→`.tmj`, `.tmx`→`.tmj` describe) and fix its stale `name="ladder"` XML-attribute assertion (line 92) to parse the tmj JSON and check for a ladder objectgroup layer. This was pre-existing failing #4 above.
+## Phase B — Remove dead NPC registry/config methods
 
-## Phase B — Strip + rename shared dual-format modules
+- [x] `src/npc/npc_registry.lua` — remove 4 dead methods: `despawn(npc)` (line 38, live path is `NPCBase:despawnToTarget`), `clearAll()` (line 72, only `clear()` is wired), `onMapLoad(map)` (line 77), `onMapUnload()` (line 102).
+- [x] `src/npc/npc_config.lua` — remove 2 dead methods: `getBehaviorTypes()` (line 46) and `validate(props)` (line 54).
 
-- [x] Rename `src/map/tmx_template.lua` → `src/map/tj_template.lua`; strip XML branch (`parseTx` via `tmx_xml`); keep JSON `parseTj`. Update require in `src/map/tmj.lua` (only remaining consumer).
-- [x] Rename `src/map/external_tileset.lua` → `src/map/tj_tileset.lua` (JSON-only name); strip XML branch (`resolveShapeUncached`/`.tsx` via xml2lua); keep `resolveTsjUncached`. Update require in `src/map/tmj.lua` (+ `lib/sti/init.lua:23`).
-- [x] Trim XML branches from `tests/unit/external_tileset_test.lua` (JSON-only now; fixed the pre-existing `../img/`→`res/img/` failures plus a stale width assertion; consolidated uncropped/cropped into one per-tile image-collection case). `tests/unit` is green again (495 passed, 0 failed).
-- [x] Delete `tests/unit/tmx_template_test.lua` (XML-only) and `tests/unit/tmx_test.lua` (XML-only); remove both entries from `tests/unit/run.lua`.
+## Phase C — Remove unused requires + commented-out code
 
-### Phase B follow-ups (reorder note)
-- [x] Deleting `tmx_template.lua` broke `src/ui/map_list.lua` (requires `src.map.tmx` → deleted module). Ran the Phase E UI cleanup early to restore loading: stripped `.lua`/`.tmx` branches from `src/ui/map_list.lua` (JSON-only), removed unused `require('src.map.tmx')` from `src/ui/map_card.lua`, updated `tests/unit/map_list_selection_test.lua` fake filenames `.tmx`→`.tmj`.
+- [x] Remove 7 unused require statements: `src/entities/jump_pad.lua:1` (`Log`), `src/entities/npc_rabbit.lua:5` (`Vector`), `src/fx/teleport_burst.lua:5` (`Particles`), `src/player/player.lua:3` (`GroundSupport`), `src/player/states/walk_idle_state.lua:2` (`Log`), `src/ui/map_card.lua:1` (`Log`), `src/ipc/handlers/player.lua:2` (`json`).
+- [x] `src/physics/bump/collider.lua` — remove commented-out `--Class.include(self, col)` (line 19, annotated "this does not work!").
+- [x] `src/physics/bump/world.lua` — remove commented-out `--utils.set_funcs(w, w._world)` (line 12) once Phase A removes `set_funcs`.
+- [x] `src/game.lua` — remove stale commented-out `--suit.textinput(t)` (line 69) and `--suit.keypressed(key)` (line 74); suit GUI library is not in use.
 
-## Phase C — Delete XML core + helpers
+## Phase D — Remove dead stubs + fix stale code comments
 
-- [x] Delete `src/map/tmx.lua` and `src/map/tmx_xml.lua`.
-- [x] Delete `lib/xml2lua` (confirmed: only used by `src/map/external_tileset.lua` + `src/map/tmx_xml.lua`; both are stripped/removed in Phases B–C, so `grep xml2lua` will be clean).
-- [x] Delete migration tools `tools/tx_to_tj.py`, `tools/convert_to_templates.lua`, and `tools/convert_to_templates.py`.
-- [x] Remove `xml2lua` from `setup.sh` (delete the clone block + `git apply patches/xml2lua.patch` line) and delete `patches/xml2lua.patch`. All other libs are used and stay (STI=render, hump/tween/Slab/bump/dkjson all referenced).
-- [x] Delete `tests/fixtures/tmx/tmx_room.tmx` and `tests/fixtures/tmx/tmx_room.tsx` (and any XML fixtures dir). Also deleted `tests/integration/tmx_test.lua` (XML-only tests of removed `.tmx` loading) + its `run.lua` entry.
+- [x] `src/entities/exit_door.lua` — remove empty dead stub `ExitDoor:checkEndGame()` (line 197); fix stale header comment (line 2) describing legacy `actor_count` mechanism → real mechanism is the `all_cages_unlocked` event.
+- [x] `src/emitters/sprite_emitter.lua` — fix stale header comment (line 1) mislabeling file as "particles.lua" → "sprite_emitter.lua".
+- [x] `src/components/usable_sparkle.lua` — fix stale comment (line 10) referencing non-existent `src/particles.lua` → `src/emitters/sprite_emitter.lua`.
 
-## Phase D — Loader dispatch cleanup (`src/map/init.lua`)
+## Phase E — Fix AGENTS.md path/consistency
 
-- [x] `src/map/init.lua` `loadSti`: remove `.tmx` branch and `.lua` fallback; keep only JSON (always `sti(Tmj.parse(path))`). Drop `require('src.map.tmx')`.
-- [x] `src/map/init.lua` `resolveMapFile`: remove `.tmx`/`.lua` branches; always return `path + '.tmj'`.
-- [x] Audit `lib/sti/init.lua` loader entry points: remove `.lua` (line ~47 `ext == ".lua"`) and any `.tmx` handling; retain the table-input + tile-render path (drawLayer/drawTileLayer/sprite batches) used by `parallax_renderer.lua`. Verify game still runs a `.tmj` map.
+- [x] `AGENTS.md` — fix `src/particles.lua` reference (the low-level emitter engine) → `src/emitters/sprite_emitter.lua`; expand `src/fx/` list to include `manager.lua`, `jump_pad_streak.lua`, `teleport_burst.lua`, `teleport_trail.lua`.
 
-## Phase E — UI cleanup
+## Phase F — Fix ARCHITECTURE.md (stale physics backend + module tree)
 
-- [x] `src/ui/map_list.lua` — strip `.lua`/`.tmx` format branches; only list `.tmj` maps. (Done early, see Phase B follow-ups.)
-- [x] `src/ui/map_card.lua` — strip `.lua`/`.tmx` branches; remove `require('src.map.tmx')`; use JSON thumbnail path. Update `tests/unit/map_card_test.lua` / `map_list_selection_test.lua` if they reference old formats. (Done early, see Phase B follow-ups.)
+- [x] `ARCHITECTURE.md` — remove all love/Box2D backend references: `conf.t.physics` (lines 13, 67, 114), "world.lua — Thin wrapper selecting physics backend" (line 48), "Swappable backends (bump, love/Box2D)" (line 53), "Love/Box2D Backend (`src/physics/love/`)" (line 118, dir doesn't exist), "keep the two backends' APIs aligned" (line 200), "Swappable backends (bump, love)" (line 268). Keep only `src/physics/bump/`.
+- [x] `ARCHITECTURE.md` — update module tree (§2) to include `res/bg/`, `res/editor/`, `src/npc/`, `src/ipc/`, `src/player/states/`, `src/emitters/`, `src/fx/`; add missing component types (Sound, Tint, UsableSparkle, Pushable, SpeedStreak, Flash); expand utils list (json, log, profile, settings, event_bus, asset_manager, physics_tolerance).
 
-## Phase F — Test fixture triage + conversion
+## Phase G — Fix CONTEXT.md + NOTES.md staleness
 
-- [x] Triage `tests/fixtures/*.lua` (~35 Gen-1 maps): `grep` tests/run.lua files to find which fixtures are actually required; list keep-vs-delete.
-- [x] Convert each kept `.lua` fixture to a `.tmj` (script/port the STI-shaped Lua table into TMJ JSON, incl. external-`.tsj` tilesets). Keep fixtures only where the tests exercise real stack loading; otherwise rewrite the test to use a `res/map/*.tmj` or a JSON fixture.
-- [x] Delete the triaged-out `.lua` fixtures.
-- [x] Update fixture-requiring test call sites to the `.tmj` paths.
+- [x] `CONTEXT.md` — remove 6 glossary entries for removed systems: Background prop (bush/cloud, lines 81-85), Gradient object (87-91), Cloud spawner (93-97), Wind (99-103), Depth (105-109), Proximity component (111-115). Fix exit-door inconsistency (line 199 "actor_count not wired" vs line 341 "counter reaches zero or all_cages_unlocked") to match code (both paths live, only event path driven).
+- [x] `NOTES.md` — add a completion note header marking the TMX→TMJ migration plan as completed (all TASKS.md items `[x]`), or archive/append completion summary.
 
-## Phase G — Fix broken test refs
+## Phase H — Verify
 
-- [x] Fix 5 call sites passing `res/map/sandbox.tmx` → `.tmj`: `tests/integration/level_layer_render_test.lua`, `tests/integration/blocker_test.lua`, `tests/e2e/diorama_test.lua`, `tests/e2e/npc_visual_test.lua`, `tests/e2e/blocker_test.lua`. Audit for any other stale `.tmx`/`.lua` map refs in tests. (Also fixed `src/states/game_over_state.lua`, `src/ipc/handlers/entity.lua`, `src/ui/map_info.lua`, `tests/e2e/all_maps_screenshot_test.lua`, `tests/integration/all_maps_load_test.lua`, and swept `.tx`/`.tsx` stale comment refs in src/tests/tools. See notes.)
-
-## Phase H — Docs
-
-- [x] `AGENTS.md` — replace `tmx.lua`→`tmj.lua`, `res/map/*.tmx`→`.tmj`, `*.tx`/`*.tsx`→`.tj`/`.tsj` in Layout/map section.
-- [x] `ARCHITECTURE.md` — update `.tmx` refs; keep/restate "exported .lua maps are legacy".
-- [x] `CONTEXT.md` — fix "Tiled map source: `.tmx` is sole source of truth" → JSON.
-- [x] `README.md` — "Save the map as tmx" → `.tmj`.
-- [x] `tests/README.md` — `sandbox.tmx` example → `sandbox.tmj`; strip `.lua`/`.tmx` fixture notes.
-- [x] Remove any stale `.scratch/*DECISIONS.md` code-comment references encountered (log as a sweep task). (Generic historical `DECISIONS.md` citations left as-is — documented "no longer in-repo"; made format-specific comment fixes in `src/map/tj_tileset.lua` + `tests/integration/tmj_template_resolve_test.lua`. Also swept `.vscode/launch.json`.)
-- [x] Run `./test-unit.sh`, `./test-integration.sh`, `./test-e2e.sh` (CI skip allowed) to verify removal is clean. (`./test-unit.sh` = 495 passed/0 failed; `./test-integration.sh` = 133 passed/0 failed. E2E has pre-existing failures unrelated to format removal — tests referencing maps deleted in the earlier refactor + GPU-dependent rendering.)
+- [x] Run `./test-unit.sh` and `./test-integration.sh`; confirm all tests still pass after deletions.
+- [x] Update `AUDIT.md` — mark resolved items, move resolved findings from action plan, recompute metrics, update date.

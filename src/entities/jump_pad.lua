@@ -1,4 +1,3 @@
-local Log = require('src.utils.log')
 local JumpPadStreak = require('src.fx.jump_pad_streak')
 
 local JumpPad = Class{__includes = Entity}

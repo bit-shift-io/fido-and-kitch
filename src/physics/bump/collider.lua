@@ -16,7 +16,6 @@ function Collider:init(props)
 		world:newCollider(props.shape_type, props.shape_arguments, self)
 	end
 	--col.name = 'bfcollider'
-	--Class.include(self, col) -- merge collider with this, this does not work!
 
 	self.debug = props.debug or false
 	self.sprite = props.sprite

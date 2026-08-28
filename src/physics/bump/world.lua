@@ -9,7 +9,6 @@ function World:new(...)
 
    self.colliders = {}
    self.queryRects = {}
-   --utils.set_funcs(w, w._world)
    return self
 end
 

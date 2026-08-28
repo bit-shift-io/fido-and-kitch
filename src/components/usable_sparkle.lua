@@ -7,7 +7,7 @@
 -- Emission stops while no player is in range or the owning Usable is disabled,
 -- so a locked door doesn't sparkle but an unlocked one does.
 --
--- Rendering uses the codebase's custom Particles engine (src/particles.lua),
+-- Rendering uses the codebase's custom Particles engine (src/emitters/sprite_emitter.lua),
 -- which constructs and updates headless. The texture is loaded lazily on first
 -- draw via AssetManager and falls back to soft rectangles if the file is
 -- missing, so this never breaks unit/integration tiers.
