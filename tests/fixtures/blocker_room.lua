@@ -8,15 +8,19 @@
 --
 --   spawn    switch          blocker          push_box
 --     v        v                v                  v
---   ....................................................    y=192  <- blocker occupies this row
+--   ....................................................    y=160  <- blocker object top
+--   ....................................................    y=192
 --   ####################################################    y=224  <- walking surface
 --   ####################################################
 --
--- The blocker object spans x=288..320, y=192..224 -- one tile standing ON
--- the surface, so its barrier (a thin strip centred at x=304) rises above
--- the walking surface rather than lying flush with it, which would resolve
--- as a walkable step rather than a wall (see tests/README.md's physics
--- gotchas).
+-- The blocker object is authored the way Tiled tile objects are (see
+-- Rect.centreOfMapObject): bottom-anchored, object y = the gate's bottom
+-- edge. It spans x=288..320, y=160..224 -- a 64px gate (32x64, matching
+-- the blocker.tx template) standing ON the surface at y=224. Its barrier
+-- (a thin strip centred at x=304) stretches from the floor up, so it
+-- overlaps a walking player's body column and reads as a wall -- flush
+-- with the surface it would resolve as a walkable step rather than a wall
+-- (see tests/README.md's physics gotchas).
 --
 -- The near side (spawn, switch) is deliberately kept clear of props: a box
 -- parked between the player and the blocker would be what stopped them, and
@@ -119,9 +123,9 @@ return {
           type = "blocker",
           shape = "rectangle",
           x = 288,
-          y = 192,
+          y = 224,
           width = 32,
-          height = 32,
+          height = 64,
           rotation = 0,
           visible = true,
           properties = {}

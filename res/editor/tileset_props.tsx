@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="714" tileheight="714" tilecount="13" columns="0">
+<tileset version="1.11" tiledversion="1.12.2" name="props" tilewidth="714" tileheight="714" tilecount="14" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="../img/default.png" width="32" height="32"/>
@@ -11,7 +11,7 @@
   <image source="../img/ladder.png" width="128" height="32"/>
  </tile>
  <tile id="3" x="0" y="0" width="128" height="128">
-  <image source="../img/entity_switch.png" width="128" height="128"/>
+  <image source="../img/entity_switch.png" width="640" height="128"/>
  </tile>
  <tile id="4">
   <image source="../img/entity_key.png" width="256" height="256"/>
@@ -39,5 +39,8 @@
  </tile>
  <tile id="13">
   <image source="../img/entity_mover_platform.png" width="714" height="714"/>
+ </tile>
+ <tile id="14" x="1408" y="0" width="128" height="256">
+  <image source="../img/entity_blocker.png" width="6144" height="256"/>
  </tile>
 </tileset>

@@ -43,8 +43,8 @@ test('barrier dimensions derive from the object, not a hard-coded tile size', fu
 	assertEqual(64, height)
 end)
 
-test('the sprite box is the object width by twice the object height, centred -- decorative bleed only', function()
-	local width, height = B.spriteBoxDimensions(32, 32)
+test('the sprite fills the authored object rect -- the 1:2 gate object matches its 128x256 art', function()
+	local width, height = B.spriteBoxDimensions(32, 64)
 	assertEqual(32, width)
 	assertEqual(64, height)
 end)
@@ -52,7 +52,7 @@ end)
 test('the sprite box derives from the object dimensions, not a hard-coded size', function()
 	local width, height = B.spriteBoxDimensions(48, 64)
 	assertEqual(48, width)
-	assertEqual(128, height)
+	assertEqual(64, height)
 end)
 
 -- State is recomputed fresh every frame from the linked switch's reading --
@@ -101,6 +101,40 @@ test('constructs headless with a real Sprite/Collider/World stack, closed and so
 	assertEqual('closed', blocker.state)
 	assertFalse(blocker.barrier:isSensor(), 'a locked blocker must be a solid barrier, not a sensor')
 	assertTrue(#blocker.sprite.frames >= 2, 'expected the blocker to animate, not hold a single still frame')
+end)
+
+-- The blocker is a gid-bearing tile object like switch/key/cage/exit_door:
+-- object y is the gate's BOTTOM edge (Rect.centreOfMapObject), not its top.
+-- The regression this guards: authored at (128, 96, 32, 32), the barrier
+-- used to hang at y=112..144 (top-anchored) instead of standing at
+-- y=80..112 above the object's bottom edge -- the sandbox instance read as
+-- sunk below its walkway.
+test('the barrier and sprite anchor to the object bottom, like every gid tile entity', function()
+	local blocker = makeBlocker()
+
+	assertEqual(144, blocker.barrier:getPositionV().x, 'barrier centre x = object x + half width')
+	assertEqual(80, blocker.barrier:getPositionV().y,
+		'barrier centre y = object y - half height: bottom-anchored, not y + half height')
+	assertEqual(144, blocker.sprite.position.x, 'sprite centre must match the barrier centre x')
+	assertEqual(80, blocker.sprite.position.y, 'sprite centre must match the barrier centre y')
+end)
+
+-- The visual-only offset knob: the author can nudge where the gate ART sits
+-- without moving the bounding box. The barrier must stay on the authored
+-- centre no matter what -- that is the whole point of the property.
+test('spriteOffsetY shifts only the sprite -- the barrier keeps its authored centre', function()
+	local plain = makeBlocker()
+	assertEqual(80, plain.barrier:getPositionV().y)
+	assertEqual(80, plain.sprite.position.y, 'no property: the sprite sits on the barrier centre')
+
+	local lifted = makeBlocker({ spriteOffsetY = -24 })
+	assertEqual(144, lifted.barrier:getPositionV().x)
+	assertEqual(80, lifted.barrier:getPositionV().y, 'the barrier must not move when the art lifts')
+	assertEqual(56, lifted.sprite.position.y, 'a negative offset lifts the art')
+
+	local lowered = makeBlocker({ spriteOffsetY = 24 })
+	assertEqual(80, lowered.barrier:getPositionV().y)
+	assertEqual(104, lowered.sprite.position.y, 'a positive offset drops the art')
 end)
 
 -- A blocker authored with no switch pointing at it is a permanent wall, not

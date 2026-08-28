@@ -56,24 +56,19 @@ local function barrierDimensions(objectWidth, objectHeight)
 	return objectWidth * BARRIER_WIDTH_FRACTION, objectHeight
 end
 
--- The sprite draws 2x the object's height (its width is unchanged), centred
--- on it -- bleed in every direction so blocker art can key into the
--- surrounding terrain (frame, lintel, threshold). Purely decorative: it is
--- never a hint about what blocks or what can be stood on.
---
--- Centred on the object rect like the drawbridge's, so it needs no
--- vertical lift. The exit door lifts its own 2x box only because it
--- anchors on Rect.centreOfMapObject (bottom-anchored, for gid-bearing tile
--- objects) rather than on the rect's centre.
+-- The sprite fills the object's own rect, 1:1 -- not the drawbridge's 2x
+-- box. The blocker is authored in Tiled as a gid-bearing tile object whose
+-- rect is sized to match its art's 1:2 ratio (template blocker.tx: 32x64
+-- against the 128x256 entity_blocker.png frames), so drawing at the object's
+-- own size reproduces the editor placement exactly, with no bleed and no
+-- stretch. (The old 2x-height rule only looked right while the template was
+-- a 32x32 object whose 2x box happened to match the art's aspect; once the
+-- object was authored at the true 1:2 gate size, 2x the height distorted
+-- the gate.) Same as the barrier, this is pure decoration: it is never a
+-- hint about what blocks or what can be stood on.
 local function spriteBoxDimensions(objectWidth, objectHeight)
-	return objectWidth, objectHeight * 2
+	return objectWidth, objectHeight
 end
-
--- The sprite sits 16px below the rect's centre, purely cosmetic: the
--- barrier (collision) stays anchored to the object's centre. Tuned so the
--- blocker art reads correctly against its frame/lintel without moving the
--- blocking strip.
-local SPRITE_OFFSET_Y = 12
 
 -- The whole state model, as one pure function of the live input -- the
 -- linked switch's reading -- recomputed fresh every frame. There is no
@@ -119,11 +114,29 @@ function Blocker:init(object)
 	self.state = 'closed'
 
 	self.rect = Rect(object)
-	local position = self.rect:centre()
+
+	-- The blocker object is a gid-bearing tile object, bottom-anchored like
+	-- every other gid entity (switch, key, cage, exit_door, ladder): object
+	-- `y` is the gate's BOTTOM edge, so the centre sits half a height above
+	-- it. The sandbox instance (blocker.tx at x=256, y=224, 32x64) therefore
+	-- occupies y=160..224 -- a 64px gate rising out of the walkway -- not
+	-- top-anchored at y=224..288, which hung the whole gate below the
+	-- passage. This is the same bottom-anchored centre the exit door lifts
+	-- its own 2x box from, minus the lift (there is no oversized box here).
+	local position = Rect.centreOfMapObject(object)
+
+	-- Optional visual-only offset, read from the Tiled object's custom
+	-- `spriteOffsetY` property (px, positive = down): shifts where the gate
+	-- art sits relative to the authored rect. Applied ONLY to the sprite --
+	-- the barrier collider is computed from Rect.centreOfMapObject below and
+	-- never moves, so the bounding volume stays exactly where the author put
+	-- it. Purely cosmetic; Tiled itself does not render this property, so
+	-- authors tune it from the running game, not the editor.
+	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
 
 	-- visual footprint only -- the barrier below stays a thin strip; the
-	-- bigger sprite is purely decorative bleed and must never be treated as
-	-- a hint about what blocks or what can be stood on
+	-- wider sprite is purely decorative and must never be treated as a hint
+	-- about what blocks or what can be stood on
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
 	self.sprite = self:addComponent(Sprite{
 		image = 'res/img/entity_blocker.png',
@@ -133,7 +146,7 @@ function Blocker:init(object)
 		duration = 2,
 		loop = false,
 		playing = false,
-		position = position + Vector(0, SPRITE_OFFSET_Y),
+		position = position + Vector(0, spriteOffsetY),
 		shape_arguments = {spriteBoxWidth, spriteBoxHeight},
 	})
 

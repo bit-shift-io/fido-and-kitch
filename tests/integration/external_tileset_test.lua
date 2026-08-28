@@ -60,7 +60,7 @@ test('a map referencing an external image-collection tileset resolves cropped ti
 	local tileset = stiMap.tilesets[1]
 
 	assertEqual(0, tileset.columns)
-	assertEqual(13, #tileset.tiles)
+	assertEqual(14, #tileset.tiles)
 
 	local switchTile = nil
 	for _, tile in ipairs(tileset.tiles) do
