@@ -148,3 +148,26 @@ test('flipping the switch back off relocks the blocker instantly -- solid again 
 	assertTrue(Queries.playerPositionV(player1(game)).x + PLAYER_HALF_WIDTH <= BLOCKER_CENTRE_X - BARRIER_HALF_WIDTH + 1,
 		'expected the relocked blocker to stop the player at the barrier again')
 end)
+
+-- Regression guard for the real blocker.tx template (res/editor/blocker.tx):
+-- its spriteOffsetY property must actually reach an instance through the
+-- full template -> object merge, and must shift ONLY the art. Notably, when
+-- this template was authored by hand with a self-closed <object/> and the
+-- <properties> block dangling outside it, the xml parser rejected the whole
+-- file ("Unbalanced Tag (/object)") and sandbox.tmx stopped loading entirely
+-- -- this test exists to make that failure mode loud.
+test('the real blocker.tx template feeds spriteOffsetY into the sandbox instance, shifting only the art', function()
+	local game = GameHarness.startGame('res/map/sandbox.tmx')
+	FrameStepper.step(game, 30)
+
+	local blocker = Queries.findEntityByType(map, 'blocker')
+	assertTrue(blocker ~= nil, 'expected sandbox to load a blocker -- a malformed blocker.tx fails the whole map load')
+
+	-- sandbox blocker object: x=256 y=224, 32x64 -> bottom-anchored centre
+	-- (272, 192); the template's spriteOffsetY=14 drops only the sprite
+	assertEqual(14, blocker.object.properties.spriteOffsetY, 'the template property must be inherited by the instance')
+	assertEqual(272, blocker.barrier:getPositionV().x)
+	assertEqual(192, blocker.barrier:getPositionV().y, 'the barrier must stay on the authored rect centre')
+	assertEqual(272, blocker.sprite.position.x)
+	assertEqual(206, blocker.sprite.position.y, 'the art sits 14px below the authored centre')
+end)
