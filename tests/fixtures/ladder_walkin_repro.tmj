@@ -1,116 +1,129 @@
 {
-  "tilesets":[],
-  "layers":[{
-      "visible":true,
-      "id":1,
-      "objects":[{
-          "visible":true,
-          "type":"",
-          "properties":[],
-          "height":32,
-          "x":32,
-          "id":1,
-          "y":128,
-          "width":32,
-          "name":"ground_block",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[{
-          "type":"bool",
-          "name":"collision",
-          "value":true
-        }],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"collision",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":2,
-      "objects":[{
-          "visible":true,
-          "type":"spawn",
-          "properties":[],
-          "height":32,
-          "x":40,
-          "id":2,
-          "y":96,
-          "width":32,
-          "name":"block_spawn",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"spawn",
-          "properties":[],
-          "height":32,
-          "x":48,
-          "id":7,
-          "y":96,
-          "width":32,
-          "name":"p2_spawn",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"ladder",
-          "properties":[],
-          "height":32,
-          "x":0,
-          "id":3,
-          "y":96,
-          "width":32,
-          "name":"ladder1",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"ladder",
-          "properties":[],
-          "height":32,
-          "x":0,
-          "id":4,
-          "y":128,
-          "width":32,
-          "name":"ladder1",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"ladder",
-          "properties":[],
-          "height":32,
-          "x":0,
-          "id":5,
-          "y":160,
-          "width":32,
-          "name":"ladder1",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"game",
-      "draworder":"topdown"
-    }],
-  "tiledversion":"1.12.2",
-  "renderorder":"right-down",
-  "nextlayerid":3,
-  "nextobjectid":7,
-  "type":"map",
-  "properties":[],
-  "version":"1.11",
-  "orientation":"orthogonal",
-  "class":"",
-  "tilewidth":32,
-  "tileheight":32,
-  "width":6,
-  "height":5,
-  "infinite":false
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 32,
+          "x": 32,
+          "id": 1,
+          "y": 128,
+          "width": 32,
+          "name": "ground_block",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 40,
+          "id": 2,
+          "y": 96,
+          "width": 32,
+          "name": "block_spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 48,
+          "id": 7,
+          "y": 96,
+          "width": 32,
+          "name": "p2_spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "ladder",
+          "properties": [],
+          "height": 32,
+          "x": 0,
+          "id": 3,
+          "y": 96,
+          "width": 32,
+          "name": "ladder1",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "ladder",
+          "properties": [],
+          "height": 32,
+          "x": 0,
+          "id": 4,
+          "y": 128,
+          "width": 32,
+          "name": "ladder1",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "ladder",
+          "properties": [],
+          "height": 32,
+          "x": 0,
+          "id": 5,
+          "y": 160,
+          "width": 32,
+          "name": "ladder1",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 7,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 6,
+  "height": 5,
+  "infinite": false
 }

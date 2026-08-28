@@ -1,31 +1,39 @@
 {
-  "columns":8,
-  "image":"../../res/img/generic_platformer_tiles.png",
-  "imageheight":576,
-  "imagewidth":256,
-  "margin":0,
-  "type":"tileset",
-  "spacing":0,
-  "tilecount":144,
-  "tilewidth":32,
-  "tileheight":32,
-  "tiles":[{
-      "properties":[{
-          "type":"bool",
-          "name":"solid",
-          "value":true
-        }],
-      "id":0
-    },{
-      "animation":[{
-          "tileid":1,
-          "duration":50
-        },{
-          "tileid":2,
-          "duration":50
-        }],
-      "id":1
-    }],
-  "name":"external_tileset_room_tiles",
-  "version":"1.11"
+  "columns": 8,
+  "image": "../../res/img/generic_platformer_tiles.png",
+  "imageheight": 576,
+  "imagewidth": 256,
+  "margin": 0,
+  "type": "tileset",
+  "spacing": 0,
+  "tilecount": 144,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "tiles": [
+    {
+      "properties": [
+        {
+          "type": "bool",
+          "name": "solid",
+          "value": true
+        }
+      ],
+      "id": 0
+    },
+    {
+      "animation": [
+        {
+          "tileid": 1,
+          "duration": 50
+        },
+        {
+          "tileid": 2,
+          "duration": 50
+        }
+      ],
+      "id": 1
+    }
+  ],
+  "name": "external_tileset_room_tiles",
+  "version": "1.11"
 }

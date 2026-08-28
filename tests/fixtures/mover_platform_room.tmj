@@ -1,186 +1,216 @@
 {
-  "tilesets":[],
-  "layers":[{
-      "visible":true,
-      "id":1,
-      "objects":[{
-          "visible":true,
-          "type":"",
-          "properties":[],
-          "height":32,
-          "x":0,
-          "id":1,
-          "y":160,
-          "width":128,
-          "name":"floor_left",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"",
-          "properties":[],
-          "height":32,
-          "x":384,
-          "id":2,
-          "y":160,
-          "width":128,
-          "name":"floor_right",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[{
-          "type":"bool",
-          "name":"collision",
-          "value":true
-        }],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"collision",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":2,
-      "objects":[{
-          "visible":true,
-          "type":"kill_zone",
-          "properties":[{
-              "type":"string",
-              "name":"deathType",
-              "value":"pit"
-            }],
-          "height":128,
-          "x":128,
-          "id":3,
-          "y":192,
-          "width":256,
-          "name":"gap_kill",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"kill",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":3,
-      "objects":[{
-          "visible":true,
-          "type":"spawn",
-          "properties":[],
-          "height":32,
-          "x":48,
-          "id":4,
-          "y":128,
-          "width":32,
-          "name":"spawn",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"mover_platform",
-          "properties":[{
-              "type":"int",
-              "name":"pause",
-              "value":0
-            },{
-              "type":"int",
-              "name":"speed",
-              "value":100
-            },{
-              "type":"string",
-              "name":"endBehavior",
-              "value":"pingpong"
-            },{
-              "type":"object",
-              "name":"path",
-              "value":6
-            }],
-          "height":32,
-          "x":128,
-          "id":5,
-          "y":176,
-          "width":128,
-          "name":"mover_platform",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"switch",
-          "properties":[{
-              "type":"object",
-              "name":"target",
-              "value":5
-            }],
-          "height":32,
-          "x":32,
-          "id":7,
-          "y":128,
-          "width":32,
-          "name":"mover_switch",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"game",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":4,
-      "objects":[{
-          "visible":true,
-          "polyline":[{
-              "y":0,
-              "x":0
-            },{
-              "y":0,
-              "x":128
-            }],
-          "type":"",
-          "properties":[],
-          "height":0,
-          "x":192,
-          "id":6,
-          "y":160,
-          "width":0,
-          "name":"mover_path",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"waypoints",
-      "draworder":"topdown"
-    }],
-  "tiledversion":"1.12.2",
-  "renderorder":"right-down",
-  "nextlayerid":5,
-  "nextobjectid":8,
-  "type":"map",
-  "properties":[],
-  "version":"1.11",
-  "orientation":"orthogonal",
-  "class":"",
-  "tilewidth":32,
-  "tileheight":32,
-  "width":16,
-  "height":10,
-  "infinite":false
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 32,
+          "x": 0,
+          "id": 1,
+          "y": 160,
+          "width": 128,
+          "name": "floor_left",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 32,
+          "x": 384,
+          "id": 2,
+          "y": 160,
+          "width": 128,
+          "name": "floor_right",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "kill_zone",
+          "properties": [
+            {
+              "type": "string",
+              "name": "deathType",
+              "value": "pit"
+            }
+          ],
+          "height": 128,
+          "x": 128,
+          "id": 3,
+          "y": 192,
+          "width": 256,
+          "name": "gap_kill",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "kill",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 3,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 48,
+          "id": 4,
+          "y": 128,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "mover_platform",
+          "properties": [
+            {
+              "type": "int",
+              "name": "pause",
+              "value": 0
+            },
+            {
+              "type": "int",
+              "name": "speed",
+              "value": 100
+            },
+            {
+              "type": "string",
+              "name": "endBehavior",
+              "value": "pingpong"
+            },
+            {
+              "type": "object",
+              "name": "path",
+              "value": 6
+            }
+          ],
+          "height": 32,
+          "x": 128,
+          "id": 5,
+          "y": 176,
+          "width": 128,
+          "name": "mover_platform",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "switch",
+          "properties": [
+            {
+              "type": "object",
+              "name": "target",
+              "value": 5
+            }
+          ],
+          "height": 32,
+          "x": 32,
+          "id": 7,
+          "y": 128,
+          "width": 32,
+          "name": "mover_switch",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 4,
+      "objects": [
+        {
+          "visible": true,
+          "polyline": [
+            {
+              "y": 0,
+              "x": 0
+            },
+            {
+              "y": 0,
+              "x": 128
+            }
+          ],
+          "type": "",
+          "properties": [],
+          "height": 0,
+          "x": 192,
+          "id": 6,
+          "y": 160,
+          "width": 0,
+          "name": "mover_path",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "waypoints",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 5,
+  "nextobjectid": 8,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 16,
+  "height": 10,
+  "infinite": false
 }

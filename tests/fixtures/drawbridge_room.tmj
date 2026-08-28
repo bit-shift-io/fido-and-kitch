@@ -1,127 +1,145 @@
 {
-  "tilesets":[],
-  "layers":[{
-      "visible":true,
-      "id":1,
-      "objects":[{
-          "visible":true,
-          "type":"",
-          "properties":[],
-          "height":64,
-          "x":0,
-          "id":1,
-          "y":128,
-          "width":128,
-          "name":"",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"",
-          "properties":[],
-          "height":64,
-          "x":160,
-          "id":2,
-          "y":128,
-          "width":128,
-          "name":"",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[{
-          "type":"bool",
-          "name":"collision",
-          "value":true
-        }],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"collision",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":2,
-      "objects":[{
-          "visible":true,
-          "type":"kill_zone",
-          "properties":[{
-              "type":"string",
-              "name":"deathType",
-              "value":"pit"
-            }],
-          "height":128,
-          "x":128,
-          "id":3,
-          "y":192,
-          "width":32,
-          "name":"pit_kill",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"kill",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":3,
-      "objects":[{
-          "visible":true,
-          "type":"drawbridge",
-          "properties":[{
-              "type":"string",
-              "name":"crossingDirection",
-              "value":"leftToRight"
-            }],
-          "height":32,
-          "x":128,
-          "id":4,
-          "y":128,
-          "width":32,
-          "name":"drawbridge",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"spawn",
-          "properties":[],
-          "height":32,
-          "x":48,
-          "id":5,
-          "y":64,
-          "width":32,
-          "name":"spawn",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"game",
-      "draworder":"topdown"
-    }],
-  "tiledversion":"1.12.2",
-  "renderorder":"right-down",
-  "nextlayerid":4,
-  "nextobjectid":6,
-  "type":"map",
-  "properties":[],
-  "version":"1.11",
-  "orientation":"orthogonal",
-  "class":"",
-  "tilewidth":32,
-  "tileheight":32,
-  "width":9,
-  "height":14,
-  "infinite":false
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 64,
+          "x": 0,
+          "id": 1,
+          "y": 128,
+          "width": 128,
+          "name": "",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 64,
+          "x": 160,
+          "id": 2,
+          "y": 128,
+          "width": 128,
+          "name": "",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "kill_zone",
+          "properties": [
+            {
+              "type": "string",
+              "name": "deathType",
+              "value": "pit"
+            }
+          ],
+          "height": 128,
+          "x": 128,
+          "id": 3,
+          "y": 192,
+          "width": 32,
+          "name": "pit_kill",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "kill",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 3,
+      "objects": [
+        {
+          "visible": true,
+          "type": "drawbridge",
+          "properties": [
+            {
+              "type": "string",
+              "name": "crossingDirection",
+              "value": "leftToRight"
+            }
+          ],
+          "height": 32,
+          "x": 128,
+          "id": 4,
+          "y": 128,
+          "width": 32,
+          "name": "drawbridge",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 48,
+          "id": 5,
+          "y": 64,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 4,
+  "nextobjectid": 6,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 9,
+  "height": 14,
+  "infinite": false
 }

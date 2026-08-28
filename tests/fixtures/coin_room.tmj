@@ -1,83 +1,93 @@
 {
-  "tilesets":[],
-  "layers":[{
-      "visible":true,
-      "id":1,
-      "objects":[{
-          "visible":true,
-          "type":"",
-          "properties":[],
-          "height":32,
-          "x":0,
-          "id":1,
-          "y":160,
-          "width":320,
-          "name":"floor",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[{
-          "type":"bool",
-          "name":"collision",
-          "value":true
-        }],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"collision",
-      "draworder":"topdown"
-    },{
-      "visible":true,
-      "id":2,
-      "objects":[{
-          "visible":true,
-          "type":"spawn",
-          "properties":[],
-          "height":32,
-          "x":64,
-          "id":2,
-          "y":128,
-          "width":32,
-          "name":"spawn",
-          "rotation":0
-        },{
-          "visible":true,
-          "type":"coin",
-          "properties":[],
-          "height":20,
-          "x":120,
-          "id":3,
-          "y":160,
-          "width":20,
-          "name":"coin1",
-          "rotation":0
-        }],
-      "type":"objectgroup",
-      "properties":[],
-      "parallaxy":1,
-      "opacity":1,
-      "class":"",
-      "offsetx":0,
-      "offsety":0,
-      "parallaxx":1,
-      "name":"game",
-      "draworder":"topdown"
-    }],
-  "tiledversion":"1.12.2",
-  "renderorder":"right-down",
-  "nextlayerid":3,
-  "nextobjectid":4,
-  "type":"map",
-  "properties":[],
-  "version":"1.11",
-  "orientation":"orthogonal",
-  "class":"",
-  "tilewidth":32,
-  "tileheight":32,
-  "width":10,
-  "height":6,
-  "infinite":false
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 32,
+          "x": 0,
+          "id": 1,
+          "y": 160,
+          "width": 320,
+          "name": "floor",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 64,
+          "id": 2,
+          "y": 128,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "coin",
+          "properties": [],
+          "height": 20,
+          "x": 120,
+          "id": 3,
+          "y": 160,
+          "width": 20,
+          "name": "coin1",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 4,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 10,
+  "height": 6,
+  "infinite": false
 }
