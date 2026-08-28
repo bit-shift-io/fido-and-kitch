@@ -133,12 +133,61 @@ local function resolveEmbeddedTileset(ts, firstgid, mapDir)
 	return tileset
 end
 
+--- Identity key for an embedded tileset, used to match a template's inline
+--- tileset against the map's declared tilesets (and to cache auto-registered
+--- ones), mirroring how an external .tsj is keyed by path.
+local function embeddedTilesetKey(resolved)
+	if resolved.image then
+		return { image = resolved.image, kind = 'grid' }
+	end
+	local images = {}
+	for _, t in ipairs(resolved.tiles) do
+		images[#images + 1] = t.image
+	end
+	table.sort(images)
+	return { images = images, kind = 'collection' }
+end
+
+-- Do two identity keys denote the same tileset content?
+local function embeddedKeyEquals(a, b)
+	if a.kind ~= b.kind then
+		return false
+	end
+	if a.kind == 'grid' then
+		return a.image == b.image
+	end
+	if #a.images ~= #b.images then
+		return false
+	end
+	for i = 1, #a.images do
+		if a.images[i] ~= b.images[i] then
+			return false
+		end
+	end
+	return true
+end
+
+-- Concatenated signature, used as the cache key for auto-registered tilesets.
+local function embeddedKeySig(key)
+	if key.kind == 'grid' then
+		return 'grid:' .. tostring(key.image)
+	end
+	return 'collection:' .. table.concat(key.images, '|')
+end
+
 --- Resolves template-local gid into map-global gid using the tileset allocator.
-local function resolveTemplateGid(template, firstgidFor, deps)
+-- External template tilesets (.tsj source) resolve by path; embedded template
+-- tilesets (no source) resolve by matching/auto-registering on identity.
+local function resolveTemplateGid(template, firstgidFor, firstgidForEmbedded, deps)
 	local tmpl = template
-	if tmpl.tilesetRef and tmpl.object.gid then
-		local mapFirstgid = firstgidFor(tmpl.tilesetRef.path, deps)
-		return tmpl.object.gid - tmpl.tilesetRef.firstgid + mapFirstgid
+	if tmpl.object.gid then
+		if tmpl.tilesetRef then
+			local mapFirstgid = firstgidFor(tmpl.tilesetRef.path, deps)
+			return tmpl.object.gid - tmpl.tilesetRef.firstgid + mapFirstgid
+		elseif tmpl.tilesetEmbedded then
+			local mapFirstgid = firstgidForEmbedded(tmpl.tilesetEmbedded, tmpl.dir, deps)
+			return tmpl.object.gid - (tmpl.tilesetEmbedded.firstgid or 1) + mapFirstgid
+		end
 	end
 	return nil
 end
@@ -146,7 +195,7 @@ end
 --- Parses an object from TMJ format, resolving template references when present.
 -- @param firstgidFor Function to resolve a template's tileset path to a map
 --   firstgid (from the allocator), same contract as tmx.lua's firstgidFor.
-local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
+local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps)
 	-- Resolve template: the template provides defaults for type, gid, name,
 	-- width, height, and properties. Instance fields override.
 	local base = { properties = {} }
@@ -156,7 +205,7 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps)
 		local templatePath = stiUtils.format_path(mapDir .. obj.template)
 		local template = TjTemplate.resolve(templatePath, deps)
 		base = template.object
-		templateGid = resolveTemplateGid(template, firstgidFor, deps)
+		templateGid = resolveTemplateGid(template, firstgidFor, firstgidForEmbedded, deps)
 	end
 
 	local shape = obj.shape or 'rectangle'
@@ -279,7 +328,7 @@ local function parseProperties(props)
 end
 
 --- Parses a layer from TMJ format.
-local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, deps)
+local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps)
 	local layerType = layer.type
 
 	if layerType == 'tilelayer' then
@@ -313,7 +362,7 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, f
 		local objects = {}
 		if layer.objects then
 			for _, obj in ipairs(layer.objects) do
-				table.insert(objects, parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, deps))
+				table.insert(objects, parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps))
 			end
 		end
 		return {
@@ -352,7 +401,7 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, f
 		local layers = {}
 		if layer.layers then
 			for _, childLayer in ipairs(layer.layers) do
-				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, deps))
+				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps))
 			end
 		end
 		return {
@@ -468,6 +517,7 @@ function Tmj.parse(tmjPath)
 	local allocator = {
 		tilesets = map.tilesets,
 		byPath = {},
+		byEmbedded = {},
 		nextFirstgid = 1,
 	}
 	for _, ts in ipairs(mapData.tilesets) do
@@ -500,11 +550,42 @@ function Tmj.parse(tmjPath)
 		return firstgid
 	end
 
+	-- Resolve an embedded template tileset's map-global firstgid. Matches it
+	-- against the map's declared tilesets by identity; if the map doesn't
+	-- declare it, auto-registers it (matching Tiled's own behaviour, and the
+	-- external .tsj path's auto-registration above).
+	-- @param embedTs Raw embedded tileset table from the .tj.
+	-- @param templateDir Template's directory (for resolving image paths).
+	local function firstgidForEmbedded(embedTs, templateDir, deps)
+		local tsDir = templateDir
+		local shape = resolveEmbeddedTileset(embedTs, embedTs.firstgid or 1, tsDir)
+		local key = embeddedTilesetKey(shape)
+
+		-- Match against tilesets already in the map (declared or registered).
+		for _, existing in ipairs(map.tilesets) do
+			if embeddedKeyEquals(key, embeddedTilesetKey(existing)) then
+				return existing.firstgid
+			end
+		end
+
+		local cached = allocator.byEmbedded[embeddedKeySig(key)]
+		if cached then
+			return cached
+		end
+
+		local firstgid = allocator.nextFirstgid
+		shape.firstgid = firstgid
+		table.insert(map.tilesets, shape)
+		allocator.byEmbedded[embeddedKeySig(key)] = firstgid
+		allocator.nextFirstgid = firstgid + (shape.tilecount or 0)
+		return firstgid
+	end
+
 	-- Parse layers
 	if mapData.layers then
 		local deps = { readFile = readFile }
 		for _, layer in ipairs(mapData.layers) do
-			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir, firstgidFor, deps))
+			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps))
 		end
 	end
 	return map

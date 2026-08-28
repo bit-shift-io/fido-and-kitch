@@ -1,6 +1,32 @@
 {
   "tileset": {
-    "source": "coin.tsj",
+    "tilewidth": 160,
+    "name": "coin",
+    "version": "1.11",
+    "columns": 0,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 20,
+        "image": "../img/coins.png",
+        "id": 0,
+        "imagewidth": 160,
+        "imageheight": 20,
+        "y": 0,
+        "width": 20,
+        "x": 0
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 20,
     "firstgid": 1
   },
   "type": "template",

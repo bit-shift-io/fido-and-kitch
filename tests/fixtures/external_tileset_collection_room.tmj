@@ -1,6 +1,6 @@
 {
   "tilesets":[{
-      "source":"../../res/editor/switch.tsj",
+      "source":"switch_collection.tsj",
       "firstgid":1,
       "name":"switch"
     }],

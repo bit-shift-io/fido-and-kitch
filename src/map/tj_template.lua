@@ -50,20 +50,31 @@ local function parseTj(templatePath, deps)
 	templateDir = templateDir and (templateDir .. '/') or ''
 
 	local tilesetRef = nil
+	local tilesetEmbedded = nil
 	if tj.tileset then
-		tilesetRef = {
-			firstgid = tj.tileset.firstgid,
-			path = tj.tileset.source,
-		}
-		-- Resolve relative to template directory
-		if tilesetRef.path and not tilesetRef.path:match('^/') then
-			tilesetRef.path = templateDir .. tilesetRef.path
+		if tj.tileset.source then
+			-- External .tsj: hand off to the map's allocator by path.
+			tilesetRef = {
+				firstgid = tj.tileset.firstgid,
+				path = tj.tileset.source,
+			}
+			-- Resolve relative to template directory
+			if not tilesetRef.path:match('^/') then
+				tilesetRef.path = templateDir .. tilesetRef.path
+			end
+		else
+			-- Embedded tileset (no source): carry the raw tileset table so the
+			-- map parser can match/register it by identity, mirroring how the
+			-- .tj's own tileset is self-contained.
+			tilesetEmbedded = tj.tileset
 		end
 	end
 
 	local obj = tj.object
 	return {
 		tilesetRef = tilesetRef,
+		tilesetEmbedded = tilesetEmbedded,
+		dir = templateDir,
 		object = {
 			name = obj.name or '',
 			type = obj.type or '',

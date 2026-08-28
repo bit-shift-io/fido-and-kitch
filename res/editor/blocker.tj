@@ -1,6 +1,32 @@
 {
   "tileset": {
-    "source": "blocker.tsj",
+    "tilewidth": 6144,
+    "name": "blocker",
+    "version": "1.11",
+    "columns": 0,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 256,
+        "image": "../img/entity_blocker.png",
+        "id": 0,
+        "imagewidth": 6144,
+        "imageheight": 256,
+        "y": 0,
+        "width": 128,
+        "x": 1408
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 256,
     "firstgid": 1
   },
   "type": "template",

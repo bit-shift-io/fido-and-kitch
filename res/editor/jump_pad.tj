@@ -1,6 +1,32 @@
 {
   "tileset": {
-    "source": "jump_pad.tsj",
+    "tilewidth": 768,
+    "name": "jump_pad",
+    "version": "1.11",
+    "columns": 0,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 128,
+        "image": "../img/entity_jump_pad.png",
+        "id": 0,
+        "imagewidth": 768,
+        "imageheight": 128,
+        "y": 0,
+        "width": 256,
+        "x": 0
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 128,
     "firstgid": 1
   },
   "type": "template",

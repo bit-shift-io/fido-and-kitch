@@ -1,0 +1,29 @@
+{
+  "columns": 0,
+  "grid": {
+    "height": 1,
+    "orientation": "orthogonal",
+    "width": 1
+  },
+  "margin": 0,
+  "name": "switch",
+  "spacing": 0,
+  "tilecount": 1,
+  "tileheight": 128,
+  "tiles": [
+    {
+      "height": 128,
+      "id": 0,
+      "image": "../../res/img/entity_switch.png",
+      "imageheight": 128,
+      "imagewidth": 640,
+      "width": 128,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "tilewidth": 640,
+  "type": "tileset",
+  "version": "1.11"
+}

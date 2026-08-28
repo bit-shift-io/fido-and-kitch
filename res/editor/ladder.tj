@@ -1,6 +1,32 @@
 {
   "tileset": {
-    "source": "ladder.tsj",
+    "tilewidth": 128,
+    "name": "ladder",
+    "version": "1.11",
+    "columns": 0,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 32,
+        "image": "../img/ladder.png",
+        "id": 0,
+        "imagewidth": 128,
+        "imageheight": 32,
+        "y": 0,
+        "width": 32,
+        "x": 96
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 32,
     "firstgid": 1
   },
   "type": "template",
