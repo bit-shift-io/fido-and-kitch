@@ -1,0 +1,27 @@
+{
+    "type": "template",
+    "tileset": {
+        "firstgid": 1,
+        "source": "tileset_props.tsj"
+    },
+    "object": {
+        "name": "replicator",
+        "type": "replicator",
+        "width": 32,
+        "height": 32,
+        "gid": 11,
+        "rotation": 0,
+        "properties": [
+            {
+                "name": "spawnType",
+                "type": "string",
+                "value": "push_box"
+            },
+            {
+                "name": "maxSpawns",
+                "type": "int",
+                "value": 1
+            }
+        ]
+    }
+}

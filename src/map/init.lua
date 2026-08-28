@@ -1,5 +1,6 @@
 local sti = require('lib.sti')
 local Tmx = require('src.map.tmx')
+local Tmj = require('src.map.tmj')
 local EntityFactory = require('src.map.entity_factory')
 local CollisionBuilder = require('src.map.collision_builder')
 local ParallaxRenderer = require('src.map.parallax_renderer')
@@ -12,6 +13,8 @@ Map.__index = Map
 local function loadSti(path, plugins)
 	if path:sub(-4) == '.tmx' then
 		return sti(Tmx.parse(path), plugins)
+	elseif path:sub(-4) == '.tmj' then
+		return sti(Tmj.parse(path), plugins)
 	end
 	return sti(path, plugins)
 end
@@ -30,8 +33,11 @@ local function fileExists(path)
 end
 
 local function resolveMapFile(basePath)
-	if basePath:match('%.tmx$') or basePath:match('%.lua$') then
+	if basePath:match('%.tmx$') or basePath:match('%.tmj$') or basePath:match('%.lua$') then
 		return basePath
+	end
+	if fileExists(basePath .. '.tmj') then
+		return basePath .. '.tmj'
 	end
 	if fileExists(basePath .. '.tmx') then
 		return basePath .. '.tmx'

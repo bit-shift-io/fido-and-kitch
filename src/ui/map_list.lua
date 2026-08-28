@@ -1,4 +1,5 @@
 local Tmx = require('src.map.tmx')
+local Tmj = require('src.map.tmj')
 local Log = require('src.utils.log')
 local MapInfo = require('src.ui.map_info')
 local MapCard = require('src.ui.map_card')
@@ -21,11 +22,13 @@ function MapList:init(props)
 	table.sort(files)
 
 	for _, file in ipairs(files) do
-		if str.endsWith(file, '.lua') or str.endsWith(file, '.tmx') then
+		if str.endsWith(file, '.lua') or str.endsWith(file, '.tmx') or str.endsWith(file, '.tmj') then
 			local path = self.dir .. '/' .. file
 			local ok, mapData
 			if str.endsWith(file, '.tmx') then
 				ok, mapData = pcall(Tmx.parse, path)
+			elseif str.endsWith(file, '.tmj') then
+				ok, mapData = pcall(Tmj.parse, path)
 			else
 				local loadOk, chunk = pcall(love.filesystem.load, path)
 				ok = loadOk and chunk ~= nil
@@ -201,7 +204,7 @@ function MapList:draw()
 	if not card then
 		lg.setFont(self.bodyFont)
 		lg.setColor(1, 1, 1, 0.82)
-		lg.printf('No exported .lua maps found in ' .. self.dir, contentX, h * 0.38, contentW, 'center')
+		lg.printf('No exported .lua/.tmx/.tmj maps found in ' .. self.dir, contentX, h * 0.38, contentW, 'center')
 		lg.setColor(1, 1, 1, 1)
 		return
 	end

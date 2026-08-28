@@ -1,4 +1,4 @@
--- Resolves a Tiled object template (.tx file): the reusable object an
+-- Resolves a Tiled object template (.tx or .tj file): the reusable object an
 -- instance in a map's <object template="..."> inherits from. See
 -- CONTEXT.md's "Object template" glossary entry and DECISIONS.md Q5/Q6.
 --
@@ -9,16 +9,17 @@
 -- map-specific concerns that belong to the caller (src/map/tmx.lua), not
 -- to this cache.
 local TmxXml = require('src.map.tmx_xml')
+local json = require('src.utils.json')
 
 local TmxTemplate = {}
 
--- Keyed by resolved template path, for the process lifetime -- .tx files
+-- Keyed by resolved template path, for the process lifetime -- .tx/.tj files
 -- don't change mid-session. Templates are only ever read during resolution
 -- (merging builds fresh object/property tables in the caller), so nothing
 -- aliases a cached entry.
 local cache = {}
 
-local function parseUncached(templatePath, deps)
+local function parseTx(templatePath, deps)
 	local templateNode = TmxXml.parseFile(templatePath, deps)
 	if templateNode._name ~= 'template' then
 		error('Malformed template "' .. templatePath .. '": missing <template> root element', 2)
@@ -56,6 +57,71 @@ local function parseUncached(templatePath, deps)
 			properties = TmxXml.parseProperties(objectNode),
 		},
 	}
+end
+
+local function parseTj(templatePath, deps)
+	local readFile
+	if deps and deps.readFile then
+		readFile = deps.readFile
+	else
+		if love and love.filesystem and love.filesystem.read then
+			readFile = love.filesystem.read
+		else
+			readFile = function(path)
+				local file = io.open(path, 'r')
+				if not file then return nil end
+				local contents = file:read('*a')
+				file:close()
+				return contents
+			end
+		end
+	end
+
+	local contents = readFile(templatePath)
+	if not contents then
+		error('File not found: ' .. templatePath, 2)
+	end
+
+	local tj = json.decode(contents)
+	if not tj or tj.type ~= 'template' then
+		error('Malformed template "' .. templatePath .. '": not a template', 2)
+	end
+
+	local templateDir = templatePath:match('^(.*)/[^/]+$')
+	templateDir = templateDir and (templateDir .. '/') or ''
+
+	local tilesetRef = nil
+	if tj.tileset then
+		tilesetRef = {
+			firstgid = tj.tileset.firstgid,
+			path = tj.tileset.source,
+		}
+		-- Resolve relative to template directory, same as .tx files
+		if tilesetRef.path and not tilesetRef.path:match('^/') then
+			tilesetRef.path = templateDir .. tilesetRef.path
+		end
+	end
+
+	local obj = tj.object
+	return {
+		tilesetRef = tilesetRef,
+		object = {
+			name = obj.name or '',
+			type = obj.type or '',
+			gid = obj.gid,
+			width = obj.width,
+			height = obj.height,
+			properties = obj.properties or {},
+		},
+	}
+end
+
+local function parseUncached(templatePath, deps)
+	if templatePath:sub(-3) == '.tj' then
+		return parseTj(templatePath, deps)
+	else
+		return parseTx(templatePath, deps)
+	end
 end
 
 --- Resolve and cache a template by its project-root-relative path.

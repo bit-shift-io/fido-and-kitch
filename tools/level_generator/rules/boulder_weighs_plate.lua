@@ -46,7 +46,7 @@ function Rule.apply(rng, layout, startId)
 		objects = {
 			{
 				id = boulderId,
-				template = '../../editor/boulder.tx',
+				template = '../../editor/boulder.tj',
 				name = 'boulder',
 				type = 'boulder',
 				x = zone.x1 * TILE,
@@ -75,7 +75,7 @@ function Rule.apply(rng, layout, startId)
 			-- hitting something).
 			{
 				id = stopperId,
-				template = '../../editor/push_box.tx',
+				template = '../../editor/push_box.tj',
 				name = 'push_box',
 				type = 'push_box',
 				x = (zone.x1 + 3) * TILE,
@@ -83,7 +83,7 @@ function Rule.apply(rng, layout, startId)
 			},
 			{
 				id = teleportAId,
-				template = '../../editor/teleport.tx',
+				template = '../../editor/teleport.tj',
 				name = 'teleport',
 				type = 'teleport',
 				x = math.min(zone.x1 + 5, zone.x2) * TILE,
@@ -95,7 +95,7 @@ function Rule.apply(rng, layout, startId)
 			},
 			{
 				id = teleportBId,
-				template = '../../editor/teleport.tx',
+				template = '../../editor/teleport.tj',
 				name = 'teleport',
 				type = 'teleport',
 				x = zone.x2 * TILE,

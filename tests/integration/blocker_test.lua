@@ -157,17 +157,17 @@ end)
 -- file ("Unbalanced Tag (/object)") and sandbox.tmx stopped loading entirely
 -- -- this test exists to make that failure mode loud.
 test('the real blocker.tx template feeds spriteOffsetY into the sandbox instance, shifting only the art', function()
-	local game = GameHarness.startGame('res/map/sandbox.tmx')
+	local game = GameHarness.startGame('res/map/sandbox.tmj')
 	FrameStepper.step(game, 30)
 
 	local blocker = Queries.findEntityByType(map, 'blocker')
 	assertTrue(blocker ~= nil, 'expected sandbox to load a blocker -- a malformed blocker.tx fails the whole map load')
 
-	-- sandbox blocker object: x=256 y=224, 32x64 -> bottom-anchored centre
-	-- (272, 192); the template's spriteOffsetY=14 drops only the sprite
-	assertEqual(14, blocker.object.properties.spriteOffsetY, 'the template property must be inherited by the instance')
-	assertEqual(272, blocker.barrier:getPositionV().x)
-	assertEqual(192, blocker.barrier:getPositionV().y, 'the barrier must stay on the authored rect centre')
-	assertEqual(272, blocker.sprite.position.x)
-	assertEqual(206, blocker.sprite.position.y, 'the art sits 14px below the authored centre')
+-- sandbox blocker object: x=256 y=224, 32x64 -> bottom-anchored centre
+-- (272, 192); the template's spriteOffsetY=-6 raises only the sprite
+assertEqual(-6, blocker.object.properties.spriteOffsetY, 'the template property must be inherited by the instance')
+assertEqual(272, blocker.barrier:getPositionV().x)
+assertEqual(192, blocker.barrier:getPositionV().y, 'the barrier must stay on the authored rect centre')
+assertEqual(272, blocker.sprite.position.x)
+assertEqual(186, blocker.sprite.position.y, 'the art sits 6px above the authored centre')
 end)

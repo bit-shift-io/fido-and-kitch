@@ -1,0 +1,21 @@
+{
+    "type": "template",
+    "tileset": {
+        "firstgid": 1,
+        "source": "tileset_props.tsj"
+    },
+    "object": {
+        "name": "story",
+        "type": "story",
+        "width": 32,
+        "height": 32,
+        "gid": 13,
+        "properties": [
+            {
+                "name": "text",
+                "type": "string",
+                "value": "Default text"
+            }
+        ]
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "type": "template",
+    "tileset": {
+        "firstgid": 1,
+        "source": "tileset_props.tsj"
+    },
+    "object": {
+        "name": "cage",
+        "type": "cage",
+        "width": 32,
+        "height": 32,
+        "gid": 10,
+        "properties": [
+            {
+                "name": "color",
+                "type": "string",
+                "value": "red"
+            }
+        ]
+    }
+}

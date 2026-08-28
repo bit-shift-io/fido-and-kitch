@@ -91,7 +91,7 @@ test('releasing keys while hanging beside a platform crossing stays mounted', fu
 	-- top: a hanging climber passes through it (kinematic), so 'solid just
 	-- below the feet' there is NOT an arrival. Only a descending player
 	-- (down held) may be ejected by ground contact.
-	local game = GameHarness.startGame('res/map/sandbox.tmx')
+	local game = GameHarness.startGame('res/map/sandbox.tmj')
 	local controller = FakeInputModule.FakeInput.new()
 	local player = player1(game)
 	local runUntil = FakeInputModule.runUntil

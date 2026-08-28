@@ -1,4 +1,4 @@
--- Resolves a Tiled external tileset (.tsx) into a table shaped exactly like
+-- Resolves a Tiled external tileset (.tsx or .tsj) into a table shaped exactly like
 -- the tileset tables STI already builds for an embedded tileset, so the
 -- rest of STI (rendering, animation, Map:getTileProperties) needs no
 -- further changes to consume an external reference. See
@@ -6,6 +6,7 @@
 local xml2lua = require('lib.xml2lua.xml2lua')
 local xmlTreeHandler = require('lib.xml2lua.xmlhandler.tree')
 local stiUtils = require('lib.sti.utils')
+local json = require('src.utils.json')
 
 local ExternalTileset = {}
 
@@ -140,19 +141,15 @@ local function mergeTileMetadata(tile, tileXml)
 	end
 end
 
--- Resolved tilesets keyed by .tsx path, for the process lifetime -- .tsx
+-- Resolved tilesets keyed by path (.tsx or .tsj), for the process lifetime --
 -- files don't change mid-session, so no invalidation is needed. Cached
--- without `firstgid`/`tiles`' gids baked in, since the same .tsx can be
+-- without `firstgid`/`tiles`' gids baked in, since the same file can be
 -- referenced at a different firstgid by different maps.
 local resolvedShapeCache = {}
 
---- Builds the base STI-shaped tileset table from the <tileset> attrs.
+--- Builds the base STI-shaped tileset table from the tileset attrs.
 local function parseTilesetAttrs(attrs)
 	return {
-		-- A .tmx's <tileset source="..."> carries no name -- it lives only
-		-- in the .tsx -- but STI uses tileset.name as the image-collection
-		-- atlas cache key, and the .tmx parser needs it to populate the
-		-- tileset entry it emits (see src/map/tmx.lua).
 		name       = attrs.name,
 		tilewidth  = toNumber(attrs.tilewidth),
 		tileheight = toNumber(attrs.tileheight),
@@ -160,19 +157,12 @@ local function parseTilesetAttrs(attrs)
 		margin     = toNumber(attrs.margin, 0),
 		columns    = toNumber(attrs.columns, 0),
 		tilecount  = toNumber(attrs.tilecount, 0),
-		-- STI's setTiles/setAtlasTiles always index into tileset.tiles
-		-- (even for grid tilesets, where Tiled's own embedded export still
-		-- emits `tiles = {}`); per-tile entries are filled in by a later
-		-- issue (properties/animation/objectGroup).
-		tiles = {},
-		-- Every tile STI builds carries `offset = tileset.tileoffset`;
-		-- Tiled always emits a <tileoffset> in a real .tsx, but default to
-		-- the origin so a hand-authored fixture without one doesn't break.
+		tiles      = {},
 		tileoffset = { x = 0, y = 0 },
 	}
 end
 
---- Reads a <tileoffset> element into `tileset` when present.
+--- Reads a tileoffset element into `tileset` when present.
 local function applyTileOffset(tileset, tilesetXml)
 	local tileOffsetXml = tilesetXml.tileoffset
 	if tileOffsetXml and tileOffsetXml._attr then
@@ -230,6 +220,140 @@ local function parseImageCollection(tileset, tsxPath, tilesetXml)
 	end
 end
 
+--- Parses a .tsj (JSON) tileset file into an STI-shaped tileset table.
+local function resolveTsjUncached(tsjPath, deps)
+	local readFile = deps.readFile or defaultReadFile
+
+	local contents = readFile(tsjPath)
+	if not contents then
+		error('External tileset not found: ' .. tsjPath, 2)
+	end
+
+	local ts = json.decode(contents)
+	if not ts or ts.type ~= 'tileset' then
+		error('Malformed tsj "' .. tsjPath .. '": not a tileset', 2)
+	end
+
+	-- Use the same logic as TMJ embedded tilesets
+	local tileset = {
+		name       = ts.name,
+		tilewidth  = tonumber(ts.tilewidth),
+		tileheight = tonumber(ts.tileheight),
+		spacing    = tonumber(ts.spacing) or 0,
+		margin     = tonumber(ts.margin) or 0,
+		columns    = tonumber(ts.columns) or 0,
+		tilecount  = tonumber(ts.tilecount) or 0,
+		tiles      = {},
+		tileoffset = { x = 0, y = 0 },
+	}
+
+	local tsDir = dirname(tsjPath)
+
+	-- Grid tileset with shared image
+	if ts.image then
+		tileset.image = stiUtils.format_path(tsDir .. ts.image)
+		tileset.imagewidth  = tonumber(ts.imagewidth)
+		tileset.imageheight = tonumber(ts.imageheight)
+
+		if ts.tiles then
+			for _, tile in ipairs(ts.tiles) do
+				local t = { id = tonumber(tile.id) }
+				if tile.properties then
+					t.properties = {}
+					for _, prop in ipairs(tile.properties) do
+						t.properties[prop.name] = prop.value
+					end
+				end
+				if tile.animation then
+					t.animation = {}
+					for _, frame in ipairs(tile.animation) do
+						table.insert(t.animation, {
+							tileid   = tonumber(frame.tileid),
+							duration = tonumber(frame.duration),
+						})
+					end
+				end
+				if tile.objectgroup then
+					t.objectGroup = { objects = {} }
+					for _, obj in ipairs(tile.objectgroup.objects) do
+						table.insert(t.objectGroup.objects, {
+							id     = tonumber(obj.id),
+							name   = obj.name or '',
+							type   = obj.type or '',
+							shape  = obj.shape or 'rectangle',
+							x      = tonumber(obj.x) or 0,
+							y      = tonumber(obj.y) or 0,
+							width  = tonumber(obj.width) or 0,
+							height = tonumber(obj.height) or 0,
+							rotation = tonumber(obj.rotation) or 0,
+							visible  = obj.visible ~= false,
+							properties = obj.properties or {},
+						})
+					end
+				end
+				table.insert(tileset.tiles, t)
+			end
+		end
+	elseif ts.tiles then
+		-- Image collection tileset
+		for _, tile in ipairs(ts.tiles) do
+			local t = {
+				id    = tonumber(tile.id),
+				image = tile.image and stiUtils.format_path(tsDir .. tile.image) or nil,
+				width  = tonumber(tile.width) or (tile.imagewidth and tonumber(tile.imagewidth)),
+				height = tonumber(tile.height) or (tile.imageheight and tonumber(tile.imageheight)),
+			}
+			if tile.x ~= nil then
+				t.x = tonumber(tile.x)
+				t.y = tonumber(tile.y) or 0
+			end
+			if tile.properties then
+				t.properties = {}
+				for _, prop in ipairs(tile.properties) do
+					t.properties[prop.name] = prop.value
+				end
+			end
+			if tile.animation then
+				t.animation = {}
+				for _, frame in ipairs(tile.animation) do
+					table.insert(t.animation, {
+						tileid   = tonumber(frame.tileid),
+						duration = tonumber(frame.duration),
+					})
+				end
+			end
+			if tile.objectgroup then
+				t.objectGroup = { objects = {} }
+				for _, obj in ipairs(tile.objectgroup.objects) do
+					table.insert(t.objectGroup.objects, {
+						id     = tonumber(obj.id),
+						name   = obj.name or '',
+						type   = obj.type or '',
+						shape  = obj.shape or 'rectangle',
+						x      = tonumber(obj.x) or 0,
+						y      = tonumber(obj.y) or 0,
+						width  = tonumber(obj.width) or 0,
+						height = tonumber(obj.height) or 0,
+						rotation = tonumber(obj.rotation) or 0,
+						visible  = obj.visible ~= false,
+						properties = obj.properties or {},
+					})
+				end
+			end
+			table.insert(tileset.tiles, t)
+		end
+	end
+
+	if ts.tileoffset then
+		tileset.tileoffset = {
+			x = tonumber(ts.tileoffset.x) or 0,
+			y = tonumber(ts.tileoffset.y) or 0,
+		}
+	end
+
+	return tileset
+end
+
 --- Parses and shapes a .tsx's tileset/tile data, independent of firstgid
 -- (which callers may vary per map even for the same .tsx path).
 local function resolveShapeUncached(tsxPath, deps)
@@ -266,20 +390,24 @@ local function resolveShapeUncached(tsxPath, deps)
 	return tileset
 end
 
---- Resolve an external .tsx tileset to an STI-shaped tileset table.
--- @param tsxPath Path to the .tsx file, as it would be opened from the
+--- Resolve an external .tsx or .tsj tileset to an STI-shaped tileset table.
+-- @param path Path to the .tsx or .tsj file, as it would be opened from the
 --   current working directory (already joined with the referencing map's
 --   directory by the caller).
 -- @param firstgid The tileset's firstgid, carried through to the result.
 -- @param deps Optional dependency overrides; `deps.readFile(path)` returns
 --   the file's contents or nil/false if it can't be read.
-function ExternalTileset.resolve(tsxPath, firstgid, deps)
+function ExternalTileset.resolve(path, firstgid, deps)
 	deps = deps or {}
 
-	local shape = resolvedShapeCache[tsxPath]
+	local shape = resolvedShapeCache[path]
 	if not shape then
-		shape = resolveShapeUncached(tsxPath, deps)
-		resolvedShapeCache[tsxPath] = shape
+		if path:sub(-4) == '.tsj' then
+			shape = resolveTsjUncached(path, deps)
+		else
+			shape = resolveShapeUncached(path, deps)
+		end
+		resolvedShapeCache[path] = shape
 	end
 
 	-- Deep-copy: a shallow copy would leave `tiles` (and each tile's own

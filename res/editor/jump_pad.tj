@@ -1,0 +1,14 @@
+{
+    "type": "template",
+    "tileset": {
+        "firstgid": 1,
+        "source": "tileset_props.tsj"
+    },
+    "object": {
+        "name": "jump_pad",
+        "type": "jump_pad",
+        "width": 32,
+        "height": 32,
+        "gid": 11
+    }
+}

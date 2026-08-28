@@ -1,0 +1,21 @@
+{
+    "type": "template",
+    "tileset": {
+        "firstgid": 1,
+        "source": "tileset_props.tsj"
+    },
+    "object": {
+        "name": "boulder",
+        "type": "boulder",
+        "width": 32,
+        "height": 32,
+        "gid": 1,
+        "properties": [
+            {
+                "name": "allowPushWhenStoodOn",
+                "type": "bool",
+                "value": false
+            }
+        ]
+    }
+}

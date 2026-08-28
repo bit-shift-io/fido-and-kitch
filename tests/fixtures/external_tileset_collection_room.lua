@@ -1,11 +1,11 @@
 -- Hand-authored fixture map exercising an external image-collection
 -- tileset (columns = 0, one <image> per <tile>) through the real
 -- Map/STI stack.
--- Reuses the real res/editor/tileset_props.tsx (the repo's props tileset --
--- external tilesets live in res/editor/ as tileset_*.tsx) rather than a
+-- Reuses the real res/editor/tileset_props.tsj (the repo's props tileset --
+-- external tilesets live in res/editor/ as tileset_*.tsj) rather than a
 -- synthetic copy, per the "use real fixtures already on disk" note.
 --
--- A single "switch" tile object (tileset_props.tsx tile id 3, a 128x128
+-- A single "switch" tile object (tileset_props.tsj tile id 3, a 128x128
 -- crop of entity_switch.png) is placed as a tile object so
 -- Map:setObjectSpriteBatches resolves it through the atlas path.
 return {
@@ -26,7 +26,7 @@ return {
     {
       name = "props",
       firstgid = 1,
-      filename = "../../res/editor/tileset_props.tsx"
+      filename = "../../res/editor/tileset_props.tsj"
     }
   },
   layers = {

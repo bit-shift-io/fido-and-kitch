@@ -1,0 +1,21 @@
+{
+    "type": "template",
+    "tileset": {
+        "firstgid": 1,
+        "source": "tileset_props.tsj"
+    },
+    "object": {
+        "name": "blocker",
+        "type": "blocker",
+        "width": 32,
+        "height": 64,
+        "gid": 15,
+        "properties": [
+            {
+                "name": "spriteOffsetY",
+                "type": "float",
+                "value": -6.0
+            }
+        ]
+    }
+}
