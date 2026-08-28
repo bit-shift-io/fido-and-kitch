@@ -648,7 +648,7 @@
                         {
                          "name":"color",
                          "type":"string",
-                         "value":"red"
+                         "value":"blue"
                         }],
                  "rotation":0,
                  "type":"cage",
@@ -667,7 +667,7 @@
                         {
                          "name":"color",
                          "type":"string",
-                         "value":"red"
+                         "value":"yellow"
                         }],
                  "rotation":0,
                  "type":"cage",
@@ -686,7 +686,7 @@
                         {
                          "name":"color",
                          "type":"string",
-                         "value":"red"
+                         "value":"green"
                         }],
                  "rotation":0,
                  "type":"cage",
@@ -922,7 +922,7 @@
                         {
                          "name":"color",
                          "type":"string",
-                         "value":"blues"
+                         "value":"blue"
                         }, 
                         {
                          "name":"image",
@@ -983,6 +983,12 @@
                  "width":32,
                  "x":800,
                  "y":160
+                }, 
+                {
+                 "id":90,
+                 "template":"..\/editor\/coin.tj",
+                 "x":32,
+                 "y":672
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1002,7 +1008,7 @@
          "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":90,
+ "nextobjectid":91,
  "orientation":"orthogonal",
  "properties":[
         {
