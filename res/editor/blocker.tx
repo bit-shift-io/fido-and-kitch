@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<template>
- <tileset firstgid="1" source="tileset_props.tsx"/>
- <object name="blocker" type="blocker" gid="15" width="32" height="64">
-  <properties>
-   <property name="spriteOffsetY" type="float" value="-6"/>
-  </properties>
- </object>
-</template>

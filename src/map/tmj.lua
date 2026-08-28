@@ -216,7 +216,7 @@ local function parseProperties(props)
 end
 
 --- Parses a layer from TMJ format.
-local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid)
+local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir)
 	local layerType = layer.type
 
 	if layerType == 'tilelayer' then
@@ -283,13 +283,13 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid)
 			type = 'imagelayer',
 			repeatx = layer.repeatx or false,
 			repeaty = layer.repeaty or false,
-			image = layer.image and stiUtils.format_path(layer.image) or nil,
+			image = layer.image and stiUtils.format_path(mapDir .. layer.image) or nil,
 		}
 	elseif layerType == 'group' then
 		local layers = {}
 		if layer.layers then
 			for _, childLayer in ipairs(layer.layers) do
-				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid))
+				table.insert(layers, parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir))
 			end
 		end
 		return {
@@ -396,7 +396,7 @@ function Tmj.parse(tmjPath)
 	-- Parse layers
 	if mapData.layers then
 		for _, layer in ipairs(mapData.layers) do
-			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid))
+			table.insert(map.layers, parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir))
 		end
 	end
 
