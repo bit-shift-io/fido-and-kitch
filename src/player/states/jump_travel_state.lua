@@ -55,7 +55,18 @@ function JumpTravelState:update(dt)
         })
     end
     
-    if self.elapsed >= self.duration then
+    local PlayerSensors = require('src.player.player_sensors')
+    local onGround = PlayerSensors.queryOnGround(world, player.collider)
+    
+    -- End travel as soon as the player reaches the ground, even if the
+    -- scripted path hasn't fully elapsed yet. Guarded by a minimum elapsed
+    -- fraction so the initial moment at the launch pad (still grounded before
+    -- the path lifts the player off) doesn't cancel the jump instantly.
+    if onGround and self.elapsed >= self.duration * 0.5 then
+        self._groundedExit = true
+        player.fsm:setState('WalkIdleState')
+    elseif self.elapsed >= self.duration then
+        self._groundedExit = false
         player.fsm:setState('FallState')
     end
 end
@@ -67,22 +78,25 @@ function JumpTravelState:exit()
         self.camera:removeExtraTarget('jump_travel')
     end
     
+    if self.pathFollow then
+        self.pathFollow:finish()
+        player:removeComponent(self.pathFollow)
+    end
+    
     if player.speedStreak then
         player.speedStreak:disable()
     end
     
-    local vx, vy = 0, 0
-    if self._lastVelocity and (self._lastVelocity.x ~= 0 or self._lastVelocity.y ~= 0) then
-        vx, vy = self._lastVelocity.x, self._lastVelocity.y
-    end
-    local TERMINAL_VELOCITY = 500
-    if vy < TERMINAL_VELOCITY then
-        vy = TERMINAL_VELOCITY
+    local vy = 0
+    if self._groundedExit == nil then
+        if self._lastVelocity and self._lastVelocity.y ~= 0 then
+            vy = self._lastVelocity.y
+        end
     end
     
     player.collider:setType('dynamic')
     player.collider:setGravityScale(1)
-    player.collider:setLinearVelocity(vx, vy)
+    player.collider:setLinearVelocity(0, vy)
 end
 
 return JumpTravelState

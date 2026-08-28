@@ -33,6 +33,7 @@ function WalkIdleState:update(dt)
     player.useDown = player:isDown('use')
     if player.useDown == true and useDownLast == false then
         player:checkForUsables()
+        if player.fsm.currentState ~= self then return end
     end
 
     local input = {

@@ -88,7 +88,6 @@ function PathFollow:finish()
     self.finished = true
     if self.collider then
         self.collider:setGravityScale(self.previousGravityScale or 1)
-        self.collider:setLinearVelocity(self.previousVelocityX or 0, self.previousVelocityY or 0)
     end
 end
 
