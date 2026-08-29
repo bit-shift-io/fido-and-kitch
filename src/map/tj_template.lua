@@ -9,6 +9,7 @@
 -- map-specific concerns that belong to the caller (src/map/tmj.lua), not
 -- to this cache.
 local json = require('src.utils.json')
+local stiUtils = require('lib.sti.utils')
 
 local TjTemplate = {}
 
@@ -70,10 +71,41 @@ local function parseTj(templatePath, deps)
 		end
 	end
 
+	-- The art the editor previews comes from the template's own tileset tile,
+	-- not a duplicated `image` file property (the two used to drift). Expose
+	-- the tile image as `tilesetImage`, normalized to a project-root-relative
+	-- runtime path, so instancing code can fall back to it.
+	local tilesetImage = nil
+	if tilesetEmbedded then
+		local tile = tilesetEmbedded.tiles and tilesetEmbedded.tiles[1]
+		local image = tile and tile.image or tilesetEmbedded.image
+		if type(image) == 'string' and image ~= '' then
+			tilesetImage = stiUtils.format_path(templateDir .. image)
+		end
+	end
+
 	local obj = tj.object
+
+	-- File-typed props carry asset paths authored relative to the template's
+	-- own directory (../img/...). Convert them to project-root-relative runtime
+	-- paths up front (cached per path below), mirroring what tj_tileset.lua
+	-- does for tileset images, so instancing maps get ready-to-use paths.
+	local properties = obj.properties or {}
+	if #properties > 0 and properties[1].name then
+		local converted = {}
+		for i, prop in ipairs(properties) do
+			converted[i] = { name = prop.name, type = prop.type, value = prop.value }
+			if prop.type == 'file' and type(prop.value) == 'string' and prop.value ~= '' then
+				converted[i].value = stiUtils.format_path(templateDir .. prop.value)
+			end
+		end
+		properties = converted
+	end
+
 	return {
 		tilesetRef = tilesetRef,
 		tilesetEmbedded = tilesetEmbedded,
+		tilesetImage = tilesetImage,
 		dir = templateDir,
 		object = {
 			name = obj.name or '',
@@ -81,7 +113,7 @@ local function parseTj(templatePath, deps)
 			gid = obj.gid,
 			width = obj.width,
 			height = obj.height,
-			properties = obj.properties or {},
+			properties = properties,
 		},
 	}
 end

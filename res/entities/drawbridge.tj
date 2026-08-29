@@ -1,0 +1,77 @@
+{
+  "tileset": {
+    "tilewidth": 32,
+    "name": "drawbridge",
+    "version": "1.11",
+    "columns": 0,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "image": "../img/entity_drawbridge.png",
+        "id": 0,
+        "imageheight": 64,
+        "imagewidth": 256,
+        "height": 64,
+        "width": 64,
+        "x": 192,
+        "y": 0
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 32,
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "crossingDirection",
+        "value": "leftToRight"
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 4
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 0.3
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      },
+      {
+        "type": "bool",
+        "name": "playing",
+        "value": false
+      },
+      {
+        "type": "int",
+        "name": "colliderWidth",
+        "value": 32
+      },
+      {
+        "type": "int",
+        "name": "colliderHeight",
+        "value": 32
+      }
+    ],
+    "type": "drawbridge",
+    "height": 64,
+    "gid": 1,
+    "width": 64,
+    "name": "drawbridge"
+  }
+}

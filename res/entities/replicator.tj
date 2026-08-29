@@ -1,6 +1,6 @@
 {
   "tileset": {
-    "tilewidth": 768,
+    "tilewidth": 32,
     "name": "replicator",
     "version": "1.11",
     "columns": 0,
@@ -13,20 +13,16 @@
     "tilecount": 1,
     "tiles": [
       {
-        "height": 128,
-        "image": "../img/entity_jump_pad.png",
+        "image": "../img/default.png",
         "id": 0,
-        "imagewidth": 768,
-        "imageheight": 128,
-        "y": 0,
-        "width": 256,
-        "x": 0
+        "imagewidth": 32,
+        "imageheight": 32
       }
     ],
     "spacing": 0,
     "margin": 0,
     "tiledversion": "1.12.2",
-    "tileheight": 128,
+    "tileheight": 32,
     "firstgid": 1
   },
   "type": "template",
@@ -41,6 +37,21 @@
         "type": "int",
         "name": "maxSpawns",
         "value": 1
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
       }
     ],
     "type": "replicator",

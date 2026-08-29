@@ -200,12 +200,14 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidFo
 	-- width, height, and properties. Instance fields override.
 	local base = { properties = {} }
 	local templateGid = nil
+	local templateTilesetImage = nil
 
 	if obj.template then
 		local templatePath = stiUtils.format_path(mapDir .. obj.template)
 		local template = TjTemplate.resolve(templatePath, deps)
 		base = template.object
 		templateGid = resolveTemplateGid(template, firstgidFor, firstgidForEmbedded, deps)
+		templateTilesetImage = template.tilesetImage
 	end
 
 	local shape = obj.shape or 'rectangle'
@@ -300,9 +302,19 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidFo
 				val = tonumber(prop.value)
 			elseif prop.type == 'object' then
 				val = { id = tonumber(prop.value) }
+			elseif prop.type == 'file' and type(prop.value) == 'string' and prop.value ~= '' then
+				-- Instance asset paths are authored relative to the map's dir.
+				val = stiUtils.format_path(mapDir .. prop.value)
 			end
 			object.properties[prop.name] = val
 		end
+	end
+
+	-- Sprite art's single source of truth is the template's inline tileset
+	-- tile (what the editor previews), not a duplicated `image` property.
+	-- Fall back to it when the instance carries no image of its own.
+	if templateTilesetImage and object.properties.image == nil then
+		object.properties.image = templateTilesetImage
 	end
 
 	return object

@@ -45,7 +45,7 @@ Edit > Preferences > check 'Detatch Templates'
 Save the map as tmj — maps are loaded directly from `.tmj` (no export step).
 
 Note: ladders are authored as per-rung template tile objects
-(`res/editor/ladder.tj`), one 32px rung per step, bottom-anchored
+(`res/entities/ladder.tj`), one 32px rung per step, bottom-anchored
 (object `y` = rung's bottom edge). `entity_factory` auto-merges stacked rungs
 into a single ladder; a switch targeted at any rung toggles the whole ladder.  
 Ladders are no-gravity climbable volumes with a one-way standable top edge:

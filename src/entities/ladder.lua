@@ -1,5 +1,6 @@
 local Log = require('src.utils.log')
 local PhysicsTolerance = require('src.utils.physics_tolerance')
+local SpriteProps = require('src.entities.sprite_props')
 
 local Ladder = Class{__includes = Entity}
 
@@ -181,16 +182,13 @@ function Ladder:createSprites()
 	self.sprites = {}
 	-- bottom-anchored: top edge is rect.y - rect.height; tiles stack downward
 	local top = self.rect.y - self.rect.height
+	-- art comes from the ladder template once; each rung adds its own slot
+	local artProps = SpriteProps.fromObject(self.object)
 	for i = 0, (tileHeight - 1), 1 do
 		local rect = Rect{x=self.rect.x, y=top + (i * self.map.tileheight), width=self.map.tilewidth, height=self.map.tileheight}
-		local sprite = self:addComponent(Sprite{
-			image='res/img/ladder.png',
-			frames=4,
-			duration=1.0,
-			loop=false,
-			position=rect:centre(),
-			shape_arguments=rect:colliderShapeArgs(),
-		})
+		artProps.position = rect:centre()
+		artProps.shape_arguments = rect:colliderShapeArgs()
+		local sprite = self:addComponent(Sprite(artProps))
 		sprite.timeline:play()
 		table.insert(self.sprites, sprite)
 	end

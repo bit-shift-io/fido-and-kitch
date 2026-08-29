@@ -36,6 +36,26 @@
         "type": "float",
         "name": "spriteOffsetY",
         "value": -6
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 48
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 2
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      },
+      {
+        "type": "bool",
+        "name": "playing",
+        "value": false
       }
     ],
     "type": "blocker",

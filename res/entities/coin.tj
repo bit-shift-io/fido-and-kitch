@@ -31,6 +31,38 @@
   },
   "type": "template",
   "object": {
+    "properties": [
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 8
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": true
+      },
+      {
+        "type": "bool",
+        "name": "playing",
+        "value": true
+      },
+      {
+        "type": "float",
+        "name": "scaleX",
+        "value": 0.8
+      },
+      {
+        "type": "float",
+        "name": "scaleY",
+        "value": 0.8
+      }
+    ],
     "type": "coin",
     "height": 32,
     "gid": 1,

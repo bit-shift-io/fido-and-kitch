@@ -1,9 +1,28 @@
 local Log = require('src.utils.log')
 local NPCRegistry = require('src.npc.npc_registry')
 local LadderMerger = require('src.map.ladder_merger')
+local TjTemplate = require('src.map.tj_template')
 
 local EntityFactory = {}
 EntityFactory.__index = EntityFactory
+
+-- Per-process probe cache for res/entities/<type>.tj resolution: true/table
+-- once a template parsed, false when the file doesn't exist (NPCs, players).
+local templateCache = {}
+
+-- Mirrors tmj.lua's raw-array property coercion for template default props
+-- merged in below, so a value lands on the entity the same way a real
+-- template reference would have delivered it.
+local function coerceProp(prop)
+	if prop.type == 'bool' then
+		return prop.value == true or prop.value == 'true'
+	elseif prop.type == 'int' or prop.type == 'float' then
+		return tonumber(prop.value)
+	elseif prop.type == 'object' then
+		return { id = tonumber(prop.value) }
+	end
+	return prop.value
+end
 
 -- `map` (the owning Map instance) is threaded through to every constructed
 -- entity as a second constructor arg (see loadEntity below) instead of
@@ -111,6 +130,16 @@ function EntityFactory:createEntities(map, world)
 end
 
 function EntityFactory:loadEntity(entityName, layer, object)
+	-- Map objects authored without a template reference (and runtime mock
+	-- objects from replicator/cage/etc) still get the entity type's .tj
+	-- defaults: template first, the object's own props win. Real templated
+	-- instances were already merged at map parse, so they're skipped.
+	if object.template == nil
+		and not self.typeIgnores[entityName]
+		and not NPCRegistry._types[entityName] then
+		self:_mergeTemplateProps(entityName, object)
+	end
+
 	-- Handle NPC types via registry first
 	if NPCRegistry._types[entityName] then
 		local props = object.properties or {}
@@ -145,6 +174,43 @@ function EntityFactory:loadEntity(entityName, layer, object)
 		Log.error('Entity Error: ' .. tostring(lastErr))
 	end
 	return nil
+end
+
+-- Folds res/entities/<entityName>.tj defaults into object.properties when the
+-- object carries none of its own (template keys untouched). Probe is cached:
+-- a missing template (NPCs, players, unknown types) stays false for the
+-- process lifetime. Entities that opt into template data read the merged
+-- result via SpriteProps.fromObject at construction.
+function EntityFactory:_mergeTemplateProps(entityName, object)
+	local cached = templateCache[entityName]
+	if cached == false then return end
+	if cached == nil then
+		local ok, result = pcall(TjTemplate.resolve, 'res/entities/' .. entityName .. '.tj')
+		cached = ok and result or false
+		templateCache[entityName] = cached
+	end
+	if not cached or not cached.object then return end
+
+	local base = cached.object.properties
+	if not base then return end
+
+	local merged = {}
+	if object.properties then
+		for name, value in pairs(object.properties) do
+			merged[name] = value
+		end
+	end
+	for _, prop in ipairs(base) do
+		if merged[prop.name] == nil then
+			merged[prop.name] = coerceProp(prop)
+		end
+	end
+	-- Sprite art's single source of truth is the template's inline tileset
+	-- tile (what the editor previews), so a runtime mock inherits it too.
+	if merged.image == nil and cached.tilesetImage then
+		merged.image = cached.tilesetImage
+	end
+	object.properties = merged
 end
 
 return EntityFactory

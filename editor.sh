@@ -2,7 +2,7 @@
 
 # Define the path to the local AppImage
 LOCAL_BIN="$PWD/bin/tiled.AppImage"
-PROJECT_FILE="res/editor/fido-and-kitch.tiled-project"
+PROJECT_FILE="fido-and-kitch.tiled-project"
 
 # Check if the local AppImage exists
 if [ -f "$LOCAL_BIN" ]; then

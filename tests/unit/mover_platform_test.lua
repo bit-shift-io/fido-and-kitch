@@ -284,12 +284,12 @@ local function makePlatform(props)
 	}, stubMap)
 end
 
-test('defaults: speed 100, pingpong, pause 0, enabled true, running true', function()
+test('defaults: speed 50, pingpong, pause 0.5, enabled true, running true', function()
 	local p = makePlatform({})
 
-	assertEqual(100, p.speed)
+	assertEqual(50, p.speed)
 	assertEqual('pingpong', p.endBehavior)
-	assertEqual(0, p.pause)
+	assertEqual(0.5, p.pause)
 	assertTrue(p.enabled, 'enabled should default to true')
 	assertTrue(p.running, 'running should start true (always-on until switched)')
 	assertTrue(p.collider.walkable, 'the static deck collider must be walkable ground')

@@ -1,4 +1,5 @@
 local JumpPadStreak = require('src.fx.jump_pad_streak')
+local SpriteProps = require('src.entities.sprite_props')
 
 local JumpPad = Class{__includes = Entity}
 
@@ -6,16 +7,12 @@ function JumpPad:init(object, map)
 	Entity.init(self, object, 'jump_pad')
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
-	self.sprite = self:addComponent(Sprite{
-		image='res/img/entity_jump_pad.png',
-		frames=3,
-		duration=0.2,
-		loop=false,
-		bounce=true,
-		hold=1.0,
-		playing=false,
-		shape_arguments=shape_arguments
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.bounce = true
+	spriteProps.hold = 1.0
+	spriteProps.playing = false
+	spriteProps.shape_arguments = shape_arguments
+	self.sprite = self:addComponent(Sprite(spriteProps))
 
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',

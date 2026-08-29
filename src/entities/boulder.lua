@@ -5,9 +5,14 @@
 -- (DECISIONS Q9). Everything but the mode is shared with the box via
 -- src/entities/pushable_prop.lua.
 local PushableProp = require('src.entities.pushable_prop')
+local SpriteProps = require('src.entities.sprite_props')
 
 return PushableProp.define{
 	type = 'boulder',
-	image = 'res/img/pushable_stone_block.png',
+	sprite = function(object, shape_arguments)
+		local art = SpriteProps.fromObject(object)
+		art.shape_arguments = shape_arguments
+		return art
+	end,
 	mode = 'roll',
 }

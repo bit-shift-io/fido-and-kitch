@@ -1,7 +1,7 @@
 {
   "tileset": {
     "tilewidth": 128,
-    "name": "story",
+    "name": "push_box",
     "version": "1.11",
     "columns": 0,
     "grid": {
@@ -13,7 +13,7 @@
     "tilecount": 1,
     "tiles": [
       {
-        "image": "../img/entity_wood_sign_post.png",
+        "image": "../img/pushable_crate_wood.png",
         "imageheight": 128,
         "id": 0,
         "imagewidth": 128
@@ -29,15 +29,30 @@
   "object": {
     "properties": [
       {
-        "type": "string",
-        "name": "text",
-        "value": "Default text"
+        "type": "bool",
+        "name": "allowPushWhenStoodOn",
+        "value": false
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
       }
     ],
-    "type": "story",
+    "type": "push_box",
     "height": 32,
     "gid": 1,
     "width": 32,
-    "name": "story"
+    "name": "push_box"
   }
 }

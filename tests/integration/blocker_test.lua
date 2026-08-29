@@ -149,7 +149,7 @@ test('flipping the switch back off relocks the blocker instantly -- solid again 
 		'expected the relocked blocker to stop the player at the barrier again')
 end)
 
--- Regression guard for the real blocker.tj template (res/editor/blocker.tj):
+-- Regression guard for the real blocker.tj template (res/entities/blocker.tj):
 -- its spriteOffsetY property must actually reach an instance through the
 -- full template -> object merge, and must shift ONLY the art.
 -- -- this test exists to make that failure mode loud.

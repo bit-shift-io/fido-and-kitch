@@ -34,9 +34,19 @@
         "value": "red"
       },
       {
-        "type": "file",
-        "name": "image",
-        "value": "../img/entity_key.png"
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
       }
     ],
     "type": "key",

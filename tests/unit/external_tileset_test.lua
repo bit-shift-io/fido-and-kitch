@@ -51,7 +51,7 @@ local function fakeReader(contents)
 end
 
 test('resolves a single-image tileset to an STI-shaped tileset table', function()
-	local tileset = TjTileset.resolve('res/editor/tileset_generic_platformer_tiles.tsj', 1, {
+	local tileset = TjTileset.resolve('res/entities/tileset_generic_platformer_tiles.tsj', 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ),
 	})
 
@@ -77,18 +77,18 @@ end)
 
 test('raises a clear error naming the file when the tsj cannot be read', function()
 	local ok, err = pcall(function()
-		TjTileset.resolve('res/editor/tileset_missing.tsj', 1, {
+		TjTileset.resolve('res/entities/tileset_missing.tsj', 1, {
 			readFile = function(path) return nil end,
 		})
 	end)
 
 	assertEqual(false, ok)
-	assertTrue(string.find(tostring(err), 'res/editor/tileset_missing.tsj', 1, true) ~= nil,
+	assertTrue(string.find(tostring(err), 'res/entities/tileset_missing.tsj', 1, true) ~= nil,
 		'expected error to mention the missing file path, got: ' .. tostring(err))
 end)
 
 test('resolves a single-tile tileset to per-tile image entries', function()
-	local tileset = TjTileset.resolve('res/editor/switch.tsj', 1, {
+	local tileset = TjTileset.resolve('res/entities/switch.tsj', 1, {
 		readFile = fakeReader(SWITCH_TSJ),
 	})
 
@@ -112,8 +112,8 @@ test('resolving the same tsj path twice only reads/parses it once', function()
 		return GENERIC_PLATFORMER_TILES_TSJ
 	end
 
-	TjTileset.resolve('res/editor/tileset_cache_test_a.tsj', 1, { readFile = readFile })
-	local second = TjTileset.resolve('res/editor/tileset_cache_test_a.tsj', 1, { readFile = readFile })
+	TjTileset.resolve('res/entities/tileset_cache_test_a.tsj', 1, { readFile = readFile })
+	local second = TjTileset.resolve('res/entities/tileset_cache_test_a.tsj', 1, { readFile = readFile })
 
 	assertEqual(1, readCount)
 	assertEqual('res/img/generic_platformer_tiles.png', second.image)
@@ -121,10 +121,10 @@ test('resolving the same tsj path twice only reads/parses it once', function()
 end)
 
 test('two different tsj paths are cached independently', function()
-	local tilesetA = TjTileset.resolve('res/editor/tileset_cache_test_b.tsj', 1, {
+	local tilesetA = TjTileset.resolve('res/entities/tileset_cache_test_b.tsj', 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ),
 	})
-	local tilesetB = TjTileset.resolve('res/editor/tileset_cache_test_c.tsj', 145, {
+	local tilesetB = TjTileset.resolve('res/entities/tileset_cache_test_c.tsj', 145, {
 		readFile = fakeReader(SWITCH_TSJ),
 	})
 
@@ -137,20 +137,20 @@ end)
 test('a cached resolution still reflects the firstgid passed on that call', function()
 	local readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ)
 
-	TjTileset.resolve('res/editor/tileset_cache_test_d.tsj', 1, { readFile = readFile })
-	local second = TjTileset.resolve('res/editor/tileset_cache_test_d.tsj', 50, { readFile = readFile })
+	TjTileset.resolve('res/entities/tileset_cache_test_d.tsj', 1, { readFile = readFile })
+	local second = TjTileset.resolve('res/entities/tileset_cache_test_d.tsj', 50, { readFile = readFile })
 
 	assertEqual(50, second.firstgid)
 end)
 
 test('raises a clear error naming the file when the tsj is malformed', function()
 	local ok, err = pcall(function()
-		TjTileset.resolve('res/editor/tileset_broken.tsj', 1, {
+		TjTileset.resolve('res/entities/tileset_broken.tsj', 1, {
 			readFile = fakeReader('{"name": "not a tileset"}'),
 		})
 	end)
 
 	assertEqual(false, ok)
-	assertTrue(string.find(tostring(err), 'res/editor/tileset_broken.tsj', 1, true) ~= nil,
+	assertTrue(string.find(tostring(err), 'res/entities/tileset_broken.tsj', 1, true) ~= nil,
 		'expected error to mention the broken file path, got: ' .. tostring(err))
 end)

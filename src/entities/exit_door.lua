@@ -3,6 +3,7 @@
 
 local Log = require('src.utils.log')
 local EventBus = require('src.utils.event_bus')
+local SpriteProps = require('src.entities.sprite_props')
 
 local ExitDoor = Class{__includes = Entity}
 
@@ -17,22 +18,18 @@ function ExitDoor:init(object)
 	local position = Rect.centreOfMapObject(object)
     local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
-	-- visual footprint only -- the collider below stays the map's 1x1 tile;
-	-- the bigger sprite is purely decorative art so the art can extend
-	-- beyond the tile the door sits on. The box is 2x the tile, centred on
-	-- the tile centre, which would hang the art 16px past the tile's bottom;
-	-- lift the sprite by half the extra height so it sits back on the ground.
-	local sprite_shape = Rect.shapeArgs(object.width * 2, object.height * 2)
-	local sprite_position = position - Vector(0, object.height * 0.5)
-	self.sprite = self:addComponent(Sprite{
-		image='res/img/entity_exit_door.png',
-		frames=2,
-		duration=1.0,
-		loop=false,
-		position=sprite_position,
-		shape_arguments=sprite_shape,
-		finish=utils.bindSelf(ExitDoor.animFinished, self)
-	})
+	-- The sprite fills the authored object's own rect, 1:1 -- like the
+	-- blocker. The template (exit_door.tj) is authored at the art size, so
+	-- the object box IS the visual footprint; no 2x box and no lift. The
+	-- use sensor follows the same rect (bottom-flush). Optional
+	-- `spriteOffsetY` (px, positive = down) nudges only the art, tuned from
+	-- the running game.
+	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position + Vector(0, spriteOffsetY)
+	spriteProps.shape_arguments = shape_arguments
+	spriteProps.finish = utils.bindSelf(ExitDoor.animFinished, self)
+	self.sprite = self:addComponent(Sprite(spriteProps))
 	local collider = self:addComponent(Collider{
 		shape_type='rectangle',
 		shape_arguments=shape_arguments,

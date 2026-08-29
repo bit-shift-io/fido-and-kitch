@@ -1,4 +1,5 @@
 local PickupProp = require('src.entities.pickup_prop')
+local SpriteProps = require('src.entities.sprite_props')
 local KEY_COLORS = {
 	red    = {1, 0.2, 0.2, 1},
 	blue   = {0.2, 0.4, 1, 1},
@@ -12,13 +13,9 @@ return PickupProp.define{
 	pickupSound = 'res/snd/entity_key_collect.wav',
 	itemName = function(object) return string.format('key_%s', object.properties.color) end,
 	sprite = function(object, shape_arguments)
-		return {
-			image = 'res/img/entity_key.png',
-			frames = 1,
-			duration = 1.0,
-			loop = false,
-			shape_arguments = shape_arguments,
-		}
+		local art = SpriteProps.fromObject(object)
+		art.shape_arguments = shape_arguments
+		return art
 	end,
 	components = function(object)
 		local colorName = object.properties.color or 'yellow'

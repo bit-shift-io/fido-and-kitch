@@ -63,16 +63,16 @@ test('an unrecognised or missing crossingDirection renders unmirrored (matches t
 	assertEqual('right', D.spriteFacing(nil))
 end)
 
-test('the sprite box is 2x the object dimensions, centred on the object tile', function()
-	local width, height = D.spriteBoxDimensions(32, 32)
+test('the sprite box is the object dimensions, 1:1 (drawbridge.tj: 64x64 art box)', function()
+	local width, height = D.spriteBoxDimensions(64, 64)
 	assertEqual(64, width)
 	assertEqual(64, height)
 end)
 
 test('the sprite box derives from the object dimensions, not a hard-coded size', function()
 	local width, height = D.spriteBoxDimensions(48, 64)
-	assertEqual(96, width)
-	assertEqual(128, height)
+	assertEqual(48, width)
+	assertEqual(64, height)
 end)
 
 test('closed state has no walkable deck (the gap is fully exposed, no barrier)', function()
@@ -214,8 +214,24 @@ end
 local function makeBridge(crossingDirection)
 	HeadlessBootstrap.resetWorld()
 	return Drawbridge({
-		x = 128, y = 96, width = 32, height = 32,
-		properties = {crossingDirection = crossingDirection},
+		x = 128, y = 96, width = 64, height = 64,
+		properties = {
+			crossingDirection = crossingDirection,
+			-- template art merged in-game (res/entities/drawbridge.tj); the
+			-- image now comes from the template's inline tileset tile and the
+			-- loader injects it into merged properties, so the stub mirrors
+			-- that to cut the real 4-frame sheet...
+			image = 'res/img/entity_drawbridge.png',
+			frames = 4,
+			duration = 0.3,
+			loop = false,
+			playing = false,
+			-- ...and the gameplay footprint stays one tile (the sprite box is
+			-- the 64x64 art box above; the deck/trigger/occupancy colliders
+			-- derive from these props, exactly like the real template)
+			colliderWidth = 32,
+			colliderHeight = 32,
+		},
 	})
 end
 

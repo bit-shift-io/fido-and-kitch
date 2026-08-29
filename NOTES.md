@@ -1,65 +1,101 @@
-# Remove old Lua map system + old TMX/XML systems (2026-08-28)
+# Template-driven entity data via `.tj` templates (2026-08-29)
 
-> **STATUS: COMPLETED.** All tasks in phase A–H (see `TASKS.md`) are done as of
-> the TMX→TMJ migration (verified: `.tmx`/`.tx`/`.tsx`/`.lua` map paths removed;
-> only `.tmj`/`.tj`/`.tsj` JSON survives). Kept here as a historical record of
-> the migration plan.
+Grill notes. Scope: entity defaults + sprite/art metadata move out of `.lua` into
+`res/entities/*.tj` templates; templates become the single source of truth; the
+runtime reads merged `object.properties`. `TASKS.md` holds the phased plan.
 
-Grill notes. Scope: kill every non-JSON map path. Target end-state: only
-`.tmj`/`.tj`/`.tsj` JSON survives for map/template/tileset loading.
+> Supersedes the completed TMX→TMJ migration notes (all tasks `[x]` before).
 
 ## Confirmed model (asked + answered)
 
-1. **Kill ALL non-JSON paths** — Gen 1 `.lua` maps (STI loader) AND Gen 2
-   `.tmx`/`.tx`/`.tsx` XML. Only TMJ/JSON survives.
-2. **Test fixtures: triage** — `tests/fixtures/*.lua` (~35 Gen-1 maps):
-   keep only what's consumed by tests, convert those to `.tmj`, delete the
-   rest.
-3. **Migration tools + xml2lua: delete all** — `tools/tx_to_tj.py`,
-   `tools/convert_to_templates.lua`, `lib/xml2lua`. (Delete all.)
-4. **Rename dual-format modules** — `tmx_template.lua` →
-   `tj_template.lua`, `external_tileset.lua` → JSON-only name. Strip XML
-   branches internally.
-5. **STI: KEEP for rendering** (confirmed active): `parallax_renderer.lua:117`
-   calls `map:drawLayer` → STI `drawTileLayer`; object-layer sprite batches
-   are STI-built. Full removal would require reimplementing tile rendering.
-   Delete only the `.lua`/`.tmx` loader entry points; render path stays.
-6. **export_png.lua + tools/level_generator/tmx_writer.lua: port to JSON
-   first**, then delete the XML paths. (Not just delete.)
-7. **Docs: update all in-scope** — AGENTS.md, ARCHITECTURE.md, CONTEXT.md,
-   README.md, tests/README.md, tools/README.md (`.tmx`/`.tx`/`.tsx` refs).
-8. **Fix all broken test refs** — ~5 files still reference `sandbox.tmx`
-   (level_layer_render_test, blocker_test, diorama_test, npc_visual_test).
-9. **UI: strip old formats** — `map_list.lua`/`map_card.lua` only need
-   `.tmj`; remove `.lua`/`.tmx` branches + `map_card.lua`'s `src.map.tmx`
-   require.
+1. **Target duplication = Lua vs template defaults** — the `.tj` becomes the
+   single source of truth for an entity's default properties; strip matching
+   `or DEFAULT` fallbacks from `.lua` where a template exists. Already drifted:
+   `mover_platform.tj` `speed: 50` vs `mover_platform.lua` `or 100`.
+2. **Most sprite data moves into templates** — the editor is visual. Sprite
+   fields (image, frames, duration, loop, playing, scale, spriteOffsetY, tint…)
+   become flat template props merged like any other property. `parseProperties`
+   (`tmj.lua:312`) already coerces `file→string`, `int/float→number`,
+   `color→hex string`. Entity `.lua` keeps logic (FSM, geometry from object
+   w/h), not baked art strings. A future editor script is planned to surface
+   props like `spriteOffsetY` in the Tiled UI.
+3. **Layout + paths** — `res/editor/` → `res/entities/` (flat rename). The
+   `.tiled-project` was moved to `res/` (done). Templates keep native
+   Tiled-relative `../img/...` paths (uniform, editor re-save safe); runtime
+   needs conversion. The experiment of storing `res/img/...` verbatim in the
+   JSON was rejected after further tests — the loader must convert file-typed
+   props instead.
+4. **`loadEntity` merges the template** — runtime-synthesized objects
+   (replicator→push_box, cage→NPC, IPC spawn) get a `template` path auto-appended
+   when the object has none (probe existence of `res/entities/<type>.tj` once,
+   cached; `npc_*` have no template and skip). Reuses the `tmj.lua` merge.
+   NPCs/players stay code-side (no `.tj` exists for them).
 
-## Files in play (map system, 11 files)
+## Conversion precedent
 
-- `src/map/init.lua` — loader dispatch; kill `.tmx`/`.lua` branches of
-  `loadSti`/`resolveMapFile` (keep `.tmj`)
-- `src/map/tmx.lua` — XML map parser → DELETE
-- `src/map/tmx_xml.lua` — XML DOM helper (plus its `lib.xml2lua`) → DELETE
-- `src/map/tmj.lua` — JSON map parser → KEEP
-- `src/map/tmx_template.lua` — dual-format; strip XML, rename → tj_template.lua
-- `src/map/external_tileset.lua` — dual-format; strip XML, rename → JSON-only
-- `src/map/{entity_factory,ladder_merger,collision_builder,parallax_renderer,map_parallax}.lua` — format-agnostic → KEEP
+`stiUtils.format_path` (`lib/sti/utils.lua:5`) collapses `dir/../img/x.png` →
+`res/img/x.png`. `tj_tileset.lua:82,130` already runs every tileset image through
+`tsDir .. path` + `format_path`. Only object `image` (file-typed) props pass
+through raw — that is the gap. Fix mirrors the existing pattern:
 
-## Knock-on fixes
+- `tj_template.lua` — rewrite `type == 'file'` prop values via
+  `format_path(templateDir .. value)` (template-relative, cached, idempotent).
+- `tmj.lua` `parseObject` — same rewrite for instance file props (mapDir-relative).
 
-- `src/export_png.lua` (TMX-only + `require src.map.tmx`) → port JSON
-- `src/ui/map_list.lua`, `src/ui/map_card.lua` (3-format branches) → strip
-- `tools/level_generator/tmx_writer.lua` (XML writer) → port/remove
-- `lib/sti/init.lua` STI `.lua`/`.tmx` loader entry points → remove
-- `tests/fixtures/tmx/tmx_room.tmx/.tsx` → remove (XML-only test fixture)
-- XML-path unit tests (`tmx_test.lua`, `tmx_template_test.lua`,
-  `external_tileset_test.lua`, `level_generator_tmx_writer_test.lua`) → update/remove
-- 5 call sites pass `sandbox.tmx` (now `.tmj`)
-- Remove stale `.scratch/DECISIONS.md` code-comment references if encounterable
+## Tileset as the art source (image prop removed)
 
-## Known stale docs (update in task)
+Templates no longer carry an `image` property; the sprite image is resolved from
+the template's **inline tileset tile** — what the Tiled editor previews — and
+injected into the merged `object.properties.image` at load:
 
-AGENTS.md (`tmx.lua`, `res/map/*.tmx`, `*.tx`/`*.tsx`), ARCHITECTURE.md
-(`.tmx`), CONTEXT.md (`.tmx` sole source of truth), README.md ("Save map as
-tmx"), tools/README.md (`<seed>.tmx` → `.tmj`), tests/README.md
-(`sandbox.tmx` example).
+- `tj_template.lua` `parseTj` — exposes `tilesetImage` (tile 1's image, or the
+  tileset image, run through `format_path(templateDir .. value)`) in the parsed
+  template table (nil for external-tileset templates).
+- `tmj.lua` `parseObject` — `templateTilesetImage` is hoisted out of the
+  `if obj.template then` block (its `template` local is block-scoped) and,
+  after the instance-props merge, sets `object.properties.image` when absent.
+- `entity_factory.lua` `_mergeTemplateProps` — same fallback for template-less
+  runtime-mock objects.
+- Tilesets were aligned to runtime reality while at it: `boulder.tj` now
+  previews `pushable_stone_block.png` (250x250, was `default.png` 32x32),
+  `replicator.tj` previews `default.png` 32x32 (was the 768x128 jump_pad sheet).
+
+## Art-size authoring (blocker model extended, grilling NOV pass)
+
+Templates are now authored at the **art size**, following the blocker precedent:
+the object box IS the visual footprint, the sprite draws 1:1 centred, and the
+colliders are independent of the visuals where that matters.
+
+- `cage.tj` / `teleport.tj` / `exit_door.tj` objects went 32x32 → 64x64; their
+  lua dropped the `object.width * 2` + `height * 0.5` lift entirely (the art was
+  always ~square/1:1, so 2x only looked right against a 32 template). Their use
+  sensors are object-derived, so they follow the art footprint (bottom-flush).
+- `drawbridge.tj` also went 32x32 → 64x64 (art box), but the deck/trigger/
+  occupancy colliders MUST stay one tile, so the gameplay footprint is driven by
+  new template props `colliderWidth`/`colliderHeight` (32 each), anchored at the
+  object's own corner and falling back to the object size when absent — the
+  "collision independent of the visual" case, expressed as extra properties.
+
+## Sprite offsets
+
+`spriteOffsetY` (px, positive = down) is the general authorable vertical knob
+for sprite art, applied to `sprite.position` only — colliders never move with
+it (blocker's original pattern). `cage.lua`/`teleport.lua`/`exit_door.lua`/
+`drawbridge.lua` now read `tonumber(object.properties.spriteOffsetY) or 0`.
+Written into a template only where the art needs it (blocker.tj: -6).
+
+## Side effects (accepted, author to fix later)
+
+Existing template-referenced map instances serialize `width/height: null`, so
+they inherit the new 64 → cage/teleport/exit_door/drawbridge art shifts +16px
+right (+16px up for drawbridge's art box) on every current placement in
+`res/map/*`. Test fixtures (`tests/fixtures/*.tmj`) carry explicit 32x32 and no
+template refs, so they are shielded and keep the old footprint. Deal: **the
+editor shows the true art now; re-place/re-scale instances and tune gameplay
+positions later.** `spriteOffsetX` is a possible future knob if the +16 lands
+wrong; not added yet.
+
+## Deferred
+
+- Editor script for `spriteOffsetY` etc. in the Tiled UI.
+- NPCs/players untouched (code-side config, no templates).

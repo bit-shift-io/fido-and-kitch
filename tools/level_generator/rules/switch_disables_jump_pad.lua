@@ -50,7 +50,7 @@ function Rule.apply(rng, layout, startId)
 			},
 			{
 				id = padId,
-				template = '../../editor/jump_pad.tj',
+				template = '../../entities/jump_pad.tj',
 				name = 'jump_pad',
 				type = 'jump_pad',
 				x = padX,
@@ -59,7 +59,7 @@ function Rule.apply(rng, layout, startId)
 			},
 			{
 				id = switchId,
-				template = '../../editor/switch.tj',
+				template = '../../entities/switch.tj',
 				name = 'switch',
 				type = 'switch',
 				x = math.min(zone.x1 + 1, zone.x2) * TILE,

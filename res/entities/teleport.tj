@@ -29,20 +29,30 @@
   "object": {
     "properties": [
       {
-        "type": "file",
-        "name": "image",
-        "value": "../img/teleporter_1.png"
-      },
-      {
         "type": "object",
         "name": "target",
         "value": "28"
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
       }
     ],
     "type": "teleport",
-    "height": 32,
+    "height": 64,
     "gid": 1,
-    "width": 32,
+    "width": 64,
     "name": "teleporter"
   }
 }

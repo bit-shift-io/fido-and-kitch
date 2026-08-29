@@ -19,7 +19,7 @@ Every command is dependency-free and exits non-zero if any test fails. Pass a sp
 
 ## Tiers
 
-- **`tests/unit/`** — fast gameplay regression tests. Pure logic/math, no map loading, no LÖVE surface at all.
+- **`tests/unit/`** — fast gameplay regression tests. Pure logic/math, no map loading, no LÖVE surface at all. Includes loader-level template tests (`template_file_props_test.lua`, `template_sprite_props_test.lua`, `sprite_props_test.lua`) that resolve the real `res/entities/*.tj` sources via `TjTemplate.resolve`'s on-disk fallback to pin template-driven default + sprite properties.
 - **`tests/integration/`** — loads a real map through the actual `Game`/`InGameState`/`Map`/`Player` stack, driving simulated input across stepped frames, outside LÖVE via a minimal `love.*` mock. No real rendering; frame capture is unavailable here.
 - **`tests/e2e/`** — the same kind of scripted, deterministic scenario as the integration tier, but launched as a real LÖVE process with a real window and real rendering. Watchable, and the only tier where frame capture works. A test belongs to exactly one tier — there is no running the same file both headless and headed. `all_maps_screenshot_test.lua` is the e2e counterpart of the integration tier's `all_maps_load_test.lua`: it loads every real map under `res/map/` and captures a screenshot of each, so a broken map or a visual regression across any shipped level is a screenshot away rather than a manual launch.
 

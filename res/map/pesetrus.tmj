@@ -32,325 +32,325 @@
       "objects": [
         {
           "id": 90,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 32,
           "y": 128
         },
         {
           "id": 91,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 32,
           "y": 160
         },
         {
           "id": 92,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 32,
           "y": 192
         },
         {
           "id": 93,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 0,
           "y": 256
         },
         {
           "id": 95,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 0,
           "y": 224
         },
         {
           "id": 96,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 0,
           "y": 288
         },
         {
           "id": 97,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 0,
           "y": 320
         },
         {
           "id": 99,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 224
         },
         {
           "id": 100,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 256
         },
         {
           "id": 101,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 288
         },
         {
           "id": 102,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 320
         },
         {
           "id": 103,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 192
         },
         {
           "id": 104,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 160
         },
         {
           "id": 105,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 128
         },
         {
           "id": 106,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 96
         },
         {
           "id": 107,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 128
         },
         {
           "id": 108,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 160
         },
         {
           "id": 109,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 192
         },
         {
           "id": 110,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 224
         },
         {
           "id": 111,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 256
         },
         {
           "id": 112,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 288
         },
         {
           "id": 113,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 416,
           "y": 320
         },
         {
           "id": 119,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 1056,
           "y": 704
         },
         {
           "id": 120,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 1056,
           "y": 672
         },
         {
           "id": 121,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 1056,
           "y": 640
         },
         {
           "id": 124,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 928,
           "y": 576
         },
         {
           "id": 125,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 928,
           "y": 608
         },
         {
           "id": 128,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 352
         },
         {
           "id": 129,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 384
         },
         {
           "id": 130,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 416
         },
         {
           "id": 131,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 192,
           "y": 448
         },
         {
           "id": 132,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 224,
           "y": 480
         },
         {
           "id": 133,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 224,
           "y": 512
         },
         {
           "id": 134,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 224,
           "y": 544
         },
         {
           "id": 135,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 224,
           "y": 576
         },
         {
           "id": 136,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 480
         },
         {
           "id": 137,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 512
         },
         {
           "id": 138,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 544
         },
         {
           "id": 139,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 576
         },
         {
           "id": 140,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 320
         },
         {
           "id": 141,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 352
         },
         {
           "id": 142,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 384
         },
         {
           "id": 143,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 416
         },
         {
           "id": 144,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 448
         },
         {
           "id": 145,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 480
         },
         {
           "id": 146,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 352,
           "y": 512
         },
         {
           "id": 148,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 640,
           "y": 576
         },
         {
           "id": 149,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 640,
           "y": 608
         },
         {
           "id": 150,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 640,
           "y": 640
         },
         {
           "id": 151,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 640,
           "y": 672
         },
         {
           "id": 152,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 640,
           "y": 704
         },
         {
           "id": 153,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 608,
           "y": 352
         },
         {
           "id": 154,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 608,
           "y": 320
         },
         {
           "id": 155,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 608,
           "y": 288
         }
@@ -375,19 +375,19 @@
               "value": 4
             }
           ],
-          "template": "../editor/exit_door.tj",
+          "template": "../entities/exit_door.tj",
           "x": 1088,
           "y": 128
         },
         {
           "id": 32,
-          "template": "../editor/spawn.tj",
+          "template": "../entities/spawn.tj",
           "x": 544,
           "y": 352
         },
         {
           "id": 33,
-          "template": "../editor/spawn.tj",
+          "template": "../entities/spawn.tj",
           "x": 1088,
           "y": 224
         },
@@ -400,7 +400,7 @@
               "value": "yellow"
             }
           ],
-          "template": "../editor/cage.tj",
+          "template": "../entities/cage.tj",
           "x": 928,
           "y": 416
         },
@@ -413,43 +413,43 @@
               "value": "yellow"
             }
           ],
-          "template": "../editor/key.tj",
+          "template": "../entities/key.tj",
           "x": 864,
           "y": 128
         },
         {
           "id": 37,
-          "template": "../editor/drawbridge.tj",
+          "template": "../entities/drawbridge.tj",
           "x": 1024,
           "y": 160
         },
         {
           "id": 40,
-          "template": "../editor/key.tj",
+          "template": "../entities/key.tj",
           "x": 800,
           "y": 704
         },
         {
           "id": 41,
-          "template": "../editor/cage.tj",
+          "template": "../entities/cage.tj",
           "x": 64,
           "y": 96
         },
         {
           "id": 42,
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 352,
           "y": 64
         },
         {
           "id": 43,
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 576,
           "y": 480
         },
         {
           "id": 114,
-          "template": "../editor/drawbridge.tj",
+          "template": "../entities/drawbridge.tj",
           "x": 256,
           "y": 224
         },
@@ -462,7 +462,7 @@
               "value": 167
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 416,
           "y": 352
         },
@@ -475,7 +475,7 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 288,
           "y": 192
         },
@@ -488,7 +488,7 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 1056,
           "y": 128
         },
@@ -501,7 +501,7 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 928,
           "y": 224
         },
@@ -514,7 +514,7 @@
               "value": 162
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 704,
           "y": 640
         },
@@ -527,7 +527,7 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 896,
           "y": 704
         },
@@ -540,7 +540,7 @@
               "value": 157
             }
           ],
-          "template": "../editor/teleport.tj",
+          "template": "../entities/teleport.tj",
           "x": 800,
           "y": 480
         },
@@ -553,7 +553,7 @@
               "value": 156
             }
           ],
-          "template": "../editor/teleport.tj",
+          "template": "../entities/teleport.tj",
           "x": 800,
           "y": 128
         },
@@ -566,13 +566,13 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 1056,
           "y": 384
         },
         {
           "id": 159,
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 160,
           "y": 704
         },
@@ -585,7 +585,7 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 736,
           "y": 480
         },
@@ -598,25 +598,25 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 672,
           "y": 480
         },
         {
           "id": 162,
-          "template": "../editor/drawbridge.tj",
+          "template": "../entities/drawbridge.tj",
           "x": 704,
           "y": 576
         },
         {
           "id": 163,
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 704,
           "y": 128
         },
         {
           "id": 164,
-          "template": "../editor/drawbridge.tj",
+          "template": "../entities/drawbridge.tj",
           "x": 32,
           "y": 608
         },
@@ -629,13 +629,13 @@
               "value": 171
             }
           ],
-          "template": "../editor/mover_platform.tj",
+          "template": "../entities/mover_platform.tj",
           "x": 448,
           "y": 128
         },
         {
           "id": 172,
-          "template": "../editor/blocker.tj",
+          "template": "../entities/blocker.tj",
           "x": 288,
           "y": 704
         },
@@ -648,7 +648,7 @@
               "value": 172
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 544,
           "y": 96
         }
@@ -725,7 +725,7 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "source": "../editor/tileset_generic_platformer_tiles.tsj"
+      "source": "../entities/tileset_generic_platformer_tiles.tsj"
     }
   ],
   "tilewidth": 32,

@@ -31,6 +31,23 @@
   },
   "type": "template",
   "object": {
+    "properties": [
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 4
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      }
+    ],
     "gid": 1,
     "width": 32,
     "type": "ladder",

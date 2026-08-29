@@ -1,5 +1,6 @@
 local Log = require('src.utils.log')
 local EventBus = require('src.utils.event_bus')
+local SpriteProps = require('src.entities.sprite_props')
 
 local Cage = Class{__includes = Entity}
 
@@ -8,32 +9,30 @@ function Cage:init(object, map)
 	local color = object.properties.color
 	local position = Rect.centreOfMapObject(object)
 
-	-- visual footprint -- the collider below stays the map's 1x1 tile; the
-	-- bigger sprites are purely decorative art so the art can extend beyond
-	-- the tile the cage sits on. The box is 2x the tile, centred on the tile
-	-- centre, which would hang the art 16px past the tile's bottom; lift the
-	-- sprite by half the extra height so it sits back on the ground.
-	local sprite_shape = Rect.shapeArgs(object.width * 2, object.height * 2)
-	local sprite_position = position - Vector(0, object.height * 0.5)
-	self.sprite = self:addComponent(Sprite{
-		image='res/img/cage/cage.png',
-		frames=2,
-		duration=1.0,
-		loop=false,
-		position=sprite_position,
-		shape_arguments=sprite_shape,
-	})
+	-- The sprite fills the authored object's own rect, 1:1 -- like the
+	-- blocker. The template (cage.tj) is authored at the art size, so the
+	-- object box IS the visual footprint; no 2x box and no lift. Optional
+	-- `spriteOffsetY` (px, positive = down) nudges only the art, tuned from
+	-- the running game -- the collider below stays put.
+	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
+	local shape_arguments = Rect.shapeArgs(object.width, object.height)
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position + Vector(0, spriteOffsetY)
+	spriteProps.shape_arguments = shape_arguments
+	self.sprite = self:addComponent(Sprite(spriteProps))
 	self.lockSprite = self:addComponent(Sprite{
 		image=string.format('res/img/cage/cage_lock_%s.png', color),
 		frames=1,
 		duration=1.0,
 		loop=false,
-		position=sprite_position,
-		shape_arguments=sprite_shape,
+		position=position + Vector(0, spriteOffsetY),
+		shape_arguments=shape_arguments,
 	})
+	-- the use sensor follows the object's own rect too (bottom-flush): the
+	-- cage reads at its art footprint rather than a 1x1 tile
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',
-		shape_arguments={32, 32},
+		shape_arguments=shape_arguments,
 		body_type='static',
 		sensor=true,
 		position=position
@@ -65,9 +64,8 @@ function Cage:init(object, map)
 	
 	-- Spawn the NPC at the cage's own position (Tiled tile objects are
 	-- bottom-edge anchored). Use the original object so NPCBase.initPosition
-	-- computes the correct center via Rect.centreOfMapObject: for a tile object
-	-- at y (bottom edge), center is at y - height/2. With rabbit height 32,
-	-- this puts rabbit bottom exactly at the cage's bottom (object.y).
+	-- computes the center via Rect.centreOfMapObject; the spawn drop onto the
+	-- floor is tuned by the nudge below.
 	npcProps.x = object.x
 	npcProps.y = object.y
 	npcProps.width = object.width

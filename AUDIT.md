@@ -156,7 +156,7 @@ findings below document what was found and resolved, plus what remains.
 | 53 | "physics/ — Swappable backends (bump, love/Box2D)" — only bump/ exists |
 | 67, 114, 118, 200, 268 | Multiple references to love/Box2D backend and `conf.t.physics` |
 
-**Fix:** Remove all love/Box2D references; update module tree (§2) to include `res/bg/`, `res/editor/`, `src/npc/`, `src/ipc/`, `src/player/states/`, `src/emitters/`, `src/fx/`; add missing components (Sound, Tint, UsableSparkle, Pushable, SpeedStreak, Flash).
+**Fix:** Remove all love/Box2D references; update module tree (§2) to include `res/bg/`, `res/entities/`, `src/npc/`, `src/ipc/`, `src/player/states/`, `src/emitters/`, `src/fx/`; add missing components (Sound, Tint, UsableSparkle, Pushable, SpeedStreak, Flash).
 
 #### AUDIT.md — SUBSTANTIALLY STALE
 Previous audit's top priorities are all resolved:

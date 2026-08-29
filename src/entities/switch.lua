@@ -1,4 +1,5 @@
 local Log = require('src.utils.log')
+local SpriteProps = require('src.entities.sprite_props')
 
 local Switch = Class{__includes = Entity}
 
@@ -7,14 +8,10 @@ function Switch:init(object, map)
 	self.state = 'off'
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
-	self.sprite = self:addComponent(Sprite{
-		image='res/img/entity_switch.png',
-		frames=5,
-		position=position,
-		shape_arguments=shape_arguments,
-		duration=0.4,
-		loop=false
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position
+	spriteProps.shape_arguments = shape_arguments
+	self.sprite = self:addComponent(Sprite(spriteProps))
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',
 		shape_arguments=shape_arguments,

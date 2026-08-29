@@ -1,7 +1,7 @@
 {
   "tileset": {
-    "tilewidth": 128,
-    "name": "push_box",
+    "tilewidth": 250,
+    "name": "boulder",
     "version": "1.11",
     "columns": 0,
     "grid": {
@@ -13,16 +13,16 @@
     "tilecount": 1,
     "tiles": [
       {
-        "image": "../img/pushable_crate_wood.png",
-        "imageheight": 128,
+        "image": "../img/pushable_stone_block.png",
+        "imageheight": 250,
         "id": 0,
-        "imagewidth": 128
+        "imagewidth": 250
       }
     ],
     "spacing": 0,
     "margin": 0,
     "tiledversion": "1.12.2",
-    "tileheight": 128,
+    "tileheight": 250,
     "firstgid": 1
   },
   "type": "template",
@@ -34,15 +34,25 @@
         "value": false
       },
       {
-        "type": "file",
-        "name": "image",
-        "value": "../img/pushable_crate_wood.png"
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
       }
     ],
-    "type": "push_box",
+    "type": "boulder",
     "height": 32,
     "gid": 1,
     "width": 32,
-    "name": "push_box"
+    "name": "boulder"
   }
 }

@@ -2,7 +2,7 @@
 -- files so template-referencing objects resolve their type (which is the
 -- entity filename EntityFactory loads), plus inherit their gid/size and
 -- merge properties. See CONTEXT.md's "Object template" glossary entry /
--- NOTES.md for the resolution contract; sandbox.tmj references res/editor/*.tj templates.
+-- NOTES.md for the resolution contract; sandbox.tmj references res/entities/*.tj templates.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 

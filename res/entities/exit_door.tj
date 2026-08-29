@@ -31,10 +31,27 @@
   },
   "type": "template",
   "object": {
+    "properties": [
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 2
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      }
+    ],
     "type": "exit_door",
-    "height": 32,
+    "height": 64,
     "gid": 1,
-    "width": 32,
+    "width": 64,
     "name": "exit_door"
   }
 }

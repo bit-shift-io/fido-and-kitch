@@ -124,6 +124,18 @@ function Sprite:init(props)
 		draw = Sprite.draw_quad_frames
 	elseif type(frames) == 'string' then
 		frames = framesFromGlob(frames, props.frameCount, filter)
+	else
+		-- no frames authored: a single-frame sheet. Entities whose art comes
+		-- from a template always carry `frames`, but logic-only stubs (headless
+		-- tests with properties={}) may not -- degrade to one placeholder frame
+		-- the same way framesFromSheet already does without love.graphics.
+		framesPerImage = 1
+		draw = Sprite.draw_quad_frames
+		if image then
+			frames, image = framesFromSheet(image, 1, filter)
+		else
+			frames = {false}
+		end
 	end
 
 	self.frames = cloneArray(frames)

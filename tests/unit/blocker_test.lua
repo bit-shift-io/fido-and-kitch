@@ -89,9 +89,18 @@ end)
 
 local function makeBlocker(properties)
 	HeadlessBootstrap.resetWorld()
+	local props = {}
+	for k, v in pairs(properties or {}) do props[k] = v end
+	-- template art merged in-game (res/entities/blocker.tj); stubs mirror it so
+	-- the sprite animates over the real 48-frame gate sheet
+	props.image = props.image or 'res/img/entity_blocker.png'
+	props.frames = props.frames or 48
+	props.duration = props.duration or 2
+	props.loop = props.loop or false
+	props.playing = props.playing or false
 	return Blocker({
 		x = 128, y = 96, width = 32, height = 32,
-		properties = properties or {},
+		properties = props,
 	})
 end
 

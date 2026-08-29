@@ -14,6 +14,7 @@
 -- src/entities/drawbridge.lua. Only drawBubbleScreen touches love.graphics.
 
 local Story = Class{__includes = Entity}
+local SpriteProps = require('src.entities.sprite_props')
 
 local LETTER_COUNT = 4
 local LETTER_RATE = 25.6
@@ -292,14 +293,10 @@ function Story:init(object, map)
 
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
-	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/entity_wood_sign_post.png',
-		frames = 1,
-		duration = 1.0,
-		loop = false,
-		position = position,
-		shape_arguments = shape_arguments,
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position
+	spriteProps.shape_arguments = shape_arguments
+	self.sprite = self:addComponent(Sprite(spriteProps))
 	self.collider = self:addComponent(Collider{
 		shape_type = 'rectangle',
 		shape_arguments = shape_arguments,

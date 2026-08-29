@@ -33,6 +33,8 @@
 
 local Blocker = Class{__includes = Entity}
 
+local SpriteProps = require('src.entities.sprite_props')
+
 -- Passable in exactly one state. Every other state -- closed, and the whole
 -- opening animation -- blocks, so nothing slips through the gap while the
 -- blocker is raising, and a fresh switch flip snaps it solid immediately.
@@ -121,8 +123,10 @@ function Blocker:init(object)
 	-- it. The sandbox instance (blocker.tj at x=256, y=224, 32x64) therefore
 	-- occupies y=160..224 -- a 64px gate rising out of the walkway -- not
 	-- top-anchored at y=224..288, which hung the whole gate below the
-	-- passage. This is the same bottom-anchored centre the exit door lifts
-	-- its own 2x box from, minus the lift (there is no oversized box here).
+-- passage. This is the same bottom-anchored centre (Rect.centreOfMapObject)
+-- every gid entity uses -- and, like the cage/teleport/exit_door/drawbridge
+-- art boxes now, the blocker's is the authored object itself, so there is
+-- no oversized 2x box to lift.
 	local position = Rect.centreOfMapObject(object)
 
 	-- Optional visual-only offset, read from the Tiled object's custom
@@ -138,17 +142,10 @@ function Blocker:init(object)
 	-- wider sprite is purely decorative and must never be treated as a hint
 	-- about what blocks or what can be stood on
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
-	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/entity_blocker.png',
-		frames = 48,
-		-- the gate animation is 2s and purely cosmetic; the barrier opens on
-		-- the 1s telegraph timer regardless of where the art has got to
-		duration = 2,
-		loop = false,
-		playing = false,
-		position = position + Vector(0, spriteOffsetY),
-		shape_arguments = {spriteBoxWidth, spriteBoxHeight},
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position + Vector(0, spriteOffsetY)
+	spriteProps.shape_arguments = {spriteBoxWidth, spriteBoxHeight}
+	self.sprite = self:addComponent(Sprite(spriteProps))
 
 	-- start at rest closed: the gate fully lowered -- the FIRST frame of the
 	-- sheet -- with the timeline parked at its start so a later opening plays

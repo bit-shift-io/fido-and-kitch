@@ -23,7 +23,7 @@ local GROUND_ROW = MAP_HEIGHT -- 1-indexed: the bottom row
 local WATER_TILE_GID = 105
 
 local TILESETS = {
-	{firstgid = 1, source = '../../editor/tileset_generic_platformer_tiles.tsj'},
+	{firstgid = 1, source = '../../entities/tileset_generic_platformer_tiles.tsj'},
 }
 
 local function surfaceY(row)
@@ -31,13 +31,13 @@ local function surfaceY(row)
 end
 
 local function spawnObject(id, x, y)
-	return {id = id, template = '../../editor/spawn.tj', name = 'spawn', x = x, y = y}
+	return {id = id, template = '../../entities/spawn.tj', name = 'spawn', x = x, y = y}
 end
 
 local function exitObject(id, x, y, actorCount)
 	return {
 		id = id,
-		template = '../../editor/exit_door.tj',
+		template = '../../entities/exit_door.tj',
 		name = 'exit_door',
 		x = x,
 		y = y,
@@ -52,7 +52,7 @@ local function teleportObject(id, x, y, targetId, enabled)
 	end
 	return {
 		id = id,
-		template = '../../editor/teleport.tj',
+		template = '../../entities/teleport.tj',
 		name = 'teleport',
 		type = 'teleport',
 		x = x,
@@ -81,7 +81,7 @@ local function pressureSwitchObject(id, x, y, targetId)
 end
 
 local function pushBoxObject(id, x, y)
-	return {id = id, template = '../../editor/push_box.tj', name = 'push_box', type = 'push_box', x = x, y = y}
+	return {id = id, template = '../../entities/push_box.tj', name = 'push_box', type = 'push_box', x = x, y = y}
 end
 
 local function killZoneObject(id, hazard)
@@ -100,7 +100,7 @@ end
 local function keyObject(id, x, y, color)
 	return {
 		id = id,
-		template = '../../editor/key.tj',
+		template = '../../entities/key.tj',
 		name = 'key',
 		type = 'key',
 		x = x,
@@ -112,7 +112,7 @@ end
 local function cageObject(id, x, y, color)
 	return {
 		id = id,
-		template = '../../editor/cage.tj',
+		template = '../../entities/cage.tj',
 		name = 'cage',
 		type = 'cage',
 		x = x,
@@ -270,7 +270,7 @@ local function buildTerrain(seed, opts)
 		for y = top + TILE, surfaceY(ladder.yBottom), TILE do
 			table.insert(ladderObjects, {
 				id = rungId,
-				template = '../../editor/ladder.tj',
+				template = '../../entities/ladder.tj',
 				x = x,
 				y = y,
 			})
@@ -301,7 +301,7 @@ local function baseMapFields(seed, layout, description, background)
 end
 
 local function coinObject(id, x, y)
-	return {id = id, template = '../../editor/coin.tj', name = 'coin', type = 'coin', x = x, y = y}
+	return {id = id, template = '../../entities/coin.tj', name = 'coin', type = 'coin', x = x, y = y}
 end
 
 local function enemyObject(id, x, y, enemyType)

@@ -6,6 +6,7 @@
 -- and switch start/stop. The grilled decisions live in NOTES.md.
 
 local MoverPlatform = Class{__includes = Entity}
+local SpriteProps = require('src.entities.sprite_props')
 
 -- Feet-in-top-band tolerance for rider detection, in px. Must be >= the
 -- platform's worst per-frame rise (speed * dt): at default 100px/s and 60fps
@@ -186,11 +187,9 @@ function MoverPlatform:init(object, map)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
-	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/entity_mover_platform.png',
-		frames = 1,
-		shape_arguments = shape_arguments,
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.shape_arguments = shape_arguments
+	self.sprite = self:addComponent(Sprite(spriteProps))
 
 	-- solid, walkable ground (platforms carry standing players); manually
 	-- moved each update() along the path -- a static body so gravity/motion
@@ -231,10 +230,12 @@ function MoverPlatform:init(object, map)
 	end
 	self.collider:setColFilterFn(platformColFilter)
 
-	-- props, with the defaults settled in NOTES.md
-	self.speed = tonumber(object.properties.speed) or 100
+	-- props, with the defaults settled in NOTES.md (speed 50, pause 0.5 and
+	-- endBehavior 'pingpong' now come from mover_platform.tj, so the lua
+	-- fallbacks exist only for objects authored without the template)
+	self.speed = tonumber(object.properties.speed) or 50
 	self.endBehavior = object.properties.endBehavior or 'pingpong'
-	self.pause = tonumber(object.properties.pause) or 0
+	self.pause = tonumber(object.properties.pause) or 0.5
 	self.enabled = true
 	if object.properties.enabled ~= nil and object.properties.enabled ~= true then
 		self.enabled = false

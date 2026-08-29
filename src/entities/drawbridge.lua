@@ -22,6 +22,7 @@
 -- enables.
 
 local Drawbridge = Class{__includes = Entity}
+local SpriteProps = require('src.entities.sprite_props')
 
 -- centre-offset (from the bridge tile's own centre) for the arrival-side
 -- trigger sensor, positioned flush against the gap's edge -- not a full
@@ -52,13 +53,16 @@ local function spriteFacing(crossingDirection)
 	return 'right'
 end
 
--- the sprite draws 2x the object's own tile dimensions, centred on the
--- object tile -- half a tile of bleed in every direction so the art can key
--- into the surrounding environment. Derived from the object's own size
--- rather than a hard-coded pixel value so it survives a tile-size change.
--- Purely visual: the deck and trigger colliders stay one tile each.
+-- The sprite fills the authored object's own rect, 1:1 -- like the
+-- blocker. The drawbridge template is authored at the art size (64x64
+-- against the 64px-wide drawbridge frames), so drawing at the object's own
+-- size reproduces the editor placement exactly, with no bleed and no
+-- stretch. (The old 2x box existed only because the template was a 32x32
+-- object; once the art box is authored at the true size, 2x would distort.)
+-- Purely visual: the deck and trigger colliders stay one tile each, sized
+-- by the colliderWidth/colliderHeight template props -- see init.
 local function spriteBoxDimensions(objectWidth, objectHeight)
-	return objectWidth * 2, objectHeight * 2
+	return objectWidth, objectHeight
 end
 
 local function isDeckSolid(state)
@@ -134,31 +138,37 @@ function Drawbridge:init(object)
 	self.latchedOpen = false
 
 	self.rect = Rect(object)
-	local shape_arguments = self.rect:colliderShapeArgs()
-	local position = self.rect:centre()
 
 	self.crossingDirection = (object.properties and object.properties.crossingDirection) or 'leftToRight'
 
-	-- visual footprint only -- the deck and trigger colliders below stay one
-	-- tile each; the bigger sprite is purely decorative bleed and must never
-	-- be treated as a hint about what a player can stand on
+	-- The object rect is the ART box (drawbridge.tj: 64x64); the sprite
+	-- fills it 1:1, centred on it, plus an optional author-side
+	-- `spriteOffsetY` (px, positive = down) that moves only the art -- the
+	-- colliders below never follow it.
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
+	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
+	local spritePosition = self.rect:centre()
 
-	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/entity_drawbridge.png',
-		frames = 4,
-		-- fast enough that the deck finishes lowering while the entity that
-		-- triggered it (walking from the thin lead-in sensor flush against
-		-- the gap) is still on or approaching the tile, not long after
-		-- they've already crossed and left
-		duration = 0.3,
-		loop = false,
-		playing = false,
-		position = position,
-		shape_arguments = {spriteBoxWidth, spriteBoxHeight},
-		facing = spriteFacing(self.crossingDirection),
-		finish = utils.bindSelf(self.onAnimationFinish, self),
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = spritePosition + Vector(0, spriteOffsetY)
+	spriteProps.shape_arguments = {spriteBoxWidth, spriteBoxHeight}
+	spriteProps.facing = spriteFacing(self.crossingDirection)
+	spriteProps.finish = utils.bindSelf(self.onAnimationFinish, self)
+
+	self.sprite = self:addComponent(Sprite(spriteProps))
+
+	-- The gameplay footprint is independent of the art box: the deck,
+	-- trigger, and occupancy geometry derive from the colliderWidth/
+	-- colliderHeight template props (drawbridge.tj: one tile each -- 32x32),
+	-- anchored at the object's own corner, so doubling the art box to the
+	-- true 64px frame never moves the colliders the author placed over the
+	-- gap. Falling back to the object's own size means a map that omits the
+	-- props (or a headless test stub) still gets a deck.
+	local colliderWidth = tonumber(object.properties.colliderWidth) or self.rect.width
+	local colliderHeight = tonumber(object.properties.colliderHeight) or self.rect.height
+	self.rect = Rect{x = self.rect.x, y = self.rect.y, width = colliderWidth, height = colliderHeight}
+	local shape_arguments = self.rect:colliderShapeArgs()
+	local position = self.rect:centre()
 
 	-- solid walkable ground while open/opening/closing, absent while closed
 	-- (closed leaves the gap fully exposed -- no barrier; the wrong side is

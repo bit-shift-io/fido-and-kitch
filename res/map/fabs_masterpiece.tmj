@@ -45,79 +45,79 @@
       "objects": [
         {
           "id": 111,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 288,
           "y": 384
         },
         {
           "id": 112,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 288,
           "y": 352
         },
         {
           "id": 113,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 288,
           "y": 320
         },
         {
           "id": 114,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 288,
           "y": 288
         },
         {
           "id": 115,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 288,
           "y": 256
         },
         {
           "id": 116,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 288,
           "y": 224
         },
         {
           "id": 117,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 320,
           "y": 512
         },
         {
           "id": 118,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 320,
           "y": 480
         },
         {
           "id": 119,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 320,
           "y": 448
         },
         {
           "id": 120,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 320,
           "y": 416
         },
         {
           "id": 121,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 608
         },
         {
           "id": 122,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 576
         },
         {
           "id": 123,
-          "template": "../editor/ladder.tj",
+          "template": "../entities/ladder.tj",
           "x": 96,
           "y": 544
         }
@@ -185,7 +185,7 @@
       "objects": [
         {
           "id": 86,
-          "template": "../editor/drawbridge.tj",
+          "template": "../entities/drawbridge.tj",
           "x": 384,
           "y": 192
         },
@@ -199,7 +199,7 @@
               "value": 63
             }
           ],
-          "template": "../editor/teleport.tj",
+          "template": "../entities/teleport.tj",
           "x": 288,
           "y": 608
         },
@@ -212,13 +212,13 @@
               "value": "../img/coins.png"
             }
           ],
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 640,
           "y": 352
         },
         {
           "id": 38,
-          "template": "../editor/spawn.tj",
+          "template": "../entities/spawn.tj",
           "x": 32,
           "y": 576
         },
@@ -242,7 +242,7 @@
               "value": "bird"
             }
           ],
-          "template": "../editor/cage.tj",
+          "template": "../entities/cage.tj",
           "x": 192,
           "y": 384
         },
@@ -255,7 +255,7 @@
               "value": 2
             }
           ],
-          "template": "../editor/exit_door.tj",
+          "template": "../entities/exit_door.tj",
           "x": 0,
           "y": 576
         },
@@ -273,14 +273,14 @@
               "value": 43
             }
           ],
-          "template": "../editor/switch.tj",
+          "template": "../entities/switch.tj",
           "x": 480,
           "y": 192
         },
         {
           "id": 62,
           "name": "red_key",
-          "template": "../editor/key.tj",
+          "template": "../entities/key.tj",
           "x": 224,
           "y": 608
         },
@@ -294,7 +294,7 @@
               "value": 26
             }
           ],
-          "template": "../editor/teleport.tj",
+          "template": "../entities/teleport.tj",
           "x": 704,
           "y": 608
         },
@@ -312,7 +312,7 @@
               "value": 73
             }
           ],
-          "template": "../editor/jump_pad.tj",
+          "template": "../entities/jump_pad.tj",
           "x": 864,
           "y": 608
         },
@@ -336,7 +336,7 @@
               "value": "rabbit"
             }
           ],
-          "template": "../editor/cage.tj",
+          "template": "../entities/cage.tj",
           "x": 672,
           "y": 256
         },
@@ -350,7 +350,7 @@
               "value": "blue"
             }
           ],
-          "template": "../editor/key.tj",
+          "template": "../entities/key.tj",
           "x": 704,
           "y": 544
         },
@@ -363,7 +363,7 @@
               "value": true
             }
           ],
-          "template": "../editor/push_box.tj",
+          "template": "../entities/push_box.tj",
           "x": 768,
           "y": 544
         },
@@ -400,7 +400,7 @@
               "value": "Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"
             }
           ],
-          "template": "../editor/story.tj",
+          "template": "../entities/story.tj",
           "x": 800,
           "y": 256
         },
@@ -413,7 +413,7 @@
               "value": "The inside of this automaton engine isn't made of pistons—it’s an empty nest lined with soft wool and old ribbons. Whatever was kept inside here was taken out very recently."
             }
           ],
-          "template": "../editor/story.tj",
+          "template": "../entities/story.tj",
           "x": 512,
           "y": 352
         },
@@ -426,7 +426,7 @@
               "value": "../img/coins.png"
             }
           ],
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 640,
           "y": 352
         },
@@ -439,7 +439,7 @@
               "value": "../img/coins.png"
             }
           ],
-          "template": "../editor/coin.tj",
+          "template": "../entities/coin.tj",
           "x": 928,
           "y": 448
         },
@@ -457,7 +457,7 @@
               "value": 108
             }
           ],
-          "template": "../editor/jump_pad.tj",
+          "template": "../entities/jump_pad.tj",
           "x": 480,
           "y": 544
         }
@@ -885,7 +885,7 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "source": "../editor/tileset_generic_platformer_tiles.tsj"
+      "source": "../entities/tileset_generic_platformer_tiles.tsj"
     }
   ],
   "tilewidth": 32,

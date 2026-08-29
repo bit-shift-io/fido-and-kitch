@@ -15,7 +15,7 @@ test('a gid-less object is top-anchored -- its centre is half a tile below its y
 	assertEqual(208, centreY)
 end)
 
--- A tile object (with a gid, which is what res/editor/push_box.tj
+-- A tile object (with a gid, which is what res/entities/push_box.tj
 -- produces when dragged in from Tiled's palette) is BOTTOM-anchored: Tiled's
 -- y is the tile's bottom edge, so the centre sits half a tile ABOVE it. Same
 -- convention src/entities/switch.lua already assumes for its gid object.

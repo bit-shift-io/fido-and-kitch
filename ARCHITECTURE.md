@@ -16,7 +16,7 @@
 * **Tweening:** hump.tween
 * **Vector Math:** hump.vector
 * **Map Loader:** STI (Simple Tiled Implementation) — loads maps; `.tmj` sources are parsed directly (via `src/map/tmj.lua`) then fed to STI
-* **Tiled Map Editor:** `.tmj` sources in `res/map/`; external templates (`.tj`) and tilesets (`.tsj`) in `res/editor/`
+* **Tiled Map Editor:** `.tmj` sources in `res/map/`; external templates (`.tj`) and tilesets (`.tsj`) in `res/entities/`
 * **Testing:** Headless Lua tests in `tests/` (run via `./test-unit.sh`)
 
 ---
@@ -48,7 +48,7 @@
 │   ├── world.lua         # Collider/World physics API backed by bump
 │   ├── map/              # Map system (init, entity_factory, collision_builder, ladder_merger, parallax_renderer, tmj, tj_template, tj_tileset, map_parallax)
 │   ├── components/       # Reusable components (Collider, Sprite, StateMachine, Inventory, Pickup, Usable, Switchable, Variable, Flash, Timeline, Path, PathFollow, Sound, Tint, UsableSparkle, Pushable, SpeedStreak)
-│   ├── entities/         # Map entity implementations; Tiled object `type` must match filename (key → src/entities/key.lua)
+│   ├── entities/         # Map entity implementations; Tiled object `type` must match filename (key → src/entities/key.lua); sprite art comes from the entity's template via src/entities/sprite_props.lua (SpriteProps.fromObject)
 │   ├── player/           # Player entity + subsystems (states/, movement, sensors, lives, safe-position)
 │   ├── npc/              # NPC base, config, locomotion, registry, states/
 │   ├── ipc/              # TCP IPC server + command handlers (OpenCode control layer)
@@ -60,7 +60,7 @@
 ├── res/
 │   ├── map/              # Tiled .tmj sources (run directly; exported .lua maps are legacy)
 │   ├── bg/               # Parallax background presets (image-layer .tmj)
-│   ├── editor/           # Tiled project, object templates (.tj) and tilesets (.tsj)
+│   ├── entities/           # Tiled object templates (.tj) and tilesets (.tsj)
 │   ├── img/              # Textures
 │   ├── snd/              # Sound effects
 │   └── fnt/              # Fonts
@@ -131,6 +131,7 @@
 
 ### 3.8 Map Entities (`src/entities/`)
 * **Convention**: New entity = new file `src/entities/<type>.lua` + Tiled object with matching `type`.
+* **Sprite data**: art (frames, duration, loop, playing, scaleX/scaleY) is authored in `res/entities/<type>.tj` and merged into the object at load; the sprite `image` comes from the template's inline tileset tile (`tilesetImage`, injected into `object.properties.image` by both `tmj.lua parseObject` and `entity_factory:_mergeTemplateProps`). Entities read the merged props via `src/entities/sprite_props.lua` (`SpriteProps.fromObject(object)`), keeping sprite bodies free of art literals. `entity_factory` auto-applies a template's defaults to template-less runtime-mock objects (replicator spawns, cage NPCs, IPC spawns).
 * **Examples**: `key`, `cage`, `switch`, `exit_door`, `ladder`, `kill_zone`, `jump_pad`, `teleport`, `bird`, `coin`, `variable`, `story`.
 * **`story`**: invisible trigger; shows a screen-space typewriter speech bubble on `use` (see CONTEXT.md 'Story entity').
 * **Map Hooks**: Tiled object properties may contain Lua snippets (`onUse`, `onTrigger`, etc.) executed via `object:exec`.
@@ -267,7 +268,7 @@ Player:update → queryKillZone() → die(deathType)
 | `src/game.lua` | Top-level Game object, state FSM (wires `src/states/` stateClasses) |
 | `src/map.lua` | Thin STI wrapper, delegates to `src/map/init.lua` |
 | `src/map/init.lua` | Map class: STI/JSON loading, entities, collisions, boundaries |
-| `src/map/tmj.lua` | JSON map parser (the only loader), resolves `.tj` templates / `.tsj` tilesets |
+| `src/map/tmj.lua` | JSON map parser (the only loader), resolves `.tj` templates / `.tsj` tilesets, path-normalises `file`-typed props (`format_path`) |
 | `src/map/entity_factory.lua` | Tiled object → runtime entity instantiation, ladder annotation |
 | `src/map/ladder_merger.lua` | Pure per-rung → merged ladder rect grouping |
 | `src/map/collision_builder.lua` | Static bodies from collision layers + map boundaries |

@@ -14,8 +14,9 @@ local PushableProp = {}
 
 -- spec fields:
 --   type   entity type string (Entity.init's self.type)
---   image  runtime sprite path (the map object's own `image` property is
---          for Tiled's preview only, ignored here -- matches switch.lua)
+--   sprite(object, shape_arguments) -> Sprite{} constructor props (art now
+--          comes from the entity's template via the SpriteProps helper, so
+--          the map object's own `image` property is no longer ignored)
 --   mode   passed straight through to Pushable{} (nil = box, 'roll' = boulder)
 function PushableProp.define(spec)
 	local Prop = Class{__includes = Entity}
@@ -27,14 +28,7 @@ function PushableProp.define(spec)
 		local position = Vector(centreX, centreY)
 		local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
-		self.sprite = self:addComponent(Sprite{
-			image = spec.image,
-			frames = 1,
-			duration = 1.0,
-			loop = false,
-			position = position,
-			shape_arguments = shape_arguments,
-		})
+		self.sprite = self:addComponent(Sprite(spec.sprite(object, shape_arguments)))
 
 		self.collider = self:addComponent(Collider{
 			shape_type = 'rectangle',

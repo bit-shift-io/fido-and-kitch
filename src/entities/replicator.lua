@@ -16,6 +16,7 @@
 -- the decided contract.
 
 local Replicator = Class{__includes = Entity}
+local SpriteProps = require('src.entities.sprite_props')
 
 local DEFAULT_SPAWN_TYPE = 'push_box'
 local DEFAULT_MAX_SPAWNS = 1
@@ -53,14 +54,10 @@ function Replicator:init(object, map)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
-	self.sprite = self:addComponent(Sprite{
-		image = 'res/img/default.png',
-		frames = 1,
-		duration = 1.0,
-		loop = false,
-		position = position,
-		shape_arguments = shape_arguments,
-	})
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position
+	spriteProps.shape_arguments = shape_arguments
+	self.sprite = self:addComponent(Sprite(spriteProps))
 
 	-- props with the defaults settled in NOTES.md
 	self.spawnType = object.properties.spawnType or DEFAULT_SPAWN_TYPE
