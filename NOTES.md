@@ -78,11 +78,19 @@ colliders are independent of the visuals where that matters.
 
 ## Sprite offsets
 
-`spriteOffsetY` (px, positive = down) is the general authorable vertical knob
-for sprite art, applied to `sprite.position` only — colliders never move with
-it (blocker's original pattern). `cage.lua`/`teleport.lua`/`exit_door.lua`/
-`drawbridge.lua` now read `tonumber(object.properties.spriteOffsetY) or 0`.
-Written into a template only where the art needs it (blocker.tj: -6).
+`spriteOffsetX`/`spriteOffsetY` (px, positive = right/down) are the general
+authorable knobs for sprite art, applied to `sprite.position` only — colliders
+never move with them (blocker's original pattern). `cage.lua`/`teleport.lua`/
+`exit_door.lua` read Y (`tonumber(object.properties.spriteOffsetY) or 0`);
+`drawbridge.lua` reads both X and Y. Written into a template only where the art
+needs it (blocker.tj: -6; drawbridge.tj carries both at 0 for authoring).
+
+`colliderOffsetX`/`colliderOffsetY` (px, positive = right/down) are the
+mirror knobs for the gameplay footprint: `drawbridge.lua` shifts the
+colliderWidth/Height rect origin (so deck, trigger, and occupancy all move
+together) without touching the art. This is the "collision independent of the
+visual" case expressed as offsets, symmetric to the sprite offsets — art knobs
+never move colliders and vice versa, so the two never double-apply.
 
 ## Side effects (accepted, author to fix later)
 
@@ -92,8 +100,9 @@ right (+16px up for drawbridge's art box) on every current placement in
 `res/map/*`. Test fixtures (`tests/fixtures/*.tmj`) carry explicit 32x32 and no
 template refs, so they are shielded and keep the old footprint. Deal: **the
 editor shows the true art now; re-place/re-scale instances and tune gameplay
-positions later.** `spriteOffsetX` is a possible future knob if the +16 lands
-wrong; not added yet.
+positions later.** `drawbridge.tj` now carries `spriteOffsetX`/`spriteOffsetY`
+as authoring knobs so the art can be nudged to match the deck in-game if the
++16 lands wrong.
 
 ## Deferred
 

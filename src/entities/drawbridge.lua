@@ -142,15 +142,16 @@ function Drawbridge:init(object)
 	self.crossingDirection = (object.properties and object.properties.crossingDirection) or 'leftToRight'
 
 	-- The object rect is the ART box (drawbridge.tj: 64x64); the sprite
-	-- fills it 1:1, centred on it, plus an optional author-side
-	-- `spriteOffsetY` (px, positive = down) that moves only the art -- the
-	-- colliders below never follow it.
+	-- fills it 1:1, centred on it, plus optional author-side
+	-- `spriteOffsetX`/`spriteOffsetY` (px, positive = right/down) that move
+	-- only the art -- the colliders below never follow them.
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
+	local spriteOffsetX = tonumber(object.properties.spriteOffsetX) or 0
 	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
 	local spritePosition = self.rect:centre()
 
 	local spriteProps = SpriteProps.fromObject(object)
-	spriteProps.position = spritePosition + Vector(0, spriteOffsetY)
+	spriteProps.position = spritePosition + Vector(spriteOffsetX, spriteOffsetY)
 	spriteProps.shape_arguments = {spriteBoxWidth, spriteBoxHeight}
 	spriteProps.facing = spriteFacing(self.crossingDirection)
 	spriteProps.finish = utils.bindSelf(self.onAnimationFinish, self)
@@ -160,13 +161,22 @@ function Drawbridge:init(object)
 	-- The gameplay footprint is independent of the art box: the deck,
 	-- trigger, and occupancy geometry derive from the colliderWidth/
 	-- colliderHeight template props (drawbridge.tj: one tile each -- 32x32),
-	-- anchored at the object's own corner, so doubling the art box to the
-	-- true 64px frame never moves the colliders the author placed over the
-	-- gap. Falling back to the object's own size means a map that omits the
-	-- props (or a headless test stub) still gets a deck.
+	-- anchored at the object's own corner (plus optional colliderOffsetX/Y
+	-- author nudges, symmetric to the sprite offsets), so doubling the art
+	-- box to the true 64px frame -- or moving the art in the editor -- never
+	-- drags the colliders the author placed over the gap. Falling back to the
+	-- object's own size means a map that omits the props (or a headless test
+	-- stub) still gets a deck.
 	local colliderWidth = tonumber(object.properties.colliderWidth) or self.rect.width
 	local colliderHeight = tonumber(object.properties.colliderHeight) or self.rect.height
-	self.rect = Rect{x = self.rect.x, y = self.rect.y, width = colliderWidth, height = colliderHeight}
+	local colliderOffsetX = tonumber(object.properties.colliderOffsetX) or 0
+	local colliderOffsetY = tonumber(object.properties.colliderOffsetY) or 0
+	self.rect = Rect{
+		x = self.rect.x + colliderOffsetX,
+		y = self.rect.y + colliderOffsetY,
+		width = colliderWidth,
+		height = colliderHeight,
+	}
 	local shape_arguments = self.rect:colliderShapeArgs()
 	local position = self.rect:centre()
 

@@ -211,27 +211,32 @@ local function spawnOccupant(x, y)
 	return occupant
 end
 
-local function makeBridge(crossingDirection)
+local function makeBridge(crossingDirection, extraProps)
 	HeadlessBootstrap.resetWorld()
+	extraProps = extraProps or {}
+	local properties = {
+		crossingDirection = crossingDirection,
+		-- template art merged in-game (res/entities/drawbridge.tj); the
+		-- image now comes from the template's inline tileset tile and the
+		-- loader injects it into merged properties, so the stub mirrors
+		-- that to cut the real 4-frame sheet...
+		image = 'res/img/entity_drawbridge.png',
+		frames = 4,
+		duration = 0.3,
+		loop = false,
+		playing = false,
+		-- ...and the gameplay footprint stays one tile (the sprite box is
+		-- the 64x64 art box above; the deck/trigger/occupancy colliders
+		-- derive from these props, exactly like the real template)
+		colliderWidth = 32,
+		colliderHeight = 32,
+	}
+	for k, v in pairs(extraProps) do
+		properties[k] = v
+	end
 	return Drawbridge({
 		x = 128, y = 96, width = 64, height = 64,
-		properties = {
-			crossingDirection = crossingDirection,
-			-- template art merged in-game (res/entities/drawbridge.tj); the
-			-- image now comes from the template's inline tileset tile and the
-			-- loader injects it into merged properties, so the stub mirrors
-			-- that to cut the real 4-frame sheet...
-			image = 'res/img/entity_drawbridge.png',
-			frames = 4,
-			duration = 0.3,
-			loop = false,
-			playing = false,
-			-- ...and the gameplay footprint stays one tile (the sprite box is
-			-- the 64x64 art box above; the deck/trigger/occupancy colliders
-			-- derive from these props, exactly like the real template)
-			colliderWidth = 32,
-			colliderHeight = 32,
-		},
+		properties = properties,
 	})
 end
 
@@ -241,6 +246,38 @@ test('constructs headless with a real Sprite/Collider/World stack, closed and no
 	assertEqual('closed', bridge.state)
 	assertTrue(bridge.deck:isSensor(), 'closed deck should be a sensor -- gap fully exposed, no barrier')
 	assertEqual(4, #bridge.sprite.frames)
+end)
+
+test('spriteOffsetX/spriteOffsetY shift only the sprite -- the deck keeps the authored rect', function()
+	local plain = makeBridge('leftToRight')
+
+	assertEqual(160, plain.sprite.position.x, 'no offset: the sprite sits on the art box centre')
+	assertEqual(128, plain.sprite.position.y, 'no offset: the sprite sits on the art box centre')
+
+	local nudged = makeBridge('leftToRight', { spriteOffsetX = 8, spriteOffsetY = -16 })
+
+	assertEqual(168, nudged.sprite.position.x, 'positive X offset moves the art right')
+	assertEqual(112, nudged.sprite.position.y, 'negative Y offset lifts the art')
+	local deckPos = nudged.deck:getPositionV()
+	assertEqual(144, deckPos.x, 'the deck collider never follows the art offset')
+	assertEqual(112, deckPos.y, 'the deck collider never follows the art offset')
+end)
+
+test('colliderOffsetX/colliderOffsetY shift only the gameplay footprint -- the art keeps its centre', function()
+	local plain = makeBridge('leftToRight')
+
+	local shifted = makeBridge('leftToRight', { colliderOffsetX = 8, colliderOffsetY = -16 })
+
+	assertEqual(160, shifted.sprite.position.x, 'the art never follows the collider offset')
+	assertEqual(128, shifted.sprite.position.y, 'the art never follows the collider offset')
+	local deckPos = shifted.deck:getPositionV()
+	assertEqual(152, deckPos.x, 'positive X offset moves the deck right')
+	assertEqual(96, deckPos.y, 'negative Y offset lifts the deck')
+	assertEqual(136, shifted.rect.x, 'gameplay rect origin carries the X offset')
+	assertEqual(80, shifted.rect.y, 'gameplay rect origin carries the Y offset')
+	local plainPos = plain.deck:getPositionV()
+	assertEqual(144, plainPos.x, 'no offset: deck sits on the object corner')
+	assertEqual(112, plainPos.y, 'no offset: deck sits on the object corner')
 end)
 
 test('leftToRight construction places the trigger left of the deck and faces the sprite right', function()

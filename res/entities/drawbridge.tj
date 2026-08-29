@@ -38,6 +38,16 @@
         "value": "leftToRight"
       },
       {
+        "type": "float",
+        "name": "spriteOffsetX",
+        "value": 0
+      },
+      {
+        "type": "float",
+        "name": "spriteOffsetY",
+        "value": -64
+      },
+      {
         "type": "int",
         "name": "frames",
         "value": 4
@@ -66,6 +76,16 @@
         "type": "int",
         "name": "colliderHeight",
         "value": 32
+      },
+      {
+        "type": "float",
+        "name": "colliderOffsetX",
+        "value": 32
+      },
+      {
+        "type": "float",
+        "name": "colliderOffsetY",
+        "value": -32
       }
     ],
     "type": "drawbridge",
