@@ -177,15 +177,32 @@ end
 
 --- Resolves template-local gid into map-global gid using the tileset allocator.
 -- External template tilesets (.tsj source) resolve by path; embedded template
--- tilesets (no source) resolve by matching/auto-registering on identity.
+-- tilesets (no source) resolve by matching against the map's declared
+-- tilesets on identity.
+--
+-- Entity-specific template tilesets are not part of the map: the map's
+-- tilesets array declares only the tilesets the map's TILE layers use. When
+-- the template's tileset is not declared, an inert NEGATIVE marker gid is
+-- returned instead of registering the tileset into the map (registering it
+-- would allocate firstgids inside the declared tilesets' gid domain and the
+-- tile layers' low gids would render the wrong textures). The marker is
+-- truthy for anchor semantics (NPCBase/cage/map_card check `if object.gid`)
+-- and ignored by STI's decorative object batching (`gid > 0` required).
+local GID_MARKER = -1
 local function resolveTemplateGid(template, firstgidFor, firstgidForEmbedded, deps)
 	local tmpl = template
 	if tmpl.object.gid then
 		if tmpl.tilesetRef then
 			local mapFirstgid = firstgidFor(tmpl.tilesetRef.path, deps)
+			if not mapFirstgid then
+				return GID_MARKER
+			end
 			return tmpl.object.gid - tmpl.tilesetRef.firstgid + mapFirstgid
 		elseif tmpl.tilesetEmbedded then
 			local mapFirstgid = firstgidForEmbedded(tmpl.tilesetEmbedded, tmpl.dir, deps)
+			if not mapFirstgid then
+				return GID_MARKER
+			end
 			return tmpl.object.gid - (tmpl.tilesetEmbedded.firstgid or 1) + mapFirstgid
 		end
 	end
@@ -534,38 +551,39 @@ function Tmj.parse(tmjPath)
 	}
 	for _, ts in ipairs(mapData.tilesets) do
 		local firstgid = tonumber(ts.firstgid)
+		local trueCount = 0
 		if ts.source then
 			-- Track external tileset by its .tsj path
 			local tsxPath = stiUtils.format_path(mapDir .. ts.source)
 			allocator.byPath[tsxPath] = firstgid
+			-- An external tileset entry in the tmj carries only a source ref,
+			-- no tilecount; resolve it so nextFirstgid reflects the tileset's
+			-- true footprint (the tile layer's gids are all inside it).
+			local resolved = TjTileset.resolve(tsxPath, firstgid, { readFile = readFile })
+			trueCount = resolved.tilecount or 0
 		else
 			-- Embedded tileset - track by image path
 			local resolved = resolveEmbeddedTileset(ts, firstgid, mapDir)
 			allocator.byPath[resolved.image and resolved.image:gsub('^%.%.', '') or ''] = firstgid
+			trueCount = tonumber(ts.tilecount) or 0
 		end
 		if firstgid >= allocator.nextFirstgid then
-			allocator.nextFirstgid = firstgid + (ts.tilecount or 0)
+			allocator.nextFirstgid = firstgid + trueCount
 		end
 	end
 
 	local function firstgidFor(tsxPath, deps)
-		local existing = allocator.byPath[tsxPath]
-		if existing then
-			return existing
-		end
-
-		local firstgid = allocator.nextFirstgid
-		local resolved = TjTileset.resolve(tsxPath, firstgid, deps)
-		table.insert(allocator.tilesets, { name = resolved.name, firstgid = firstgid, filename = tsxPath })
-		allocator.byPath[tsxPath] = firstgid
-		allocator.nextFirstgid = firstgid + (resolved.tilecount or 0)
-		return firstgid
+		-- Look-up only: an external tileset is mapped only if the map declares
+		-- it. Entity-specific template tilesets are intentionally NOT
+		-- registered into the map (see resolveTemplateGid's doc), so a miss
+		-- here means the template object's gid falls back to the marker.
+		return allocator.byPath[tsxPath]
 	end
 
 	-- Resolve an embedded template tileset's map-global firstgid. Matches it
-	-- against the map's declared tilesets by identity; if the map doesn't
-	-- declare it, auto-registers it (matching Tiled's own behaviour, and the
-	-- external .tsj path's auto-registration above).
+	-- against the map's DECLARED tilesets by identity and returns nil when
+	-- none matches: entity-specific template tilesets are never auto-registered
+	-- into the map's tilesets (they belong to the entity, not the map).
 	-- @param embedTs Raw embedded tileset table from the .tj.
 	-- @param templateDir Template's directory (for resolving image paths).
 	local function firstgidForEmbedded(embedTs, templateDir, deps)
@@ -573,24 +591,14 @@ function Tmj.parse(tmjPath)
 		local shape = resolveEmbeddedTileset(embedTs, embedTs.firstgid or 1, tsDir)
 		local key = embeddedTilesetKey(shape)
 
-		-- Match against tilesets already in the map (declared or registered).
+		-- Match against tilesets already in the map (declared ones only).
 		for _, existing in ipairs(map.tilesets) do
 			if embeddedKeyEquals(key, embeddedTilesetKey(existing)) then
 				return existing.firstgid
 			end
 		end
 
-		local cached = allocator.byEmbedded[embeddedKeySig(key)]
-		if cached then
-			return cached
-		end
-
-		local firstgid = allocator.nextFirstgid
-		shape.firstgid = firstgid
-		table.insert(map.tilesets, shape)
-		allocator.byEmbedded[embeddedKeySig(key)] = firstgid
-		allocator.nextFirstgid = firstgid + (shape.tilecount or 0)
-		return firstgid
+		return nil
 	end
 
 	-- Parse layers

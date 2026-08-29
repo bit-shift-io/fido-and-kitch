@@ -196,44 +196,33 @@
                  "x":288,
                  "y":608
                 }, 
-                {
-                 "id":36,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/coins.png"
-                        }],
-                 "template":"..\/entities\/coin.tj",
-                 "x":640,
-                 "y":352
-                }, 
+{
+                  "id":36,
+                  "template":"..\/entities\/coin.tj",
+                  "x":640,
+                  "y":352
+                 },
                 {
                  "id":38,
                  "template":"..\/entities\/spawn.tj",
                  "x":32,
                  "y":576
                 }, 
-                {
-                 "id":41,
-                 "name":"red_cage",
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/cage\/cage.png"
-                        }, 
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":67
-                        }, 
-                        {
-                         "name":"spawn_type",
-                         "type":"string",
-                         "value":"bird"
-                        }],
-                 "template":"..\/entities\/cage.tj",
+{
+                  "id":41,
+                  "name":"red_cage",
+                  "properties":[
+                         {
+                          "name":"path",
+                          "type":"object",
+                          "value":67
+                         }, 
+                         {
+                          "name":"spawn_type",
+                          "type":"string",
+                          "value":"bird"
+                         }],
+                  "template":"..\/entities\/cage.tj",
                  "x":192,
                  "y":384
                 }, 
@@ -249,20 +238,15 @@
                  "x":0,
                  "y":576
                 }, 
-                {
-                 "id":44,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/entity_switch.png"
-                        }, 
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":43
-                        }],
-                 "template":"..\/entities\/switch.tj",
+{
+                  "id":44,
+                  "properties":[
+                         {
+                          "name":"target",
+                          "type":"object",
+                          "value":43
+                         }],
+                  "template":"..\/entities\/switch.tj",
                  "x":480,
                  "y":192
                 }, 
@@ -286,23 +270,18 @@
                  "x":704,
                  "y":608
                 }, 
-                {
-                 "id":68,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/entity_jump_pad.png"
-                        }, 
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":73
-                        }],
-                 "template":"..\/entities\/jump_pad.tj",
-                 "x":864,
-                 "y":608
-                }, 
+{
+                  "id":68,
+                  "properties":[
+                         {
+                          "name":"path",
+                          "type":"object",
+                          "value":73
+                         }],
+                  "template":"..\/entities\/jump_pad.tj",
+                  "x":864,
+                  "y":608
+                 },
                 {
                  "id":75,
                  "name":"blue_cage",
@@ -399,47 +378,24 @@
                  "x":512,
                  "y":352
                 }, 
-                {
-                 "id":94,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/coins.png"
-                        }],
-                 "template":"..\/entities\/coin.tj",
-                 "x":640,
-                 "y":352
-                }, 
-                {
-                 "id":95,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/coins.png"
-                        }],
-                 "template":"..\/entities\/coin.tj",
-                 "x":928,
-                 "y":448
-                }, 
-                {
-                 "id":106,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/entity_jump_pad.png"
-                        }, 
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":108
-                        }],
-                 "template":"..\/entities\/jump_pad.tj",
-                 "x":480,
-                 "y":544
-                }],
+{
+                  "id":95,
+                  "template":"..\/entities\/coin.tj",
+                  "x":928,
+                  "y":448
+                 },
+{
+                  "id":106,
+                  "properties":[
+                         {
+                          "name":"path",
+                          "type":"object",
+                          "value":108
+                         }],
+                  "template":"..\/entities\/jump_pad.tj",
+                  "x":480,
+                  "y":544
+                 }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,

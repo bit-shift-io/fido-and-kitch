@@ -29,7 +29,11 @@ test('sandbox template objects in the game layer resolve type, gid and merged pr
 	-- Template-derived objects carry their template's `type` (the entity
 	-- lua filename), which was previously empty.
 	assertEqual('coin', byId[117].type, 'object 117 should resolve type from coin.tj')
-	assertTrue(byId[117].gid ~= nil and byId[117].gid > 0, 'object 117 should get a remapped gid')
+	-- Entity tilesets are not part of the map (the map declares only the
+	-- tilesets its TILE layers use), so a template tile object whose tileset
+	-- is not declared gets an inert negative marker gid: truthy for
+	-- bottom-anchor semantics, invisible to STI's decorative batching.
+	assertTrue(byId[117].gid ~= nil and byId[117].gid < 0, 'object 117 should carry the inert marker gid')
 	assertEqual(32, byId[117].width, 'object 117 should inherit width from coin.tj')
 
 	assertEqual('key', byId[118].type, 'object 118 should resolve type from key.tj')
@@ -51,7 +55,9 @@ test('sandbox ladder-layer template objects resolve their type from ladder.tj', 
 
 	for _, obj in ipairs(objects) do
 		assertEqual('ladder', obj.type, string.format('object %d should resolve type from ladder.tj', obj.id))
-		assertTrue(obj.gid ~= nil and obj.gid > 0, string.format('object %d should get a remapped gid', obj.id))
+		-- ladder.tj's tileset is not part of sandbox's declared tilesets, so
+		-- the template tile object carries the inert negative marker gid.
+		assertTrue(obj.gid ~= nil and obj.gid < 0, string.format('object %d should carry the inert marker gid', obj.id))
 	end
 end)
 

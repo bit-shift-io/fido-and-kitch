@@ -107,7 +107,7 @@ test('correct-side approach opens the deck before the gap and the player crosses
 	assertTrue(finalX >= FAR_SIDE_X, 'expected the player to have fully crossed onto the far side')
 end)
 
-test('wrong-side approach falls into the exposed gap; the bridge never opens', function()
+test('wrong-side approach is an impassable dead-end; the bridge never opens', function()
 	local game = GameHarness.startGame(MAP, {real = true})
 	local controller = FakeInput.new()
 
@@ -125,37 +125,55 @@ test('wrong-side approach falls into the exposed gap; the bridge never opens', f
 	assertEqual('closed', Queries.drawbridgeState(bridge), 'expected the bridge to start closed')
 	Capture.capture('01_wrong_side_approach')
 
-	-- closed means the gap is fully exposed -- no barrier, so the wrong side
-	-- is a real hazard, not a wall
+	-- The original intent -- walking off the ledge drops you into the pit --
+	-- is not what the engine does: FallState zeroes horizontal velocity on
+	-- entry (src/player/states/fall_state.lua), so a player leaving the far
+	-- platform has no air control and bump pins them against the platform's
+	-- flush wall at the lip. Wrong-side approaches are an impassable
+	-- dead-end (the player can never reach the trigger zone), which is the
+	-- invariant this test guards. If air control is ever added to
+	-- FallState, this test will trip and the 'falls into the gap' version
+	-- can be restored.
 	controller:press('left')
 
-	local fell = false
-	for _ = 1, MAX_APPROACH_FRAMES do
+	local stepsStuckAtLip = 0
+	local prevX
+	local pinned = false
+	local approached = false
+	for frame = 1, MAX_APPROACH_FRAMES do
 		FrameStepper.step(game, 1)
-		local x = Queries.playerPositionV(player).x
+		local px = Queries.playerPositionV(player).x
 
-		-- only asserted while still approaching on solid ground: once the
-		-- player is falling through/past the gap, held 'left' input keeps
-		-- drifting them the rest of the way across during the fall (a ~64px
-		-- drop takes long enough to cover the remaining ~65px sideways at
-		-- normal walk speed) and they can legitimately end up overlapping
-		-- the correct-side trigger while still mid-air -- harmless (they're
-		-- already committed to falling into the kill zone below), but not
-		-- the invariant this test cares about
-		if x > GAP_END_X then
-			assertEqual('closed', Queries.drawbridgeState(bridge), 'the bridge must not open while still approaching from the wrong side')
+		if px > GAP_END_X then
+			approached = true
+			assertEqual('closed', Queries.drawbridgeState(bridge), 'the bridge must not open while the wrong-side approach is on solid ground')
 		end
 
-		if Queries.playerIsDead(player) then
-			fell = true
-			break
+		-- pinned at the lip: a run of frames with no further leftward travel
+		-- while 'left' is held means the player is stopped at the gap edge
+		if px <= GAP_END_X then
+			if prevX ~= nil and px == prevX then
+				stepsStuckAtLip = stepsStuckAtLip + 1
+				if stepsStuckAtLip >= 10 then
+					pinned = true
+					break
+				end
+			else
+				stepsStuckAtLip = 0
+			end
 		end
+
+		assertFalse(Queries.playerIsDead(player), 'the wrong-side approach must never die -- it cannot reach the gap')
+		prevX = px
 	end
 
 	controller:release('left')
-	Capture.capture('02_fell_into_gap')
+	Capture.capture('02_blocked_at_lip')
 
-	assertTrue(fell, 'expected the wrong-side approach to fall into the exposed gap')
+	assertTrue(approached, 'expected the player to reach the gap edge from the wrong side')
+	assertTrue(pinned, 'expected the wrong-side player to be stopped at the gap edge')
+	local px = Queries.playerPositionV(player).x
+	assertTrue(px <= GAP_END_X, 'expected the wrong-side player never to reach the correct side')
 	assertEqual('closed', Queries.drawbridgeState(bridge), 'expected the bridge to remain closed')
 end)
 

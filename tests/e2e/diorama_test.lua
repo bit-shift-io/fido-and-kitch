@@ -118,8 +118,14 @@ test('the void fills the out-of-world strips and the frame sits on the world bou
 	assertEqual(640, mapH)
 
 	-- Force the deterministic full-map overview (exact geometry, no easing).
-	local full = Camera.fullMapView(mapW, mapH, screenW, screenH)
+	-- The game camera opts into a 16px void gutter around every map edge
+	-- (InGameState) that would spread the projected rect past the map on all
+	-- four sides and turn the two wide-screen strips into four. This test is
+	-- about the diorama pipeline under a known projection, so pin the padding
+	-- off to keep the writer/reader math in this file exact.
 	local cam = game.fsm.currentState.camera
+	cam.padding = 0
+	local full = Camera.fullMapView(mapW, mapH, screenW, screenH)
 	cam.cx, cam.cy, cam.scale = full.cx, full.cy, full.scale
 	cam:setMode('overview')
 
@@ -127,6 +133,7 @@ test('the void fills the out-of-world strips and the frame sits on the world bou
 
 	-- Recover the projected world rect exactly as Diorama sees it.
 	local vr = cam:getDrawParams()
+	local tx, ty, sx, sy = vr.tx, vr.ty, vr.sx, vr.sy
 	local internal = Diorama._internal
 	local wr = internal.worldScreenRect(vr.tx, vr.ty, vr.sx, vr.sy, mapW, mapH)
 	local rects = internal.computeVoidRects(screenW, screenH, wr)
