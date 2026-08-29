@@ -6,7 +6,7 @@ index 646a224..8b2af8b 100644
  local floor = math.floor
  local lg    = require(cwd .. "graphics")
  local atlas = require(cwd .. "atlas")
-+local ExternalTileset = require("src.map.external_tileset")
++local ExternalTileset = require("src.map.tj_tileset")
  local Map   = {}
  Map.__index = Map
  
