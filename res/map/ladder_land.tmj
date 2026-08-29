@@ -1,562 +1,546 @@
-{
-  "compressionlevel": -1,
-  "height": 22,
-  "infinite": false,
-  "layers": [
-    {
-      "compression": "",
-      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAzAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMgAAADgAAAAAAAAAAAAAAAAAAAAyAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAXQAAAF4AAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMgAAADMAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyAAAAMwAAADgAAAAAAAAAAAAAADIAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXQAAAFYAAABYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF0AAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMgAAADMAAAAzAAAAOAAAAAAAAAAAAAAAMgAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXQAAAF4AAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAADIAAAAzAAAAMwAAADMAAAAzAAAAOAAAAAAAAAAyAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXQAAAF4AAABgAAAAAAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAA",
-      "encoding": "base64",
-      "height": 22,
-      "id": 1,
-      "name": "ground",
-      "opacity": 1,
-      "properties": [
-        {
-          "name": "collision",
-          "type": "bool",
-          "value": true
-        }
-      ],
-      "type": "tilelayer",
-      "visible": true,
-      "width": 36,
-      "x": 0,
-      "y": 0
-    },
-    {
-      "class": "ladder",
-      "draworder": "topdown",
-      "id": 4,
-      "name": "ladder",
-      "objects": [
-        {
-          "id": 32,
-          "template": "../entities/ladder.tj",
-          "x": 32,
-          "y": 352
-        },
-        {
-          "id": 33,
-          "template": "../entities/ladder.tj",
-          "x": 32,
-          "y": 320
-        },
-        {
-          "id": 34,
-          "template": "../entities/ladder.tj",
-          "x": 32,
-          "y": 288
-        },
-        {
-          "id": 35,
-          "template": "../entities/ladder.tj",
-          "x": 32,
-          "y": 256
-        },
-        {
-          "id": 36,
-          "template": "../entities/ladder.tj",
-          "x": 32,
-          "y": 224
-        },
-        {
-          "id": 37,
-          "template": "../entities/ladder.tj",
-          "x": 32,
-          "y": 192
-        },
-        {
-          "id": 38,
-          "template": "../entities/ladder.tj",
-          "x": 224,
-          "y": 480
-        },
-        {
-          "id": 39,
-          "template": "../entities/ladder.tj",
-          "x": 224,
-          "y": 448
-        },
-        {
-          "id": 40,
-          "template": "../entities/ladder.tj",
-          "x": 224,
-          "y": 416
-        },
-        {
-          "id": 41,
-          "template": "../entities/ladder.tj",
-          "x": 224,
-          "y": 384
-        },
-        {
-          "id": 42,
-          "template": "../entities/ladder.tj",
-          "x": 224,
-          "y": 352
-        },
-        {
-          "id": 43,
-          "template": "../entities/ladder.tj",
-          "x": 224,
-          "y": 320
-        },
-        {
-          "id": 44,
-          "template": "../entities/ladder.tj",
-          "x": 416,
-          "y": 608
-        },
-        {
-          "id": 45,
-          "template": "../entities/ladder.tj",
-          "x": 416,
-          "y": 576
-        },
-        {
-          "id": 46,
-          "template": "../entities/ladder.tj",
-          "x": 416,
-          "y": 544
-        },
-        {
-          "id": 47,
-          "template": "../entities/ladder.tj",
-          "x": 416,
-          "y": 512
-        },
-        {
-          "id": 48,
-          "template": "../entities/ladder.tj",
-          "x": 416,
-          "y": 480
-        },
-        {
-          "id": 49,
-          "template": "../entities/ladder.tj",
-          "x": 416,
-          "y": 448
-        },
-        {
-          "id": 50,
-          "template": "../entities/ladder.tj",
-          "x": 608,
-          "y": 672
-        },
-        {
-          "id": 51,
-          "template": "../entities/ladder.tj",
-          "x": 608,
-          "y": 640
-        },
-        {
-          "id": 52,
-          "template": "../entities/ladder.tj",
-          "x": 608,
-          "y": 608
-        },
-        {
-          "id": 53,
-          "template": "../entities/ladder.tj",
-          "x": 608,
-          "y": 576
-        },
-        {
-          "id": 54,
-          "template": "../entities/ladder.tj",
-          "x": 832,
-          "y": 672
-        },
-        {
-          "id": 55,
-          "template": "../entities/ladder.tj",
-          "x": 832,
-          "y": 640
-        },
-        {
-          "id": 56,
-          "template": "../entities/ladder.tj",
-          "x": 832,
-          "y": 608
-        },
-        {
-          "id": 57,
-          "template": "../entities/ladder.tj",
-          "x": 832,
-          "y": 576
-        },
-        {
-          "id": 58,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 672
-        },
-        {
-          "id": 59,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 640
-        },
-        {
-          "id": 60,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 608
-        },
-        {
-          "id": 61,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 576
-        },
-        {
-          "id": 62,
-          "template": "../entities/ladder.tj",
-          "x": 1120,
-          "y": 672
-        },
-        {
-          "id": 63,
-          "template": "../entities/ladder.tj",
-          "x": 1120,
-          "y": 640
-        },
-        {
-          "id": 64,
-          "template": "../entities/ladder.tj",
-          "x": 1120,
-          "y": 608
-        },
-        {
-          "id": 65,
-          "template": "../entities/ladder.tj",
-          "x": 1120,
-          "y": 576
-        },
-        {
-          "id": 66,
-          "template": "../entities/ladder.tj",
-          "x": 1024,
-          "y": 544
-        },
-        {
-          "id": 67,
-          "template": "../entities/ladder.tj",
-          "x": 1024,
-          "y": 512
-        },
-        {
-          "id": 68,
-          "template": "../entities/ladder.tj",
-          "x": 1024,
-          "y": 480
-        },
-        {
-          "id": 69,
-          "template": "../entities/ladder.tj",
-          "x": 1024,
-          "y": 448
-        },
-        {
-          "id": 70,
-          "template": "../entities/ladder.tj",
-          "x": 960,
-          "y": 416
-        },
-        {
-          "id": 71,
-          "template": "../entities/ladder.tj",
-          "x": 960,
-          "y": 384
-        },
-        {
-          "id": 72,
-          "template": "../entities/ladder.tj",
-          "x": 960,
-          "y": 352
-        },
-        {
-          "id": 73,
-          "template": "../entities/ladder.tj",
-          "x": 960,
-          "y": 320
-        },
-        {
-          "id": 74,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 288
-        },
-        {
-          "id": 75,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 256
-        },
-        {
-          "id": 76,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 224
-        },
-        {
-          "id": 77,
-          "template": "../entities/ladder.tj",
-          "x": 896,
-          "y": 192
-        }
-      ],
-      "opacity": 1,
-      "type": "objectgroup",
-      "visible": true,
-      "x": 0,
-      "y": 0
-    },
-    {
-      "draworder": "topdown",
-      "id": 3,
-      "name": "game",
-      "objects": [
-        {
-          "id": 5,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "blue"
-            }
-          ],
-          "template": "../entities/cage.tj",
-          "x": 0,
-          "y": 160
-        },
-        {
-          "id": 6,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "yellow"
-            }
-          ],
-          "template": "../entities/cage.tj",
-          "x": 0,
-          "y": 288
-        },
-        {
-          "id": 7,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "green"
-            }
-          ],
-          "template": "../entities/cage.tj",
-          "x": 64,
-          "y": 416
-        },
-        {
-          "id": 8,
-          "template": "../entities/cage.tj",
-          "x": 0,
-          "y": 544
-        },
-        {
-          "id": 15,
-          "properties": [
-            {
-              "name": "target",
-              "type": "object",
-              "value": 16
-            }
-          ],
-          "template": "../entities/teleport.tj",
-          "x": 1120,
-          "y": 160
-        },
-        {
-          "id": 16,
-          "properties": [
-            {
-              "name": "target",
-              "type": "object",
-              "value": 15
-            }
-          ],
-          "template": "../entities/teleport.tj",
-          "x": 1120,
-          "y": 32
-        },
-        {
-          "id": 78,
-          "template": "../entities/exit_door.tj",
-          "x": 800,
-          "y": 32
-        },
-        {
-          "id": 79,
-          "template": "../entities/coin.tj",
-          "x": 736,
-          "y": 32
-        },
-        {
-          "id": 80,
-          "template": "../entities/spawn.tj",
-          "x": 672,
-          "y": 544
-        },
-        {
-          "id": 81,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "green"
-            }
-          ],
-          "template": "../entities/key.tj",
-          "x": 992,
-          "y": 544
-        },
-        {
-          "id": 82,
-          "template": "../entities/coin.tj",
-          "x": 768,
-          "y": 288
-        },
-        {
-          "id": 83,
-          "template": "../entities/coin.tj",
-          "x": 672,
-          "y": 160
-        },
-        {
-          "id": 84,
-          "template": "../entities/coin.tj",
-          "x": 512,
-          "y": 224
-        },
-        {
-          "id": 85,
-          "properties": [
-            {
-              "name": "target",
-              "type": "object",
-              "value": 86
-            }
-          ],
-          "template": "../entities/teleport.tj",
-          "x": 160,
-          "y": 160
-        },
-        {
-          "id": 86,
-          "properties": [
-            {
-              "name": "target",
-              "type": "object",
-              "value": 85
-            }
-          ],
-          "template": "../entities/teleport.tj",
-          "x": 448,
-          "y": 96
-        },
-        {
-          "id": 87,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "blue"
-            }
-          ],
-          "template": "../entities/key.tj",
-          "x": 928,
-          "y": 416
-        },
-        {
-          "id": 88,
-          "template": "../entities/key.tj",
-          "x": 864,
-          "y": 288
-        },
-        {
-          "id": 89,
-          "properties": [
-            {
-              "name": "color",
-              "type": "string",
-              "value": "yellow"
-            }
-          ],
-          "template": "../entities/key.tj",
-          "x": 800,
-          "y": 160
-        },
-        {
-          "id": 90,
-          "template": "../entities/coin.tj",
-          "x": 32,
-          "y": 672
-        }
-      ],
-      "opacity": 1,
-      "type": "objectgroup",
-      "visible": true,
-      "x": 0,
-      "y": 0
-    },
-    {
-      "draworder": "topdown",
-      "id": 5,
-      "name": "waypoints",
-      "objects": [],
-      "opacity": 1,
-      "type": "objectgroup",
-      "visible": true,
-      "x": 0,
-      "y": 0
-    }
-  ],
-  "nextlayerid": 6,
-  "nextobjectid": 91,
-  "orientation": "orthogonal",
-  "properties": [
-    {
-      "name": "background",
-      "type": "string",
-      "value": "mushroom_cave"
-    },
-    {
-      "name": "description",
-      "type": "string",
-      "value": "Plenty of ladders and collectables."
-    },
-    {
-      "name": "name",
-      "type": "string",
-      "value": "Ladder Land"
-    },
-    {
-      "name": "players",
-      "type": "int",
-      "value": 1
-    }
-  ],
-  "renderorder": "right-down",
-  "tiledversion": "1.12.2",
-  "tileheight": 32,
-  "tilesets": [
-    {
-      "firstgid": 1,
-      "source": "../entities/tileset_generic_platformer_tiles.tsj"
-    }
-  ],
-  "tilewidth": 32,
-  "type": "map",
-  "version": "1.11",
-  "width": 36
+{ "compressionlevel":-1,
+ "height":22,
+ "infinite":false,
+ "layers":[
+        {
+         "compression":"",
+         "data":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAzAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMgAAADgAAAAAAAAAAAAAAAAAAAAyAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAXQAAAF4AAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMgAAADMAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAyAAAAMwAAADgAAAAAAAAAAAAAADIAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXQAAAFYAAABYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF0AAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMgAAADMAAAAzAAAAOAAAAAAAAAAAAAAAMgAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXQAAAF4AAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAAAAAADIAAAAzAAAAMwAAADMAAAAzAAAAOAAAAAAAAAAyAAAAMwAAADMAAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXQAAAF4AAABgAAAAAAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAAMwAAADMAAAAzAAAA",
+         "encoding":"base64",
+         "height":22,
+         "id":1,
+         "name":"ground",
+         "opacity":1,
+         "properties":[
+                {
+                 "name":"collision",
+                 "type":"bool",
+                 "value":true
+                }],
+         "type":"tilelayer",
+         "visible":true,
+         "width":36,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "class":"ladder",
+         "draworder":"topdown",
+         "id":4,
+         "name":"ladder",
+         "objects":[
+                {
+                 "id":32,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":32,
+                 "y":352
+                }, 
+                {
+                 "id":33,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":32,
+                 "y":320
+                }, 
+                {
+                 "id":34,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":32,
+                 "y":288
+                }, 
+                {
+                 "id":35,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":32,
+                 "y":256
+                }, 
+                {
+                 "id":36,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":32,
+                 "y":224
+                }, 
+                {
+                 "id":37,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":32,
+                 "y":192
+                }, 
+                {
+                 "id":38,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":480
+                }, 
+                {
+                 "id":39,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":448
+                }, 
+                {
+                 "id":40,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":416
+                }, 
+                {
+                 "id":41,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":384
+                }, 
+                {
+                 "id":42,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":352
+                }, 
+                {
+                 "id":43,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":320
+                }, 
+                {
+                 "id":44,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":416,
+                 "y":608
+                }, 
+                {
+                 "id":45,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":416,
+                 "y":576
+                }, 
+                {
+                 "id":46,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":416,
+                 "y":544
+                }, 
+                {
+                 "id":47,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":416,
+                 "y":512
+                }, 
+                {
+                 "id":48,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":416,
+                 "y":480
+                }, 
+                {
+                 "id":49,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":416,
+                 "y":448
+                }, 
+                {
+                 "id":50,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":608,
+                 "y":672
+                }, 
+                {
+                 "id":51,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":608,
+                 "y":640
+                }, 
+                {
+                 "id":52,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":608,
+                 "y":608
+                }, 
+                {
+                 "id":53,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":608,
+                 "y":576
+                }, 
+                {
+                 "id":54,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":832,
+                 "y":672
+                }, 
+                {
+                 "id":55,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":832,
+                 "y":640
+                }, 
+                {
+                 "id":56,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":832,
+                 "y":608
+                }, 
+                {
+                 "id":57,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":832,
+                 "y":576
+                }, 
+                {
+                 "id":58,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":672
+                }, 
+                {
+                 "id":59,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":640
+                }, 
+                {
+                 "id":60,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":608
+                }, 
+                {
+                 "id":61,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":576
+                }, 
+                {
+                 "id":62,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1120,
+                 "y":672
+                }, 
+                {
+                 "id":63,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1120,
+                 "y":640
+                }, 
+                {
+                 "id":64,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1120,
+                 "y":608
+                }, 
+                {
+                 "id":65,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1120,
+                 "y":576
+                }, 
+                {
+                 "id":66,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1024,
+                 "y":544
+                }, 
+                {
+                 "id":67,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1024,
+                 "y":512
+                },
+            
+                {
+                 "id":68,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1024,
+                 "y":480
+                }, 
+                {
+                 "id":69,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":1024,
+                 "y":448
+                }, 
+                {
+                 "id":70,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":960,
+                 "y":416
+                }, 
+                {
+                 "id":71,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":960,
+                 "y":384
+                }, 
+                {
+                 "id":72,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":960,
+                 "y":352
+                }, 
+                {
+                 "id":73,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":960,
+                 "y":320
+                }, 
+                {
+                 "id":74,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":288
+                }, 
+                {
+                 "id":75,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":256
+                }, 
+                {
+                 "id":76,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":224
+                }, 
+                {
+                 "id":77,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":896,
+                 "y":192
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":3,
+         "name":"game",
+         "objects":[
+                {
+                 "id":5,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"blue"
+                        }],
+                 "template":"..\/entities\/cage.tj",
+                 "x":0,
+                 "y":160
+                }, 
+                {
+                 "id":6,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"yellow"
+                        }],
+                 "template":"..\/entities\/cage.tj",
+                 "x":0,
+                 "y":288
+                }, 
+                {
+                 "id":7,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"green"
+                        }],
+                 "template":"..\/entities\/cage.tj",
+                 "x":64,
+                 "y":416
+                }, 
+                {
+                 "id":8,
+                 "template":"..\/entities\/cage.tj",
+                 "x":0,
+                 "y":544
+                }, 
+                {
+                 "id":15,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":16
+                        }],
+                 "template":"..\/entities\/teleport.tj",
+                 "x":1120,
+                 "y":160
+                }, 
+                {
+                 "id":16,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":15
+                        }],
+                 "template":"..\/entities\/teleport.tj",
+                 "x":1120,
+                 "y":32
+                }, 
+                {
+                 "id":78,
+                 "template":"..\/entities\/exit_door.tj",
+                 "x":800,
+                 "y":32
+                }, 
+                {
+                 "id":79,
+                 "template":"..\/entities\/coin.tj",
+                 "x":736,
+                 "y":32
+                }, 
+                {
+                 "id":80,
+                 "template":"..\/entities\/spawn.tj",
+                 "x":672,
+                 "y":544
+                }, 
+                {
+                 "id":81,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"green"
+                        }],
+                 "template":"..\/entities\/key.tj",
+                 "x":992,
+                 "y":576
+                }, 
+                {
+                 "id":82,
+                 "template":"..\/entities\/coin.tj",
+                 "x":768,
+                 "y":288
+                }, 
+                {
+                 "id":83,
+                 "template":"..\/entities\/coin.tj",
+                 "x":672,
+                 "y":160
+                }, 
+                {
+                 "id":84,
+                 "template":"..\/entities\/coin.tj",
+                 "x":512,
+                 "y":224
+                }, 
+                {
+                 "id":85,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":86
+                        }],
+                 "template":"..\/entities\/teleport.tj",
+                 "x":160,
+                 "y":160
+                }, 
+                {
+                 "id":86,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":85
+                        }],
+                 "template":"..\/entities\/teleport.tj",
+                 "x":448,
+                 "y":96
+                }, 
+                {
+                 "id":87,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"blue"
+                        }],
+                 "template":"..\/entities\/key.tj",
+                 "x":928,
+                 "y":448
+                }, 
+                {
+                 "id":88,
+                 "template":"..\/entities\/key.tj",
+                 "x":864,
+                 "y":320
+                }, 
+                {
+                 "id":89,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"yellow"
+                        }],
+                 "template":"..\/entities\/key.tj",
+                 "x":800,
+                 "y":192
+                }, 
+                {
+                 "id":90,
+                 "template":"..\/entities\/coin.tj",
+                 "x":32,
+                 "y":672
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":5,
+         "name":"waypoints",
+         "objects":[],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":6,
+ "nextobjectid":91,
+ "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"background",
+         "type":"string",
+         "value":"mushroom_cave"
+        }, 
+        {
+         "name":"description",
+         "type":"string",
+         "value":"Plenty of ladders and collectables."
+        }, 
+        {
+         "name":"name",
+         "type":"string",
+         "value":"Ladder Land"
+        }, 
+        {
+         "name":"players",
+         "type":"int",
+         "value":1
+        }],
+ "renderorder":"right-down",
+ "tiledversion":"1.12.2",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"..\/entities\/tileset_generic_platformer_tiles.tsj"
+        }],
+ "tilewidth":32,
+ "type":"map",
+ "version":"1.11",
+ "width":36
 }
