@@ -12,6 +12,7 @@ local Diorama = require('src.diorama')
 local InGameState = Class{__includes = BaseState}
 
 local GAME_OVER_ZOOM_DELAY = 0.6
+local WORLD_GRAVITY_Y = 90.81
 
 local function spawnPlayers(self, map, playerCount)
     local players = {}
@@ -70,7 +71,7 @@ function InGameState:load(props)
     self.currentMap = props.map or 'res/map/sandbox.tmj'
     Log.debug('loading map: ' .. self.currentMap)
 
-    _G.world = World:new(0, 90.81, true)
+    _G.world = World:new(0, WORLD_GRAVITY_Y, true)
     _G.map = Map:new(self.currentMap, world, true)
 
     local mapW, mapH = map:getPixelSize()

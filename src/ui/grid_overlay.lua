@@ -16,10 +16,6 @@ function GridOverlay:new(props)
 	return setmetatable({ enabled = false, tile = props.tile or DEFAULT_TILE }, GridOverlay)
 end
 
-function GridOverlay:toggle()
-	self.enabled = not self.enabled
-end
-
 -- Pure geometry: the list of gridlines covering the visible portion of the
 -- map, clamped to the map rect. Each line is {x0, y0, x1, y1} in world
 -- space. screenW/screenH come from the caller so this stays headless-testable.

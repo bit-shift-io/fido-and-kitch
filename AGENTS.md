@@ -89,7 +89,7 @@ love . debug drawphysics map=sandbox
 - **Game states** live in `src/states/` — one file per state (`menu_state.lua`, `ingame_state.lua`, `game_over_state.lua`).
 - **Physics:** go through `Collider`/`World`, not `src.physics.bump` directly, unless the task is backend-specific. Set `collider.walkable = true` on an entity-owned collider that a player should be able to stand and walk on (see Gotchas below) — plain terrain doesn't need this.
 - **Sound:** `Sound:play` checks a private `isHeadless()` (true when `love.audio` is absent) and returns early, and `Log.warn`s about missing files; headless tests need no dummy WAV files.
-- **Debug overlay:** when `conf.drawphysics` is active, `DebugOverlay:draw(world, map, players, camera)` renders hitboxes, ladder sensors, kill zones, safe positions, camera framing bounds, and NPC paths in a single pass.
+- **Debug overlay:** when `conf.drawphysics` is active, `DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)` renders hitboxes, ladder sensors, kill zones, safe positions, camera framing bounds, and NPC paths in a single pass.
 - Match nearby style (quotes, indentation — it's mixed). Keep changes small; prefer new entities/components/states over growing `src/states/`.
 
 ## Validation

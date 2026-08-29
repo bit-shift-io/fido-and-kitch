@@ -105,7 +105,7 @@ Gamepad: D-pad / Left Stick (move), A/B (use), Start (menu), Back (back)
 - Survives restarts, per-player settings
 
 **Sound System**:
-- `Sound.silentMode` auto-enabled in headless tests (no dummy WAVs needed)
+- `Sound:play` checks a private `isHeadless()` (true when `love.audio` is absent) and returns early, plus `Log.warn`s on missing files — headless tests need no dummy WAVs
 
 ## IPC Server (AI Agent Control)
 

@@ -5,10 +5,6 @@ function Tint:init(props)
 	self.color = props.color or {1, 1, 1, 1}
 end
 
-function Tint:enter()
-	-- no-op
-end
-
 function Tint:update(dt)
 	-- no-op
 end

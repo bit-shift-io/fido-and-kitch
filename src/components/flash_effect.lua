@@ -60,15 +60,6 @@ function FlashEffect:fadeOut(duration)
 	self._alpha = 1
 end
 
--- Reset to fully visible (no effect).
-function FlashEffect:reset()
-	self._blinkActive = false
-	self._visible = true
-	self._alpha = 1
-	self._fadeInActive = false
-	self._fadeOutActive = false
-end
-
 function FlashEffect:update(dt)
 	-- Blink timer
 	if self._blinkActive then

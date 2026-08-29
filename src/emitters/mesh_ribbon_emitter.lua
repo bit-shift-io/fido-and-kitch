@@ -157,7 +157,7 @@ function Emitter:_rebuildMesh()
             alpha = alpha * (1 - ft * ft * (3 - 2 * ft))
         end
         
-        local a = math.floor(alpha * 255)
+        local a = alpha
         
         -- Color: either from colorStart/colorEnd, or debug alpha visualization
         local r, g, b
@@ -165,13 +165,13 @@ function Emitter:_rebuildMesh()
             -- Debug: visualize ACTUAL alpha (with fadeIn/fadeOut easing) as color
             -- white=opaque, blue=transparent
             local alphaNorm = alpha  -- already computed with fadeIn/fadeOut
-            r = math.floor(alphaNorm * 255)
-            g = math.floor(alphaNorm * 255)
-            b = math.floor((1 - alphaNorm) * 255)
+            r = alphaNorm
+            g = alphaNorm
+            b = 1 - alphaNorm
         else
-            r = math.floor(lerp(self.colorStart[1], self.colorEnd[1], t) * 255)
-            g = math.floor(lerp(self.colorStart[2], self.colorEnd[2], t) * 255)
-            b = math.floor(lerp(self.colorStart[3], self.colorEnd[3], t) * 255)
+            r = lerp(self.colorStart[1], self.colorEnd[1], t)
+            g = lerp(self.colorStart[2], self.colorEnd[2], t)
+            b = lerp(self.colorStart[3], self.colorEnd[3], t)
         end
         
         -- UV coordinates
@@ -211,7 +211,7 @@ function Emitter:_rebuildMesh()
         table.insert(meshVerts, {
             verts[i], verts[i+1],                              -- VertexPosition (x, y)
             verts[i+2], verts[i+3],                            -- VertexTexCoord (u, v)
-            verts[i+4]/255, verts[i+5]/255, verts[i+6]/255, verts[i+7]/255  -- VertexColor (r, g, b, a) 0-1
+            verts[i+4], verts[i+5], verts[i+6], verts[i+7]  -- VertexColor (r, g, b, a) 0-1
         })
     end
     

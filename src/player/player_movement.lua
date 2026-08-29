@@ -187,7 +187,7 @@ function PlayerMovement.resolveLadderOverlap(overlappingLadders, downPressed, la
 end
 
 function PlayerMovement.applyGravity(collider)
-    local v_x, v_y = collider:getLinearVelocity()
+    local _, v_y = collider:getLinearVelocity()
     collider:setLinearVelocity(0, v_y)
 end
 

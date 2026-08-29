@@ -183,14 +183,6 @@ function Sprite:setFacing(facing)
 end
 
 
-function Sprite:enter()
-	self.timeline:reset()
-	if self.playingOnEnter then
-		self.timeline:play()
-	end
-	self.frameNum = 1
-end
-
 function Sprite:setFrameNum(frameNum)
 	self.frameNum = frameNum
 end
@@ -216,14 +208,6 @@ end
 
 function Sprite:getDirection()
 	return self.timeline:getDirection()
-end
-
-function Sprite:setSpeed(speed)
-	self.timeline:setSpeed(speed)
-end
-
-function Sprite:getSpeed()
-	return self.timeline:getSpeed()
 end
 
 function Sprite:isPlaying()

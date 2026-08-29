@@ -30,7 +30,7 @@ function ExitDoor:init(object)
 	spriteProps.shape_arguments = shape_arguments
 	spriteProps.finish = utils.bindSelf(ExitDoor.animFinished, self)
 	self.sprite = self:addComponent(Sprite(spriteProps))
-	local collider = self:addComponent(Collider{
+	self:addComponent(Collider{
 		shape_type='rectangle',
 		shape_arguments=shape_arguments,
 		body_type='static',

@@ -147,7 +147,7 @@ end
 -- discrete ornaments, never a tiled row.
 local function computeFrame(mapW, mapH, config)
 	local f = config.frame
-	local tile = f.tileSize or 16
+	local tile = f.tileSize or 32
 	local outset = f.outset or 0
 
 	-- A corner ornament's `offset` moves it along the diagonal away from the
@@ -294,7 +294,7 @@ function Diorama.drawFrame(viewRect, mapW, mapH)
 	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
 	local frame = computeFrame(mapW, mapH, Diorama.config)
 	local config = Diorama.config.frame
-	local tile = config.tileSize or 16
+	local tile = config.tileSize or 32
 
 	lg.push()
 	lg.origin()

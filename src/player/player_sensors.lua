@@ -17,22 +17,6 @@ function PlayerSensors.queryKillZone(world, collider)
     return nil
 end
 
-function PlayerSensors.queryLadder(world, collider, offset)
-    local bounds = collider:getBounds()
-    bounds.left = bounds.left + 4
-    bounds.right = bounds.right - 4
-    bounds.bottom = bounds.bottom - (offset or 4)
-
-    local colls = world:queryBounds(bounds)
-    for _, c in ipairs(colls) do
-        local entity = c.entity
-        if entity and entity.isLadder then
-            return entity
-        end
-    end
-    return nil
-end
-
 function PlayerSensors.queryLadderBelow(world, collider, topOffset, bottomOffset)
     local bounds = collider:getBounds()
     bounds.left = bounds.left + 4

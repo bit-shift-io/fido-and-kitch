@@ -183,21 +183,4 @@ function InputManager:wasPressed(idx, action)
      and not (self.prevActionState[idx] and self.prevActionState[idx][action])
 end
 
-function InputManager:setDeadzone(idx, dz)
-  self:ensurePlayer(idx)
-  self.players[idx].deadzone = dz
-  self.config:setDeadzone(idx, dz)
-end
-
-function InputManager:setForcedNonGamepad(idx, forced)
-  self.config:setForcedNonGamepad(idx, forced)
-  
-  -- Apply immediately if joystick is already assigned
-  if self.players[idx] and self.players[idx].joystick then
-    self.forcedNonGamepad = self.forcedNonGamepad or {}
-    self.forcedNonGamepad[self.players[idx].joystick] = forced
-    Log.info("[InputManager] Applied forced non-gamepad mode for player", idx, ":", forced)
-  end
-end
-
 return InputManager

@@ -43,7 +43,7 @@ Log = require('src.utils.log')
 Vector = require('lib.hump.vector')
 Class = require('lib.hump.class')
 Tween = require('lib.tween.tween')
-Slab = require('lib.Slab')
+local Slab = require('lib.Slab')
 
 Rect = require('src.utils.rect')
 Signal = require('src.utils.signal')

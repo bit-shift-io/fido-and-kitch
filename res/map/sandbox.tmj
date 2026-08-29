@@ -196,14 +196,9 @@
                  "id":44,
                  "properties":[
                         {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/entity_switch.png"
-                        }, 
-                        {
                          "name":"target",
                          "type":"object",
-                         "value":43
+                         "value":86
                         }],
                  "template":"..\/entities\/switch.tj",
                  "x":288,
@@ -299,8 +294,8 @@
                  "type":"npc_robot",
                  "visible":true,
                  "width":32,
-                 "x":29.9128,
-                 "y":480.308
+                 "x":0,
+                 "y":352
                 }, 
                 {
                  "height":32,
@@ -323,7 +318,7 @@
                          "value":"Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"
                         }],
                  "template":"..\/entities\/story.tj",
-                 "x":576,
+                 "x":544,
                  "y":544
                 }, 
                 {
@@ -347,8 +342,8 @@
                          "value":3
                         }],
                  "template":"..\/entities\/replicator.tj",
-                 "x":512,
-                 "y":384
+                 "x":608,
+                 "y":288
                 }, 
                 {
                  "id":110,
@@ -393,6 +388,30 @@
                  "template":"..\/entities\/key.tj",
                  "x":608,
                  "y":256
+                }, 
+                {
+                 "id":120,
+                 "template":"..\/entities\/coin.tj",
+                 "x":32,
+                 "y":192
+                }, 
+                {
+                 "id":121,
+                 "template":"..\/entities\/drawbridge.tj",
+                 "x":32,
+                 "y":224
+                }, 
+                {
+                 "id":122,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":121
+                        }],
+                 "template":"..\/entities\/switch.tj",
+                 "x":0,
+                 "y":512
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -591,7 +610,7 @@
          "y":0
         }],
  "nextlayerid":22,
- "nextobjectid":119,
+ "nextobjectid":123,
  "orientation":"orthogonal",
  "properties":[
         {

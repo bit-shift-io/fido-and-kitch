@@ -32,7 +32,7 @@
 
 ## Lives pool
 
-**Definition** — The shared count of remaining deaths for all players in a level, shown as a row of hearts top-left. Starts at the default (2) on every level load. A death while the pool is at zero triggers game over.
+**Definition** — The shared count of remaining deaths for all players in a level, shown as a row of hearts centred across the top of the screen. Starts at the default (2) on every level load. A death while the pool is at zero triggers game over.
 
 **Boundary** — Shared between players and scoped to a single level load; it is never per-player and never persists across levels or restarts.
 
@@ -124,37 +124,37 @@
 
 **Definition** — A merged ladder's collider acts as a zero-gravity climbable volume instead of a catcher of falls: a player inside it hangs in place when input is neutral (gravity suspended), climbs with up/down, slides with left/right, and leaves only by climbing/walking out or by a switched-off toggle removing the volume under them. The ladder's top edge carries a thin one-way standable slab, so a player falling onto the bare top lands standing on it (and can walk onto flush adjacent terrain); pressing down on the top descends into the zone below.
 
-**Boundary** — Players-only affordances: props and NPCs pass through both the volume and the top slab (enemies still climb opportunistically via their own AI). Terrain tiles under/around a ladder top are optional for support — the slab is the floor. A switched-off ladder provides neither the zone nor the slab.
+**Boundary** — Players-only affordances: props and NPCs pass through both the volume and the top slab (NPCs never use ladders — enemy movement is horizontal-only; see [[Enemy]]). Terrain tiles under/around a ladder top are optional for support — the slab is the floor. A switched-off ladder provides neither the zone nor the slab.
 
 ## Enemy
 
-**Definition** — A Tiled-placed mobile entity (spider, robot) that hinders players by chasing the nearest valid (alive, unwrapped, un-banned) player at ~70% player speed under player-like physics, navigating by axis alignment: walk to close the X gap, and climb a ladder it already overlaps to close the Y gap. Wanders near its current position when no valid target exists.
+**Definition** — A Tiled-placed hostile mobile entity (`npc_spider`, `npc_robot`) that hinders players through a utility FSM (`src/npc/`): every tick each behaviour scores a fixed weight (idle 10, wander 20, chase 80, follow 70, patrol 30, attack 90, flee 60) and the winner runs, with the entity's `behavior` config biasing which behaviours are ever considered — the spider prefers `chase`, the robot `patrol`. Detection targets the nearest alive player within `detectionRadius` (spider 200, robot 250) as the pursuit reference. Movement is horizontal-only ground walking under NPC gravity, steered by wall/ground probes, at a per-entity `maxSpeed` (spider 90, robot 60); the chase state caps pursuit at a flat 80 px/s — 80% of the player's 100 px/s (see `src/npc/states/chase_state.lua`). With no player in range it falls back to wandering/patrolling near its home position.
 
-**Boundary** — A hindrance, never a direct killer of players: enemies cost time and control, not lives. Non-solid to players (overlap-based effects), solid to the world. No pathfinding — ladder use is strictly opportunistic. Immune to permanent harm except a kill zone, which kills it the same way it kills a player (see [[Enemy death and respawn]]); the head stomp only stuns.
+**Boundary** — A hindrance and a physical obstacle, never a direct killer: the attack state's damage call is a no-op in gameplay (its target resolves to a position, and players expose no `takeDamage`), so enemies cost time and control, not lives. Solid to players and terrain alike (dynamic collider, group index −2: it collides with players and terrain but skips NPC-vs-NPC contact), and never ridden as ground by default (`ridePlatforms` false — the rabbit overrides this). Everyday collision pushes are configurable (`canPush`/`canBePushed`/`pushForce`), but no gameplay path currently calls `applyPush`. The authored `health`/`damage`/`triggerSwitches` numbers (robot 4/2/true, spider 2/1/false) are likewise inert today. No pathfinding and no ladder climbing — movement is strictly horizontal. Immune to permanent harm except a kill zone, which kills it the same way it kills a player (see [[Enemy death and respawn]]); there is no head-stomp, stun, or targeting-ban mechanic anymore (see the *Removed* notes below).
 
 ## Harassment ban
 
-**Definition** — A per-enemy, per-player cooldown (~30s) that starts once an enemy has successfully harassed a player — the spider on landing a wrap, the robot after ~10s of chasing the same target — during which that enemy may not target that player.
+**Definition** — *Removed.* A per-enemy, per-player targeting cooldown that let an enemy ignore a player for a while after successfully harassing them used to exist; no such ban, suppression, or targeting cooldown survives in `src/npc/`.
 
-**Boundary** — Scoped to the individual enemy instance, not global: another enemy may still target the banned-for player. It gates targeting only; it does not make the player immune to incidental contact effects from other enemies.
+**Boundary** — Targeting is only the nearest-alive-player-within-`detectionRadius` scan described in [[Enemy]]. Kept as a *Removed* note so older design writing referencing it isn't silently lost.
 
 ## Web wrap
 
-**Definition** — The spider's catch: on overlapping its target, the player is frozen in place (~20s) under a web visual that fades out near expiry, then control returns. The wrapped player ignores input, settles under gravity, stays a camera framing target, can still be killed by kill zones, and cannot be shoved by the robot.
+**Definition** — The player lockout produced by `Player:wrap(duration)`: the wrapped player freezes horizontal movement, ignores input, settles under gravity, stays a camera framing target, and can still be killed by kill zones; a web visual (`src/npc/web.lua`) fades out as the lockup expires, after which control returns (`WrappedState` → `WalkIdleState`).
 
-**Boundary** — A timed lockout, not a death or damage: it never costs lives by itself and has no escape mechanic (no struggling, no teammate rescue). The web is a runtime visual entity, never placed in Tiled.
+**Boundary** — Dormant in current gameplay: the `Player:wrap` API, `WrappedState`, the web overlay, and the spider's death-release hook (`Spider:onDeath` releases a wrapped target) all exist and are tested, but nothing in gameplay calls `wrap()` — the spider has no automatic wrap trigger yet (see `tests/integration/spider_wrap_release_test.lua`). A timed lockout by design, not death or damage: it never costs lives by itself and has no escape mechanic. The web is a runtime visual entity, never placed in Tiled.
 
 ## Head stomp
 
-**Definition** — A player landing on an enemy from above stuns it for ~10s (frozen, visually indicated) and bounces the player upward. The players' only counterplay against enemies.
+**Definition** — *Removed.* Landing on an enemy from above used to stun it and bounce the player; none of that exists in the current enemy subsystem — there is no stomp, stun, or bounce code, and enemies stay solid so a falling player simply lands on top of them.
 
-**Boundary** — A stun, not a kill — enemies cannot be destroyed. Detected geometrically (falling player overlapping from above), since enemies are not solid to players. Does not start a harassment ban.
+**Boundary** — Players have no counterplay against enemies beyond avoidance; being on top of one grants nothing. Kept as a *Removed* note so older design writing referencing it isn't silently lost.
 
 ## Enemy death and respawn
 
-**Definition** — An enemy that touches a kill zone dies using the same flash-and-fade sequence a player death uses, then stays gone (invisible, non-solid, no behaviour) for a fixed 30-second window before respawning at its original Tiled spawn position and facing with the same flash-and-fade-in a player respawn uses. Respawn is a full reset: no stun, chase target, or harassment ban carries over.
+**Definition** — An enemy that touches a kill zone dies: it enters `DeadState`, its collider becomes kinematic (non-solid), a blink-and-fade-out plays (0.15s × 8 blinks), and after ~2 seconds (`RESPAWN_DELAY` in `src/npc/npc_base.lua`) it respawns at its original Tiled spawn position with a matching fade-in blink. Respawn is a full reset: health restored, target and last-known position cleared, state back to `IdleState`.
 
-**Boundary** — No lives, score, HUD, or camera-framing effect — scoped entirely to the enemy's own sprite, collider, and behaviour FSM. The 30-second gone-window is the player's payoff for the kill, not a checkpoint or damage system. Being stunned does not grant kill-zone immunity. If a spider dies while it has a player wrapped, the wrap ends immediately rather than waiting for the web's own expiry or the spider's respawn.
+**Boundary** — No lives, score, HUD, or camera-framing effect — scoped entirely to the enemy's own sprite, collider, and behaviour FSM. The ~2s gone-window is a short recovery, not a payoff mechanic. If a spider could die mid-wrap it would release the wrapped player immediately (`Spider:onDeath`) rather than wait for the web's own expiry or the respawn — the hook is exercised directly by `tests/integration/spider_wrap_release_test.lua` because no gameplay code sets up a wrap on its own.
 
 ## Cage objective
 
@@ -224,9 +224,9 @@
 
 ## Sound component
 
-**Definition** — An entity component that loads WAV audio files on initialization and plays them by name with a configurable random pitch variation (±10% by default). Attached to entities requiring sound effects (player, coin, drawbridge, switch, key, cage, exit door, jump pad, enemies, kill zone, teleport, ladder, pressure switch, story). API: `init(props.sounds, props.pitchVariation)`, `play(name)`, `destroy()`.
+**Definition** — An entity component that loads WAV audio files on initialization and plays them by name with a configurable random pitch variation (±10% by default). Attached to entities requiring sound effects (player, coin, drawbridge, switch, key, cage, exit door, jump pad, enemies, kill zone, teleport, ladder, pressure switch, story). API: `init(props)` where `props.sounds`, `props.volume`, `props.pitchVariation` (defaults 1 / 0.1), `play(name)`, `destroy()`.
 
-**Boundary** — SFX only; no music, ambience, spatial audio, mixing, or pooling. Creates a new `love.audio.Source` per play; GC handles cleanup. Distinct from `love.audio.Source` (the LÖVE object) and from any future audio manager.
+**Boundary** — SFX only; no music, ambience, spatial audio, or mixing. Sources are pooled per clip name (cap of 8 per name) and reused: a stopped source is seeked back to 0 and replayed, and only when the pool is full is the oldest source evicted — no unmanaged per-play allocation. `Sound:play` also bails out in headless tests via a private `isHeadless()` check so no dummy WAVs are needed. Distinct from `love.audio.Source` (the LÖVE object) and from any future audio manager.
 
 ## SFX (sound effect)
 
@@ -236,7 +236,7 @@
 
 ## External tileset
 
-**Definition** — A Tiled tileset saved to its own `.tsj` file and referenced from a map rather than embedded in it (the game's default workflow). The vendored map loader resolves a referenced `.tsj` at load time — parsing its JSON and producing a tileset table shaped identically to an embedded tileset — covering both a single shared image on a grid (e.g. `generic_platformer_tiles.tsj`) and an image-collection tileset with one (optionally cropped) image per tile (e.g. `props.tsj`).
+**Definition** — A Tiled tileset saved to its own `.tsj` file and referenced from a map rather than embedded in it (the game's default workflow). The vendored map loader resolves a referenced `.tsj` at load time — parsing its JSON and producing a tileset table shaped identically to an embedded tileset — covering both a single shared image on a grid (e.g. `tileset_generic_platformer_tiles.tsj` in `res/entities/`) and an image-collection tileset with one (optionally cropped) image per tile (exercised by the `switch_collection.tsj` test fixture — no production image-collection tileset ships yet).
 
 **Boundary** — A loading-time concern only; once resolved, an external tileset is indistinguishable from an embedded one to every downstream consumer (tile rendering, animation, `Map:getTileProperties`). Per-tile collision-editor shapes resolve for parity but are not consumed by this project's collision model, which comes entirely from map-level object layers. Distinct from an **object template** — a separate Tiled feature, resolved by the map parser rather than by tileset resolution.
 
@@ -260,9 +260,9 @@
 
 ## GameAPI
 
-**Definition** — Module exposing safe game operations to IPC commands: `resize(w, h)`, `movePlayer(idx, dx, dy)`, `getState()`, `getPlayerPos(idx)`, `restartLevel()`, `goToMenu()`. Operates on global game state (`game`, `map`, `world`, `love`).
+**Definition** — Module exposing safe game operations to IPC commands: `resize(w, h)`, `movePlayer(idx, dx, dy)`, `getState()`, `getPlayerPos(idx)`, `restartLevel()`, `goToMenu()`, alongside the debug/entity surface — `spawnEntity(type, x, y, props)`, `getEntities()`, `loadMap(name)`, `getTileGrid()`, `stepFrames(n)`, `takeScreenshot(name)`, `toggleCamera()`, `injectInput(idx, action, down)` — each implemented in `src/ipc/handlers/` (`player.lua`, `map.lua`, `entity.lua`, `debug.lua`). Operates on global game state (`game`, `map`, `world`, `love`).
 
-**Boundary** — Only functional in `InGameState` (returns error in `MenuState`). Direct position manipulation (not input simulation). Read-only queries for state. No entity spawning or physics modification.
+**Boundary** — Only functional in `InGameState` (returns `ERROR` in `MenuState`). A deliberate debug/IPC surface, not a gameplay API: direct position moves, arbitrary entity spawning via `map:loadEntity` (runtime-mock object, so templates auto-apply), scripted input injection, frame stepping, and map reloads are all exposed and trusted (localhost, opt-in via the `ipc` flag). Physics modification is still not exposed.
 
 ## OpenCode Tools
 

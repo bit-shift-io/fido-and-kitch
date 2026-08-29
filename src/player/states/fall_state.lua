@@ -18,7 +18,7 @@ function FallState:enter()
     Log.debug('fall enter')
     local player = self.entity
     player:setAnimation('fall')
-    local v_x, v_y = player.collider:getLinearVelocity()
+    local _, v_y = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(0, v_y)
     if player.speedStreak then
         player.speedStreak:enable()

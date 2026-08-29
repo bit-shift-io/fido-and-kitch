@@ -11,11 +11,14 @@ runtime reads merged `object.properties`. `TASKS.md` holds the phased plan.
 1. **Target duplication = Lua vs template defaults** — the `.tj` becomes the
    single source of truth for an entity's default properties; strip matching
    `or DEFAULT` fallbacks from `.lua` where a template exists. Already drifted:
-   `mover_platform.tj` `speed: 50` vs `mover_platform.lua` `or 100`.
+   `mover_platform.tj` `speed: 50` vs `mover_platform.lua` `or 100` — *resolved
+   since*: the loader now reads `tonumber(object.properties.speed) or 50`
+   (`mover_platform.lua`), though a stale `(speed or 100)`/100px/s comment
+   lingers in that file.
 2. **Most sprite data moves into templates** — the editor is visual. Sprite
    fields (image, frames, duration, loop, playing, scale, spriteOffsetY, tint…)
    become flat template props merged like any other property. `parseProperties`
-   (`tmj.lua:312`) already coerces `file→string`, `int/float→number`,
+   (`tmj.lua:341`) already coerces `file→string`, `int/float→number`,
    `color→hex string`. Entity `.lua` keeps logic (FSM, geometry from object
    w/h), not baked art strings. A future editor script is planned to surface
    props like `spriteOffsetY` in the Tiled UI.

@@ -124,12 +124,6 @@ end
 
 -- Draws all visible tiles and the parallax background using the camera's
 -- current ViewRect (see Camera:getDrawParams / Camera.ViewRect).
--- self.tx / self.ty / self.sx / self.sy store the most recent ViewRect
--- components so Map:draw() (no-arg) can replay the last frame.
-function Map:draw()
-	self:draw2(self.viewRect or Camera.ViewRect.new(self.tx, self.ty, self.sx, self.sy))
-end
-
 function Map:draw2(viewRect, playerTargets)
 	self.viewRect = viewRect
 	self.parallaxRenderer:draw(self, viewRect, playerTargets)

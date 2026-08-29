@@ -15,7 +15,7 @@ end
 function WrappedState:update(dt)
     local player = self.entity
 
-    local v_x, v_y = player.collider:getLinearVelocity()
+    local _, v_y = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(0, v_y)
 
     player.web:update(dt)

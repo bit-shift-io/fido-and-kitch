@@ -127,18 +127,18 @@
 ### 3.7 Physics (`src/physics/`)
 * **`World`**: Thin wrapper over the bump world; `newCollider`, `update(dt)`, `draw()`, `queryRectangleArea`, `queryBounds`.
 * **`Collider`**: Unified API (`setPosition`, `getBounds`, `setType`, `setSensor`, `setGroupIndex`, callbacks: `enter`, `exit`, `preSolve`, `postSolve`).
-* **Bump Backend** (`src/physics/bump/`): `bump.lua` world; emulates Box2D-ish semantics (slide response, sensor cross, group-index filtering, kinematic cross). The Box2D/love backend was removed for implementing too little of the Collider contract to actually run the game; re-add it as a real, fully-implemented backend if ever needed.
+* **Bump Backend** (`src/physics/bump/`): wraps the bump AABB engine at `lib/bump/bump.lua` (`world.lua`, `motion.lua`, `collider.lua`); emulates Box2D-ish semantics (slide response, sensor cross, group-index filtering, kinematic cross). The Box2D/love backend was removed for implementing too little of the Collider contract to actually run the game; re-add it as a real, fully-implemented backend if ever needed.
 
 ### 3.8 Map Entities (`src/entities/`)
 * **Convention**: New entity = new file `src/entities/<type>.lua` + Tiled object with matching `type`.
 * **Sprite data**: art (frames, duration, loop, playing, scaleX/scaleY) is authored in `res/entities/<type>.tj` and merged into the object at load; the sprite `image` comes from the template's inline tileset tile (`tilesetImage`, injected into `object.properties.image` by both `tmj.lua parseObject` and `entity_factory:_mergeTemplateProps`). Entities read the merged props via `src/entities/sprite_props.lua` (`SpriteProps.fromObject(object)`), keeping sprite bodies free of art literals. `entity_factory` auto-applies a template's defaults to template-less runtime-mock objects (replicator spawns, cage NPCs, IPC spawns).
-* **Examples**: `key`, `cage`, `switch`, `exit_door`, `ladder`, `kill_zone`, `jump_pad`, `teleport`, `bird`, `coin`, `variable`, `story`.
+* **Examples**: `key`, `cage`, `switch`, `exit_door`, `ladder`, `kill_zone`, `jump_pad`, `teleport`, `coin`, `story`, `drawbridge`, `pressure_switch`, `blocker`, `mover_platform`, `replicator`, `push_box`/`boulder`, and the `npc_*` types (`npc_spider`, `npc_robot`, `npc_bird`, `npc_rabbit`).
 * **`story`**: invisible trigger; shows a screen-space typewriter speech bubble on `use` (see CONTEXT.md 'Story entity').
 * **Map Hooks**: Tiled object properties may contain Lua snippets (`onUse`, `onTrigger`, etc.) executed via `object:exec`.
 
 ### 3.9 UI (`src/ui/`)
 * **`MapList`**: Slab-based scrollable map selector.
-* **`LivesHud`**: Draws heart squares top-center from `Lives` count.
+* **`LivesHud`**: Draws the lives pool as `ui_heart.png` sprites from `Lives` count; `GameHud` positions it centred across the top of the screen (heart count, not squares).
 
 ---
 

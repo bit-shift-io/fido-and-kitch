@@ -15,10 +15,6 @@ function DebugOverlay:new()
 	}, DebugOverlay)
 end
 
-function DebugOverlay:toggle()
-	self.enabled = not self.enabled
-end
-
 function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 	if not self.enabled or not conf.drawphysics then return end
 

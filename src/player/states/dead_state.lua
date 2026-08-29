@@ -1,3 +1,5 @@
+local SpawnFlash = require('src.utils.spawn_flash')
+
 local DeadState = Class{}
 
 function DeadState:enter()
@@ -9,10 +11,10 @@ function DeadState:enter()
     player.collider:setGravityScale(0)
     player:setAnimation('idle')
 
-    player.flashEffect:blink(0.15, 8, function()
+    player.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS, function()
         player:resolveDeath()
     end)
-    player.flashEffect:fadeOut(0.15 * 8)
+    player.flashEffect:fadeOut(SpawnFlash.FADE * SpawnFlash.BLINKS)
 end
 
 function DeadState:exit()

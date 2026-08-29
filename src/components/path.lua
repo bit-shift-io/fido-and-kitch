@@ -82,12 +82,6 @@ function Path:getPositionV(distance)
     return a + (b - a) * f
 end
 
--- Backward compatibility: if called with a percentage (0-1), treat as arc-length fraction
-function Path:getPositionAtPercent(percent)
-    local t = math.min(1, math.max(0, percent))
-    return self:getPositionV(t * self.length)
-end
-
 function Path:draw()
     if conf.debug == false then
         return

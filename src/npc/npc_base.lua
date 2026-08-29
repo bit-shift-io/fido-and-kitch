@@ -6,6 +6,7 @@ local Collider = require('src.components.collider')
 local Sprite = require('src.components.sprite')
 local FlashEffect = require('src.components.flash_effect')
 local NPCConfig = require('src.npc.npc_config')
+local SpawnFlash = require('src.utils.spawn_flash')
 local Rect = require('src.utils.rect')
 local Vector = require('lib.hump.vector')
 
@@ -18,8 +19,6 @@ local WALL_PROBE_DIST = 8            -- how far ahead a wall check reaches
 local WALL_PROBE_INSET = 2           -- vertical inset of the wall probe
 local GROUND_AHEAD_PROBE_DIST = 16   -- how far ahead a ground check reaches
 local GROUND_AHEAD_VERT_RANGE = 8    -- vertical range of the ground probe
-local SPAWN_FLASH_FADE = 0.15        -- per-blink fade duration on respawn
-local SPAWN_FLASH_BLINKS = 8
 
 -- Shared "is anything solid in these bounds" scan used by the ground/wall
 -- probes below. With requireSolid=true only terrain (no owning entity) and
@@ -406,15 +405,8 @@ function NPCBase:respawn()
     self.lastKnownTargetPos = nil
     self.stateMachine:setState('IdleState')
     -- Start spawn flash
-    self.flashEffect:fadeIn(SPAWN_FLASH_FADE * SPAWN_FLASH_BLINKS)
-    self.flashEffect:blink(SPAWN_FLASH_FADE, SPAWN_FLASH_BLINKS)
-end
-
-function NPCBase:applyPush(dx, dy)
-    if not self.config.canBePushed then return end
-    local force = self.config.pushForce
-    local vx, vy = self.collider:getLinearVelocity()
-    self.collider:setLinearVelocity(vx + dx * force, vy + dy * force)
+    self.flashEffect:fadeIn(SpawnFlash.FADE * SpawnFlash.BLINKS)
+    self.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS)
 end
 
 function NPCBase:isOnGround()
@@ -480,8 +472,8 @@ function NPCBase:despawnToTarget()
         self.collider:setLinearVelocity(0, 0)
     end
     self.stateMachine:setState('IdleState')
-    self.flashEffect:fadeIn(SPAWN_FLASH_FADE * SPAWN_FLASH_BLINKS)
-    self.flashEffect:blink(SPAWN_FLASH_FADE, SPAWN_FLASH_BLINKS)
+    self.flashEffect:fadeIn(SpawnFlash.FADE * SpawnFlash.BLINKS)
+    self.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS)
 end
 
 

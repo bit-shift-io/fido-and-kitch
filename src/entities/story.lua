@@ -22,7 +22,6 @@ local WORD_PHASE = 0.234375
 local COOLDOWN = 0.5
 local PADDING = 12
 local CORNER_RADIUS = 3
-local LINE_HEIGHT = 16
 local MAX_WIDTH = 500
 local TAIL_HEIGHT = 8
 local TAIL_WIDTH = 16

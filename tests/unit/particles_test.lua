@@ -1,4 +1,4 @@
--- Unit tests for src/particles.lua (the emitter engine) and src/fx/
+-- Unit tests for src/emitters/sprite_emitter.lua (the emitter engine) and src/fx/
 -- (preset effects + FxManager). Pure-Lua logic is tested headless; draw()
 -- is exercised against the love.graphics mock.
 local LoveMock = require('tests.support.love_mock')

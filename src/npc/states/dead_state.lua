@@ -1,5 +1,6 @@
 -- src/npc/states/dead_state.lua
 local Class = require('lib.hump.class')
+local SpawnFlash = require('src.utils.spawn_flash')
 
 local DeadState = Class{}
 
@@ -22,10 +23,10 @@ function DeadState:enter()
     
     -- Use sprite blink + fade-out; deathTimer will start after blink completes
     if npc.flashEffect then
-        npc.flashEffect:blink(0.15, 8, function()
+        npc.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS, function()
             npc.deathTimer = 0
         end)
-        npc.flashEffect:fadeOut(0.15 * 8)
+        npc.flashEffect:fadeOut(SpawnFlash.FADE * SpawnFlash.BLINKS)
     else
         npc.deathTimer = 0
     end

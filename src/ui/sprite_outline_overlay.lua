@@ -14,10 +14,6 @@ function SpriteOutlineOverlay:new()
 	return setmetatable({ enabled = false }, SpriteOutlineOverlay)
 end
 
-function SpriteOutlineOverlay:toggle()
-	self.enabled = not self.enabled
-end
-
 -- World-space box of the art a Sprite is about to draw this frame: the
 -- current frame's image quad placed at sprite.position with scale/offset.
 -- Returns nil when there is nothing to measure (headless placeholders).

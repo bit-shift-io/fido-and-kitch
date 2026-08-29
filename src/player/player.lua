@@ -5,6 +5,7 @@ local SpeedStreak = require('src.components.speed_streak')
 local Web = require('src.npc.web')
 local PlayerSensors = require('src.player.player_sensors')
 local MovementConstants = require('src.player.movement_constants')
+local SpawnFlash = require('src.utils.spawn_flash')
 local Log = require('src.utils.log')
 
 local Player = Class{__includes = Entity}
@@ -236,8 +237,8 @@ function Player:respawn()
 end
 
 function Player:startSpawnFlash()
-    self.flashEffect:fadeIn(0.15 * 8)
-    self.flashEffect:blink(0.15, 8)
+    self.flashEffect:fadeIn(SpawnFlash.FADE * SpawnFlash.BLINKS)
+    self.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS)
 end
 
 function Player:drawSafePositionMarker()

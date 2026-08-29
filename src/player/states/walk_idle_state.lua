@@ -26,7 +26,7 @@ function WalkIdleState:update(dt)
 
     if player.fsm:tryTransition('LadderState') then return end
 
-    local v_x, v_y = player.collider:getLinearVelocity()
+    local _, v_y = player.collider:getLinearVelocity()
 
     local useDownLast = player.useDown
     player.useDown = player:isDown('use')

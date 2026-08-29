@@ -14,6 +14,7 @@ local FrameStepper = require('tests.support.frame_stepper')
 local Queries = require('tests.support.queries')
 
 local MAP = 'tests/fixtures/drawbridge_room.tmj'
+local SWITCH_MAP = 'tests/fixtures/drawbridge_switch_room.tmj'
 
 local GAP_START_X = 128
 local GAP_END_X = 160
@@ -122,4 +123,86 @@ test('every drawbridge resets to closed on level restart', function()
 	local restarted = Queries.findEntityByType(map, 'drawbridge')
 	assertTrue(restarted ~= bridge, 'expected a restart to instantiate a fresh drawbridge entity')
 	assertEqual('closed', Queries.drawbridgeState(restarted), 'expected every drawbridge to reset to closed on restart')
+end)
+
+test('a switch linked to a drawbridge closes it when turned on', function()
+	local game = GameHarness.startGame(SWITCH_MAP)
+	FrameStepper.step(game, 10)
+
+	local bridge = Queries.findEntityByType(map, 'drawbridge')
+	assertEqual('closed', Queries.drawbridgeState(bridge))
+
+	-- Open the bridge first by standing on the trigger
+	local enemy = Collider{
+		shape_type = 'rectangle',
+		shape_arguments = {20, 30},
+		body_type = 'dynamic',
+		position = {x = 80, y = RESTING_Y},
+	}
+	enemy.entity = {type = 'enemy'}
+	enemy:setGroupIndex(100)
+
+	local opened = false
+	for _ = 1, 120 do
+		local _, vy = enemy:getLinearVelocity()
+		enemy:setLinearVelocity(97, vy)
+		FrameStepper.step(game, 1)
+		local state = Queries.drawbridgeState(bridge)
+		if state == 'opening' or state == 'open' then
+			opened = true
+			break
+		end
+	end
+	assertTrue(opened, 'expected the enemy to open the bridge')
+
+	-- Wait for bridge to fully open
+	local fullyOpen = false
+	for _ = 1, 60 do
+		FrameStepper.step(game, 1)
+		if Queries.drawbridgeState(bridge) == 'open' then
+			fullyOpen = true
+			break
+		end
+	end
+	assertTrue(fullyOpen, 'expected bridge to finish opening')
+	assertEqual('open', Queries.drawbridgeState(bridge))
+
+	-- Now use the switch to close it
+	local switch = Queries.findEntityByType(map, 'switch')
+	switch:use(nil) -- turn switch on
+
+	-- Bridge should start closing (play closing animation)
+	FrameStepper.step(game, 1)
+	local state = Queries.drawbridgeState(bridge)
+	assertEqual('closing', state, 'expected bridge to start closing when switch turned on')
+
+	-- Wait for animation to finish
+	local closed = false
+	for _ = 1, 60 do
+		FrameStepper.step(game, 1)
+		if Queries.drawbridgeState(bridge) == 'closed' then
+			closed = true
+			break
+		end
+	end
+	assertTrue(closed, 'expected bridge to finish closing and remain closed')
+	assertEqual('closed', Queries.drawbridgeState(bridge))
+
+	-- Turn switch off - bridge should open again
+	switch:use(nil) -- turn switch off
+
+	FrameStepper.step(game, 1)
+	state = Queries.drawbridgeState(bridge)
+	assertEqual('opening', state, 'expected bridge to start opening when switch turned off')
+
+	local opened2 = false
+	for _ = 1, 60 do
+		FrameStepper.step(game, 1)
+		if Queries.drawbridgeState(bridge) == 'open' then
+			opened2 = true
+			break
+		end
+	end
+	assertTrue(opened2, 'expected bridge to finish opening and remain open')
+	assertEqual('open', Queries.drawbridgeState(bridge))
 end)

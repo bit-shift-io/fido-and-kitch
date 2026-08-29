@@ -232,11 +232,6 @@ function Timeline:timePercent()
     return self.tween.subject.time
 end
 
--- get time as a duration
-function Timeline:timeDuration()
-    return self.tween.clock
-end
-
 function Timeline:play()
     self.playing = true
 end

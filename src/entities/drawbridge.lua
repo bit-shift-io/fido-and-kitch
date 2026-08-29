@@ -134,8 +134,6 @@ end
 function Drawbridge:init(object)
 	Entity.init(self, object, 'drawbridge')
 	self.state = 'closed'
-	self.latchedOpen = false
-	self.latchedOpen = false
 
 	self.rect = Rect(object)
 
@@ -224,7 +222,29 @@ function Drawbridge:init(object)
 	self:addComponent(Switchable{
 		entity = self,
 		onStateChange = function(enabled)
-			self.latchedOpen = enabled
+			if enabled then
+				if self.state == 'closed' or self.state == 'closing' then
+					return
+				end
+				if self.state == 'opening' then
+					self.sprite:reverseFromCurrent()
+				else
+					self.sprite:playReverse()
+				end
+				self.sound:play('close')
+				self:setState('closing')
+			else
+				if self.state == 'open' or self.state == 'opening' then
+					return
+				end
+				if self.state == 'closing' then
+					self.sprite:reverseFromCurrent()
+				else
+					self.sprite:playForward()
+				end
+				self.sound:play('open')
+				self:setState('opening')
+			end
 		end
 	})
 end
@@ -237,12 +257,6 @@ end
 
 function Drawbridge:update(dt)
 	Entity.update(self, dt)
-	if self.latchedOpen then
-		if self.state ~= 'open' then
-			self:setState('open')
-		end
-		return
-	end
 	self:checkHeld()
 end
 

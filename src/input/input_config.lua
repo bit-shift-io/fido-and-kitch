@@ -31,18 +31,8 @@ function InputConfig:getDeadzone(playerIdx)
 	return self.joystickDeadzones[playerIdx] or 0.2
 end
 
-function InputConfig:setDeadzone(playerIdx, deadzone)
-	self.joystickDeadzones[playerIdx] = deadzone
-	self:save()
-end
-
 function InputConfig:isForcedNonGamepad(playerIdx)
 	return self.joystickForcedNonGamepad[playerIdx] or false
-end
-
-function InputConfig:setForcedNonGamepad(playerIdx, forced)
-	self.joystickForcedNonGamepad[playerIdx] = forced
-	self:save()
 end
 
 function InputConfig:save()
