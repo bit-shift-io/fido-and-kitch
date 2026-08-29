@@ -93,12 +93,37 @@
               "type": "string",
               "name": "crossingDirection",
               "value": "leftToRight"
+            },
+            {
+              "type": "float",
+              "name": "spriteOffsetY",
+              "value": -64
+            },
+            {
+              "type": "float",
+              "name": "colliderOffsetX",
+              "value": 32
+            },
+            {
+              "type": "float",
+              "name": "colliderOffsetY",
+              "value": -32
+            },
+            {
+              "type": "int",
+              "name": "colliderWidth",
+              "value": 32
+            },
+            {
+              "type": "int",
+              "name": "colliderHeight",
+              "value": 32
             }
           ],
           "height": 32,
-          "x": 128,
+          "x": 96,
           "id": 4,
-          "y": 128,
+          "y": 160,
           "width": 32,
           "name": "drawbridge",
           "rotation": 0

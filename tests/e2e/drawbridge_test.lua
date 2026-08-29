@@ -23,6 +23,14 @@ local MAP = 'tests/fixtures/drawbridge_room.tmj'
 -- approaches the gap correctly.
 -- Comfortably past the gap (tiles 4/5, x=128..160) and onto the far-side
 -- ground (tiles 5-8, x=160..288).
+--
+-- Editor-first geometry: the drawbridge fixture object sits at (96,160)
+-- carrying EXPLICIT collider offset/size props (matching the drawbridge.tj
+-- template's editor-first defaults); at load the deck lands at
+-- (128,128,32,32) -- exactly over the physical gap -- so the coordinates
+-- below still describe the real collision. The offsets exist so the 64x64
+-- art box and the one-tile deck are authored independently; see
+-- res/entities/drawbridge.tj and NOTES.md 'Sprite offsets'.
 local FAR_SIDE_X = 220
 local GAP_START_X = 128
 local GAP_END_X = 160

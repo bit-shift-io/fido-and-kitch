@@ -107,6 +107,14 @@ test('behavioral props survive alongside sprite props', function()
 		bridgeByName[prop.name] = prop
 	end
 	assertEqual('leftToRight', bridgeByName.crossingDirection.value, 'drawbridge crossingDirection')
+	-- editor-first authoring values (see NOTES.md 'Sprite offsets'): the art
+	-- box and the one-tile deck are independent; pinning them here guards
+	-- the loader-level defaults the fixtures/maps inherit.
+	assertEqual(-64, bridgeByName.spriteOffsetY.value, 'drawbridge spriteOffsetY')
+	assertEqual(32, bridgeByName.colliderOffsetX.value, 'drawbridge colliderOffsetX')
+	assertEqual(-32, bridgeByName.colliderOffsetY.value, 'drawbridge colliderOffsetY')
+	assertEqual(32, bridgeByName.colliderWidth.value, 'drawbridge colliderWidth')
+	assertEqual(32, bridgeByName.colliderHeight.value, 'drawbridge colliderHeight')
 
 	local blockerT = TjTemplate.resolve('res/entities/blocker.tj')
 	local blockerByName = {}

@@ -83,7 +83,8 @@ authorable knobs for sprite art, applied to `sprite.position` only — colliders
 never move with them (blocker's original pattern). `cage.lua`/`teleport.lua`/
 `exit_door.lua` read Y (`tonumber(object.properties.spriteOffsetY) or 0`);
 `drawbridge.lua` reads both X and Y. Written into a template only where the art
-needs it (blocker.tj: -6; drawbridge.tj carries both at 0 for authoring).
+needs it (blocker.tj: -6; drawbridge.tj authors a 64x64 art box with
+`spriteOffsetY=-64` so the art hangs flush off its bottom edge).
 
 `colliderOffsetX`/`colliderOffsetY` (px, positive = right/down) are the
 mirror knobs for the gameplay footprint: `drawbridge.lua` shifts the
@@ -92,17 +93,18 @@ together) without touching the art. This is the "collision independent of the
 visual" case expressed as offsets, symmetric to the sprite offsets — art knobs
 never move colliders and vice versa, so the two never double-apply.
 
-## Side effects (accepted, author to fix later)
+## Editor-first drawbridge (offsets authored in the template, not runtime fixes)
 
-Existing template-referenced map instances serialize `width/height: null`, so
-they inherit the new 64 → cage/teleport/exit_door/drawbridge art shifts +16px
-right (+16px up for drawbridge's art box) on every current placement in
-`res/map/*`. Test fixtures (`tests/fixtures/*.tmj`) carry explicit 32x32 and no
-template refs, so they are shielded and keep the old footprint. Deal: **the
-editor shows the true art now; re-place/re-scale instances and tune gameplay
-positions later.** `drawbridge.tj` now carries `spriteOffsetX`/`spriteOffsetY`
-as authoring knobs so the art can be nudged to match the deck in-game if the
-+16 lands wrong.
+`drawbridge.tj` is authored editor-first: the 64x64 art box is placed in Tiled
+with its bottom edge on the floor (exactly the editor preview: bottom-anchored
+gid tile, sprite at art-box centre + `spriteOffsetY=-64`), and the one-tile
+deck/trigger/occupancy footprint is derived from `colliderWidth`/`colliderHeight`
+(32) + `colliderOffsetX`/`colliderOffsetY` (+32/-32 → the art box's bottom-right
+quadrant, i.e. the deck under the art's deck part). Existing template-referenced
+instances in `res/map/*` inherit these defaults via `_mergeTemplateProps`; the
+test fixture `tests/fixtures/drawbridge_room.tmj` carries explicit offset props
+(shielded from template drift): its object sits at (96,160) so the deck lands
+exactly over the physical gap at (128,128,32,32).
 
 ## Deferred
 
