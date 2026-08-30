@@ -43,7 +43,7 @@ function Main.bakeText(text, path)
 		error(string.format('jump_pad_trajectory: %s: malformed JSON: %s', path, tostring(decodeErr)), 0)
 	end
 
-	local pads = Bake.findJumpPads(map)
+	local pads = Bake.findJumpPads(map, path)
 	if #pads == 0 then
 		error(string.format('jump_pad_trajectory: %s: no jump_pad objects found', path), 0)
 	end
