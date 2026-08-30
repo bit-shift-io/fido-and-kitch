@@ -2,6 +2,7 @@
 local MenuState = require('src.states.menu_state')
 local InGameState = require('src.states.ingame_state')
 local GameOverState = require('src.states.game_over_state')
+local LevelCompleteState = require('src.states.level_complete_state')
 local Map = require('src.map')
 local Log = require('src.utils.log')
 
@@ -13,6 +14,7 @@ function Game:init()
 			MenuState = MenuState,
 			InGameState = InGameState,
 			GameOverState = GameOverState,
+			LevelCompleteState = LevelCompleteState,
 		},
 		entity=self,
 		currentState='MenuState'

@@ -14,3 +14,4 @@ res/map/generated/*
 !res/map/generated/.gitkeep
 /*.png
 tmp/
+.scratch/

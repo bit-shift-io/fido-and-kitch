@@ -79,8 +79,9 @@ function GameHarness.startGame(mapPath, opts)
 	local MenuState = require('src.states.menu_state')
 	local InGameState = require('src.states.ingame_state')
 	local GameOverState = require('src.states.game_over_state')
+	local LevelCompleteState = require('src.states.level_complete_state')
 	local game = {}
-	game.fsm = StateMachine{stateClasses = {MenuState = MenuState, InGameState = InGameState, GameOverState = GameOverState}, entity = game, currentState = 'InGameState'}
+	game.fsm = StateMachine{stateClasses = {MenuState = MenuState, InGameState = InGameState, GameOverState = GameOverState, LevelCompleteState = LevelCompleteState}, entity = game, currentState = 'InGameState'}
 
 	-- Mirrors src/game.lua's Game:setGameState, including the input-edge
 	-- swallow -- a transition that behaves differently here than in the real

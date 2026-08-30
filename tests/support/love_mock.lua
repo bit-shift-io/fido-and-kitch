@@ -142,6 +142,21 @@ function LoveMock.new()
 			file:close()
 			return contents
 		end,
+		-- MenuState's MapList reads this to build its map cards. Real LÖVE
+		-- lists a virtual filesystem directory; here `path` is a real repo
+		-- path (e.g. 'res/map'), so shell out the same way
+		-- all_maps_load_test.lua already does for res/map/*.tmj.
+		getDirectoryItems = function(path)
+			local items = {}
+			local pipe = io.popen('ls ' .. path .. ' 2>/dev/null')
+			if pipe then
+				for line in pipe:lines() do
+					table.insert(items, line)
+				end
+				pipe:close()
+			end
+			return items
+		end,
 	}
 
 	love.data = {
@@ -177,6 +192,12 @@ function LoveMock.new()
 		sleep = function() end,
 		step = function() end,
 	}
+
+	love.getVersion = function()
+		-- Return LÖVE 11 version (11, 4, 0) so vertex format uses old format
+		-- This should be 11, 4, 0 for LÖVE 11 - but any version < 12 works
+		return 11, 4, 0
+	end
 
 	state.audio = {created = {}}
 

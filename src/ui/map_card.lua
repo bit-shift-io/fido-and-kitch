@@ -1,9 +1,40 @@
 local MapInfo = require('src.ui.map_info')
+local LevelRecords = require('src.utils.level_records')
 
 local MapCard = Class{}
 
 local THUMBNAIL_WIDTH = 360
 local THUMBNAIL_HEIGHT = 220
+
+-- Mirrors src/states/level_complete_state.lua's MEDAL_COLORS/formatTime for
+-- visual consistency across the two screens; not worth extracting a shared
+-- module for two small pieces at this project's current scale.
+local MEDAL_COLORS = {
+	bronze={0.80, 0.50, 0.20, 1},
+	silver={0.75, 0.75, 0.78, 1},
+	gold={1, 0.86, 0.22, 1},
+}
+
+-- Floors seconds (no rounding surprises) and formats as mm:ss.
+local function formatTime(totalSeconds)
+	local seconds = math.floor(totalSeconds or 0)
+	local minutes = math.floor(seconds / 60)
+	local remainingSeconds = seconds % 60
+	return string.format('%02d:%02d', minutes, remainingSeconds)
+end
+
+-- Pure: turns a LevelRecords record (or nil, for a never-completed level)
+-- into the {medal, time} the card draws. No record means no display -- a
+-- level with no completions must show neither medal nor time, not a
+-- zero-value one.
+local function recordDisplayFor(record)
+	if not record then return nil end
+
+	return {
+		medal = record.medal,
+		time = formatTime(record.bestTimeSeconds),
+	}
+end
 
 local ENTITY_COLORS = {
 	spawn={0.35, 0.85, 1.0, 1},
@@ -158,6 +189,8 @@ function MapCard:init(props)
 	self.description = props.description
 	self.players = props.players or 1
 	self.mapData = props.mapData
+	self.record = LevelRecords.get(self.path)
+	self.recordDisplay = recordDisplayFor(self.record)
 
 	local canvas = love.graphics.newCanvas(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
 	local previousCanvas = love.graphics.getCanvas()
@@ -197,6 +230,12 @@ function MapCard:drawTitleAndInfo(x, y, w, fonts, colors)
 	lg.setFont(fonts.bodyFont)
 	lg.setColor(colors.players[1], colors.players[2], colors.players[3], colors.players[4] or 1)
 	lg.printf('players: ' .. self.players, x, y + 80, w, 'center')
+
+	if self.recordDisplay then
+		local medalColor = MEDAL_COLORS[self.recordDisplay.medal] or {1, 1, 1, 1}
+		lg.setColor(medalColor)
+		lg.printf(self.recordDisplay.medal:upper() .. '  ' .. self.recordDisplay.time, x, y + 108, w, 'center')
+	end
 end
 
 function MapCard:hitTest(x, y, mx, my, scale)
@@ -214,5 +253,7 @@ MapCard.readTile = readTile
 MapCard.objectTopY = objectTopY
 MapCard.collisionRects = collisionRects
 MapCard.drawMapThumbnail = drawMapThumbnail
+MapCard.recordDisplayFor = recordDisplayFor
+MapCard.formatTime = formatTime
 
 return MapCard

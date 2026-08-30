@@ -113,3 +113,25 @@ test('hidden collision layers are ignored', function()
 
 	assertEqual(0, #MapCard.collisionRects(map))
 end)
+
+-- Medal/time display: a card with no record shows neither, a card with a
+-- record shows its medal and a formatted mm:ss time.
+test('a nil record produces no display', function()
+	assertEqual(nil, MapCard.recordDisplayFor(nil))
+end)
+
+test('a record produces its medal and formatted time', function()
+	local display = MapCard.recordDisplayFor({bestScorePct = 90, medal = 'gold', bestTimeSeconds = 95})
+	assertEqual('gold', display.medal)
+	assertEqual('01:35', display.time)
+end)
+
+test('a sub-minute time formats with a zero minutes place', function()
+	local display = MapCard.recordDisplayFor({bestScorePct = 60, medal = 'bronze', bestTimeSeconds = 7})
+	assertEqual('00:07', display.time)
+end)
+
+test('a fractional time is floored, not rounded', function()
+	local display = MapCard.recordDisplayFor({bestScorePct = 60, medal = 'bronze', bestTimeSeconds = 59.9})
+	assertEqual('00:59', display.time)
+end)

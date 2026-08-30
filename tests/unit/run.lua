@@ -44,6 +44,7 @@ local defaultTestFiles = {
 	'tests/unit/level_generator_dressing_test.lua',
 	'tests/unit/input_manager_test.lua',
 	'tests/unit/settings_test.lua',
+	'tests/unit/level_records_test.lua',
 	'tests/unit/map_list_selection_test.lua',
 	'tests/unit/map_card_test.lua',
 	'tests/unit/ladder_merge_test.lua',
@@ -56,6 +57,8 @@ local defaultTestFiles = {
 	'tests/unit/export_png_test.lua',
 	'tests/unit/diorama_test.lua',
 	'tests/unit/grid_overlay_test.lua',
+	'tests/unit/level_score_test.lua',
+	'tests/unit/level_complete_state_test.lua',
 }
 
 local tests = {}

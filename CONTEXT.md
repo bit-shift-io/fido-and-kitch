@@ -307,3 +307,39 @@ Templates are the single source of truth for an entity's default + sprite proper
 **Definition** — The level-completion entity players and rescued actors leave through. Opens when its actor counter reaches zero or on the `all_cages_unlocked` event, and cannot be closed again once open for the player.
 
 **Boundary** — Distinct from a blocker in every respect: it is a level objective, not a barrier, and is never wired to a switch. Named `exit_door` uniformly — in the type, the asset filenames, the Tiled template and the object name.
+
+## Level score
+
+**Definition** — The percentage awarded for a completed level, computed as an even split: 50% from lives remaining out of the [[Lives pool]] max, 50% from coins collected out of that level's total. A level with no coins scores 100% on the coin half automatically.
+
+**Boundary** — Computed only on level completion (exiting the door with players remaining), never on game over. Purely a scoring number — it does not affect gameplay, and is distinct from the coin/lives counts themselves.
+
+## Level medal
+
+**Definition** — The bronze/silver/gold tier derived from a [[Level score]]: bronze for any completion (score > 0%), silver for score > 50%, gold for exactly 100%.
+
+**Boundary** — Always awarded on completion (bronze is the floor); there is no "no medal" outcome for a completed run. Distinct from the *best* medal shown in the level selector, which is the highest medal ever earned on that level (see [[Level record]]).
+
+## Jump pad
+
+**Definition** — A Tiled-placed entity (`res/entities/jump_pad.tj`) that, when used, launches the player along a scripted `path` (a hand-drawn polyline object, referenced by id) at constant speed via `PathFollow`, driving the player's `JumpTravelState` until they land.
+
+**Boundary** — Movement along the path is fully scripted (kinematic, gravity suspended) rather than simulated projectile physics; only the moment of landing hands control back to normal physics. See [[Jump pad target]] for an alternative to hand-authoring the polyline.
+
+## Jump pad target
+
+**Definition** — An optional `target` property on a jump pad, referencing a plain Tiled point object by id (same convention as `teleport.target`), used as an alternative to hand-drawing a `path` polyline. A shared trajectory module computes a distance-proportional parabolic arc from the pad to the target.
+
+**Boundary** — A target only ever produces a `path` via a [[Trajectory bake]]; the jump pad entity itself never reads `target` directly at runtime — it only ever consumes `path`, exactly as before. Height is always distance-proportional; there is no per-pad tuning property, and the arc has no awareness of intervening terrain.
+
+## Trajectory bake
+
+**Definition** — The process that turns a jump pad's `target` into a real polyline object and `path` property, written into the map's `.tmj` file so it becomes visible and hand-editable in Tiled. Runs two ways: a standalone offline CLI tool a designer runs manually, or automatically on map load when the game is launched with the `debug` flag. Either route skips any pad that already has a `path`, so a previous bake or a hand-tweak is never overwritten.
+
+**Boundary** — A one-way, one-time derivation, not a live binding — moving the target after a bake has no effect until `path` is deleted and the bake re-run. The in-game route only ever runs under `conf.debug`; it never executes in a shipped/player build.
+
+## Level record
+
+**Definition** — The persisted best-attempt data for one level, keyed by map filename: best [[Level score]] percentage and its medal, and best completion time (tracked independently — a fast, low-scoring run and a slow, perfect run each update their own field). Stored via `src/utils/settings.lua`'s JSON blob.
+
+**Boundary** — Per level, not per player (matches the shared [[Lives pool]]). Time is informational only — it never affects the medal. A level with no completions has no record at all, not a zero-value one.

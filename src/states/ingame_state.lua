@@ -83,6 +83,7 @@ function InGameState:load(props)
         padding = 16,
     }
     self.gameOverTimer = nil
+    self.levelTimer = 0
     self.lives = Lives.defaultCount()
     local ingame = self
     self.gameHud = GameHud{
@@ -161,7 +162,15 @@ function InGameState:onPlayerDestroyed(player)
     if playerCount == 0 then
         Log.debug('all players have left the map!')
         local game = self.entity
-        game:setGameState('MenuState')
+        game:setGameState('LevelCompleteState')
+        game:load{
+            map = self.currentMap,
+            lives = self.lives,
+            maxLives = Lives.defaultCount(),
+            coins = self.coinsCollected,
+            totalCoins = self.totalCoins,
+            time = self.levelTimer,
+        }
     end
 end
 
@@ -198,6 +207,7 @@ end
 function InGameState:update(dt)
     map:update(dt)
     world:update(dt)
+    self.levelTimer = self.levelTimer + dt
 
     if self.gameOverTimer then
         self.gameOverTimer = self.gameOverTimer - dt
