@@ -28,6 +28,24 @@ local Log = require('src.utils.log')
 local function lerp(a, b, t) return a + (b - a) * t end
 local function clamp(v, lo, hi) return math.max(lo, math.min(hi, v)) end
 
+-- LÖVE 12 renamed the vertex format attribute keys/types (name/format/location,
+-- "floatvec2"/"floatvec4") vs LÖVE 11's positional {name, datatype, components}.
+local loveMajor = select(1, love.getVersion())
+local VERTEX_FORMAT
+if loveMajor >= 12 then
+    VERTEX_FORMAT = {
+        {name = "VertexPosition", format = "floatvec2", location = 0},
+        {name = "VertexTexCoord", format = "floatvec2", location = 1},
+        {name = "VertexColor", format = "floatvec4", location = 2},
+    }
+else
+    VERTEX_FORMAT = {
+        {"VertexPosition", "float", 2},
+        {"VertexTexCoord", "float", 2},
+        {"VertexColor", "float", 4},
+    }
+end
+
 local Emitter = {}
 Emitter.__index = Emitter
 
@@ -215,11 +233,7 @@ function Emitter:_rebuildMesh()
         })
     end
     
-    self._mesh = love.graphics.newMesh({
-        {name = "VertexPosition", format = "floatvec2", location = 0},
-        {name = "VertexTexCoord", format = "floatvec2", location = 1},
-        {name = "VertexColor", format = "floatvec4", location = 2},
-    }, meshVerts, "strip")
+    self._mesh = love.graphics.newMesh(VERTEX_FORMAT, meshVerts, "strip")
     
     if not self._mesh then
         return
