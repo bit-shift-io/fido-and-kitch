@@ -4,12 +4,66 @@ local EntityFactory = require('src.map.entity_factory')
 local CollisionBuilder = require('src.map.collision_builder')
 local ParallaxRenderer = require('src.map.parallax_renderer')
 local FxManager = require('src.fx.manager')
+local json = require('src.utils.json')
+local Bake = require('tools.jump_pad_trajectory.bake')
 local lg = love.graphics
 
 local Map = {}
 Map.__index = Map
 
+-- Matches Tmj.parse's own readFile fallback exactly (src/map/tmj.lua) so this
+-- stays testable headless whether or not a `love` global is present.
+local function readMapFile(path)
+	if love and love.filesystem and love.filesystem.read then
+		return love.filesystem.read(path)
+	end
+	local file = io.open(path, 'r')
+	if not file then return nil end
+	local contents = file:read('*a')
+	file:close()
+	return contents
+end
+
+-- love.filesystem.write is sandboxed to the save directory, not the
+-- project's real res/map/*.tmj source paths -- io.open bypasses that
+-- sandbox, matching the established precedent at src/export_png.lua:177.
+local function writeMapFile(path, contents)
+	local file, err = io.open(path, 'w')
+	if not file then
+		error(string.format('Map: could not write baked map "%s": %s', path, tostring(err)), 0)
+	end
+	file:write(contents)
+	file:close()
+end
+
+-- Debug-only in-game bake: re-reads the file as a RAW parsed-JSON table (the
+-- shape Bake.bakeMap expects -- NOT Tmj.parse's resolved shape) and, if any
+-- pad gets a newly baked path, writes it back to disk before Tmj.parse (below)
+-- re-reads the now-updated file. Never runs outside conf.debug, so this can
+-- never touch disk in a shipped/player build.
+local function bakeIfDebug(path)
+	if not conf.debug then
+		return
+	end
+
+	local contents = readMapFile(path)
+	if not contents then
+		return
+	end
+
+	local rawMap = json.decode(contents)
+	if not rawMap then
+		return
+	end
+
+	local baked = Bake.bakeMap(rawMap, path)
+	if baked > 0 then
+		writeMapFile(path, json.encode(rawMap))
+	end
+end
+
 local function loadSti(path, plugins)
+	bakeIfDebug(path)
 	return sti(Tmj.parse(path), plugins)
 end
 

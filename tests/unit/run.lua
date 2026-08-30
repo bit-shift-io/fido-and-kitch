@@ -59,6 +59,8 @@ local defaultTestFiles = {
 	'tests/unit/grid_overlay_test.lua',
 	'tests/unit/level_score_test.lua',
 	'tests/unit/level_complete_state_test.lua',
+	'tests/unit/jump_pad_trajectory_test.lua',
+	'tests/unit/jump_pad_trajectory_bake_test.lua',
 }
 
 local tests = {}
