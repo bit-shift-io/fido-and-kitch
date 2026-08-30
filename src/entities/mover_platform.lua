@@ -9,8 +9,8 @@ local MoverPlatform = Class{__includes = Entity}
 local SpriteProps = require('src.entities.sprite_props')
 
 -- Feet-in-top-band tolerance for rider detection, in px. Must be >= the
--- platform's worst per-frame rise (speed * dt): at default 100px/s and 60fps
--- that's ~1.7px, so 8 gives comfortable headroom without swallowing anything
+-- platform's worst per-frame rise (speed * dt): at default 50px/s and 60fps
+-- that's ~0.8px, so 8 gives comfortable headroom without swallowing anything
 -- near the deck. A supported rider has feet sitting on the deck, so the band
 -- reaching the full LAND_TOL below the top keeps the player the colFilterFn
 -- deems landable inside the carry band too -- the two tolerances never
@@ -102,7 +102,7 @@ end
 -- how much node-hold remains. `pause` is in seconds and `speed` in px/s;
 -- the hold is pre-converted to a pixel-equivalent (pause * speed) so
 -- advance() can consume it straight against the pixel distances the caller
--- steps by -- a 1s hold at 100px/s swallows 100px of advance before moving.
+-- steps by -- a 1s hold at 50px/s swallows 50px of advance before moving.
 local function newStepper(waypoints, endBehavior, pause, speed)
 	local legs = buildLegs(waypoints, endBehavior)
 	local first = legs[1]
@@ -112,7 +112,7 @@ local function newStepper(waypoints, endBehavior, pause, speed)
 		pause = pause,
 		speed = speed,
 		pauseRemaining = 0,
-		pauseDistance = (pause or 0) * (speed or 100),
+		pauseDistance = (pause or 0) * (speed or 50),
 		legIndex = 1,
 		distInLeg = 0,
 		-- a degenerate path (single waypoint, or all points coincident) has

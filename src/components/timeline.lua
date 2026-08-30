@@ -95,7 +95,6 @@ end
 
 function Timeline:progress(dt, supressEvents)
     local stp = self:timePercent()
-    local startClock = self.tween.clock
     local overflow = (self.tween.clock + dt) - self.tween.duration
     self.tween:update(dt)
     local endClock = self.tween.clock

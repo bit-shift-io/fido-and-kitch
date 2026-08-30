@@ -293,7 +293,7 @@ end)
 local HOLE_CENTRE_X = 304
 local HOLE_FLOOR_TOP = 256
 
--- ADR 0001's payoff: the box aligns to the hole's tile centre and drops
+-- ADR 0002's payoff: the box aligns to the hole's tile centre and drops
 -- straight in, so it fills the gap flush instead of landing wedged
 -- off-centre wherever momentum left it.
 test('a box pushed over a one-tile hole snaps into it and fills it flush', function()
@@ -316,7 +316,7 @@ end)
 
 -- The counterpart to the snap: alignment is an EVENT, not the resting state.
 -- A prop shoved along flat ground rests at whatever arbitrary x it was left
--- at -- props are not grid-locked (ADR 0001, DECISIONS Q7).
+-- at -- props are not grid-locked (ADR 0002, DECISIONS Q7).
 test('a box resting over solid ground keeps its arbitrary x -- no grid alignment', function()
 	local game = GameHarness.startGame(MAP)
 	local controller = FakeInput.new()

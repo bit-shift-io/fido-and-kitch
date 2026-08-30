@@ -1,6 +1,6 @@
 -- Integration test runner. Mirrors tests/unit/run.lua's test()/assert*/file-list
 -- pattern so both suites feel like one testing convention; kept separate so
--- ./test-unit.sh stays fast and untouched (see .scratch/integration-testing/).
+-- ./test-unit.sh stays fast and untouched.
 --
 -- lib/sti is a directory module (lib/sti/init.lua); the default luajit/lua
 -- package.path only searches system init.lua locations, not a local one, so
@@ -13,6 +13,7 @@ local defaultTestFiles = {
 	'tests/integration/ladder_top_test.lua',
 	'tests/integration/ladder_switch_test.lua',
 	'tests/integration/ladder_catch_slide_test.lua',
+	'tests/integration/ladder_catch_test.lua',
 	'tests/integration/ladder_seam_test.lua',
 	'tests/integration/ladder_flank_test.lua',
 	'tests/integration/npc_ladder_test.lua',
@@ -30,6 +31,7 @@ local defaultTestFiles = {
 	'tests/integration/coin_test.lua',
 	'tests/integration/mesh_ribbon_draw_order_test.lua',
 	'tests/integration/render_order_test.lua',
+	'tests/integration/level_layer_render_test.lua',
 	'tests/integration/pushable_teleport_render_order_test.lua',
 	'tests/integration/layered_prop_render_split_test.lua',
 	'tests/integration/layered_prop_tint_warning_test.lua',
@@ -38,6 +40,7 @@ local defaultTestFiles = {
 	'tests/integration/switch_sound_test.lua',
 	'tests/integration/switch_animation_test.lua',
 	'tests/integration/switchable_teleport_test.lua',
+	'tests/integration/teleport_clear_test.lua',
 	'tests/integration/key_test.lua',
 	'tests/integration/flag_test.lua',
 	'tests/integration/cage_sound_test.lua',

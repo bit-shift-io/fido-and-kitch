@@ -47,12 +47,8 @@ local function unionBounds(targets)
 	return minX, minY, maxX, maxY
 end
 
-local function clamp(v, lo, hi)
-	if lo > hi then return (lo + hi) / 2 end
-	if v < lo then return lo end
-	if v > hi then return hi end
-	return v
-end
+local NumberUtils = require('src.utils.number')
+local clamp = NumberUtils.clamp
 
 -- Pure framing math: given world-space target rects ({x, y, w, h}), the map's
 -- pixel size, the screen's pixel size, and options, returns the view rect

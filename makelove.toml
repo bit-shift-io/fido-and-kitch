@@ -3,9 +3,8 @@ default_targets = ["win32", "win64", "macos", "appimage"]
 build_directory = "makelove-build"
 
 love_files = [
-    "./*.lua",
-    "./lib/*",
-    "./src/*",
-    "./res/*",
+    "./src/**/*.lua",
+    "./lib/**/*.lua",
+    "./res/**/*.tmj",
     "-*/.*",
 ]

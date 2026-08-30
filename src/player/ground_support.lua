@@ -2,16 +2,20 @@
 -- under BOTH feet corners (with an inward margin), not just anywhere under a
 -- wide strip. Used to gate safe-position recording so a player hanging off
 -- a ledge edge never gets recorded as "safely" grounded there.
-local GroundSupport = {}
+local NumberUtils = require('src.utils.number')
+local clamp = NumberUtils.clamp
 
+local PLAYER_PROBE_MARGIN = 4
 local DEFAULT_MARGIN = 6
+
+local GroundSupport = {}
 
 -- Is there something standable directly under this single x, in the vertical
 -- band top..bottom? Public because pushable props probe support the same way
--- (under their centre-x, see ADR 0001) and duplicating the walkable/sensor
+-- (under their centre-x, see ADR 0002) and duplicating the walkable/sensor
 -- rules is exactly how the two would drift apart.
 function GroundSupport.hasGroundAt(world, x, top, bottom)
-	local probe = {left = x - 2, right = x + 2, top = top, bottom = bottom}
+	local probe = {left = x - PLAYER_PROBE_MARGIN, right = x + PLAYER_PROBE_MARGIN, top = top, bottom = bottom}
 	local colls = world:queryBounds(probe)
 	for _, c in ipairs(colls) do
 		-- `walkable` is a capability flag, not a standing guarantee -- an
@@ -27,7 +31,7 @@ end
 
 function GroundSupport.isFullySupported(world, bounds, margin)
 	margin = margin or DEFAULT_MARGIN
-	local top = bounds.bottom + 4
+	local top = bounds.bottom + PLAYER_PROBE_MARGIN
 	local bottom = bounds.bottom + 5
 
 	return GroundSupport.hasGroundAt(world, bounds.left + margin, top, bottom)

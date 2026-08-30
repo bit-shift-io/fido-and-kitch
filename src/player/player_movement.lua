@@ -25,38 +25,6 @@ function PlayerMovement.decideHorizontalMovement(input, speed, velocityY)
     }
 end
 
-function PlayerMovement.decideLadderMovement(input, climbSpeed, ladder, ladderBelow)
-    local velocityX = 0
-    local velocityY = 0
-    local animation = 'climb'
-    local movingOnLadder = false
-
-    if input.up then
-        if ladder then
-            velocityY = -climbSpeed
-            movingOnLadder = true
-        else
-            return nil -- transition to fall
-        end
-    end
-
-    if input.down then
-        if ladderBelow then
-            velocityY = climbSpeed
-            movingOnLadder = true
-        else
-            return nil -- transition to fall
-        end
-    end
-
-    return {
-        velocityX = velocityX,
-        velocityY = velocityY,
-        animation = animation,
-        movingOnLadder = movingOnLadder,
-    }
-end
-
 function PlayerMovement.nearestLadderCentre(playerCentreX, ladderCentres)
     if #ladderCentres == 0 then
         return nil

@@ -1,11 +1,14 @@
 local GroundSupport = require('src.player.ground_support')
+local NumberUtils = require('src.utils.number')
+local clamp = NumberUtils.clamp
+local PLAYER_PROBE_MARGIN = 4
 
 local PlayerSensors = {}
 
 function PlayerSensors.queryKillZone(world, collider)
     local bounds = collider:getBounds()
-    bounds.left = bounds.left + 4
-    bounds.right = bounds.right - 4
+    bounds.left = bounds.left + PLAYER_PROBE_MARGIN
+    bounds.right = bounds.right - PLAYER_PROBE_MARGIN
 
     local colls = world:queryBounds(bounds)
     for _, c in ipairs(colls) do
@@ -19,9 +22,9 @@ end
 
 function PlayerSensors.queryLadderBelow(world, collider, topOffset, bottomOffset)
     local bounds = collider:getBounds()
-    bounds.left = bounds.left + 4
-    bounds.right = bounds.right - 4
-    bounds.top = bounds.bottom + (topOffset or 4)
+    bounds.left = bounds.left + PLAYER_PROBE_MARGIN
+    bounds.right = bounds.right - PLAYER_PROBE_MARGIN
+    bounds.top = bounds.bottom + (topOffset or PLAYER_PROBE_MARGIN)
     bounds.bottom = bounds.bottom + (bottomOffset or 5)
 
     local colls = world:queryBounds(bounds)
@@ -44,8 +47,8 @@ end
 
 function PlayerSensors.queryAllLadders(world, collider)
     local bounds = collider:getBounds()
-    bounds.left = bounds.left + 4
-    bounds.right = bounds.right - 4
+    bounds.left = bounds.left + PLAYER_PROBE_MARGIN
+    bounds.right = bounds.right - PLAYER_PROBE_MARGIN
 
     local colls = world:queryBounds(bounds)
     local ladders = {}
@@ -60,7 +63,7 @@ end
 
 function PlayerSensors.queryOnGround(world, collider)
     local bounds = collider:getBounds()
-    bounds.top = bounds.bottom + 4
+    bounds.top = bounds.bottom + PLAYER_PROBE_MARGIN
     bounds.bottom = bounds.bottom + 5
 
     local colls = world:queryBounds(bounds)
@@ -84,7 +87,7 @@ end
 -- against the ladder's own slab (top perch) must not.
 function PlayerSensors.queryOnNonLadderGround(world, collider)
     local bounds = collider:getBounds()
-    bounds.top = bounds.bottom + 4
+    bounds.top = bounds.bottom + PLAYER_PROBE_MARGIN
     bounds.bottom = bounds.bottom + 5
 
     local colls = world:queryBounds(bounds)

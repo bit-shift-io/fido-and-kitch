@@ -1,8 +1,6 @@
 local InputConfig = {}
 InputConfig.__index = InputConfig
 
-local Log = require('src.utils.log')
-
 local DEFAULT_KEYBOARD_MAPS = {
 	[1] = {left = 'left', right = 'right', up = 'up', down = 'down', use = 'rshift', start = 'return', back = 'escape'},
 	[2] = {left = 'a', right = 'd', up = 'w', down = 's', use = 'q', start = 'tab', back = 'lshift'},
@@ -35,24 +33,6 @@ function InputConfig:isForcedNonGamepad(playerIdx)
 	return self.joystickForcedNonGamepad[playerIdx] or false
 end
 
-function InputConfig:save()
-	if not love or not love.filesystem then return end
-	
-	local data = {
-		keyboardMaps = self.keyboardMaps,
-		joystickDeadzones = self.joystickDeadzones,
-		joystickForcedNonGamepad = self.joystickForcedNonGamepad,
-	}
-	
-	local serialized = self:serialize(data)
-	-- best-effort persistence: a failed write (read-only save dir, disk
-	-- full) must never take the game down -- matches settings.lua
-	local ok, err = pcall(love.filesystem.write, CONFIG_FILE, serialized)
-	if not ok then
-		Log.warn('[InputConfig] failed to persist config:', err)
-	end
-end
-
 function InputConfig:load()
 	if not love or not love.filesystem then return end
 	
@@ -70,28 +50,6 @@ function InputConfig:load()
 			end
 		end
 	end
-end
-
-function InputConfig:serialize(data)
-	local function serializeValue(v)
-		local t = type(v)
-		if t == 'string' then
-			return string.format('%q', v)
-		elseif t == 'number' or t == 'boolean' then
-			return tostring(v)
-		elseif t == 'table' then
-			local parts = {}
-			for k, val in pairs(v) do
-				local key = type(k) == 'string' and '[' .. string.format('%q', k) .. ']' or '[' .. tostring(k) .. ']'
-				table.insert(parts, key .. ' = ' .. serializeValue(val))
-			end
-			return '{' .. table.concat(parts, ', ') .. '}'
-		else
-			return 'nil'
-		end
-	end
-	
-	return 'return ' .. serializeValue(data)
 end
 
 return InputConfig

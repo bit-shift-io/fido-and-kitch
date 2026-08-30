@@ -228,7 +228,7 @@ Player:update → queryKillZone() → die(deathType)
 2. Attach via `entity:addComponent(ComponentName{…})` in entity's `init`.
 
 ### Adding a New Player State
-1. Create state class in `src/player/player_states.lua` (or new file, required there).
+1. Create state class in `src/player/states/<name>_state.lua` (one file per state).
 2. Implement `enter`, `exit`, `update`, and any custom methods.
 3. Add to `PlayerStates` table; reference in `Player.fsm` `stateClasses`.
 

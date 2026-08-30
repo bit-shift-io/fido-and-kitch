@@ -1,30 +1,14 @@
 -- src/npc/npc_config.lua
 local NPCConfig = {}
 
-NPCConfig.BehaviorTypes = {
-    follow = { description = 'Follow a target entity (player or NPC)' },
-    wander = { description = 'Random movement within bounds' },
-    patrol = { description = 'Move between defined patrol points' },
-    chase = { description = 'Pursue a detected target aggressively' },
-    attack = { description = 'Engage target in combat' },
-    flee = { description = 'Run away from threat' },
-}
-
 NPCConfig.Defaults = {
     maxSpeed = 80,
     acceleration = 400,
-    deceleration = 600,
     detectionRadius = 160,
     attackRange = 32,
     fleeThreshold = 0.3,
     behavior = 'wander',
-    patrolPoints = {},
-    followTarget = nil,
-    canPush = true,
-    canBePushed = true,
-    pushForce = 200,
     ridePlatforms = false,
-    triggerSwitches = false,
     health = 1,
     damage = 1,
     invulnerableTime = 0.5,

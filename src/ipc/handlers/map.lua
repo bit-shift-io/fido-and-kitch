@@ -1,17 +1,5 @@
 local GameAPI = {}
-
-local function inGameState()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
-	end
-
-	return state
-end
+local Helpers = require('src.ipc.handler_helpers')
 
 function GameAPI.loadMap(mapName)
 	if not mapName then
@@ -32,7 +20,7 @@ function GameAPI.loadMap(mapName)
 end
 
 function GameAPI.restartLevel()
-	local state, err = inGameState()
+	local state, err = Helpers.inGameState()
 	if not state then
 		return nil, err
 	end

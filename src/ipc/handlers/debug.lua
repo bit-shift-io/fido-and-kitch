@@ -1,32 +1,8 @@
 local GameAPI = {}
-
-local function inGameState()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
-	end
-
-	return state
-end
-
-local FRAME_DT = 1 / 60
-local function stepFixed(frames)
-	for _ = 1, frames do
-		if game and game.fsm and game.fsm.currentState then
-			if inputManager and inputManager.update then
-				inputManager:update(FRAME_DT)
-			end
-			game.fsm.currentState:update(FRAME_DT)
-		end
-	end
-end
+local Helpers = require('src.ipc.handler_helpers')
 
 local function getCamera()
-	local state = inGameState()
+	local state = Helpers.inGameState()
 	return state and state.camera
 end
 
@@ -64,12 +40,12 @@ function GameAPI.takeScreenshot(filename)
 end
 
 function GameAPI.stepFrames(count)
-	local state, err = inGameState()
+	local state, err = Helpers.inGameState()
 	if not state then
 		return nil, err
 	end
 
-	stepFixed(count)
+	Helpers.stepFixed(count)
 
 	return 'OK: Stepped ' .. count .. ' frames'
 end

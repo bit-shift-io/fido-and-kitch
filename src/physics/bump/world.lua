@@ -13,21 +13,6 @@ function World:new(...)
 end
 
 
-function World:draw()
-   for _, c in pairs(self.colliders) do
-      c:worldDraw()
-   end
-
-   local r, g, b, a = love.graphics.getColor()
-   love.graphics.setColor(1, 0, 0, 1)
-   for _, c in pairs(self.queryRects) do
-		love.graphics.rectangle('line', c.x, c.y, c.width, c.height)
-	end
-   love.graphics.setColor(r, g, b, 1)
-   self.queryRects = {}
-end
-
-
 function World:update(dt)
    for _, c in pairs(self.colliders) do
       c:worldUpdate(dt)

@@ -1,33 +1,9 @@
 local GameAPI = {}
 local ActionMap = require('src.input.action_map')
+local Helpers = require('src.ipc.handler_helpers')
 
 local P1_KEYS = ActionMap.KEYBOARD_MAPS[1]
 local P2_KEYS = ActionMap.KEYBOARD_MAPS[2]
-
-local FRAME_DT = 1 / 60
-local function stepFixed(frames)
-	for _ = 1, frames do
-		if game and game.fsm and game.fsm.currentState then
-			if inputManager and inputManager.update then
-				inputManager:update(FRAME_DT)
-			end
-			game.fsm.currentState:update(FRAME_DT)
-		end
-	end
-end
-
-local function inGameState()
-	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
-	end
-
-	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
-	end
-
-	return state
-end
 
 local injectedInput = {
 	p1 = {},
@@ -82,7 +58,7 @@ end
 
 function GameAPI.holdKey(playerIdx, action, duration)
 	GameAPI.injectInput(playerIdx, action, true)
-	stepFixed(math.floor(duration * 60))
+	Helpers.stepFixed(math.floor(duration * 60))
 	GameAPI.injectInput(playerIdx, action, false)
 	return 'OK: Held ' .. action .. ' for player ' .. playerIdx .. ' for ' .. duration .. 's'
 end
@@ -115,7 +91,7 @@ function GameAPI.movePlayer(idx, dx, dy)
 end
 
 function GameAPI.getPlayerPos(idx)
-	local state, err = inGameState()
+	local state, err = Helpers.inGameState()
 	if not state then
 		return nil, err
 	end

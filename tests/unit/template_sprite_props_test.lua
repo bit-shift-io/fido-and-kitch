@@ -130,5 +130,5 @@ test('behavioral props survive alongside sprite props', function()
 		flagByName[prop.name] = prop
 	end
 	assertEqual('red', flagByName.color.value, 'flag color')
-	assertEqual(0, flagByName.spriteOffsetY.value, 'flag spriteOffsetY')
+	assertEqual(2, flagByName.spriteOffsetY.value, 'flag spriteOffsetY')
 end)

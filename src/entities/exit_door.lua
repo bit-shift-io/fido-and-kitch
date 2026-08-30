@@ -75,14 +75,6 @@ function ExitDoor:contact(other)
 end
 
 
-function ExitDoor:reset()
-    self.variable:reset()
-end
-
-function ExitDoor:add(v)
-    self.variable:add(v)
-end
-
 function ExitDoor:subtract(v)
     self.variable:subtract(v)
 end

@@ -20,7 +20,7 @@ test('TeleportTravelState:enter hides player and sets up travel', function()
         setAnimation = function() end,
     }
     state.entity = mockPlayer
-    state:enter({
+    state:enter(nil, {
         curve = { startX = 100, startY = 200, destX = 500, destY = 200 },
         duration = 1.0,
         destX = 500,
@@ -49,7 +49,7 @@ test('TeleportTravelState:update advances travel and completes', function()
         },
     }
     state.entity = mockPlayer
-    state:enter({
+    state:enter(nil, {
         curve = { startX = 100, startY = 200, destX = 500, destY = 200 },
         duration = 1.0,
         destX = 500,
@@ -76,7 +76,7 @@ test('TeleportTravelState:exit shows player and restores physics', function()
         setAnimation = function() end,
     }
     state.entity = mockPlayer
-    state:enter({
+    state:enter(nil, {
         curve = { startX = 100, startY = 200, destX = 500, destY = 200 },
         duration = 1.0,
         destX = 500,

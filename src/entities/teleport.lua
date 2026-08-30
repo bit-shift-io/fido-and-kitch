@@ -4,7 +4,7 @@ local TeleportBurst = require('src.fx.teleport_burst')
 local SpriteProps = require('src.entities.sprite_props')
 local PushableSupport = require('src.components.pushable.pushable_support')
 
--- Pushables aren't grid-locked (ADR 0001), and float residue from collision
+-- Pushables aren't grid-locked (ADR 0002), and float residue from collision
 -- resolution can leave a box resting a stray pixel or two into a
 -- neighbouring tile rather than exactly flush against whatever stopped it.
 -- A graze that shallow must not read as "the box is on this tile" -- so

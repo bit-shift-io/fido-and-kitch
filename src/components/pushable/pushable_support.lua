@@ -174,7 +174,7 @@ function PushableSupport.bodyTypeFor(state)
 end
 
 -- The centre-x of the tile the prop's centre-x currently sits over -- where
--- a falling prop aligns to (ADR 0001). Alignment happens only on the forcing
+-- a falling prop aligns to (ADR 0002). Alignment happens only on the forcing
 -- events (dropping into a gap, seating on a pressure switch), never as the
 -- prop's normal resting behaviour, which is why this is a snap target rather
 -- than something applied continuously.

@@ -167,14 +167,6 @@ local function embeddedKeyEquals(a, b)
 	return true
 end
 
--- Concatenated signature, used as the cache key for auto-registered tilesets.
-local function embeddedKeySig(key)
-	if key.kind == 'grid' then
-		return 'grid:' .. tostring(key.image)
-	end
-	return 'collection:' .. table.concat(key.images, '|')
-end
-
 --- Resolves template-local gid into map-global gid using the tileset allocator.
 -- External template tilesets (.tsj source) resolve by path; embedded template
 -- tilesets (no source) resolve by matching against the map's declared

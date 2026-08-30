@@ -11,31 +11,22 @@ NPCRegistry.registerType('npc_spider', Spider)
 
 function Spider:init(props)
     props = props or {}
-    -- Spider-specific defaults
-    local spiderDefaults = {
-        idleImage = 'res/img/npc_spider.png',
-        maxSpeed = 90,
-        acceleration = 350,
-        deceleration = 500,
-        detectionRadius = 200,
-        attackRange = 24,
-        damage = 1,
-        health = 2,
-        behavior = 'chase',
-        fleeThreshold = 0.25,
-        canPush = false,
-        canBePushed = true,
-        pushForce = 100,
-        ridePlatforms = false,
-        triggerSwitches = false,
-        invulnerableTime = 0.5,
-    }
-    
-    -- Merge spider defaults with provided props, then with NPCConfig defaults
-    local merged = {}
-    for k, v in pairs(spiderDefaults) do merged[k] = v end
+    local merged = NPCConfig.getDefaults()
+
+    -- genuinely per-NPC overrides on top of the shared defaults
+    merged.idleImage = 'res/img/npc_spider.png'
+    merged.maxSpeed = 90
+    merged.acceleration = 350
+    merged.detectionRadius = 200
+    merged.attackRange = 24
+    merged.damage = 1
+    merged.health = 2
+    merged.behavior = 'chase'
+    merged.fleeThreshold = 0.25
+
+    -- Tiled object props win over every default
     for k, v in pairs(props) do merged[k] = v end
-    
+
     NPCBase.init(self, merged)
 end
 

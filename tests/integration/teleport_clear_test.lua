@@ -131,7 +131,7 @@ test('a source-tile box whose escape cell is blocked by a wall prevents the tele
 	assertNear(boxX, box.collider:getX(), 0.001, 'expected the box not to move at all')
 end)
 
--- Regression: props aren't grid-locked (ADR 0001), and a box brought to rest
+-- Regression: props aren't grid-locked (ADR 0002), and a box brought to rest
 -- against something can end up grazing the neighbouring tile's edge by a
 -- stray pixel or two from float residue in collision resolution, rather than
 -- sitting exactly flush. A sliver like that must not read as "the box is on

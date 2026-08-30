@@ -6,11 +6,10 @@
 -- art would be double-drawn.
 local GameHarness = require('tests.support.game_harness')
 
+local MAP = 'res/map/sandbox.tmj'
+
 test('drawMainLayers renders decorative object-layer gid art, skips entity layers', function()
-	local game = GameHarness.startGame('res/map/sandbox.tmj')
-	-- require after startGame installs the love mock (ParallaxRenderer grabs
-	-- love.graphics at module load)
-	local ParallaxRenderer = require('src.map.parallax_renderer')
+	GameHarness.startGame(MAP)
 	local level = map.map.layers['level']
 	local gameLayer = map.map.layers['game']
 
@@ -20,11 +19,20 @@ test('drawMainLayers renders decorative object-layer gid art, skips entity layer
 	assertEqual(0, #level.entities, 'level layer should spawn no runtime entities')
 	assertTrue(#gameLayer.entities > 0, 'game layer should spawn runtime entities')
 
+	-- ParallaxRenderer captures `local lg = love.graphics` at module load. The
+	-- harness installs a fresh love mock (with its own love.graphics table) per
+	-- startGame, so if an earlier test already loaded the module, this renderer
+	-- instance would draw through that stale graphics table and the spy below
+	-- would never observe its calls. Purge the cached module and re-require it
+	-- so its `lg` rebinds to the CURRENT love.graphics table.
+	package.loaded['src.map.parallax_renderer'] = nil
+	local ParallaxRenderer = require('src.map.parallax_renderer')
+
 	local drawn = {}
 	local originalDraw = love.graphics.draw
 	love.graphics.draw = function(...) drawn[#drawn + 1] = {...} end
 
-	ParallaxRenderer:new():drawMainLayers(map, 0, 0, 1, 1)
+	ParallaxRenderer:new():drawMainLayers(map, {tx = 0, ty = 0, sx = 1, sy = 1})
 
 	love.graphics.draw = originalDraw
 

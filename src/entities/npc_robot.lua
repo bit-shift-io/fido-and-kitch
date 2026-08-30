@@ -1,6 +1,7 @@
 -- src/entities/npc_robot.lua
 local Class = require('lib.hump.class')
 local NPCBase = require('src.npc.npc_base')
+local NPCConfig = require('src.npc.npc_config')
 local NPCRegistry = require('src.npc.npc_registry')
 
 local Robot = Class{__includes = NPCBase}
@@ -10,29 +11,23 @@ NPCRegistry.registerType('npc_robot', Robot)
 
 function Robot:init(props)
     props = props or {}
-    local robotDefaults = {
-        idleImage = 'res/img/npc_blob.png',
-        maxSpeed = 60,
-        acceleration = 250,
-        deceleration = 400,
-        detectionRadius = 250,
-        attackRange = 120,
-        damage = 2,
-        health = 4,
-        behavior = 'patrol',
-        fleeThreshold = 0.2,
-        canPush = true,
-        canBePushed = true,
-        pushForce = 300,
-        ridePlatforms = false,
-        triggerSwitches = true,
-        invulnerableTime = 0.3,
-    }
-    
-    local merged = {}
-    for k, v in pairs(robotDefaults) do merged[k] = v end
+    local merged = NPCConfig.getDefaults()
+
+    -- genuinely per-NPC overrides on top of the shared defaults
+    merged.idleImage = 'res/img/npc_blob.png'
+    merged.maxSpeed = 60
+    merged.acceleration = 250
+    merged.detectionRadius = 250
+    merged.attackRange = 120
+    merged.damage = 2
+    merged.health = 4
+    merged.behavior = 'patrol'
+    merged.fleeThreshold = 0.2
+    merged.invulnerableTime = 0.3
+
+    -- Tiled object props win over every default
     for k, v in pairs(props) do merged[k] = v end
-    
+
     NPCBase.init(self, merged)
 end
 

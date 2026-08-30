@@ -66,6 +66,12 @@ local defaultTestFiles = {
 	'tests/unit/path_follow_test.lua',
 	'tests/unit/draw_order_test.lua',
 	'tests/unit/entity_render_split_test.lua',
+	'tests/unit/mesh_ribbon_emitter_test.lua',
+	'tests/unit/mesh_ribbon_render_test.lua',
+	'tests/unit/state_machine_trytransition_test.lua',
+	'tests/unit/teleport_trail_test.lua',
+	'tests/unit/teleport_travel_state_test.lua',
+	'tests/unit/npc_config_test.lua',
 }
 
 local tests = {}

@@ -1,3 +1,35 @@
+# Ladder remodel — fall-catch, top slab, base dismount (2026-08-24)
+
+Design decisions for the ladder rework (commit `858fe82`, "ladder rework
+v3"). Source files and ladder tests cite these by "NOTES.md 2026-08-24" and
+`decision N`.
+
+1. **No-gravity volume.** The ladder column is a no-gravity zone.
+2. **Fall catch, no mount key.** A player who is airborne (this game has no
+   jump, so airborne always means falling) and overlapping the volume is
+   caught automatically — no input, no mount key — and hangs with gravity
+   suspended instead of falling through the column to the floor. This is the
+   fix for the side-entry fall-through bug.
+3. **Grounded players are never caught.** Walking through a ladder's base
+   column behaves like normal ground; catching requires being airborne *or*
+   pressing up/down. A grounded walkthrough never mounts.
+4. **The bare top is a standable one-way platform.** The ladder's top edge is
+   a thin solid slab sitting on the top edge, so a player who climbs out of
+   the volume — or walks across from an adjacent flush ledge — can stand
+   there even with no terrain beneath; the bare top walks like ground onto a
+   flush ledge.
+5. **Base dismount on real ground.** Touching down on real ground at the
+   base dismounts. Seam-mount is intent-carrying: pressing down on a seam
+   perch descends the DOWN-leading ladder underfoot, never dragging onto an
+   UP-leading column that merely happens to be the directly-overlapped
+   volume.
+6. **NPCs fall through.** The no-gravity auto-catch lives in the player-only
+   `FallState`/`LadderState` FSM, so NPCs must fall through the ladder volume
+   uncaught and land on whatever terrain is below. No `src/npc` changes
+   accompany the remodel.
+
+---
+
 # Template-driven entity data via `.tj` templates (2026-08-29)
 
 Grill notes. Scope: entity defaults + sprite/art metadata move out of `.lua` into

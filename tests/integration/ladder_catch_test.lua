@@ -10,13 +10,14 @@ local FakeInputModule = require('tests.support.fake_input')
 local Queries = require('tests.support.queries')
 
 local FakeInput = FakeInputModule.FakeInput
-local runUntil = FakeInputModule.runUntil
 
 local CATCH_MAP = 'tests/fixtures/ladder_fall_catch_room.tmj'
 
 local function player1(game)
 	return game.fsm.currentState.players[1]
 end
+
+local runUntil = FakeInputModule.runUntil
 
 test('a player falling into a ladder volume is caught without any input and hangs with gravity suspended', function()
 	local game = GameHarness.startGame(CATCH_MAP)
@@ -89,48 +90,8 @@ test('a grounded player walking through the ladder base column is never auto-cau
 	assertFalse(sawLadderState, 'expected grounded walkthrough of the ladder volume never to enter LadderState')
 end)
 
-test('falling in while holding a horizontal key catches without auto-aligning; vertical input aligns later', function()
-	local game = GameHarness.startGame(CATCH_MAP)
-	local controller = FakeInput.new()
-	local player = player1(game)
-
-	-- Phase A: fall into the column while holding right. The catch still
-	-- fires (airborne), but no centre-x alignment may capture the player --
-	-- they slide through and out the far side, landing on the floor.
-	controller:press('right')
-
-	local sawLadderState = false
-	local landedClear = false
-
-	for _ = 1, FrameStepper.secondsToFrames(3) do
-		FrameStepper.step(game, 1)
-		local stateName = player.fsm.currentState.name
-		if stateName == 'LadderState' then
-			sawLadderState = true
-		end
-		if stateName == 'WalkIdleState' and Queries.playerPositionV(player).x > 170 then
-			landedClear = true
-			break
-		end
-	end
-
-	controller:release('right')
-
-	assertTrue(sawLadderState, 'expected the drifting fall to be caught while crossing the volume')
-	assertTrue(landedClear, 'expected the caught-while-horizontal player to slide out and land clear of the column, not be held at its centre-x')
-
-	-- Phase B: walk back into the base column (grounded -- no catch), then
-	-- press up: an explicit mount must align to the ladder's centre-x (144).
-	controller:press('left')
-	runUntil(game, function()
-		return Queries.playerPositionV(player).x <= 150
-	end, FrameStepper.secondsToFrames(3))
-	controller:release('left')
-
-	controller:press('up')
-	runUntil(game, function()
-		return player.fsm.currentState.name == 'LadderState'
-			and math.abs(Queries.playerPositionV(player).x - 144) <= 3
-	end, FrameStepper.secondsToFrames(2))
-	controller:release('up')
-end)
+-- NOTE: falling into the volume while ALREADY HOLDING a horizontal key (which
+-- used to slide the player through and out of the ladder) is now covered by
+-- tests/integration/ladder_catch_slide_test.lua -- the authoritative spec that
+-- stale held directions must hang, not slide out -- so it is not duplicated
+-- here.

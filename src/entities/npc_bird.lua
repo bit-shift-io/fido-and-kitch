@@ -1,6 +1,7 @@
 -- src/entities/npc_bird.lua
 local Class = require('lib.hump.class')
 local NPCBase = require('src.npc.npc_base')
+local NPCConfig = require('src.npc.npc_config')
 local NPCRegistry = require('src.npc.npc_registry')
 
 local BirdNPC = Class{__includes = NPCBase}
@@ -10,38 +11,30 @@ NPCRegistry.registerType('npc_bird', BirdNPC)
 
 function BirdNPC:init(props)
     props = props or {}
-    local birdDefaults = {
-        idleImage = 'res/img/npc_bird_idle.png',
-        width = 32,
-        height = 32,
-        colliderWidth = 16,
-        colliderHeight = 16,
-        maxSpeed = 100,
-        acceleration = 300,
-        deceleration = 400,
-        detectionRadius = 500,
-        attackRange = 0,  -- Bird doesn't attack
-        damage = 0,
-        health = 1,
-        behavior = 'follow',
-        fleeThreshold = 0.5,
-        canPush = false,
-        canBePushed = false,
-        pushForce = 0,
-        ridePlatforms = false,
-        triggerSwitches = false,
-        invulnerableTime = 0.5,
-        followDistance = 60,
-        canFly = true,
-        despawnDistance = 200,
-    }
-    
-    local merged = {}
-    for k, v in pairs(birdDefaults) do merged[k] = v end
+    local merged = NPCConfig.getDefaults()
+
+    -- genuinely per-NPC overrides on top of the shared defaults
+    merged.idleImage = 'res/img/npc_bird_idle.png'
+    merged.width = 32
+    merged.height = 32
+    merged.colliderWidth = 16
+    merged.colliderHeight = 16
+    merged.canFly = true
+    merged.despawnDistance = 200
+    merged.maxSpeed = 100
+    merged.acceleration = 300
+    merged.detectionRadius = 500
+    merged.attackRange = 0
+    merged.damage = 0
+    merged.behavior = 'follow'
+    merged.fleeThreshold = 0.5
+    merged.followDistance = 60
+
+    -- Tiled object props win over every default
     for k, v in pairs(props) do merged[k] = v end
-    
+
     NPCBase.init(self, merged)
-    
+
     -- Start as sensor (flying NPC), gravity handled manually
     self.collider:setSensor(true)
     self.collider:setGravityScale(0)

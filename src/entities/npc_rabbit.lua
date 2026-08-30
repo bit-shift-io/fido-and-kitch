@@ -1,6 +1,7 @@
 -- src/entities/npc_rabbit.lua
 local Class = require('lib.hump.class')
 local NPCBase = require('src.npc.npc_base')
+local NPCConfig = require('src.npc.npc_config')
 local NPCRegistry = require('src.npc.npc_registry')
 
 local RabbitNPC = Class{__includes = NPCBase}
@@ -10,37 +11,29 @@ NPCRegistry.registerType('npc_rabbit', RabbitNPC)
 
 function RabbitNPC:init(props)
     props = props or {}
-    local rabbitDefaults = {
-        idleImage = 'res/img/npc_rabbit_idle.png',
-        width = 32,
-        height = 32,
-        colliderWidth = 32,
-        colliderHeight = 32,
-        maxSpeed = 80,
-        acceleration = 350,
-        deceleration = 500,
-        detectionRadius = 120,
-        attackRange = 0,
-        damage = 0,
-        health = 1,
-        behavior = 'follow',
-        fleeThreshold = 0.4,
-        canPush = false,
-        canBePushed = true,
-        pushForce = 150,
-        ridePlatforms = true,
-        triggerSwitches = false,
-        invulnerableTime = 0.5,
-        followDistance = 40,
-        hopHeight = 60,
-        hopCooldown = 0.5,
-        despawnDistance = 200,
-    }
-    
-    local merged = {}
-    for k, v in pairs(rabbitDefaults) do merged[k] = v end
+    local merged = NPCConfig.getDefaults()
+
+    -- genuinely per-NPC overrides on top of the shared defaults
+    merged.idleImage = 'res/img/npc_rabbit_idle.png'
+    merged.width = 32
+    merged.height = 32
+    merged.colliderWidth = 32
+    merged.colliderHeight = 32
+    merged.ridePlatforms = true
+    merged.followDistance = 40
+    merged.hopHeight = 60
+    merged.hopCooldown = 0.5
+    merged.despawnDistance = 200
+    merged.acceleration = 350
+    merged.detectionRadius = 120
+    merged.attackRange = 0
+    merged.damage = 0
+    merged.behavior = 'follow'
+    merged.fleeThreshold = 0.4
+
+    -- Tiled object props win over every default
     for k, v in pairs(props) do merged[k] = v end
-    
+
     NPCBase.init(self, merged)
     
     -- Ensure collider is walkable for platform riding

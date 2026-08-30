@@ -15,7 +15,7 @@ function Pickup:init(props)
 end
 
 function Pickup:contact(other)
-    -- self = the collider, so we had to set annother var on the collider called 'pickup'
+    -- self = the collider, so we had to set another var on the collider called 'pickup'
     -- which refers to the actual pickup 'self' which we pass to the entity that is picking up this item
 	local entity = other.entity
 	if entity.pickup ~= nil then -- utils.instanceOf(entity, Player)

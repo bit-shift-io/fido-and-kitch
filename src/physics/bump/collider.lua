@@ -77,8 +77,6 @@ function Collider:init(props)
 		end
 	end
 
-	self.draw = Collider.collider_draw
-
 	if (props.position) then
 		self:setPositionV(props.position)
 	end
@@ -115,11 +113,6 @@ function Collider:getBounds()
 	bounds.width = self.width
 	bounds.height = self.height
 	return bounds
-end
-
-
-function Collider:worldDraw()
-	love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
 end
 
 

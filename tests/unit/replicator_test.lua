@@ -8,6 +8,13 @@ local HeadlessBootstrap = require('tests.support.headless_bootstrap')
 local Replicator = require('src.entities.replicator')
 local REP = Replicator._internal
 
+-- table.count helper (tbl.length was removed as unused; this test needs it)
+local function count(t)
+	local n = 0
+	for _ in pairs(t) do n = n + 1 end
+	return n
+end
+
 -- A stub map whose loadEntity only records the call, never constructs a real
 -- entity (construction needs the full Map/World stack, which the integration
 -- tier owns).
@@ -188,7 +195,7 @@ test('spawn builds a top-anchored mock object at the ceiling emit point', functi
 	assertEqual(32, call.object.height)
 	assertEqual('game', call.object.layer)
 	assertEqual(true, call.object.gid == nil, 'mock object must be top-anchored (no gid)')
-	assertEqual(0, tbl.length(call.object.properties), 'mock properties must be empty')
+	assertEqual(0, count(call.object.properties), 'mock properties must be empty')
 end)
 
 test('rotation 180 spawns the mock object two tiles above the top face', function()

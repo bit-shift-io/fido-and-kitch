@@ -13,7 +13,7 @@
 --
 -- Vertical motion is left entirely to gravity: this component only ever
 -- writes the horizontal component, so a prop that walks off a ledge falls
--- straight down (ADR 0001) instead of arcing.
+-- straight down (ADR 0002) instead of arcing.
 local GroundSupport = require('src.player.ground_support')
 local PushableSupport = require('src.components.pushable.pushable_support')
 
@@ -106,7 +106,7 @@ function Pushable:findOnTop(bounds)
 	return playerOnTop, pushableOnTop
 end
 
--- ADR 0001: support is decided by what is under the prop's CENTRE-x alone,
+-- ADR 0002: support is decided by what is under the prop's CENTRE-x alone,
 -- not by how much of its footprint still overlaps a ledge. That is what makes
 -- the drop deterministic -- the prop rests wherever it was left while its
 -- centre is over ground, and the moment the centre crosses onto an
@@ -209,7 +209,7 @@ function Pushable:update(dt)
 	self.collider:setType(PushableSupport.bodyTypeFor(state))
 	self.collider:setGroupIndex(PushableSupport.groupIndexFor(state, self.groupIndex))
 
-	-- The plate-seating forcing event (ADR 0001), fired on push-RELEASE rather
+	-- The plate-seating forcing event (ADR 0002), fired on push-RELEASE rather
 	-- than during motion: a prop that has come to a stop within a plate's
 	-- tolerance settles onto the plate tile's centre. Gating it on "not moving"
 	-- is what keeps it from fighting the player -- mid-push the prop always has
@@ -223,7 +223,7 @@ function Pushable:update(dt)
 	end
 
 	if not supported then
-		-- The forcing event (ADR 0001): nothing under the centre, so align to
+		-- The forcing event (ADR 0002): nothing under the centre, so align to
 		-- the tile being dropped into and fall straight down. Alignment is
 		-- what makes a one-tile hole fill flush instead of leaving the prop
 		-- wedged off-centre wherever momentum happened to leave it.

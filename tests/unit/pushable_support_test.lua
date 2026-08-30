@@ -174,7 +174,7 @@ test('nothing pushing means no speed', function()
 	assertEqual(0, PushableSupport.pushSpeed({}, 176, 0))
 end)
 
--- ADR 0001: falling is a snap event. The prop's centre-x decides which tile
+-- ADR 0002: falling is a snap event. The prop's centre-x decides which tile
 -- it drops into, and it aligns to that tile's centre so a one-tile hole is
 -- filled flush -- the whole point of the model over free-body teetering.
 test('a prop drops into the tile its centre-x is over, aligned to that tile\'s centre', function()
