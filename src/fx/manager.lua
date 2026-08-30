@@ -54,4 +54,11 @@ function FxManager:draw()
 	end
 end
 
+-- Read-only list of live effects, for Map:drawEntities to merge into its
+-- renderOrder sort instead of calling FxManager:draw()'s own unconditional
+-- loop (which would double-draw them).
+function FxManager:getActive()
+	return self.active
+end
+
 return FxManager

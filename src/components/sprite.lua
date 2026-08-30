@@ -146,6 +146,7 @@ function Sprite:init(props)
 	self.offset = props.offset or Vector(0, 0)
 	self.facing = props.facing or 'right'
 	self.playingOnEnter = props.playing ~= false
+	self.renderOrder = props.renderOrder
 
 	-- Default duration for single-frame sprites (no animation)
 	local duration = props.duration

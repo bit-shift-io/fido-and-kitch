@@ -103,6 +103,11 @@ function Teleport:init(object, map)
 	local spriteProps = SpriteProps.fromObject(object)
 	spriteProps.shape_arguments = shape_arguments
 	spriteProps.position = position + Vector(0, spriteOffsetY)
+	-- Explicit rather than left to renderOrder's unset-is-0 default, so the
+	-- "pushables draw in front of teleporters" relationship (see
+	-- src/entities/pushable_prop.lua's RENDER_ORDER) is stated on both ends
+	-- instead of relying on teleporters merely being "not positive".
+	spriteProps.renderOrder = spriteProps.renderOrder or 0
 	self.sprite = self:addComponent(Sprite(spriteProps))
 	self.collider = self:addComponent(Collider{
 		shape_type='rectangle',

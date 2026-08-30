@@ -1,0 +1,58 @@
+{
+  "tileset": {
+    "firstgid": 1,
+    "tilewidth": 128,
+    "name": "layered_prop",
+    "version": "1.11",
+    "columns": 0,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "image": "../img/entity_wood_sign_post.png",
+        "imageheight": 128,
+        "id": 0,
+        "imagewidth": 128
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 128
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "backImage",
+        "value": "res/img/pushable_stone_block.png"
+      },
+      {
+        "type": "string",
+        "name": "frontImage",
+        "value": "res/img/entity_wood_sign_post.png"
+      },
+      {
+        "type": "int",
+        "name": "backRenderOrder",
+        "value": -1
+      },
+      {
+        "type": "int",
+        "name": "frontRenderOrder",
+        "value": 1
+      }
+    ],
+    "type": "layered_prop",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "layered_prop"
+  }
+}

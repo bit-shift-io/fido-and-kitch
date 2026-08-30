@@ -94,6 +94,74 @@ function Entity:draw()
 end
 
 
+-- Every Sprite-type component this entity owns, in add order.
+function Entity:getSprites()
+	local sprites = {}
+	for _, component in ipairs(self.components) do
+		if component.type == 'sprite' then
+			sprites[#sprites + 1] = component
+		end
+	end
+	return sprites
+end
+
+
+-- True only when this entity owns 2+ of its own Sprite components with
+-- different renderOrder values (unset treated as 0, matching the global
+-- sort's own convention) -- see docs/memory/entity-atomic-draw-and-tint.md.
+-- An entity with one Sprite, or several sharing the same renderOrder, stays
+-- a single atomic draw unit.
+function Entity:hasSplitRenderOrder()
+	local sprites = self:getSprites()
+	if #sprites < 2 then
+		return false
+	end
+
+	local first = sprites[1].renderOrder or 0
+	for i = 2, #sprites do
+		if (sprites[i].renderOrder or 0) ~= first then
+			return true
+		end
+	end
+	return false
+end
+
+
+-- True if this entity owns a Tint or FlashEffect component -- the one
+-- combination unsupported with render-order splitting (see
+-- docs/memory/entity-atomic-draw-and-tint.md: their draw()/postDraw() color
+-- state relies on nothing else drawing in between).
+function Entity:hasColorStateComponent()
+	for _, component in ipairs(self.components) do
+		if component.type == 'tint' or component.type == 'flash_effect' then
+			return true
+		end
+	end
+	return false
+end
+
+
+-- Draws every non-Sprite component of a split entity as one grouped unit
+-- (draw() then postDraw(), mirroring Entity:draw()'s own two-pass loop) --
+-- used only when Map:drawEntities has pulled this entity's Sprites out into
+-- their own per-sprite draw units. Combining that split with Tint/
+-- FlashEffect is unsupported: Map:drawEntities logs the misuse via
+-- hasColorStateComponent above, this method does not attempt to make the
+-- resulting color output correct.
+function Entity:drawNonSpriteComponents()
+	for _, component in pairs(self.components) do
+		if component.type ~= 'sprite' and component.draw ~= nil then
+			component:draw()
+		end
+	end
+	for _, component in pairs(self.components) do
+		if component.type ~= 'sprite' and component.postDraw ~= nil then
+			component:postDraw()
+		end
+	end
+end
+
+
 -- flag this item for removal from the map layer entity list
 function Entity:queueRemove()
 	self.remove_from_map_flag = true

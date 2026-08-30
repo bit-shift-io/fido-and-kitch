@@ -343,3 +343,9 @@ Templates are the single source of truth for an entity's default + sprite proper
 **Definition** — The persisted best-attempt data for one level, keyed by map filename: best [[Level score]] percentage and its medal, and best completion time (tracked independently — a fast, low-scoring run and a slow, perfect run each update their own field). Stored via `src/utils/settings.lua`'s JSON blob.
 
 **Boundary** — Per level, not per player (matches the shared [[Lives pool]]). Time is informational only — it never affects the medal. A level with no completions has no record at all, not a zero-value one.
+
+## Render order
+
+**Definition** — An optional `renderOrder` number on a drawable entity component (`Sprite`, or any component with `draw()`) or `Map.fx` effect, controlling draw order within the entities+fx pass: higher draws later (on top), negative allowed, unset behaves as `0`. Ties preserve the entity/effect's existing relative draw position.
+
+**Boundary** — Only reorders within the existing entities+fx draw pass; it never moves anything relative to background/tile layers or HUD/debug overlays, which keep their fixed pipeline position. An entity draws as one atomic unit at its lowest render order unless it explicitly gives 2+ of its own `Sprite` components different values, in which case only that entity splits into per-sprite draw units.

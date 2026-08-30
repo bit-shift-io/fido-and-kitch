@@ -25,6 +25,7 @@ local FxBase = Class{}
 function FxBase:init(props)
 	props = props or {}
 	self.type = 'fx'
+	self.renderOrder = props.renderOrder
 
 	local opts = self:config() or {}
 	local pos = props.position or (props.x ~= nil and {x = props.x, y = props.y}) or opts.position

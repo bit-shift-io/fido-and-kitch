@@ -12,6 +12,13 @@ local PushableSupport = require('src.components.pushable.pushable_support')
 
 local PushableProp = {}
 
+-- Draws in front of teleport.lua's sprite (renderOrder 0) by default, so a
+-- pushable resting on/near a teleporter reads as a solid object sitting on
+-- top of it rather than tucked behind its art. Overridable per-instance via
+-- the object's own `renderOrder` template property, same as any other
+-- Sprite prop.
+PushableProp.RENDER_ORDER = 10
+
 -- spec fields:
 --   type   entity type string (Entity.init's self.type)
 --   sprite(object, shape_arguments) -> Sprite{} constructor props (art now
@@ -28,7 +35,9 @@ function PushableProp.define(spec)
 		local position = Vector(centreX, centreY)
 		local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
-		self.sprite = self:addComponent(Sprite(spec.sprite(object, shape_arguments)))
+		local spriteProps = spec.sprite(object, shape_arguments)
+		spriteProps.renderOrder = spriteProps.renderOrder or PushableProp.RENDER_ORDER
+		self.sprite = self:addComponent(Sprite(spriteProps))
 
 		self.collider = self:addComponent(Collider{
 			shape_type = 'rectangle',

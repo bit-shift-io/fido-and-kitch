@@ -4,6 +4,7 @@ local EntityFactory = require('src.map.entity_factory')
 local CollisionBuilder = require('src.map.collision_builder')
 local ParallaxRenderer = require('src.map.parallax_renderer')
 local FxManager = require('src.fx.manager')
+local DrawOrder = require('src.map.draw_order')
 local json = require('src.utils.json')
 local Bake = require('tools.jump_pad_trajectory.bake')
 local lg = love.graphics
@@ -183,24 +184,85 @@ function Map:draw2(viewRect, playerTargets)
 	self.parallaxRenderer:draw(self, viewRect, playerTargets)
 end
 
--- Draws every object-layer entity in screen space, using the same ViewRect
--- transform the camera computed for the background/parallax draw (Map:draw2).
+-- An entity draws as one atomic unit (its own entity:draw() call, preserving
+-- Entity:draw()'s draw()-then-postDraw() pairing that Tint/FlashEffect rely
+-- on — see docs/memory/entity-atomic-draw-and-tint.md) at its lowest set
+-- component renderOrder, or 0 if none of its components set one. An entity
+-- only splits into separate per-sprite draw units when it explicitly gives
+-- 2+ of its own Sprite components different renderOrder values.
+local function entityRenderOrder(entity)
+	local order = nil
+	for _, component in ipairs(entity.components) do
+		if component.renderOrder ~= nil then
+			if order == nil or component.renderOrder < order then
+				order = component.renderOrder
+			end
+		end
+	end
+	return order or 0
+end
+
+-- Draws every object-layer entity plus every live Map.fx effect in screen
+-- space, using the same ViewRect transform the camera computed for the
+-- background/parallax draw (Map:draw2). Units are collected in today's
+-- draw order (layer->entity traversal, then fx last) and stably re-sorted
+-- by renderOrder, so anything that never sets renderOrder draws exactly
+-- where it always did.
 function Map:drawEntities(viewRect)
 	lg.push()
 	lg.origin()
 	lg.translate(math.floor(viewRect.tx or 0), math.floor(viewRect.ty or 0))
 	lg.scale(viewRect.sx or 1, viewRect.sy or viewRect.sx or 1)
 
+	local units = {}
+
 	for _, layer in ipairs(self.map.layers) do
 		if layer.type == "objectgroup" and layer.entities then
 			for _, entity in ipairs(layer.entities) do
-				entity:draw()
+				if entity.hasSplitRenderOrder and entity:hasSplitRenderOrder() then
+					if entity:hasColorStateComponent() then
+						Log.error(string.format(
+							"Map:drawEntities: entity '%s' (%s) splits renderOrder across its Sprites while also using Tint/FlashEffect -- color state will bleed onto whatever draws between them (unsupported combination, see docs/memory/entity-atomic-draw-and-tint.md)",
+							entity.name or '?', entity.type or '?'))
+					end
+
+					for _, sprite in ipairs(entity:getSprites()) do
+						units[#units + 1] = {
+							order = sprite.renderOrder or 0,
+							index = #units + 1,
+							draw = function() sprite:draw() end,
+						}
+					end
+
+					units[#units + 1] = {
+						order = entityRenderOrder(entity),
+						index = #units + 1,
+						draw = function() entity:drawNonSpriteComponents() end,
+					}
+				else
+					units[#units + 1] = {
+						order = entityRenderOrder(entity),
+						index = #units + 1,
+						draw = function() entity:draw() end,
+					}
+				end
 			end
 		end
 	end
 
 	if self.fx then
-		self.fx:draw()
+		for _, fx in ipairs(self.fx:getActive()) do
+			units[#units + 1] = {
+				order = fx.renderOrder or 0,
+				index = #units + 1,
+				draw = function() fx:draw() end,
+			}
+		end
+	end
+
+	local sorted = DrawOrder.sort(units)
+	for _, unit in ipairs(sorted) do
+		unit.draw()
 	end
 
 	lg.pop()
