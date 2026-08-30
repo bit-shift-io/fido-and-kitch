@@ -110,9 +110,19 @@ function Game:keypressed(k)
         conf.ultraslow = not conf.ultraslow
     end
 
-    if k == "f11" or (k == "return" and love.keyboard.isDown('lalt', 'ralt')) then
+    if k == "f11" then
         Log.debug('toggle fullscreen')
         love.window.setFullscreen(not love.window.getFullscreen(), 'desktop')
+    end
+
+    if k == "return" and love.keyboard.isDown('lalt', 'ralt') then
+        Log.debug('toggle fullscreen')
+        love.window.setFullscreen(not love.window.getFullscreen(), 'desktop')
+        -- `return` is also P1's `start` action, polled by MenuState:update on the
+        -- next frame. Swallow it so alt+enter only toggles fullscreen and never
+        -- selects the highlighted map in the menu.
+        if inputManager then inputManager:swallowEdges() end
+        return
     end
 
     self.fsm:keypressed(k)
