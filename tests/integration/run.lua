@@ -39,6 +39,7 @@ local defaultTestFiles = {
 	'tests/integration/jump_pad_sound_test.lua',
 	'tests/integration/jump_pad_debug_bake_test.lua',
 	'tests/integration/jump_pad_target_trajectory_test.lua',
+	'tests/integration/jump_pad_collision_test.lua',
 	'tests/integration/kill_zone_sound_test.lua',
 	'tests/integration/npc_kill_zone_respawn_test.lua',
 	'tests/integration/spider_wrap_release_test.lua',

@@ -73,7 +73,8 @@ function JumpPad:use(user)
         path=Path(self.pathObject),
         speed=120,
 		offset=offset,
-		easing='linear'
+		easing='linear',
+		ignoreCollider=self.collider
     })
 
 	local duration = pathFollow.path.length / 120

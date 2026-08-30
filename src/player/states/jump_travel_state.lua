@@ -55,9 +55,15 @@ function JumpTravelState:update(dt)
         })
     end
     
+    if self.pathFollow and self.pathFollow:wasBlocked() then
+        self._groundedExit = false
+        player.fsm:setState('FallState')
+        return
+    end
+
     local PlayerSensors = require('src.player.player_sensors')
     local onGround = PlayerSensors.queryOnGround(world, player.collider)
-    
+
     -- End travel as soon as the player reaches the ground, even if the
     -- scripted path hasn't fully elapsed yet. Guarded by a minimum elapsed
     -- fraction so the initial moment at the launch pad (still grounded before

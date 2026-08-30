@@ -61,6 +61,7 @@ local defaultTestFiles = {
 	'tests/unit/level_complete_state_test.lua',
 	'tests/unit/jump_pad_trajectory_test.lua',
 	'tests/unit/jump_pad_trajectory_bake_test.lua',
+	'tests/unit/path_follow_test.lua',
 }
 
 local tests = {}

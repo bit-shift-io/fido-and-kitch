@@ -1,6 +1,8 @@
 -- Path follow component
 -- follow a polyline
 
+local World = require('src.physics.bump.world')
+
 local PathFollow = Class{}
 
 function PathFollow:init(props)
@@ -9,6 +11,11 @@ function PathFollow:init(props)
     self.sprite = props.sprite
     self.collider = props.collider
     self.offset = props.offset or Vector(0, 0)
+    self.ignoreCollider = props.ignoreCollider
+
+    self._blocked = false
+    self._checkedFirstSample = false
+    self._lastGoodPos = self.path:getPositionV(0) + self.offset
 
     if self.collider then
         self.previousGravityScale = self.collider.gravityScale
@@ -52,6 +59,15 @@ function PathFollow:update(dt)
 	local pos = self.path:getPositionV(distance)
 	pos = pos + self.offset
 
+	if self.collider and self._checkedFirstSample and self:_isBlocked(pos) then
+		self._blocked = true
+		self.timeline:stop()
+		pos = self._lastGoodPos
+	else
+		self._checkedFirstSample = true
+		self._lastGoodPos = pos
+	end
+
 	if self.sprite then
 		self.sprite:setPositionV(pos)
 	end
@@ -64,6 +80,45 @@ function PathFollow:update(dt)
 		self._velocity = (pos - self._lastPos) / dt
 	end
 	self._lastPos = pos
+end
+
+-- Would the player's collider overlap a solid, non-ignored collider at
+-- `pos` if it were dynamic right now? Simulated via a lightweight stand-in
+-- passed to World.colFilter rather than flipping the real collider's
+-- bodyType, since a kinematic body always crosses via the 'a.bodyType ==
+-- kinematic' rule in World.colFilter -- see src/physics/bump/world.lua.
+function PathFollow:_isBlocked(pos)
+	local halfWidth = self.collider.width / 2
+	local halfHeight = self.collider.height / 2
+	local bounds = {
+		left = pos.x - halfWidth,
+		right = pos.x + halfWidth,
+		top = pos.y - halfHeight,
+		bottom = pos.y + halfHeight,
+	}
+
+	local asDynamic = {
+		bodyType = 'dynamic',
+		sensor = self.collider.sensor,
+		groupIndex = self.collider.groupIndex,
+		colFilterFn = self.collider.colFilterFn,
+		nonSolidEntityTypes = self.collider.nonSolidEntityTypes,
+		entity = self.collider.entity,
+	}
+
+	for _, other in ipairs(world:queryOverlap(bounds)) do
+		if other ~= self.collider and other ~= self.ignoreCollider then
+			if World.colFilter(asDynamic, other) == 'slide' then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+function PathFollow:wasBlocked()
+	return self._blocked
 end
 
 
