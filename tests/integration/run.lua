@@ -28,6 +28,7 @@ local defaultTestFiles = {
 	'tests/integration/pressure_switch_test.lua',
 	'tests/integration/pushable_reset_test.lua',
 	'tests/integration/coin_test.lua',
+	'tests/integration/mesh_ribbon_draw_order_test.lua',
 	'tests/integration/player_sound_test.lua',
 	'tests/integration/drawbridge_sound_test.lua',
 	'tests/integration/switch_sound_test.lua',

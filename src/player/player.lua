@@ -58,6 +58,16 @@ function Player:init(props)
 
     local animations = buildAnimations(character, position, shape_arguments, offset)
 
+    -- speedStreak must be added BEFORE flashEffect/animations: Entity:draw()
+    -- draws every component's draw() before any postDraw() runs, so the mesh
+    -- ribbon must draw first to render behind the player sprite (and to draw
+    -- with the pre-flash color instead of inheriting flashEffect's tint).
+    self.speedStreak = self:addComponent(SpeedStreak{
+        entity = self,
+        minSpeed = 200,
+        emitRate = 100
+    })
+
     -- FlashEffect must be added BEFORE the animations StateMachine so its
     -- draw() sets the color before the sprite renders (no one-frame delay).
     self.flashEffect = self:addComponent(FlashEffect{})
@@ -102,12 +112,6 @@ function Player:init(props)
         }
     })
     self.stepTimer = 0
-
-    self.speedStreak = self:addComponent(SpeedStreak{
-        entity = self,
-        minSpeed = 200,
-        emitRate = 100
-    })
 
     self.fsm = self:addComponent(StateMachine{
         stateClasses=PlayerStates,
