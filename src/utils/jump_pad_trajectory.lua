@@ -1,13 +1,22 @@
--- Trajectory module: computes a distance-proportional parabolic arc
+-- Trajectory module: computes a distance-proportional parabolic arc, with a
+-- minimum clearance floor so short/level jumps still read as a real launch.
 -- Given start and target points, returns polyline-like list of {x, y} points
+local Camera = require('src.camera')
 
 local Trajectory = {}
+
+local DEFAULT_MIN_CLEARANCE_TILES = 2
 
 -- Compute a parabolic arc from startPoint to targetPoint
 -- Returns an ordered list of {x, y} points suitable for Path:init polyline
 -- arcHeightFactor controls apex height: arcHeight = arcHeightFactor * horizontalDistance
-function Trajectory.computeArc(startPoint, targetPoint, arcHeightFactor)
+-- minClearance (pixels, default 2 tiles) is a FLOOR: the arc's peak is
+-- guaranteed to sit at least this far above the higher of the two endpoints,
+-- even when the distance-proportional height alone wouldn't clear it (a
+-- short or level jump would otherwise barely rise at all).
+function Trajectory.computeArc(startPoint, targetPoint, arcHeightFactor, minClearance)
 	arcHeightFactor = arcHeightFactor or 0.15
+	minClearance = minClearance or (DEFAULT_MIN_CLEARANCE_TILES * Camera.DEFAULT_TILE_SIZE)
 
 	local x0, y0 = startPoint.x, startPoint.y
 	local x1, y1 = targetPoint.x, targetPoint.y
@@ -27,7 +36,19 @@ function Trajectory.computeArc(startPoint, targetPoint, arcHeightFactor)
 
 	-- Arc height scaled by horizontal distance
 	-- The arc is perpendicular to the line connecting start and end
-	local arcHeight = arcHeightFactor * math.abs(dx)
+	local proportionalHeight = arcHeightFactor * math.abs(dx)
+
+	-- Minimum height so the peak (at t=0.5, y = y0 + 0.5*dy - arcHeight)
+	-- clears at least minClearance above the higher endpoint, i.e.
+	-- numerically at or below min(y0,y1) - minClearance:
+	--   y0 + 0.5*dy - arcHeight <= min(y0,y1) - minClearance
+	--   arcHeight >= (y0 + 0.5*dy) - min(y0,y1) + minClearance
+	-- (y0 + 0.5*dy) is the midpoint of the straight line, and its distance
+	-- to the closer (lower-numbered) endpoint is always abs(dy)/2, so this
+	-- simplifies to abs(dy)/2 + minClearance regardless of which endpoint
+	-- is higher.
+	local minHeightForClearance = math.abs(dy) / 2 + minClearance
+	local arcHeight = math.max(proportionalHeight, minHeightForClearance)
 
 	-- Generate points along the parabola using parametric form
 	-- t ranges from 0 (start) to 1 (end)

@@ -208,10 +208,18 @@ end)
 
 test('farther and closer targets produce visibly different (taller/shorter) arcs', function()
 	-- Reuses/extends the already-baked map table (see the module header and
-	-- the slice notes: preferred over adding a third fixture file) -- one
-	-- variant keeps the fixture's own near target (dx=300), the other moves
-	-- the SAME target object much farther away (dx=764) before baking, so
-	-- both variants share an identical pad and only differ in distance.
+	-- the slice notes: preferred over adding a third fixture file) -- both
+	-- variants move the SAME target object to a different x before baking,
+	-- so they share an identical pad and only differ in distance.
+	--
+	-- Trajectory.computeArc (src/utils/jump_pad_trajectory.lua) enforces a
+	-- minimum-clearance FLOOR (2 tiles above the higher endpoint) beneath
+	-- the distance-proportional height, so distances have to be large
+	-- enough for the proportional term to exceed that floor -- otherwise
+	-- near/far would both just hit the same floor and look identical. This
+	-- fixture's target sits dy=298px below the pad, giving a floor of
+	-- 298/2 + 64 = 213px; dx=1600 (proportional 240px) and dx=6400
+	-- (proportional 960px) both clear it.
 	local function bakedMidpointDeviation(targetX)
 		local rawMap = json.decode(readFile(SOURCE_FIXTURE))
 		local target = findObjectById(rawMap, 4)
@@ -237,8 +245,8 @@ test('farther and closer targets produce visibly different (taller/shorter) arcs
 		return mid.y - last.y * 0.5
 	end
 
-	local nearDeviation = bakedMidpointDeviation(436) -- dx = 436 - 136 = 300 (the fixture's own target)
-	local farDeviation = bakedMidpointDeviation(900) -- dx = 900 - 136 = 764
+	local nearDeviation = bakedMidpointDeviation(1736) -- dx = 1736 - 136 = 1600
+	local farDeviation = bakedMidpointDeviation(6536) -- dx = 6536 - 136 = 6400
 
 	-- Deviation is signed and negative (the arc rises ABOVE the straight
 	-- line, i.e. smaller y, since this engine's y grows downward -- see

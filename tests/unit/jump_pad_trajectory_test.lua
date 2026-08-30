@@ -89,20 +89,22 @@ test('longer horizontal distance produces taller apex', function()
 	local start = {x = 0, y = 0}
 	local factor = 0.15
 
-	-- Short distance
-	local target1 = {x = 50, y = 0}
+	-- Distances large enough that the distance-proportional term (factor *
+	-- dx) exceeds the minimum-clearance floor (2 tiles = 64px by default),
+	-- so the floor doesn't mask the scaling this test is checking.
+	local target1 = {x = 1000, y = 0} -- proportional height 150
 	local arc1 = Trajectory.computeArc(start, target1, factor)
 	local apex1 = findApex(arc1)
 	local height1 = computeArcHeight(start, target1, apex1)
 
 	-- Long distance (4x longer)
-	local target2 = {x = 200, y = 0}
+	local target2 = {x = 4000, y = 0} -- proportional height 600
 	local arc2 = Trajectory.computeArc(start, target2, factor)
 	local apex2 = findApex(arc2)
 	local height2 = computeArcHeight(start, target2, apex2)
 
 	-- Height should be approximately proportional to distance
-	-- 200/50 = 4, so height2 should be ~4x height1
+	-- 4000/1000 = 4, so height2 should be ~4x height1
 	local ratio = height2 / height1
 	assertTrue(ratio > 3.5 and ratio < 4.5, 'height ratio should be ~4, got ' .. ratio)
 end)
@@ -163,7 +165,10 @@ end)
 
 test('arc height factor affects apex height', function()
 	local start = {x = 0, y = 0}
-	local target = {x = 100, y = 0}
+	-- Distance large enough that even the smaller factor's proportional
+	-- height (0.05 * 2000 = 100) clears the minimum-clearance floor (64px
+	-- by default), so the floor doesn't mask the factor's effect.
+	local target = {x = 2000, y = 0}
 
 	-- Small factor
 	local arc1 = Trajectory.computeArc(start, target, 0.05)
@@ -195,6 +200,58 @@ test('negative horizontal distance (target left of start) works', function()
 	-- y, since this engine's y grows downward)
 	local apex = findApex(arc)
 	assertTrue(apex.y < start.y, 'apex should be elevated')
+end)
+
+test('a close, level jump still clears 2 tiles above both endpoints', function()
+	-- A short distance whose distance-proportional height alone (0.15 * 50
+	-- = 7.5px) would barely rise at all -- the minimum-clearance floor
+	-- should take over instead.
+	local start = {x = 0, y = 100}
+	local target = {x = 50, y = 100}
+
+	local arc = Trajectory.computeArc(start, target)
+
+	local peakY = math.huge
+	for _, p in ipairs(arc) do
+		if p.y < peakY then peakY = p.y end
+	end
+
+	local highestEndpointY = math.min(start.y, target.y)
+	assertTrue(peakY <= highestEndpointY - 64,
+		string.format('expected peak y <= %d (2 tiles above the higher endpoint), got %.1f', highestEndpointY - 64, peakY))
+end)
+
+test('minimum clearance is measured against the HIGHER of the two endpoints, even when they differ in height', function()
+	-- Target sits well above the pad -- the floor must clear 2 tiles above
+	-- the target (the higher point), not the pad.
+	local start = {x = 0, y = 100}
+	local target = {x = 50, y = -200}
+
+	local arc = Trajectory.computeArc(start, target)
+
+	local peakY = math.huge
+	for _, p in ipairs(arc) do
+		if p.y < peakY then peakY = p.y end
+	end
+
+	local highestEndpointY = math.min(start.y, target.y)
+	assertTrue(peakY <= highestEndpointY - 64,
+		string.format('expected peak y <= %d (2 tiles above the higher endpoint), got %.1f', highestEndpointY - 64, peakY))
+end)
+
+test('a custom minClearance overrides the default 2-tile floor', function()
+	local start = {x = 0, y = 100}
+	local target = {x = 50, y = 100}
+
+	local arc = Trajectory.computeArc(start, target, 0.15, 10)
+
+	local peakY = math.huge
+	for _, p in ipairs(arc) do
+		if p.y < peakY then peakY = p.y end
+	end
+
+	assertTrue(peakY <= 100 - 10, 'peak should clear the custom 10px floor')
+	assertTrue(peakY > 100 - 64, 'peak should NOT clear the default 64px floor once overridden smaller')
 end)
 
 test('arc points are strictly monotonic in x', function()
