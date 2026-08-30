@@ -213,6 +213,26 @@ test('a polyline override drives both mock x and y verbatim', function()
 	assertEqual(156, object.y)
 end)
 
+test('spriteOffsetY shifts the sprite art only (spawn point unchanged)', function()
+	local map = stubMap()
+	local r = makeReplicator({ spriteOffsetY = 16 }, map) -- rotation 0 ceiling
+
+	-- the spawned box still emits at the ceiling point (no offset applied)
+	switchable(r):switch({ state = 'on' }, {})
+	assertEqual(100 + 32, map.calls[1].object.y)
+
+	-- the machine's own sprite art is nudged down by 16px; base centre is
+	-- (x+w/2, y-h/2) = (116, 84) for the bottom-anchored 32x32 object
+	local sprite = r:getComponent(Sprite)
+	assertEqual(Vector(116, 84 + 16), sprite.position)
+end)
+
+test('spriteOffsetY defaults to 0 when absent', function()
+	local r = makeReplicator({}, stubMap())
+	local sprite = r:getComponent(Sprite)
+	assertEqual(Rect.centreOfMapObject(r.object), sprite.position)
+end)
+
 test('spawned mock object carries the replicator authored dims', function()
 	local map = stubMap()
 	local r = makeReplicator({ spawnType = 'boulder' }, map, { width = 64, height = 48 })

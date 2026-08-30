@@ -13,7 +13,7 @@
     "tilecount": 1,
     "tiles": [
       {
-        "image": "../img/default.png",
+        "image": "../img/entity_replicator.png",
         "id": 0,
         "imagewidth": 32,
         "imageheight": 32
@@ -37,6 +37,11 @@
         "type": "int",
         "name": "maxSpawns",
         "value": 1
+      },
+      {
+        "type": "int",
+        "name": "spriteOffsetY",
+        "value": 8
       },
       {
         "type": "int",

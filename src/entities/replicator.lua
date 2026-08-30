@@ -54,8 +54,11 @@ function Replicator:init(object, map)
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
+	-- Optional `spriteOffsetY` (px, positive = down) nudges only the art,
+	-- tuned from the running game -- the emit/size of spawned boxes stays put.
+	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
 	local spriteProps = SpriteProps.fromObject(object)
-	spriteProps.position = position
+	spriteProps.position = position + Vector(0, spriteOffsetY)
 	spriteProps.shape_arguments = shape_arguments
 	self.sprite = self:addComponent(Sprite(spriteProps))
 

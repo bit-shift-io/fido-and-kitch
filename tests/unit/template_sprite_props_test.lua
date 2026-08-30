@@ -17,7 +17,7 @@ local SPRITE_SPECS = {
 	{ tj = 'res/entities/switch.tj',           type = 'switch',           image = 'res/img/entity_switch.png',         frames = 5,   duration = 0.4,     loop = false },
 	{ tj = 'res/entities/story.tj',            type = 'story',            image = 'res/img/entity_wood_sign_post.png', frames = 1 },
 	{ tj = 'res/entities/spawn.tj',            type = 'spawn',            image = 'res/img/default.png',               frames = 1 },
-	{ tj = 'res/entities/replicator.tj',       type = 'replicator',       image = 'res/img/default.png',               frames = 1 },
+	{ tj = 'res/entities/replicator.tj',       type = 'replicator',       image = 'res/img/entity_replicator.png',     frames = 1 },
 	{ tj = 'res/entities/push_box.tj',         type = 'push_box',         image = 'res/img/pushable_crate_wood.png',   frames = 1 },
 	{ tj = 'res/entities/drawbridge.tj',       type = 'drawbridge',       image = 'res/img/entity_drawbridge.png',     frames = 4,   duration = 0.3,     loop = false, playing = false },
 	{ tj = 'res/entities/coin.tj',             type = 'coin',             image = 'res/img/coins.png',                 frames = 8,   duration = 1.0, loop = true, playing = true, scaleX = 0.8, scaleY = 0.8 },
