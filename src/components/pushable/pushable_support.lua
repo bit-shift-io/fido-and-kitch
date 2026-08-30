@@ -242,4 +242,45 @@ function PushableSupport.nextRollVelocity(state)
 	return currentRoll
 end
 
+-- Whether the source teleporter's tile is clear, and if not, whether the
+-- overlapping box can be pushed clear and in which direction. Direction is
+-- derived from the box's position relative to the tile's centre --
+-- overlapping from the left pushes left, from the right pushes right
+-- (DECISIONS.md Q2), the same "clear it like a player pushed it out of the
+-- way" framing.
+--
+-- `overlappingPushables` is whatever already overlaps the tile -- the world
+-- query is the caller's job (this module has no world access), the same
+-- split `pushDirection` above uses for its already-queried `pushers`. Each
+-- entry only needs a `centreX`. Only the first overlapping box is ever
+-- considered: no chain-push resolution (DECISIONS.md Q3), matching the
+-- existing "no train of two props" rule.
+--
+-- `escapeBlocked` is `{left = bool, right = bool}` -- whether the adjacent
+-- escape cell in that direction is blocked, by a wall or another pushable;
+-- again the caller's job to query, since a wall and a pushable both simply
+-- mean "can't go there" from this function's point of view.
+function PushableSupport.sourceTileClearCheck(tileBounds, overlappingPushables, escapeBlocked)
+	if #overlappingPushables == 0 then
+		return {status = 'clear'}
+	end
+
+	local tileCentreX = (tileBounds.left + tileBounds.right) * 0.5
+	local direction = (overlappingPushables[1].centreX < tileCentreX) and 'left' or 'right'
+
+	if escapeBlocked[direction] then
+		return {status = 'stuck'}
+	end
+
+	return {status = 'pushable', direction = direction}
+end
+
+-- Whether any Pushable overlaps the destination teleporter's tile at all --
+-- no direction, no escape-cell logic, since there's no player at the
+-- destination to push anything out of the way (DECISIONS.md Q2b). Like
+-- `sourceTileClearCheck`, the overlap query itself is the caller's job.
+function PushableSupport.destinationTileOccupied(overlappingPushables)
+	return #overlappingPushables > 0
+end
+
 return PushableSupport

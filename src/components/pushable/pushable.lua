@@ -133,6 +133,20 @@ function Pushable:seatOnPlate(bounds)
 	return nil
 end
 
+-- Kicks off a scripted one-tile push in the given direction ('left' or
+-- 'right'), driven through the same per-frame velocity/snap/body-type
+-- machinery in `update` below that a real player-driven push uses -- so it
+-- visibly slides rather than snapping into place (DECISIONS.md Q4). For
+-- clearing a pushable out of the way without a physical adjacent player,
+-- e.g. a teleporter clearing its own tile before activating.
+function Pushable:pushOneTile(direction, speed)
+	self.scriptedPush = {
+		direction = (direction == 'left') and -1 or 1,
+		speed = speed,
+		remaining = map.tilewidth,
+	}
+end
+
 function Pushable:update(dt)
 	local bounds = self.collider:getBounds()
 	local resolvedVelocityX, velocityY = self.collider:getLinearVelocity()
@@ -153,10 +167,15 @@ function Pushable:update(dt)
 		})
 
 		if pushable then
-			local pushers = self:findPushers(bounds)
-			local centreX = self.collider:getX()
-			direction = PushableSupport.pushDirection(pushers, centreX)
-			speed = PushableSupport.pushSpeed(pushers, centreX, direction)
+			if self.scriptedPush then
+				direction = self.scriptedPush.direction
+				speed = self.scriptedPush.speed
+			else
+				local pushers = self:findPushers(bounds)
+				local centreX = self.collider:getX()
+				direction = PushableSupport.pushDirection(pushers, centreX)
+				speed = PushableSupport.pushSpeed(pushers, centreX, direction)
+			end
 		end
 	end
 
@@ -171,6 +190,19 @@ function Pushable:update(dt)
 			falling = not supported or airborne,
 		})
 		velocityX = self.rollVelocity
+	end
+
+	-- A scripted push (see `pushOneTile`) stops itself after one tile's worth
+	-- of travel, unlike a real push which stops only when the pusher lets go
+	-- -- and unlike roll mode's momentum, which would otherwise carry it on
+	-- past the one tile this is meant to clear.
+	if self.scriptedPush then
+		self.scriptedPush.remaining = self.scriptedPush.remaining - math.abs(velocityX) * dt
+		if self.scriptedPush.remaining <= 0 then
+			velocityX = 0
+			self.rollVelocity = 0
+			self.scriptedPush = nil
+		end
 	end
 
 	local state = {supported = supported, airborne = airborne, moving = velocityX ~= 0}

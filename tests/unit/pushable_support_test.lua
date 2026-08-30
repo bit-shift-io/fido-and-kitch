@@ -306,3 +306,61 @@ end)
 test('a boulder nobody has touched is not rolling', function()
 	assertEqual(0, PushableSupport.nextRollVelocity({}))
 end)
+
+-- Teleporter tile clearing (source push-to-clear + destination occupied
+-- check). A tile spanning 0..32 has its centre at x=16.
+local TILE = {left = 0, right = 32, top = 0, bottom = 32}
+
+test('a source tile with nothing overlapping it is already clear', function()
+	local result = PushableSupport.sourceTileClearCheck(TILE, {}, {left = false, right = false})
+	assertEqual('clear', result.status)
+end)
+
+test('a box overlapping the source tile from the left is pushable left, when the escape cell is free', function()
+	local box = {centreX = 8}
+	local result = PushableSupport.sourceTileClearCheck(TILE, {box}, {left = false, right = false})
+	assertEqual('pushable', result.status)
+	assertEqual('left', result.direction)
+end)
+
+test('a box overlapping the source tile from the right is pushable right, when the escape cell is free', function()
+	local box = {centreX = 24}
+	local result = PushableSupport.sourceTileClearCheck(TILE, {box}, {left = false, right = false})
+	assertEqual('pushable', result.status)
+	assertEqual('right', result.direction)
+end)
+
+-- DECISIONS.md Q3: a wall on the escape side is not distinguished from
+-- another pushable there -- both just mean "can't go there".
+test('a box whose escape cell is blocked by a wall is stuck, not pushable', function()
+	local box = {centreX = 8}
+	local result = PushableSupport.sourceTileClearCheck(TILE, {box}, {left = true, right = false})
+	assertEqual('stuck', result.status)
+end)
+
+test('a box whose escape cell is blocked by another pushable is stuck too -- no chain push', function()
+	local box = {centreX = 24}
+	local result = PushableSupport.sourceTileClearCheck(TILE, {box}, {left = false, right = true})
+	assertEqual('stuck', result.status)
+end)
+
+test('a destination tile with nothing overlapping it is clear', function()
+	assertFalse(PushableSupport.destinationTileOccupied({}))
+end)
+
+-- No direction or escape-cell logic at the destination (DECISIONS.md Q2b):
+-- any overlap at all blocks it, regardless of which side it's on.
+test('a destination tile with any pushable overlapping it is occupied, regardless of side', function()
+	assertTrue(PushableSupport.destinationTileOccupied({{centreX = 8}}))
+	assertTrue(PushableSupport.destinationTileOccupied({{centreX = 24}}))
+end)
+
+-- Both checks only ever look at centreX -- generic across push_box and
+-- boulder alike, since neither function inspects the pushable's type.
+test('both checks work identically for a boulder-shaped fixture, not just push_box', function()
+	local boulder = {centreX = 8}
+	local sourceResult = PushableSupport.sourceTileClearCheck(TILE, {boulder}, {left = false, right = false})
+	assertEqual('pushable', sourceResult.status)
+	assertEqual('left', sourceResult.direction)
+	assertTrue(PushableSupport.destinationTileOccupied({boulder}))
+end)
