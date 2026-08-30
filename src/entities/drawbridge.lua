@@ -219,21 +219,19 @@ function Drawbridge:init(object)
 		}
 	})
 
+	-- A linked switch, once flicked, holds the bridge in a fixed direction
+	-- and locks it there: on forces it open (with nobody holding it, it
+	-- won't re-close), off forces it closed (occupancy can't reopen it).
+	-- While a switch holds the bridge either way, the occupancy-driven
+	-- checkHeld() below is suspended. A nil initial value means no switch
+	-- has acted yet, so the plain occupancy behaviour governs unless/until
+	-- a switch fires.
+	self.switchHeld = nil
 	self:addComponent(Switchable{
 		entity = self,
 		onStateChange = function(enabled)
+			self.switchHeld = enabled
 			if enabled then
-				if self.state == 'closed' or self.state == 'closing' then
-					return
-				end
-				if self.state == 'opening' then
-					self.sprite:reverseFromCurrent()
-				else
-					self.sprite:playReverse()
-				end
-				self.sound:play('close')
-				self:setState('closing')
-			else
 				if self.state == 'open' or self.state == 'opening' then
 					return
 				end
@@ -244,6 +242,17 @@ function Drawbridge:init(object)
 				end
 				self.sound:play('open')
 				self:setState('opening')
+			else
+				if self.state == 'closed' or self.state == 'closing' then
+					return
+				end
+				if self.state == 'opening' then
+					self.sprite:reverseFromCurrent()
+				else
+					self.sprite:playReverse()
+				end
+				self.sound:play('close')
+				self:setState('closing')
 			end
 		end
 	})
@@ -257,7 +266,11 @@ end
 
 function Drawbridge:update(dt)
 	Entity.update(self, dt)
-	self:checkHeld()
+	-- while a switch holds the bridge (either direction), its state is
+	-- latched -- don't let occupancy-driven checkHeld() override the switch
+	if self.switchHeld == nil then
+		self:checkHeld()
+	end
 end
 
 -- comfortably taller than any standing entity, so an occupant resting on

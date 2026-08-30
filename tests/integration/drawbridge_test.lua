@@ -125,14 +125,15 @@ test('every drawbridge resets to closed on level restart', function()
 	assertEqual('closed', Queries.drawbridgeState(restarted), 'expected every drawbridge to reset to closed on restart')
 end)
 
-test('a switch linked to a drawbridge closes it when turned on', function()
+test('a switch linked to a drawbridge opens it when turned on', function()
 	local game = GameHarness.startGame(SWITCH_MAP)
 	FrameStepper.step(game, 10)
 
 	local bridge = Queries.findEntityByType(map, 'drawbridge')
 	assertEqual('closed', Queries.drawbridgeState(bridge))
 
-	-- Open the bridge first by standing on the trigger
+	-- Put an occupant on the switch's side so a switch-misread (relying on
+	-- occupancy) would wrongly leave the bridge closed: it must still open.
 	local enemy = Collider{
 		shape_type = 'rectangle',
 		shape_arguments = {20, 30},
@@ -142,41 +143,34 @@ test('a switch linked to a drawbridge closes it when turned on', function()
 	enemy.entity = {type = 'enemy'}
 	enemy:setGroupIndex(100)
 
-	local opened = false
-	for _ = 1, 120 do
-		local _, vy = enemy:getLinearVelocity()
-		enemy:setLinearVelocity(97, vy)
-		FrameStepper.step(game, 1)
-		local state = Queries.drawbridgeState(bridge)
-		if state == 'opening' or state == 'open' then
-			opened = true
-			break
-		end
-	end
-	assertTrue(opened, 'expected the enemy to open the bridge')
-
-	-- Wait for bridge to fully open
-	local fullyOpen = false
-	for _ = 1, 60 do
-		FrameStepper.step(game, 1)
-		if Queries.drawbridgeState(bridge) == 'open' then
-			fullyOpen = true
-			break
-		end
-	end
-	assertTrue(fullyOpen, 'expected bridge to finish opening')
-	assertEqual('open', Queries.drawbridgeState(bridge))
-
-	-- Now use the switch to close it
+	-- Now use the switch to open it
 	local switch = Queries.findEntityByType(map, 'switch')
 	switch:use(nil) -- turn switch on
 
-	-- Bridge should start closing (play closing animation)
+	-- Bridge should start opening (play opening animation)
 	FrameStepper.step(game, 1)
 	local state = Queries.drawbridgeState(bridge)
-	assertEqual('closing', state, 'expected bridge to start closing when switch turned on')
+	assertEqual('opening', state, 'expected bridge to start opening when switch turned on')
 
 	-- Wait for animation to finish
+	local open = false
+	for _ = 1, 60 do
+		FrameStepper.step(game, 1)
+		if Queries.drawbridgeState(bridge) == 'open' then
+			open = true
+			break
+		end
+	end
+	assertTrue(open, 'expected bridge to finish opening and remain open')
+	assertEqual('open', Queries.drawbridgeState(bridge))
+
+	-- Turn switch off - bridge should close and lock closed
+	switch:use(nil) -- turn switch off
+
+	FrameStepper.step(game, 1)
+	state = Queries.drawbridgeState(bridge)
+	assertEqual('closing', state, 'expected bridge to start closing when switch turned off')
+
 	local closed = false
 	for _ = 1, 60 do
 		FrameStepper.step(game, 1)
@@ -187,22 +181,4 @@ test('a switch linked to a drawbridge closes it when turned on', function()
 	end
 	assertTrue(closed, 'expected bridge to finish closing and remain closed')
 	assertEqual('closed', Queries.drawbridgeState(bridge))
-
-	-- Turn switch off - bridge should open again
-	switch:use(nil) -- turn switch off
-
-	FrameStepper.step(game, 1)
-	state = Queries.drawbridgeState(bridge)
-	assertEqual('opening', state, 'expected bridge to start opening when switch turned off')
-
-	local opened2 = false
-	for _ = 1, 60 do
-		FrameStepper.step(game, 1)
-		if Queries.drawbridgeState(bridge) == 'open' then
-			opened2 = true
-			break
-		end
-	end
-	assertTrue(opened2, 'expected bridge to finish opening and remain open')
-	assertEqual('open', Queries.drawbridgeState(bridge))
 end)
