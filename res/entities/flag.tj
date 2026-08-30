@@ -1,0 +1,63 @@
+{
+  "tileset": {
+    "firstgid": 1,
+    "tilewidth": 175,
+    "name": "flag",
+    "version": "1.11",
+    "columns": 1,
+    "grid": {
+      "height": 1,
+      "width": 1,
+      "orientation": "orthogonal"
+    },
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "image": "../img/entity_flag.png",
+        "imageheight": 175,
+        "id": 0,
+        "imagewidth": 175
+      }
+    ],
+    "spacing": 0,
+    "margin": 0,
+    "tiledversion": "1.12.2",
+    "tileheight": 175
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "color",
+        "value": "red"
+      },
+      {
+        "type": "int",
+        "name": "spriteOffsetY",
+        "value": 2
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      }
+    ],
+    "type": "flag",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "flag"
+  }
+}

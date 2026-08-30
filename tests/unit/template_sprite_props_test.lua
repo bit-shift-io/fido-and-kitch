@@ -26,6 +26,7 @@ local SPRITE_SPECS = {
 	{ tj = 'res/entities/ladder.tj',           type = 'ladder',           image = 'res/img/ladder.png',                frames = 4,   duration = 1.0,     loop = false },
 	{ tj = 'res/entities/boulder.tj',          type = 'boulder',          image = 'res/img/pushable_stone_block.png',  frames = 1 },
 	{ tj = 'res/entities/key.tj',              type = 'key',              image = 'res/img/entity_key.png',            frames = 1 },
+	{ tj = 'res/entities/flag.tj',             type = 'flag',             image = 'res/img/entity_flag.png',           frames = 1 },
 	{ tj = 'res/entities/jump_pad.tj',         type = 'jump_pad',         image = 'res/img/entity_jump_pad.png',       frames = 3,   duration = 0.2,     loop = false, playing = false },
 	{ tj = 'res/entities/blocker.tj',          type = 'blocker',          image = 'res/img/entity_blocker.png',        frames = 48,  duration = 2.0,     loop = false, playing = false },
 }
@@ -122,4 +123,12 @@ test('behavioral props survive alongside sprite props', function()
 		blockerByName[prop.name] = prop
 	end
 	assertEqual(-6, blockerByName.spriteOffsetY.value, 'blocker spriteOffsetY')
+
+	local flagT = TjTemplate.resolve('res/entities/flag.tj')
+	local flagByName = {}
+	for _, prop in ipairs(flagT.object.properties) do
+		flagByName[prop.name] = prop
+	end
+	assertEqual('red', flagByName.color.value, 'flag color')
+	assertEqual(0, flagByName.spriteOffsetY.value, 'flag spriteOffsetY')
 end)

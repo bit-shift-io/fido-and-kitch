@@ -412,6 +412,24 @@
                  "template":"..\/entities\/switch.tj",
                  "x":0,
                  "y":512
+                }, 
+                {
+                 "id":124,
+                 "template":"..\/entities\/flag.tj",
+                 "x":64,
+                 "y":384
+                }, 
+                {
+                 "id":125,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"blue"
+                        }],
+                 "template":"..\/entities\/flag.tj",
+                 "x":544,
+                 "y":256
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -610,7 +628,7 @@
          "y":0
         }],
  "nextlayerid":22,
- "nextobjectid":123,
+ "nextobjectid":126,
  "orientation":"orthogonal",
  "properties":[
         {

@@ -53,6 +53,8 @@ local defaultTestFiles = {
 	'tests/unit/ladder_toggle_test.lua',
 	'tests/unit/mover_platform_test.lua',
 	'tests/unit/mover_platform_physics_test.lua',
+	'tests/unit/color_test.lua',
+	'tests/unit/flag_test.lua',
 	'tests/unit/replicator_test.lua',
 	'tests/unit/export_png_test.lua',
 	'tests/unit/diorama_test.lua',
