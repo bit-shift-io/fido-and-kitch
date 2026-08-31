@@ -59,10 +59,12 @@ function Emitter:init(opts)
     self.texture = opts.texture
     self.textureScaleV = opts.textureScaleV or 1.0
     self.textureScroll = opts.textureScroll or 0
+    self.textureRotation = opts.textureRotation or 0  -- 0 or 90 (degrees CW)
     self.minSpeed = opts.minSpeed or 50
     self.fadeInTime = opts.fadeInTime or 0.1
     self.fadeOutTime = opts.fadeOutTime or 0.5
     self.debugAlphaColor = opts.debugAlphaColor or false
+    self.widthVerticalReduction = opts.widthVerticalReduction or 0.4
     
     self._segments = {}  -- {pos, age, velocity}
     self._mesh = nil
@@ -100,13 +102,16 @@ function Emitter:update(dt, pos, vel)
         end
         
         -- Direction is stored per segment; perpendicular computed dynamically in _rebuildMesh
+        -- Width scales with travel angle: full width when horizontal, reduced when vertical
+        local verticalAmount = math.abs(dirY)
+        local widthScale = 1 - (self.widthVerticalReduction or 0) * verticalAmount
         local segment = {
             x = pos.x,
             y = pos.y,
             age = 0,
             dirX = dirX,
             dirY = dirY,
-            halfWidth = self.width * 0.5,
+            halfWidth = self.width * 0.5 * widthScale,
             speed = speed,
         }
         
@@ -193,9 +198,21 @@ function Emitter:_rebuildMesh()
         end
         
         -- UV coordinates
-        local u = 0
-        local u2 = 1
-        local v = (i - 1) / math.max(1, segCount - 1) * self.textureScaleV + self._scrollOffset
+        local u, u2, v
+        local t_norm = (i - 1) / math.max(1, segCount - 1)
+        if self.textureRotation == 90 then
+            -- Texture horizontal maps along ribbon length, flipped: right=head, left=tail
+            -- Texture vertical maps across ribbon width
+            local texH = 1 - t_norm * self.textureScaleV + self._scrollOffset
+            u = texH
+            u2 = texH
+            v = 0
+        else
+            -- Default: U across width, V along length
+            u = 0
+            u2 = 1
+            v = t_norm * self.textureScaleV + self._scrollOffset
+        end
         
         -- Compute perpendicular from stored direction
         local perpX, perpY = -s.dirY, s.dirX
@@ -214,7 +231,7 @@ function Emitter:_rebuildMesh()
         table.insert(verts, s.x + perpX * s.halfWidth)
         table.insert(verts, s.y + perpY * s.halfWidth)
         table.insert(verts, u2)
-        table.insert(verts, v)
+        table.insert(verts, self.textureRotation == 90 and 1 or v)
         table.insert(verts, r)
         table.insert(verts, g)
         table.insert(verts, b)

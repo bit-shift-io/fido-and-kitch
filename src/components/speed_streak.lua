@@ -13,16 +13,18 @@ function SpeedStreak:init(props)
     self.emitter = MeshRibbonEmitter.new({
         maxSegments = 80,
         width = 32,
-        lifetime = 0.7,
+        lifetime = 0.98,
         colorStart = {1, 1, 1, 1},
         colorEnd = {1, 1, 1, 0},
-        texture = nil,
+        debugAlphaColor = false,
+        texture = 'res/img/fx/fx_speed_streak.png',
         textureScaleV = 1.0,
         textureScroll = 0,
+        textureRotation = 90,
         minSpeed = 0,
-        fadeInTime = 0.08,   -- 8% lifetime fade in
-        fadeOutTime = 0.6,   -- 60% lifetime fade out
-        debugAlphaColor = true, -- DEBUG: visualize alpha as white-to-blue gradient
+        fadeInTime = 0.12,   -- 12% lifetime fade in
+        fadeOutTime = 0.3,   -- 30% lifetime fade out
+        widthVerticalReduction = 0.2,
     })
 end
 
