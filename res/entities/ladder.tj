@@ -1,13 +1,6 @@
 {
   "tileset": {
     "name": "ladder",
-    "version": "1.11",
-    "columns": 0,
-    "grid": {
-      "height": 1,
-      "width": 1,
-      "orientation": "orthogonal"
-    },
     "type": "tileset",
     "tilecount": 1,
     "tiles": [
@@ -18,11 +11,6 @@
         "imageheight": 128
       }
     ],
-    "spacing": 0,
-    "margin": 0,
-    "tiledversion": "1.12.2",
-    "tilewidth": 128,
-    "tileheight": 128,
     "firstgid": 1
   },
   "type": "template",

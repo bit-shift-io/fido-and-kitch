@@ -1,14 +1,6 @@
 {
   "tileset": {
-    "tilewidth": 6144,
     "name": "blocker",
-    "version": "1.11",
-    "columns": 0,
-    "grid": {
-      "height": 1,
-      "width": 1,
-      "orientation": "orthogonal"
-    },
     "type": "tileset",
     "tilecount": 1,
     "tiles": [
@@ -23,10 +15,6 @@
         "x": 1408
       }
     ],
-    "spacing": 0,
-    "margin": 0,
-    "tiledversion": "1.12.2",
-    "tileheight": 256,
     "firstgid": 1
   },
   "type": "template",

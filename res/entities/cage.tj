@@ -33,19 +33,9 @@
     },
  "tileset":
     {
-     "columns":0,
      "firstgid":1,
-     "grid":
-        {
-         "height":1,
-         "orientation":"orthogonal",
-         "width":1
-        },
-     "margin":0,
      "name":"cage",
-     "spacing":0,
      "tilecount":1,
-     "tileheight":370,
      "tiles":[
             {
              "height":370,
@@ -56,8 +46,7 @@
              "width":380,
              "x":0,
              "y":0
-            }],
-     "tilewidth":760
+            }]
     },
  "type":"template"
 }
