@@ -19,7 +19,7 @@
       {
         "type": "int",
         "name": "frames",
-        "value": 4
+        "value": 1
       },
       {
         "type": "float",
