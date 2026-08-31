@@ -30,6 +30,11 @@
         "type": "bool",
         "name": "loop",
         "value": false
+      },
+      {
+        "type": "bool",
+        "name": "enabled",
+        "value": true
       }
     ],
     "gid": 1,

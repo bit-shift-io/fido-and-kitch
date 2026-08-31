@@ -41,10 +41,21 @@ function Ladder:init(object, map)
 		self:createSprites()
 		self.lead = self
 		self.family.entity = self
+		if not self:isEnabled() then
+			self:hide()
+		end
 	else		-- thin alias -- the lead collider/sprites already cover this column
 		self.lead = self.family.entity
 		self.collider = self.lead and self.lead.collider or nil
 	end
+end
+
+-- Authorable `enabled` prop (template default true): false starts the ladder
+-- hidden/off so a Switch pulse has something to turn on. Aliases read the
+-- merged family properties, so any rung's prop works as the source.
+function Ladder:isEnabled()
+	local props = self.rect and self.rect.properties or self.object.properties
+	return props.enabled ~= false
 end
 
 -- Aliases created before their lead (map object order is not guaranteed)
