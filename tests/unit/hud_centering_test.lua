@@ -32,11 +32,11 @@ test('heartRunWidth of 0 lives is 0', function()
 end)
 
 test('heartRunWidth of 1 life', function()
-	assert(internal.heartRunWidth(1) == 24)
+	assert(internal.heartRunWidth(1) == 48)
 end)
 
 test('heartRunWidth of 3 lives', function()
-	assert(internal.heartRunWidth(3) == 88)
+	assert(internal.heartRunWidth(3) == 176)
 end)
 
 test('coinSegmentWidth absent', function()
@@ -44,15 +44,15 @@ test('coinSegmentWidth absent', function()
 end)
 
 test('coinSegmentWidth present', function()
-	assert(internal.coinSegmentWidth(true, 30) == 8 + 24 + 6 + 30)
+	assert(internal.coinSegmentWidth(true, 30) == 16 + 48 + 12 + 30)
 end)
 
 test('blockWidth without coins', function()
-	assert(internal.blockWidth(3, false, 30) == 88)
+	assert(internal.blockWidth(3, false, 30) == 176)
 end)
 
 test('blockWidth with coins', function()
-	assert(internal.blockWidth(3, true, 30) == 88 + 68)
+	assert(internal.blockWidth(3, true, 30) == 176 + 106)
 end)
 
 print('hud_centering_test: all assertions passed')

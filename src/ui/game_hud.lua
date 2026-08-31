@@ -8,14 +8,14 @@ local utils = require('src.utils.utils')
 
 local GameHud = Class{}
 
--- Heart geometry mirrors LivesHud's locals (24/8/16) so the coin counter
+-- Heart geometry mirrors LivesHud's locals (48/16/16) so the coin counter
 -- can sit immediately right of the last heart.
-local HEART_SIZE = 24
-local HEART_SPACING = 8
-local ICON_SIZE = 24
+local HEART_SIZE = 48
+local HEART_SPACING = 16
+local ICON_SIZE = 48
 local MARGIN = 16
-local TEXT_SPACING = 6
-local TEXT_Y_OFFSET = 6
+local TEXT_SPACING = 12
+local TEXT_Y_OFFSET = 12
 local FADE_DURATION = 0.15 * 8 -- 1.2s, same as the player spawn flash
 local HOLD_DURATION = 2.0
 
@@ -156,7 +156,7 @@ function GameHud:draw()
 		icon.position = Vector(x, MARGIN)
 		icon:draw()
 
-		love.graphics.print(text, x + ICON_SIZE + TEXT_SPACING, MARGIN + TEXT_Y_OFFSET)
+		love.graphics.print(text, x + ICON_SIZE + TEXT_SPACING, MARGIN + TEXT_Y_OFFSET, 0, 2, 2)
 	end
 
 	love.graphics.setColor(1, 1, 1, 1)

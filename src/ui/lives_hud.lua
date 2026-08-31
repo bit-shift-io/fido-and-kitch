@@ -2,8 +2,8 @@ local Sprite = require('src.components.sprite')
 
 local LivesHud = Class{}
 
-local HEART_SIZE = 24
-local HEART_SPACING = 8
+local HEART_SIZE = 48
+local HEART_SPACING = 16
 local MARGIN = 16
 
 function LivesHud:init(props)
