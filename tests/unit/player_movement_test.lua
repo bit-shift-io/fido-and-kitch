@@ -77,7 +77,7 @@ test('isCentred returns false when player is beyond one slide-step from centre',
 	assertFalse(result)
 end)
 
-test('resolveActiveAxis switches to horizontal when horizontal newly pressed while vertical held', function()
+test('resolveActiveAxis keeps vertical priority when a side key is added while vertical held', function()
 	local axis = movement.resolveActiveAxis({
 		verticalHeld = true,
 		horizontalHeld = true,
@@ -86,14 +86,14 @@ test('resolveActiveAxis switches to horizontal when horizontal newly pressed whi
 		previousAxis = 'vertical'
 	})
 
-	assertEqual('horizontal', axis)
+	assertEqual('vertical', axis)
 end)
 
-test('resolveActiveAxis switches to vertical when vertical newly pressed while horizontal held', function()
+test('resolveActiveAxis returns vertical while any vertical key is held, even with horizontal held', function()
 	local axis = movement.resolveActiveAxis({
 		verticalHeld = true,
 		horizontalHeld = true,
-		verticalNewlyPressed = true,
+		verticalNewlyPressed = false,
 		horizontalNewlyPressed = false,
 		previousAxis = 'horizontal'
 	})
@@ -101,16 +101,16 @@ test('resolveActiveAxis switches to vertical when vertical newly pressed while h
 	assertEqual('vertical', axis)
 end)
 
-test('resolveActiveAxis stays on current axis when no new press', function()
+test('resolveActiveAxis uses horizontal once no vertical key is held', function()
 	local axis = movement.resolveActiveAxis({
-		verticalHeld = true,
+		verticalHeld = false,
 		horizontalHeld = true,
 		verticalNewlyPressed = false,
-		horizontalNewlyPressed = false,
+		horizontalNewlyPressed = true,
 		previousAxis = 'vertical'
 	})
 
-	assertEqual('vertical', axis)
+	assertEqual('horizontal', axis)
 end)
 
 test('resolveActiveAxis falls back to held axis when active axis released', function()

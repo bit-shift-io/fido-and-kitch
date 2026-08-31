@@ -50,44 +50,18 @@ function PlayerMovement.isCentred(playerCentreX, targetCentreX, slideSpeed, dt)
     return math.abs(playerCentreX - targetCentreX) <= slideStep
 end
 
+-- Vertical input always wins on a ladder: while up/down is held, left/right
+-- is ignored so an accidental side press can't slide the climber off the
+-- column mid-climb. Left/right only take the player sideways when neither
+-- vertical key is held.
 function PlayerMovement.resolveActiveAxis(input)
-    local verticalHeld = input.verticalHeld
-    local horizontalHeld = input.horizontalHeld
-    local verticalNewlyPressed = input.verticalNewlyPressed
-    local horizontalNewlyPressed = input.horizontalNewlyPressed
-    local previousAxis = input.previousAxis
-
-    -- If a new key was pressed on an axis, that axis wins
-    if verticalNewlyPressed and not horizontalNewlyPressed then
-        return 'vertical'
-    end
-    if horizontalNewlyPressed and not verticalNewlyPressed then
-        return 'horizontal'
-    end
-
-    -- If both newly pressed, last-pressed wins (but we don't have timing info here,
-    -- so default to vertical for simultaneous presses)
-    if verticalNewlyPressed and horizontalNewlyPressed then
-        return 'vertical'
-    end
-
-    -- No new presses - stay on current axis if it's still held
-    if previousAxis == 'vertical' and verticalHeld then
-        return 'vertical'
-    end
-    if previousAxis == 'horizontal' and horizontalHeld then
-        return 'horizontal'
-    end
-
-    -- Fall back to whatever axis is still held
-    if verticalHeld then
-        return 'vertical'
-    end
-    if horizontalHeld then
-        return 'horizontal'
-    end
-
-    return nil
+	if input.verticalHeld then
+		return 'vertical'
+	end
+	if input.horizontalHeld then
+		return 'horizontal'
+	end
+	return nil
 end
 
 function PlayerMovement.shouldFallOffLadder(overlapsAnyLadder)

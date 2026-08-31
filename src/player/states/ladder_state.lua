@@ -93,16 +93,26 @@ function LadderState:update(dt)
         end
     end
 
-    if PlayerMovement.shouldFallOffLadder(#ladders > 0)
-        and not upPressed and not downPressed then
-        local ground = PlayerSensors.queryOnNonLadderGround(world, player.collider)
-        if ground then
-            snapOntoGround(player, ground)
-            player.fsm:setState('WalkIdleState')
-        else
-            player.fsm:setState('FallState')
+    -- Falling off must not wait for a vertical key to be released: a climber
+    -- holding up who slides sideways off the column (up+left/right switches
+    -- the sub-mode to sliding) would otherwise keep zero-gravity and sail
+    -- across the map. The one exception is the top hover, where the body is
+    -- flush against the top edge (no volume overlap) but the column is still
+    -- directly under the feet -- pressing up there must stay mounted, not
+    -- pop the player off. The down-fold above already covers descent, so
+    -- the below-feet probe below only needs to protect the up-held hover.
+    if PlayerMovement.shouldFallOffLadder(#ladders > 0) then
+        local anchoredAbove = upPressed and PlayerSensors.queryLadderBelow(world, player.collider)
+        if not anchoredAbove then
+            local ground = PlayerSensors.queryOnNonLadderGround(world, player.collider)
+            if ground then
+                snapOntoGround(player, ground)
+                player.fsm:setState('WalkIdleState')
+            else
+                player.fsm:setState('FallState')
+            end
+            return
         end
-        return
     end
 
     local verticalHeld = upPressed or downPressed

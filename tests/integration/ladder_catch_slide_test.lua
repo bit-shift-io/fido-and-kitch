@@ -92,6 +92,44 @@ test('releasing the slide key holds position instead of re-centring', function()
 			.. ', now x=' .. tostring(Queries.playerPositionV(player).x) .. ')')
 end)
 
+test('a side press while climbing (up held) is ignored, keeping the player on the ladder', function()
+	local game = GameHarness.startGame(MAP)
+	local controller = FakeInputModule.FakeInput.new()
+	local player = player1(game)
+	local runUntil = FakeInputModule.runUntil
+
+	-- Drop into the column -> hang.
+	player.collider:setPosition(CENTRE_X, 240)
+	runUntil(game, function()
+		return player.fsm.currentState.name == 'LadderState'
+	end, 120)
+
+	-- Climb a little, then hold right while STILL holding up. Regression for
+	-- the vertical-priority rule: while up/down is held the side keys must be
+	-- ignored, so an accidental dual press can't slide the player off the
+	-- column (the old last-pressed-wins model slipped too easily).
+	controller:press('up')
+	runUntil(game, function()
+		return Queries.playerPositionV(player).y < 220
+	end, FrameStepper.secondsToFrames(3))
+	controller:press('right')
+	local xAtPress = Queries.playerPositionV(player).x
+
+	runUntil(game, function()
+		return Queries.playerPositionV(player).y < 190
+	end, FrameStepper.secondsToFrames(3))
+
+	controller:release('up')
+	controller:release('right')
+
+	local x = Queries.playerPositionV(player).x
+	assertEqual('LadderState', player.fsm.currentState.name,
+		'player must stay mounted while both up and a side key are held')
+	assertTrue(math.abs(x - xAtPress) <= 1,
+		'side press must be ignored while up is held (x at press=' .. tostring(xAtPress)
+			.. ', after climbing x=' .. tostring(x) .. ')')
+end)
+
 test('pressing up from an off-centre hang recentres before climbing', function()
 	local game = GameHarness.startGame(MAP)
 	local controller = FakeInputModule.FakeInput.new()
