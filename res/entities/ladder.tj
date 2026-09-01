@@ -35,6 +35,11 @@
         "type": "bool",
         "name": "enabled",
         "value": true
+      },
+      {
+        "type": "float",
+        "name": "revealDelay",
+        "value": 0.4
       }
     ],
     "gid": 1,

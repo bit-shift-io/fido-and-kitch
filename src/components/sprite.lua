@@ -147,6 +147,9 @@ function Sprite:init(props)
 	self.facing = props.facing or 'right'
 	self.playingOnEnter = props.playing ~= false
 	self.renderOrder = props.renderOrder
+	-- Gating flag for staggered reveals (e.g. ladder tiles popping in one by
+	-- one). Draw methods early-out when false; headless code never touches it.
+	self.visible = props.visible ~= false
 
 	-- Default duration for single-frame sprites (no animation)
 	local duration = props.duration
@@ -242,11 +245,13 @@ end
 
 
 function Sprite:draw_image_frames()
+	if self.visible == false then return end
 	local frame = self.frames[self.frameNum]
 	love.graphics.draw(frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
 end
 
 function Sprite:draw_quad_frames()
+	if self.visible == false then return end
 	local frame = self.frames[self.frameNum]
 	assert(frame)
 	love.graphics.draw(self.image, frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)

@@ -10,6 +10,10 @@ local TOP_THICKNESS = 8
 -- through it (same tolerance the mover platform's one-way deck uses).
 local LAND_TOL = PhysicsTolerance.LAND_TOL
 
+-- Seconds between successive ladder tiles revealing/hiding when toggled by a
+-- switch. Overridable per-rung via the `revealDelay` template prop.
+local DEFAULT_REVEAL_DELAY = 0.12
+
 -- Per-rung tile objects (authoring model):
 --
 -- Each rung is a 32x32 bottom-anchored gid tile object (object.y = BOTTOM
@@ -34,6 +38,15 @@ function Ladder:init(object, map)
 	self.family = object.ladderFamily or object
 	self.rect = self.family
 	self.lead = nil
+	-- Staggered tile reveal (driven from a switch toggle): seconds between
+	-- successive tiles appearing/disappearing, outward from the switch's
+	-- targeted rung. Prop on the template, default 0.12.
+	self.revealDelay = (self.object.properties and self.object.properties.revealDelay) or DEFAULT_REVEAL_DELAY
+	self.revealActive = false
+	self.revealOut = false
+	self.revealElapsed = 0
+	self.revealPos = 0
+	self.revealOrder = nil
 
 	if object.leadRung then
 		self:createCollider()
@@ -42,7 +55,10 @@ function Ladder:init(object, map)
 		self.lead = self
 		self.family.entity = self
 		if not self:isEnabled() then
-			self:hide()
+			self.hidden = true
+			self:removeCollider()
+			self:removeTopCollider()
+			self:hideSprites()
 		end
 	else		-- thin alias -- the lead collider/sprites already cover this column
 		self.lead = self.family.entity
@@ -51,10 +67,11 @@ function Ladder:init(object, map)
 end
 
 -- Authorable `enabled` prop (template default true): false starts the ladder
--- hidden/off so a Switch pulse has something to turn on. Aliases read the
--- merged family properties, so any rung's prop works as the source.
+-- hidden/off so a Switch pulse has something to turn on. Reads the lead rung's
+-- merged object properties (any rung's prop works as the source -- the merged
+-- family rect carries no properties of its own).
 function Ladder:isEnabled()
-	local props = self.rect and self.rect.properties or self.object.properties
+	local props = self.object.properties
 	return props.enabled ~= false
 end
 
@@ -65,7 +82,97 @@ function Ladder:update(dt)
 		self.lead = self.family.entity
 		self.collider = self.lead.collider
 	end
+	if self.revealActive then
+		self:advanceReveal(dt)
+	end
 	Entity.update(self, dt)
+end
+
+-- Walk the outward reveal order, revealing (or hiding) one more tile every
+-- `revealDelay` seconds. The volume is already live/immediate; this only
+-- drives the visuals.
+function Ladder:advanceReveal(dt)
+	self.revealElapsed = self.revealElapsed + dt
+	local steps = math.floor(self.revealElapsed / self.revealDelay)
+	self.revealPos = math.min(steps, #self.revealOrder)
+	for i = 1, self.revealPos do
+		local sprite = self.sprites and self.sprites[self.revealOrder[i]]
+		if sprite then
+			sprite.visible = not self.revealOut
+		end
+	end
+	if self.revealPos >= #self.revealOrder then
+		self.revealActive = false
+	end
+end
+
+-- Build the order in which tiles appear, starting at `originIndex` (a 1-based
+-- sprite index, default the bottom tile = the lead) and alternating up/down
+-- outwards. The 1-based indices line up with self.sprites.
+function Ladder:buildRevealOrder(originIndex, count)
+	local order = {}
+	local n = count or 0
+	if n == 0 then return order end
+	originIndex = originIndex or n
+	originIndex = math.max(1, math.min(n, originIndex))
+	table.insert(order, originIndex)
+	local up = originIndex - 1
+	local down = originIndex + 1
+	while #order < n do
+		if up >= 1 then
+			table.insert(order, up)
+		end
+		up = up - 1
+		if down <= n then
+			table.insert(order, down)
+		end
+		down = down + 1
+	end
+	return order
+end
+
+-- The tile band a switch-targeted rung's bottom edge falls into, as a 1-based
+-- sprite index. rungBottomY is the rung's BOTTOM edge (Tiled objects are
+-- bottom-anchored).
+function Ladder:tileIndexForY(rungBottomY)
+	local top = self.rect.y - self.rect.height
+	local i = math.floor((rungBottomY - top) / self.map.tileheight) + 1
+	return math.max(1, math.min(self:tileHeight(), i))
+end
+
+-- Kick off a staggered reveal. `appears` (true): tiles appear outward from the
+-- switch's targeted rung. `false`: tiles disappear outward from it.
+-- Sprites are assumed to already exist.
+function Ladder:startSpriteReveal(originObject, appears)
+	local sprites = self.sprites or {}
+	local n = #sprites
+	if n == 0 then
+		return
+	end
+	local originIndex = nil
+	if originObject then
+		originIndex = self:tileIndexForY(originObject.y)
+	end
+	self.revealOrder = self:buildRevealOrder(originIndex, n)
+	-- When hiding, traverse the outward order backwards so tiles disappear
+	-- farthest-first, converging inward toward the switch's target rung --
+	-- the exact reverse of how they appeared.
+	if not appears then
+		local reversed = {}
+		for i = #self.revealOrder, 1, -1 do
+			reversed[#reversed + 1] = self.revealOrder[i]
+		end
+		self.revealOrder = reversed
+	end
+	self.revealOut = not appears
+	self.revealElapsed = 0
+	self.revealPos = 0
+	self.revealActive = true
+	-- sprites start in the not-yet-revealed state: invisible when appearing,
+	-- visible when disappearing (so they vanish outward).
+	for _, sprite in ipairs(sprites) do
+		sprite.visible = self.revealOut
+	end
 end
 
 function Ladder:leadEntity()
@@ -205,44 +312,51 @@ function Ladder:createSprites()
 	end
 end
 
--- Switch off hides the ladder (removes collider + sprites, rect unchanged)
--- so climbing stops; switch on restores everything, keeping any grown size.
--- Aliases forward straight to the lead so any rung id works as a target.
+-- Switch off hides the ladder so climbing stops; switch on restores it,
+-- keeping any grown size. The collision volume toggles instantly (a switch-off
+-- drop never lingers on a disappearing ladder), while the render tiles stagger
+-- apart/together outward from the switch's targeted rung. Aliases forward
+-- straight to the lead so any rung id works as a target.
 function Ladder:switch(switch, user)
 	local lead = self:leadEntity()
-	if lead == self then
-		if switch.state == 'off' then
-			self:hide()
-		elseif switch.state == 'on' then
-			self:show()
-			if self.object and self.object.exec then
-				self.object:exec('switchOn', self)
-			end
-		end
-	else
+	if lead ~= self then
 		lead:switch(switch, user)
+		return
+	end
+	local origin = switch and switch.target
+	if switch.state == 'off' then
+		-- volume gone immediately; tiles stagger out
+		self.hidden = true
+		self:removeCollider()
+		self:removeTopCollider()
+		self:startSpriteReveal(origin, false)
+	elseif switch.state == 'on' then
+		self.hidden = false
+		self:createCollider()
+		self:createTopCollider()
+		self:createSprites()
+		if self.object and self.object.exec then
+			self.object:exec('switchOn', self)
+		end
+		self:startSpriteReveal(origin, true)
 	end
 end
 
-function Ladder:hide()
-	self.hidden = true
-	self:removeComponent(self.collider)
-	if self.collider and self.collider.destroy then
-		self.collider:destroy()
+function Ladder:removeCollider()
+	if self.collider then
+		self:removeComponent(self.collider)
+		if self.collider.destroy then
+			self.collider:destroy()
+		end
+		self.collider = nil
 	end
-	self.collider = nil
-	self:removeTopCollider()
+end
+
+function Ladder:hideSprites()
 	for _, sprite in pairs(self.sprites or {}) do
 		self:removeComponent(sprite)
 	end
 	self.sprites = nil
-end
-
-function Ladder:show()
-	self.hidden = false
-	self:createCollider()
-	self:createTopCollider()
-	self:createSprites()
 end
 
 return Ladder

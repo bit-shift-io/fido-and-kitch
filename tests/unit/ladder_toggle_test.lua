@@ -127,3 +127,90 @@ test('toggling the ladder back on restores climbing, keeping any grown height', 
 		'on restores the climb sensor')
 	assertEqual(3 * TILE, lead.rect.height, 'grown height survives the off/on cycle')
 end)
+
+local function assertOrder(expected, actual, message)
+	assertEqual(#expected, #actual, tostring(message) .. ' (length)')
+	for i = 1, #expected do
+		assertEqual(expected[i], actual[i], tostring(message) .. ' at index ' .. i)
+	end
+end
+
+test('reveal order grows outward from the switch-targeted tile, alternating up/down', function()
+	local rungs = makeFamilyRungs(5)
+	local lead = makeLead(rungs)
+
+	-- origin at sprite 2, five tiles -> 2,1,3,4,5
+	assertOrder({2, 1, 3, 4, 5}, lead:buildRevealOrder(2, 5), 'outward order from a middle origin')
+
+	-- no origin -> falls back to bottom (lead) tile; bottom-up sweep
+	assertOrder({5, 4, 3, 2, 1}, lead:buildRevealOrder(nil, 5), 'default origin is the bottom tile')
+
+	-- origin out of range clamps to the bottom
+	assertOrder({3, 2, 1}, lead:buildRevealOrder(99, 3), 'out-of-range origin clamps to the bottom')
+end)
+
+test('tileIndexForY maps a switch-targeted rung bottom edge onto its tile band', function()
+	local rungs = makeFamilyRungs(3)
+	local lead = makeLead(rungs)
+	-- family rect: x=64, y=160+3*TILE=256, height=96 -> top edge at 160.
+	-- sprite 1 spans [160,192), 2 spans [192,224), 3 spans [224,256).
+	assertEqual(1, lead:tileIndexForY(170), 'rung in the top tile band')
+	assertEqual(3, lead:tileIndexForY(240), 'rung in the bottom tile band')
+	assertEqual(3, lead:tileIndexForY(256), 'rung bottom flush with ladder bottom -> last band')
+	assertEqual(1, lead:tileIndexForY(100), 'rung above the ladder clamps to the top')
+end)
+
+test('an enabled reveal makes tiles appear outward from the origin, one per delay', function()
+	local rungs = makeFamilyRungs(5)
+	local lead = makeLead(rungs)
+	lead.revealDelay = 1
+
+	-- origin at sprite 1 (top): order 1,2,3,4,5
+	lead:startSpriteReveal({ y = 170 }, true)
+	assertTrue(lead.revealActive, 'reveal kicks off immediately')
+	for _, s in ipairs(lead.sprites) do
+		assertFalse(s.visible, 'sprites start invisible when appearing')
+	end
+
+	lead:update(2.5) -- two delay steps elapse -> tiles 1,2 revealed
+	local vis = {}
+	for i, s in ipairs(lead.sprites) do vis[i] = s.visible end
+	assertOrder({true, true, false, false, false}, vis, 'tiles appear outward from the origin')
+	assertTrue(lead.revealActive, 'not finished yet')
+end)
+
+test('a disabled reveal hides tiles outward from the origin while the volume is already gone', function()
+	local rungs = makeFamilyRungs(5)
+	local lead = makeLead(rungs)
+	lead.revealDelay = 1
+
+	lead:switch({ state = 'off' })
+	assertEqual(nil, lead.collider, 'volume removed immediately on switch off')
+	assertTrue(lead.revealActive, 'sprites stagger out after the volume drops')
+	for _, s in ipairs(lead.sprites) do
+		assertTrue(s.visible, 'sprites start visible when disappearing')
+	end
+
+	-- no origin -> outward order 5,4,3,2,1 reversed to 1,2,3,4,5: the top
+	-- (farthest) tile hides first, converging inward toward the origin.
+	lead:update(1.5)
+	local vis = {}
+	for i, s in ipairs(lead.sprites) do vis[i] = s.visible end
+	assertOrder({false, true, true, true, true}, vis, 'tiles hide farthest-first, converging toward the origin')
+end)
+
+test('hiding converges inward toward the switch-targeted rung, not outward from it', function()
+	local rungs = makeFamilyRungs(5)
+	local lead = makeLead(rungs)
+	lead.revealDelay = 1
+
+	-- origin at sprite 3 (middle, y=240); outward appear order 3,2,4,1,5.
+	-- Hide runs that in reverse: 5,1,4,2,3 -- the farthest tiles vanish first.
+	lead:startSpriteReveal({ y = 240 }, false)
+	assertOrder({5, 1, 4, 2, 3}, lead.revealOrder, 'hide traverses the outward order backwards')
+
+	lead:update(1.5) -- first hide step
+	local vis = {}
+	for i, s in ipairs(lead.sprites) do vis[i] = s.visible end
+	assertOrder({true, true, true, true, false}, vis, 'farthest tile hides first, origin stays visible')
+end)
