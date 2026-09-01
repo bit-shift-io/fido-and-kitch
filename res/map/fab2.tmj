@@ -17,20 +17,20 @@
             0, 0, 0, 0, 0, 42, 0, 42, 42, 42, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 42, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 0, 0,
             42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 42, 10, 0, 10, 10, 10, 10, 42, 42, 42, 42, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 10, 42, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,
+            0, 42, 42, 42, 42, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 10, 10, 10, 10, 42, 42, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            42, 42, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 42, 42, 42, 42, 0, 0,
+            0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "height":30,
@@ -43,6 +43,47 @@
                  "type":"bool",
                  "value":true
                 }],
+         "type":"tilelayer",
+         "visible":true,
+         "width":20,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105,
+            121, 121, 121, 113, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 113],
+         "height":30,
+         "id":5,
+         "name":"water",
+         "opacity":1,
          "type":"tilelayer",
          "visible":true,
          "width":20,
@@ -227,6 +268,271 @@
                  "template":"..\/entities\/push_box.tj",
                  "x":160,
                  "y":160
+                }, 
+                {
+                 "id":32,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":27
+                        }],
+                 "template":"..\/entities\/pressure_switch.tj",
+                 "x":192,
+                 "y":512
+                },
+            
+                {
+                 "id":38,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":26
+                        }],
+                 "template":"..\/entities\/pressure_switch.tj",
+                 "x":288,
+                 "y":640
+                }, 
+                {
+                 "id":39,
+                 "template":"..\/entities\/coin.tj",
+                 "x":352,
+                 "y":608
+                }, 
+                {
+                 "id":40,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":41
+                        }],
+                 "template":"..\/entities\/pressure_switch.tj",
+                 "x":192,
+                 "y":864
+                }, 
+                {
+                 "id":43,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":448
+                }, 
+                {
+                 "id":44,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":416
+                }, 
+                {
+                 "id":45,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":384
+                }, 
+                {
+                 "id":46,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":352
+                }, 
+                {
+                 "id":47,
+                 "template":"..\/entities\/coin.tj",
+                 "x":480,
+                 "y":704
+                }, 
+                {
+                 "id":48,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":832
+                }, 
+                {
+                 "id":49,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":800
+                }, 
+                {
+                 "id":50,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":768
+                }, 
+                {
+                 "id":51,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":736
+                }, 
+                {
+                 "id":52,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":704
+                }, 
+                {
+                 "id":53,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":672
+                }, 
+                {
+                 "id":54,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":640
+                }, 
+                {
+                 "id":55,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":48
+                        }],
+                 "template":"..\/entities\/switch.tj",
+                 "x":320,
+                 "y":704
+                }, 
+                {
+                 "id":57,
+                 "template":"..\/entities\/key.tj",
+                 "x":32,
+                 "y":288
+                }, 
+                {
+                 "id":58,
+                 "template":"..\/entities\/cage.tj",
+                 "x":64,
+                 "y":672
+                }, 
+                {
+                 "id":59,
+                 "template":"..\/entities\/coin.tj",
+                 "x":128,
+                 "y":768
+                }, 
+                {
+                 "id":60,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"blue"
+                        }],
+                 "template":"..\/entities\/key.tj",
+                 "x":384,
+                 "y":320
+                },
+            
+                {
+                 "id":61,
+                 "properties":[
+                        {
+                         "name":"color",
+                         "type":"string",
+                         "value":"blue"
+                        }],
+                 "template":"..\/entities\/cage.tj",
+                 "x":416,
+                 "y":832
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":6,
+         "name":"kill",
+         "objects":[
+                {
+                 "height":64,
+                 "id":56,
+                 "name":"water_kill",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"deathType",
+                         "type":"string",
+                         "value":"water"
+                        }],
+                 "rotation":0,
+                 "type":"kill_zone",
+                 "visible":true,
+                 "width":640,
+                 "x":0,
+                 "y":896
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -306,42 +612,6 @@
                  "y":416
                 }, 
                 {
-                 "id":23,
-                 "properties":[
-                        {
-                         "name":"enabled",
-                         "type":"bool",
-                         "value":false
-                        }],
-                 "template":"..\/entities\/ladder.tj",
-                 "x":576,
-                 "y":352
-                }, 
-                {
-                 "id":24,
-                 "properties":[
-                        {
-                         "name":"enabled",
-                         "type":"bool",
-                         "value":false
-                        }],
-                 "template":"..\/entities\/ladder.tj",
-                 "x":576,
-                 "y":384
-                }, 
-                {
-                 "id":25,
-                 "properties":[
-                        {
-                         "name":"enabled",
-                         "type":"bool",
-                         "value":false
-                        }],
-                 "template":"..\/entities\/ladder.tj",
-                 "x":576,
-                 "y":416
-                }, 
-                {
                  "id":26,
                  "properties":[
                         {
@@ -350,8 +620,56 @@
                          "value":false
                         }],
                  "template":"..\/entities\/ladder.tj",
-                 "x":576,
-                 "y":448
+                 "x":288,
+                 "y":800
+                }, 
+                {
+                 "id":34,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":768
+                }, 
+                {
+                 "id":35,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":736
+                }, 
+                {
+                 "id":41,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":256,
+                 "y":864
+                }, 
+                {
+                 "id":42,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":256,
+                 "y":832
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -359,8 +677,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":5,
- "nextobjectid":32,
+ "nextlayerid":7,
+ "nextobjectid":62,
  "orientation":"orthogonal",
  "properties":[
         {
