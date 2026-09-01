@@ -52,10 +52,11 @@ local function nextActivation(isActive, latching, weightPresent)
 	return weightPresent
 end
 
--- tall enough to catch a weight resting on the plate -- feet on its top edge,
--- body extending upward out of the plate's own depth -- mirroring the
--- drawbridge's occupancy margin
-local OCCUPANCY_HEIGHT_MARGIN = 200
+-- the 1x1 tile directly above the plate: a weight standing on it has its feet
+-- (collider bottom) somewhere in that tile, which is all "on the plate" needs
+-- to mean -- unlike the drawbridge, this plate is exactly one tile wide/tall
+-- so its occupancy zone doesn't need extra headroom.
+local OCCUPANCY_HEIGHT_MARGIN = 32
 
 -- placeholder art: a flat plate quad that changes colour when active. Real art
 -- is out of scope for this feature (DECISIONS Q14); the props use real images
@@ -71,7 +72,15 @@ function PressureSwitch:init(object, map)
 	-- lets a pushable recognise this as something to seat itself on
 	self.isPressurePlate = true
 
-	self.rect = Rect(object)
+	-- object.y from Tiled is top-anchored for a hand-drawn plain rectangle but
+	-- BOTTOM-anchored for a tile object (has a gid -- what dragging the
+	-- res/entities/pressure_switch.tj template from Tiled's palette
+	-- produces), same split as PushableSupport.spawnCentre. Both shapes exist
+	-- across this project's maps for pressure_switch: res/map/fab2.tmj places
+	-- gid template instances, tests/fixtures/pressure_switch_room.tmj hand-
+	-- authors plain rectangles.
+	local topLeftY = object.gid and (object.y - object.height) or object.y
+	self.rect = Rect{x = object.x, y = topLeftY, width = object.width, height = object.height}
 	local position = self.rect:centre()
 	self.plateCentreX = position.x
 

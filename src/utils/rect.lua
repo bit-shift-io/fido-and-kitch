@@ -20,11 +20,13 @@ end
 -- tileset/template, has a gid): Tiled anchors those at the BOTTOM edge, so
 -- the centre is half a height above object.y. This is the position formula
 -- most sprite-bearing entities use (coin, key, switch, teleport, cage,
--- jump_pad, exit_door, ...). Zone/area entities authored as plain
--- rectangles (no gid: ladder, kill_zone, drawbridge, pressure_switch) are
--- TOP-anchored instead and use Rect(object):centre() -- the two are not
--- interchangeable, see src/components/pushable/pushable_support.lua's
--- PushableSupport.spawnCentre for the gid-aware version of this same split.
+-- jump_pad, exit_door, ...). Zone/area entities authored as plain rectangles
+-- (no gid: ladder, kill_zone, drawbridge) are TOP-anchored instead and use
+-- Rect(object):centre() -- the two are not interchangeable, see
+-- src/components/pushable/pushable_support.lua's PushableSupport.spawnCentre
+-- for the gid-aware version of this same split. pressure_switch sees both
+-- shapes across the project's maps and branches on object.gid itself rather
+-- than picking one of these helpers.
 function Rect.centreOfMapObject(object)
     return Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 end
