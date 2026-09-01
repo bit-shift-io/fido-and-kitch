@@ -107,7 +107,7 @@ test('behavioral props survive alongside sprite props', function()
 	for _, prop in ipairs(bridgeT.object.properties) do
 		bridgeByName[prop.name] = prop
 	end
-	assertEqual('leftToRight', bridgeByName.crossingDirection.value, 'drawbridge crossingDirection')
+	assertEqual(false, bridgeByName.flipCrossing.value, 'drawbridge flipCrossing')
 	-- editor-first authoring values (see NOTES.md 'Sprite offsets'): the art
 	-- box and the one-tile deck are independent; pinning them here guards
 	-- the loader-level defaults the fixtures/maps inherit.

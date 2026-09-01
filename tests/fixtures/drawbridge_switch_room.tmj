@@ -90,9 +90,9 @@
           "type": "drawbridge",
           "properties": [
             {
-              "type": "string",
-              "name": "crossingDirection",
-              "value": "leftToRight"
+              "type": "bool",
+              "name": "flipCrossing",
+              "value": false
             },
             {
               "type": "float",

@@ -713,8 +713,13 @@
                  "y":96
                 }, 
                 {
-                 "gid":0,
                  "id":164,
+                 "properties":[
+                        {
+                         "name":"flipCrossing",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/drawbridge.tj",
                  "x":32,
                  "y":608

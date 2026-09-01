@@ -19,7 +19,7 @@ local FakeInput = FakeInputModule.FakeInput
 local MAP = 'tests/fixtures/drawbridge_room.tmj'
 
 -- The fixture's lone spawn point sits on the bridge's arrival
--- (crossingDirection = 'leftToRight') side; walking right from there
+-- (flipCrossing = false, left-to-right) side; walking right from there
 -- approaches the gap correctly.
 -- Comfortably past the gap (tiles 4/5, x=128..160) and onto the far-side
 -- ground (tiles 5-8, x=160..288).

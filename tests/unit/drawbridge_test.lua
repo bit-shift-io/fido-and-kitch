@@ -35,31 +35,29 @@ local D = Drawbridge._internal
 -- tile out) -- so the deck visibly starts lowering only once the player is
 -- right at the edge, reading as "pushing the gate down" rather than
 -- tripping a remote sensor a whole tile away.
-test('leftToRight places the trigger sensor flush against the gap, on the left (arrival side)', function()
+test('non-flipped (leftToRight) places the trigger sensor flush against the gap, on the left (arrival side)', function()
 	-- tileWidth=32, triggerWidth=8: trigger's right edge (offset + half its
 	-- own width) must land exactly on the deck's left edge (half the tile)
-	assertEqual(-20, D.triggerOffsetX('leftToRight', 32, 8))
+	assertEqual(-20, D.triggerOffsetX(false, 32, 8))
 end)
 
-test('rightToLeft places the trigger sensor flush against the gap, on the right (arrival side)', function()
-	assertEqual(20, D.triggerOffsetX('rightToLeft', 32, 8))
+test('flipCrossing=true places the trigger sensor flush against the gap, on the right (arrival side)', function()
+	assertEqual(20, D.triggerOffsetX(true, 32, 8))
 end)
 
-test('an unrecognised or missing crossingDirection falls back to leftToRight', function()
-	assertEqual(-20, D.triggerOffsetX('sideways', 32, 8))
+test('a missing flipCrossing falls back to non-flipped (left-to-right)', function()
 	assertEqual(-20, D.triggerOffsetX(nil, 32, 8))
 end)
 
-test('leftToRight renders unmirrored -- tower on the left, deck lowering rightward over the gap', function()
-	assertEqual('right', D.spriteFacing('leftToRight'))
+test('non-flipped renders unmirrored -- tower on the left, deck lowering rightward over the gap', function()
+	assertEqual('right', D.spriteFacing(false))
 end)
 
-test('rightToLeft renders mirrored', function()
-	assertEqual('left', D.spriteFacing('rightToLeft'))
+test('flipCrossing=true renders mirrored', function()
+	assertEqual('left', D.spriteFacing(true))
 end)
 
-test('an unrecognised or missing crossingDirection renders unmirrored (matches the leftToRight fallback)', function()
-	assertEqual('right', D.spriteFacing('sideways'))
+test('a missing flipCrossing renders unmirrored (matches the non-flipped fallback)', function()
 	assertEqual('right', D.spriteFacing(nil))
 end)
 
@@ -211,11 +209,11 @@ local function spawnOccupant(x, y)
 	return occupant
 end
 
-local function makeBridge(crossingDirection, extraProps)
+local function makeBridge(flipCrossing, extraProps)
 	HeadlessBootstrap.resetWorld()
 	extraProps = extraProps or {}
 	local properties = {
-		crossingDirection = crossingDirection,
+		flipCrossing = flipCrossing,
 		-- template art merged in-game (res/entities/drawbridge.tj); the
 		-- image now comes from the template's inline tileset tile and the
 		-- loader injects it into merged properties, so the stub mirrors
@@ -241,7 +239,7 @@ local function makeBridge(crossingDirection, extraProps)
 end
 
 test('constructs headless with a real Sprite/Collider/World stack, closed and non-solid', function()
-	local bridge = makeBridge('leftToRight')
+	local bridge = makeBridge(false)
 
 	assertEqual('closed', bridge.state)
 	assertTrue(bridge.deck:isSensor(), 'closed deck should be a sensor -- gap fully exposed, no barrier')
@@ -249,12 +247,12 @@ test('constructs headless with a real Sprite/Collider/World stack, closed and no
 end)
 
 test('spriteOffsetX/spriteOffsetY shift only the sprite -- the deck keeps the authored rect', function()
-	local plain = makeBridge('leftToRight')
+	local plain = makeBridge(false)
 
 	assertEqual(160, plain.sprite.position.x, 'no offset: the sprite sits on the art box centre')
 	assertEqual(128, plain.sprite.position.y, 'no offset: the sprite sits on the art box centre')
 
-	local nudged = makeBridge('leftToRight', { spriteOffsetX = 8, spriteOffsetY = -16 })
+	local nudged = makeBridge(false, { spriteOffsetX = 8, spriteOffsetY = -16 })
 
 	assertEqual(168, nudged.sprite.position.x, 'positive X offset moves the art right')
 	assertEqual(112, nudged.sprite.position.y, 'negative Y offset lifts the art')
@@ -264,9 +262,9 @@ test('spriteOffsetX/spriteOffsetY shift only the sprite -- the deck keeps the au
 end)
 
 test('colliderOffsetX/colliderOffsetY shift only the gameplay footprint -- the art keeps its centre', function()
-	local plain = makeBridge('leftToRight')
+	local plain = makeBridge(false)
 
-	local shifted = makeBridge('leftToRight', { colliderOffsetX = 8, colliderOffsetY = -16 })
+	local shifted = makeBridge(false, { colliderOffsetX = 8, colliderOffsetY = -16 })
 
 	assertEqual(160, shifted.sprite.position.x, 'the art never follows the collider offset')
 	assertEqual(128, shifted.sprite.position.y, 'the art never follows the collider offset')
@@ -280,25 +278,25 @@ test('colliderOffsetX/colliderOffsetY shift only the gameplay footprint -- the a
 	assertEqual(112, plainPos.y, 'no offset: deck sits on the object corner')
 end)
 
-test('leftToRight construction places the trigger left of the deck and faces the sprite right', function()
-	local bridge = makeBridge('leftToRight')
+test('non-flipped construction places the trigger left of the deck and faces the sprite right', function()
+	local bridge = makeBridge(false)
 
 	assertTrue(bridge.triggerCentre.x < bridge.rect:centre().x, 'trigger should sit left of the deck centre')
 	assertEqual('right', bridge.sprite.facing)
 end)
 
-test('rightToLeft construction places the trigger right of the deck and mirrors the sprite', function()
-	local bridge = makeBridge('rightToLeft')
+test('flipCrossing=true construction places the trigger right of the deck and mirrors the sprite', function()
+	local bridge = makeBridge(true)
 
 	assertTrue(bridge.triggerCentre.x > bridge.rect:centre().x, 'trigger should sit right of the deck centre')
 	assertEqual('left', bridge.sprite.facing)
 end)
 
 test('an occupant entering the trigger zone opens the bridge and solidifies the deck', function()
-	local bridge = makeBridge('leftToRight')
+	local bridge = makeBridge(false)
 	local spy = SoundSpy.install()
 
-	-- leftToRight: trigger sits left of the deck, flush against its edge
+	-- non-flipped: trigger sits left of the deck, flush against its edge
 	spawnOccupant(bridge.triggerCentre.x, bridge.rect.y + 1)
 	bridge:update(1/60)
 
@@ -311,7 +309,7 @@ test('an occupant entering the trigger zone opens the bridge and solidifies the 
 end)
 
 test('clearing both zones closes the bridge back down', function()
-	local bridge = makeBridge('leftToRight')
+	local bridge = makeBridge(false)
 
 	local occupant = spawnOccupant(bridge.triggerCentre.x, bridge.rect.y + 1)
 	bridge:update(1/60)
@@ -329,7 +327,7 @@ test('clearing both zones closes the bridge back down', function()
 end)
 
 test('reopening mid-close and finishing the animation drives a full opening -> open cycle through real Drawbridge:onAnimationFinish', function()
-	local bridge = makeBridge('leftToRight')
+	local bridge = makeBridge(false)
 
 	spawnOccupant(bridge.triggerCentre.x, bridge.rect.y + 1)
 	bridge:update(1/60) -- closed -> opening

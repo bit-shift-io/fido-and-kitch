@@ -1,7 +1,7 @@
 -- One-way tile crossing over a real gap: closed leaves the gap fully
 -- exposed (no barrier -- approaching from the wrong side just means
 -- falling in, like any other pit). Only the lead-in trigger tile (on the
--- arrival side, per crossingDirection) can break a closed bridge -- this is
+-- arrival side, per flipCrossing) can break a closed bridge -- this is
 -- what keeps the wrong side a real hazard, rather than a wide collider
 -- grazing the deck's far edge pre-emptively solidifying the gap for it.
 -- Once moving, either the trigger tile or the deck tile itself holds the
@@ -28,26 +28,27 @@ local SpriteProps = require('src.entities.sprite_props')
 -- trigger sensor, positioned flush against the gap's edge -- not a full
 -- tile out -- so the deck visibly starts lowering only once the player is
 -- right at the edge (reads as "pushing the gate down"), not by tripping a
--- remote sensor a whole tile away. crossingDirection names the direction of
--- travel the bridge permits: a leftToRight bridge is arrived at from the
--- left, so the trigger sits to the left; an unrecognised or missing value
--- falls back to leftToRight.
-local function triggerOffsetX(crossingDirection, tileWidth, triggerWidth)
+-- remote sensor a whole tile away. flipCrossing flips the direction of
+-- travel the bridge permits: a normal (non-flipped, left-to-right) bridge is
+-- arrived at from the left, so the trigger sits to the left; a
+-- flipCrossing=true bridge is arrived at from the right, so the trigger sits
+-- to the right. A missing value falls back to non-flipped (left-to-right).
+local function triggerOffsetX(flipCrossing, tileWidth, triggerWidth)
 	local flushOffset = tileWidth / 2 + triggerWidth / 2
-	if crossingDirection == 'rightToLeft' then
+	if flipCrossing then
 		return flushOffset
 	end
 	return -flushOffset
 end
 
--- Maps crossingDirection to the sprite's mirror flag. The art is a tower
+-- Maps flipCrossing to the sprite's mirror flag. The art is a tower
 -- hinged on the left with the deck lowering rightward, so unmirrored ('right')
--- is exactly a left-to-right crossing; rightToLeft mirrors it. This is the
--- inverse of treating crossingDirection as a facing value directly -- doing
+-- is exactly a left-to-right crossing; flipCrossing=true mirrors it. This is the
+-- inverse of treating the flip as a facing value directly -- doing
 -- that was the original bug (both shipped bridges drew the tower over the
--- gap). An unrecognised or missing value falls back to leftToRight's mapping.
-local function spriteFacing(crossingDirection)
-	if crossingDirection == 'rightToLeft' then
+-- gap). A missing value falls back to the non-flipped mapping.
+local function spriteFacing(flipCrossing)
+	if flipCrossing then
 		return 'left'
 	end
 	return 'right'
@@ -76,7 +77,7 @@ end
 -- enough. This is what keeps a wrong-side approach a real hazard: without
 -- it, a wide collider grazing the far edge of the deck tile while still
 -- standing on solid ground on the wrong side would pre-emptively solidify
--- the gap for it, regardless of crossingDirection. Every other transition
+-- the gap for it, regardless of flipCrossing. Every other transition
 -- is driven by either zone once the bridge is already moving -- by the time
 -- it's CLOSING, the deck is still solid, so an occupant there (having
 -- crossed from the far side, or never having left) is a legitimate reason
@@ -137,7 +138,7 @@ function Drawbridge:init(object)
 
 	self.rect = Rect(object)
 
-	self.crossingDirection = (object.properties and object.properties.crossingDirection) or 'leftToRight'
+	self.flipCrossing = (object.properties and object.properties.flipCrossing) or nil
 
 	-- The object rect is the ART box (drawbridge.tj: 64x64); the sprite
 	-- fills it 1:1, centred on it, plus optional author-side
@@ -151,7 +152,7 @@ function Drawbridge:init(object)
 	local spriteProps = SpriteProps.fromObject(object)
 	spriteProps.position = spritePosition + Vector(spriteOffsetX, spriteOffsetY)
 	spriteProps.shape_arguments = {spriteBoxWidth, spriteBoxHeight}
-	spriteProps.facing = spriteFacing(self.crossingDirection)
+	spriteProps.facing = spriteFacing(self.flipCrossing)
 	spriteProps.finish = utils.bindSelf(self.onAnimationFinish, self)
 
 	self.sprite = self:addComponent(Sprite(spriteProps))
@@ -202,7 +203,7 @@ function Drawbridge:init(object)
 	-- deck visibly starts lowering only once the player is right at the
 	-- edge -- reads as pushing the gate down, not tripping a remote sensor.
 	self.triggerWidth = self.rect.width * 0.25
-	local triggerOffset = triggerOffsetX(self.crossingDirection, self.rect.width, self.triggerWidth)
+	local triggerOffset = triggerOffsetX(self.flipCrossing, self.rect.width, self.triggerWidth)
 	self.triggerCentre = position + Vector(triggerOffset, 0)
 	self.trigger = self:addComponent(Collider{
 		shape_type = 'rectangle',

@@ -92,8 +92,8 @@ local function getDrawbridgeInfo(entity)
 	if entity.state then
 		base.bridgeState = entity.state
 	end
-	if entity.crossingDirection then
-		base.crossingDirection = entity.crossingDirection
+	if entity.flipCrossing then
+		base.flipCrossing = entity.flipCrossing
 	end
 	base.colliders = {}
 	if entity.deck then
