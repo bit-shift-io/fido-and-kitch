@@ -39,7 +39,7 @@
       {
         "type": "float",
         "name": "revealDelay",
-        "value": 0.4
+        "value": 0.2
       }
     ],
     "gid": 1,
