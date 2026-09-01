@@ -20,6 +20,8 @@
 -- locals here instead of a separate _support module. See
 -- tests/unit/pressure_switch_test.lua for the entity-level tests this enables.
 
+local SpriteProps = require('src.entities.sprite_props')
+
 local PressureSwitch = Class{__includes = Entity}
 
 -- How far a weight's centre-x may sit from the plate tile's centre and still
@@ -58,12 +60,12 @@ end
 -- so its occupancy zone doesn't need extra headroom.
 local OCCUPANCY_HEIGHT_MARGIN = 32
 
--- placeholder art: a flat plate quad that changes colour when active. Real art
--- is out of scope for this feature (DECISIONS Q14); the props use real images
--- because they already had some, and no plate art exists.
-local PLATE_HEIGHT = 6
-local COLOUR_INACTIVE = {0.45, 0.45, 0.5}
-local COLOUR_ACTIVE = {0.35, 0.85, 0.45}
+-- real art: the plate image comes from the plate's template tile
+-- (entity_pressure_switch.png), resolved via SpriteProps like every other
+-- sprite-bearing entity -- no image literal here and no duplicated `image`
+-- prop in the template. Optional `spriteOffsetY` (px, positive = down)
+-- nudges only the art; the sensor below is computed from the authored rect
+-- and never moves.
 
 function PressureSwitch:init(object, map)
 	Entity.init(self, object, 'pressure_switch')
@@ -93,6 +95,15 @@ function PressureSwitch:init(object, map)
 		sensor = true,
 		position = position,
 	})
+
+	-- the art fills the authored object box; optional `spriteOffsetY` (px,
+	-- positive = down) moves only the art, never the sensor -- the exact
+	-- cage/exit_door/blocker pattern
+	local spriteOffsetY = tonumber(object.properties and object.properties.spriteOffsetY) or 0
+	local spriteProps = SpriteProps.fromObject(object)
+	spriteProps.position = position + Vector(0, spriteOffsetY)
+	spriteProps.shape_arguments = {self.rect.width, self.rect.height}
+	self:addComponent(Sprite(spriteProps))
 
 	-- resolved the same way src/entities/switch.lua resolves its own target
 	if object.properties and object.properties.target then
@@ -180,18 +191,6 @@ end
 
 function PressureSwitch:draw()
 	Entity.draw(self)
-
-	local colour = self:isActive() and COLOUR_ACTIVE or COLOUR_INACTIVE
-	local r, g, b, a = love.graphics.getColor()
-	love.graphics.setColor(colour[1], colour[2], colour[3], 1)
-	love.graphics.rectangle(
-		'fill',
-		self.rect.x,
-		self.rect.y + self.rect.height - PLATE_HEIGHT,
-		self.rect.width,
-		PLATE_HEIGHT
-	)
-	love.graphics.setColor(r, g, b, a)
 end
 
 -- White-box seam for tests/unit/pressure_switch_test.lua only, mirroring

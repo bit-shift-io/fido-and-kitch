@@ -5,13 +5,13 @@
     "tilecount": 1,
     "tiles": [
       {
-        "height": 128,
-        "image": "../img/entity_switch.png",
+        "height": 337,
+        "image": "../img/entity_pressure_switch.png",
         "id": 0,
-        "imagewidth": 640,
-        "imageheight": 128,
+        "imagewidth": 337,
+        "imageheight": 337,
         "y": 0,
-        "width": 128,
+        "width": 337,
         "x": 0
       }
     ],
@@ -29,6 +29,16 @@
         "type": "bool",
         "name": "latching",
         "value": false
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "spriteOffsetY",
+        "value": 0
       }
     ],
     "type": "pressure_switch",

@@ -29,6 +29,7 @@ local SPRITE_SPECS = {
 	{ tj = 'res/entities/flag.tj',             type = 'flag',             image = 'res/img/entity_flag.png',           frames = 1 },
 	{ tj = 'res/entities/jump_pad.tj',         type = 'jump_pad',         image = 'res/img/entity_jump_pad.png',       frames = 3,   duration = 0.2,     loop = false, playing = false },
 	{ tj = 'res/entities/blocker.tj',          type = 'blocker',          image = 'res/img/entity_blocker.png',        frames = 48,  duration = 2.0,     loop = false, playing = false },
+	{ tj = 'res/entities/pressure_switch.tj',  type = 'pressure_switch',  image = 'res/img/entity_pressure_switch.png', frames = 1 },
 }
 
 test('every sprite-bearing template advertises its art spec as props', function()
@@ -59,11 +60,11 @@ test('every sprite-bearing template advertises its art spec as props', function(
 	end
 end)
 
-test('pressure_switch and its non-sprite peers carry no sprite props', function()
-	local pressure = TjTemplate.resolve('res/entities/pressure_switch.tj')
-	for _, prop in ipairs(pressure.object.properties) do
+test('layered_prop carries no sprite props (genuine non-sprite template)', function()
+	local layered = TjTemplate.resolve('res/entities/layered_prop.tj')
+	for _, prop in ipairs(layered.object.properties) do
 		local name = prop.name
-		assertFalse(name == 'image' or name == 'frames' or name == 'scaleX', 'pressure_switch has sprite prop ' .. name)
+		assertFalse(name == 'image' or name == 'frames' or name == 'scaleX', 'layered_prop has sprite prop ' .. name)
 	end
 end)
 
