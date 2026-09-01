@@ -715,7 +715,6 @@
                 {
                  "gid":0,
                  "id":164,
-                 "rotation":0,
                  "template":"..\/entities\/drawbridge.tj",
                  "x":32,
                  "y":608
@@ -849,12 +848,6 @@
         {
          "columns":0,
          "firstgid":146,
-         "grid":
-            {
-             "height":0,
-             "orientation":"orthogonal",
-             "width":0
-            },
          "margin":0,
          "name":"replicator",
          "spacing":0,
@@ -872,12 +865,6 @@
         {
          "columns":0,
          "firstgid":147,
-         "grid":
-            {
-             "height":0,
-             "orientation":"orthogonal",
-             "width":0
-            },
          "margin":0,
          "name":"flag",
          "spacing":0,
@@ -895,12 +882,6 @@
         {
          "columns":0,
          "firstgid":148,
-         "grid":
-            {
-             "height":0,
-             "orientation":"orthogonal",
-             "width":0
-            },
          "margin":0,
          "name":"ladder",
          "spacing":0,
@@ -918,12 +899,6 @@
         {
          "columns":0,
          "firstgid":149,
-         "grid":
-            {
-             "height":0,
-             "orientation":"orthogonal",
-             "width":0
-            },
          "margin":0,
          "name":"ladder",
          "spacing":0,
