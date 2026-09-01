@@ -177,6 +177,16 @@ function Drawbridge:init(object)
 	local colliderHeight = tonumber(object.properties.colliderHeight) or self.rect.height
 	local colliderOffsetX = tonumber(object.properties.colliderOffsetX) or 0
 	local colliderOffsetY = tonumber(object.properties.colliderOffsetY) or 0
+	-- colliderOffsetX is authored for the non-flipped (left-to-right) pose,
+	-- same as spriteFacing/triggerOffsetX -- flipCrossing mirrors the sprite
+	-- about the art box's own centre, so the deck's footprint has to mirror
+	-- with it (about the art box's width) or it lands a tile away from the
+	-- gap the mirrored art is actually drawn over: a flipped bridge would
+	-- solidify already-solid ground instead of the real gap, dropping anyone
+	-- who steps onto the visible (mirrored) deck straight through.
+	if self.flipCrossing then
+		colliderOffsetX = self.rect.width - colliderWidth - colliderOffsetX
+	end
 	self.rect = Rect{
 		x = self.rect.x + colliderOffsetX,
 		y = self.rect.y + colliderOffsetY,
