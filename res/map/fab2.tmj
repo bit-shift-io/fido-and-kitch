@@ -1,0 +1,224 @@
+{ "compressionlevel":-1,
+ "height":30,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 0, 0, 0, 42, 42, 42, 42,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 42, 42, 0, 42, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 42, 42, 42, 0, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 42, 42, 0, 42, 42, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":30,
+         "id":2,
+         "name":"ground",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":20,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":3,
+         "name":"game",
+         "objects":[
+                {
+                 "id":1,
+                 "template":"..\/entities\/spawn.tj",
+                 "x":320,
+                 "y":64
+                }, 
+                {
+                 "id":2,
+                 "template":"..\/entities\/exit_door.tj",
+                 "x":352,
+                 "y":704
+                }, 
+                {
+                 "id":3,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":4
+                        }],
+                 "template":"..\/entities\/pressure_switch.tj",
+                 "x":256,
+                 "y":160
+                }, 
+                {
+                 "id":4,
+                 "properties":[
+                        {
+                         "name":"flipCrossing",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "template":"..\/entities\/drawbridge.tj",
+                 "x":448,
+                 "y":192
+                }, 
+                {
+                 "id":9,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":10
+                        }],
+                 "template":"..\/entities\/switch.tj",
+                 "x":576,
+                 "y":64
+                }, 
+                {
+                 "id":10,
+                 "template":"..\/entities\/drawbridge.tj",
+                 "x":160,
+                 "y":320
+                }, 
+                {
+                 "id":11,
+                 "template":"..\/entities\/push_box.tj",
+                 "x":320,
+                 "y":256
+                }, 
+                {
+                 "id":13,
+                 "template":"..\/entities\/coin.tj",
+                 "x":576,
+                 "y":224
+                }, 
+                {
+                 "id":14,
+                 "properties":[
+                        {
+                         "name":"flipCrossing",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/drawbridge.tj",
+                 "x":416,
+                 "y":352
+                }, 
+                {
+                 "id":15,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":14
+                        }],
+                 "template":"..\/entities\/pressure_switch.tj",
+                 "x":96,
+                 "y":288
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":4,
+         "name":"ladder",
+         "objects":[
+                {
+                 "id":5,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":192
+                }, 
+                {
+                 "id":6,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":160
+                }, 
+                {
+                 "id":7,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":128
+                }, 
+                {
+                 "id":8,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":512,
+                 "y":96
+                }, 
+                {
+                 "id":12,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":256,
+                 "y":288
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":5,
+ "nextobjectid":16,
+ "orientation":"orthogonal",
+ "properties":[
+        {
+         "name":"background",
+         "type":"string",
+         "value":"sky"
+        }, 
+        {
+         "name":"description",
+         "type":"string",
+         "value":"down from the clouds"
+        }, 
+        {
+         "name":"name",
+         "type":"string",
+         "value":"Fab 2"
+        }, 
+        {
+         "name":"players",
+         "type":"int",
+         "value":2
+        }],
+ "renderorder":"right-down",
+ "tiledversion":"1.12.2",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"..\/entities\/tileset_generic_platformer_tiles.tsj"
+        }],
+ "tilewidth":32,
+ "type":"map",
+ "version":"1.11",
+ "width":20
+}

@@ -354,10 +354,16 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, f
 
 	if layerType == 'tilelayer' then
 		local data = layer.data
-		-- TMJ stores data as base64 string when encoding="base64"
-		-- STI expects the raw base64 string, so pass it through
-		-- If it's a CSV array (table), we'd need to encode it, but Tiled's
-		-- JSON export uses base64 strings for base64 encoding.
+		-- Tiled's JSON export writes tile data either as a base64 string
+		-- (with an explicit `encoding` field) or, for the CSV tile layer
+		-- format, as a plain array of gids with no `encoding` field at all.
+		-- STI takes the base64 string as-is and decodes it, but wants the
+		-- already-decoded array left alone -- so only default `encoding`
+		-- to base64 when the data really is a string.
+		local encoding = layer.encoding
+		if encoding == nil and type(data) ~= 'table' then
+			encoding = 'base64'
+		end
 
 		return {
 			id = tonumber(layer.id),
@@ -375,7 +381,7 @@ local function parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, f
 			y = tonumber(layer.y) or 0,
 			width = tonumber(layer.width) or mapWidth,
 			height = tonumber(layer.height) or mapHeight,
-			encoding = layer.encoding or 'base64',
+			encoding = encoding,
 			compression = (layer.compression and layer.compression ~= '') and layer.compression or nil,
 			data = data,
 		}
