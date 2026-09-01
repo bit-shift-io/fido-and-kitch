@@ -7,18 +7,18 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 0, 0, 0, 42, 42, 42, 42,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 42, 42, 0, 42, 0, 0, 0, 0,
+            42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 42, 42, 0, 42, 42, 42, 42, 42, 42, 42, 0, 42, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 42, 42, 42, 0, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 42, 42, 0, 42, 42, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0,
+            42, 42, 42, 42, 42, 42, 0, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 42, 42, 0, 42, 42, 42, 0, 42,
+            0, 0, 0, 0, 0, 42, 0, 42, 42, 42, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 42, 0, 0,
+            42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -143,6 +143,90 @@
                  "template":"..\/entities\/pressure_switch.tj",
                  "x":96,
                  "y":288
+                }, 
+                {
+                 "id":16,
+                 "properties":[
+                        {
+                         "name":"flipCrossing",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "template":"..\/entities\/drawbridge.tj",
+                 "x":192,
+                 "y":384
+                }, 
+                {
+                 "id":17,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":30
+                        }],
+                 "template":"..\/entities\/teleport.tj",
+                 "x":64,
+                 "y":384
+                }, 
+                {
+                 "id":18,
+                 "template":"..\/entities\/coin.tj",
+                 "x":32,
+                 "y":480
+                }, 
+                {
+                 "id":22,
+                 "template":"..\/entities\/push_box.tj",
+                 "x":512,
+                 "y":320
+                }, 
+                {
+                 "id":27,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":480
+                }, 
+                {
+                 "id":28,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":19
+                        }],
+                 "template":"..\/entities\/pressure_switch.tj",
+                 "x":448,
+                 "y":448
+                }, 
+                {
+                 "id":29,
+                 "template":"..\/entities\/coin.tj",
+                 "x":608,
+                 "y":320
+                }, 
+                {
+                 "id":30,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":17
+                        }],
+                 "template":"..\/entities\/teleport.tj",
+                 "x":0,
+                 "y":128
+                }, 
+                {
+                 "id":31,
+                 "template":"..\/entities\/push_box.tj",
+                 "x":160,
+                 "y":160
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -184,6 +268,90 @@
                  "template":"..\/entities\/ladder.tj",
                  "x":256,
                  "y":288
+                }, 
+                {
+                 "id":19,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":0,
+                 "y":480
+                }, 
+                {
+                 "id":20,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":0,
+                 "y":448
+                }, 
+                {
+                 "id":21,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":0,
+                 "y":416
+                }, 
+                {
+                 "id":23,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":352
+                }, 
+                {
+                 "id":24,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":384
+                }, 
+                {
+                 "id":25,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":416
+                }, 
+                {
+                 "id":26,
+                 "properties":[
+                        {
+                         "name":"enabled",
+                         "type":"bool",
+                         "value":false
+                        }],
+                 "template":"..\/entities\/ladder.tj",
+                 "x":576,
+                 "y":448
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -192,7 +360,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":16,
+ "nextobjectid":32,
  "orientation":"orthogonal",
  "properties":[
         {
@@ -222,6 +390,120 @@
         {
          "firstgid":1,
          "source":"..\/entities\/tileset_generic_platformer_tiles.tsj"
+        }, 
+        {
+         "columns":0,
+         "firstgid":145,
+         "margin":0,
+         "name":"drawbridge",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":0,
+         "tiles":[
+                {
+                 "height":64,
+                 "id":0,
+                 "image":"..\/img\/entity_drawbridge.png",
+                 "imageheight":64,
+                 "imagewidth":256,
+                 "width":64,
+                 "x":192,
+                 "y":0
+                }],
+         "tilewidth":0
+        }, 
+        {
+         "columns":0,
+         "firstgid":146,
+         "margin":0,
+         "name":"ladder",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":128,
+         "tiles":[
+                {
+                 "id":0,
+                 "image":"..\/img\/ladder.png",
+                 "imageheight":128,
+                 "imagewidth":128
+                }],
+         "tilewidth":128
+        }, 
+        {
+         "columns":0,
+         "firstgid":147,
+         "margin":0,
+         "name":"push_box",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":128,
+         "tiles":[
+                {
+                 "id":0,
+                 "image":"..\/img\/pushable_crate_wood.png",
+                 "imageheight":128,
+                 "imagewidth":128
+                }],
+         "tilewidth":128
+        }, 
+        {
+         "columns":0,
+         "firstgid":148,
+         "margin":0,
+         "name":"pressure_switch",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":0,
+         "tiles":[
+                {
+                 "height":128,
+                 "id":0,
+                 "image":"..\/img\/entity_switch.png",
+                 "imageheight":128,
+                 "imagewidth":640,
+                 "width":128,
+                 "x":0,
+                 "y":0
+                }],
+         "tilewidth":0
+        }, 
+        {
+         "columns":0,
+         "firstgid":149,
+         "margin":0,
+         "name":"coin",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":0,
+         "tiles":[
+                {
+                 "height":20,
+                 "id":0,
+                 "image":"..\/img\/coins.png",
+                 "imageheight":20,
+                 "imagewidth":160,
+                 "width":20,
+                 "x":0,
+                 "y":0
+                }],
+         "tilewidth":0
+        }, 
+        {
+         "columns":0,
+         "firstgid":150,
+         "margin":0,
+         "name":"teleport",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":512,
+         "tiles":[
+                {
+                 "id":0,
+                 "image":"..\/img\/entity_teleporter.png",
+                 "imageheight":512,
+                 "imagewidth":512
+                }],
+         "tilewidth":512
         }],
  "tilewidth":32,
  "type":"map",

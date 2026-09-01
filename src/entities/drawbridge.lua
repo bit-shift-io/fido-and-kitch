@@ -237,19 +237,25 @@ function Drawbridge:init(object)
 		}
 	})
 
-	-- A linked switch, once flicked, holds the bridge in a fixed direction
-	-- and locks it there: on forces it open (with nobody holding it, it
-	-- won't re-close), off forces it closed (occupancy can't reopen it).
-	-- While a switch holds the bridge either way, the occupancy-driven
-	-- checkHeld() below is suspended. A nil initial value means no switch
+	-- A linked switch, once flicked ON, holds the bridge open and locks it
+	-- there: with nobody holding it, it won't re-close, regardless of
+	-- occupancy. Turning OFF only releases that lock -- it plays the close
+	-- animation but hands control straight back to occupancy-driven
+	-- checkHeld() (switchHeld returns to nil), rather than latching closed.
+	-- This matters for a momentary pressure switch (unlike a deliberately
+	-- toggled lever): its resting state is "off" the instant nobody's
+	-- weight is on it, which is not a deliberate "lock this shut" action --
+	-- the bridge's own contact trigger must still work afterward, or every
+	-- switch-linked bridge permanently loses its walk-up trigger the first
+	-- time the switch is ever touched. A nil initial value means no switch
 	-- has acted yet, so the plain occupancy behaviour governs unless/until
-	-- a switch fires.
+	-- a switch turns it on.
 	self.switchHeld = nil
 	self:addComponent(Switchable{
 		entity = self,
 		onStateChange = function(enabled)
-			self.switchHeld = enabled
 			if enabled then
+				self.switchHeld = true
 				if self.state == 'open' or self.state == 'opening' then
 					return
 				end
@@ -261,6 +267,7 @@ function Drawbridge:init(object)
 				self.sound:play('open')
 				self:setState('opening')
 			else
+				self.switchHeld = nil
 				if self.state == 'closed' or self.state == 'closing' then
 					return
 				end
