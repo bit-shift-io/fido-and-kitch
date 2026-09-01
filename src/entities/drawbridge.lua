@@ -122,10 +122,17 @@ end
 -- true if any collider in the (combined trigger+deck) overlap set belongs
 -- to an entity other than the drawbridge's own colliders (deck/trigger).
 -- Anything counts -- players, enemies, pushed boxes -- there is no
--- entity-type eligibility.
+-- entity-type eligibility, EXCEPT ladders: a ladder's collider is a static,
+-- always-present sensor volume (its climbable air-space), not an occupant --
+-- it overlaps a bridge's trigger/deck whether or not anyone is actually
+-- climbing it. A drawbridge placed next to a ladder (a natural, common map
+-- layout -- see fab2.tmj) would otherwise be permanently "held" open by the
+-- ladder itself from the moment the map loads. A player actually standing in
+-- that ladder is still detected via the player's own collider.
 local function isHeld(overlaps, selfEntity)
 	for _, collider in ipairs(overlaps) do
-		if collider.entity and collider.entity ~= selfEntity then
+		local entity = collider.entity
+		if entity and entity ~= selfEntity and not entity.isLadder then
 			return true
 		end
 	end
