@@ -1,8 +1,8 @@
 local ParallaxRenderer = {}
 ParallaxRenderer.__index = ParallaxRenderer
 
-local Camera = require('src.camera')
-local mapParallax = require('src.map.map_parallax')
+local Camera = require("src.camera")
+local mapParallax = require("src.map.map_parallax")
 local lg = love.graphics
 
 function ParallaxRenderer:new()
@@ -10,15 +10,25 @@ function ParallaxRenderer:new()
 end
 
 local function clamp(v, lo, hi)
-	if lo > hi then return (lo + hi) / 2 end
-	if v < lo then return lo end
-	if v > hi then return hi end
+	if lo > hi then
+		return (lo + hi) / 2
+	end
+	if v < lo then
+		return lo
+	end
+	if v > hi then
+		return hi
+	end
 	return v
 end
 
 function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
-	if not lg then return end
-	if not map.backgroundMap then return end
+	if not lg then
+		return
+	end
+	if not map.backgroundMap then
+		return
+	end
 
 	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
 	local screenW, screenH = lg.getWidth(), lg.getHeight()
@@ -44,7 +54,7 @@ function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
 	-- the full-map view scale (whole map flush to screen) and the closest
 	-- view scale (the minimum minViewTiles-tile span).
 	local minViewTiles = Camera.DEFAULT_MIN_VIEW_TILES
-	local tileSize     = Camera.DEFAULT_TILE_SIZE
+	local tileSize = Camera.DEFAULT_TILE_SIZE
 	local fullMapScale = math.min(screenW / mapW, screenH / mapH)
 	local closestScale = math.min(screenW / (minViewTiles * tileSize), screenH / (minViewTiles * tileSize))
 	local zoomT = mapParallax.computeZoomT(sx, fullMapScale, closestScale)
@@ -61,7 +71,7 @@ function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
 	lg.setScissor(math.floor(tx), math.floor(ty), mapDrawW, mapDrawH)
 
 	for _, layer in ipairs(map.backgroundMap.layers) do
-		if layer.visible and layer.type == 'imagelayer' and layer.image and layer.opacity > 0 then
+		if layer.visible and layer.type == "imagelayer" and layer.image and layer.opacity > 0 then
 			local parallaxx = layer.parallaxx or 1
 			local parallaxy = layer.parallaxy or 1
 
@@ -113,9 +123,9 @@ function ParallaxRenderer:drawMainLayers(map, viewRect)
 
 	for _, layer in ipairs(map.layers) do
 		if layer.visible and layer.opacity > 0 then
-			if layer.type == 'tilelayer' or layer.type == 'imagelayer' then
+			if layer.type == "tilelayer" or layer.type == "imagelayer" then
 				map:drawLayer(layer)
-			elseif layer.type == 'objectgroup' and layer.batches and #layer.entities == 0 then
+			elseif layer.type == "objectgroup" and layer.batches and #layer.entities == 0 then
 				-- tile-gid imagery in a decorative object layer (images placed
 				-- as tile objects in Tiled). Draw only the STI sprite batches
 				-- built by setObjectSpriteBatches -- never the grey debug

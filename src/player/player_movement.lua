@@ -1,53 +1,53 @@
 local PlayerMovement = {}
 
 function PlayerMovement.decideHorizontalMovement(input, speed, velocityY)
-    local velocityX = 0
-    local facing = nil
-    local animation = 'idle'
+	local velocityX = 0
+	local facing = nil
+	local animation = "idle"
 
-    if input.right then
-        velocityX = speed
-        facing = 'right'
-        animation = 'walk'
-    end
+	if input.right then
+		velocityX = speed
+		facing = "right"
+		animation = "walk"
+	end
 
-    if input.left then
-        velocityX = -speed
-        facing = 'left'
-        animation = 'walk'
-    end
+	if input.left then
+		velocityX = -speed
+		facing = "left"
+		animation = "walk"
+	end
 
-    return {
-        velocityX = velocityX,
-        velocityY = velocityY,
-        facing = facing,
-        animation = animation,
-    }
+	return {
+		velocityX = velocityX,
+		velocityY = velocityY,
+		facing = facing,
+		animation = animation,
+	}
 end
 
 function PlayerMovement.nearestLadderCentre(playerCentreX, ladderCentres)
-    if #ladderCentres == 0 then
-        return nil
-    end
+	if #ladderCentres == 0 then
+		return nil
+	end
 
-    local nearest = ladderCentres[1]
-    local minDist = math.abs(playerCentreX - nearest)
+	local nearest = ladderCentres[1]
+	local minDist = math.abs(playerCentreX - nearest)
 
-    for i = 2, #ladderCentres do
-        local centre = ladderCentres[i]
-        local dist = math.abs(playerCentreX - centre)
-        if dist < minDist then
-            minDist = dist
-            nearest = centre
-        end
-    end
+	for i = 2, #ladderCentres do
+		local centre = ladderCentres[i]
+		local dist = math.abs(playerCentreX - centre)
+		if dist < minDist then
+			minDist = dist
+			nearest = centre
+		end
+	end
 
-    return nearest
+	return nearest
 end
 
 function PlayerMovement.isCentred(playerCentreX, targetCentreX, slideSpeed, dt)
-    local slideStep = slideSpeed * dt
-    return math.abs(playerCentreX - targetCentreX) <= slideStep
+	local slideStep = slideSpeed * dt
+	return math.abs(playerCentreX - targetCentreX) <= slideStep
 end
 
 -- Vertical input always wins on a ladder: while up/down is held, left/right
@@ -56,10 +56,10 @@ end
 -- vertical key is held.
 function PlayerMovement.resolveActiveAxis(input)
 	if input.verticalHeld then
-		return 'vertical'
+		return "vertical"
 	end
 	if input.horizontalHeld then
-		return 'horizontal'
+		return "horizontal"
 	end
 	return nil
 end
@@ -83,9 +83,9 @@ end
 -- unless they are actually using the vertical keys.
 function PlayerMovement.resolveEntryMode(verticalHeld)
 	if verticalHeld then
-		return 'aligning'
+		return "aligning"
 	end
-	return 'climbing'
+	return "climbing"
 end
 
 -- Allowed upward climb step for this frame: never overshoot the ladder's
@@ -110,27 +110,27 @@ end
 -- the body can graze the up-leading column while the intended down route
 -- is the neighbouring one, and both must be alignment candidates.
 function PlayerMovement.resolveLadderOverlap(overlappingLadders, downPressed, ladderBelow)
-    if not downPressed or not ladderBelow then
-        return overlappingLadders
-    end
+	if not downPressed or not ladderBelow then
+		return overlappingLadders
+	end
 
-    local resolved = {}
-    local alreadyPresent = false
-    for _, ladder in ipairs(overlappingLadders) do
-        if ladder == ladderBelow then
-            alreadyPresent = true
-        end
-        table.insert(resolved, ladder)
-    end
-    if not alreadyPresent then
-        table.insert(resolved, ladderBelow)
-    end
-    return resolved
+	local resolved = {}
+	local alreadyPresent = false
+	for _, ladder in ipairs(overlappingLadders) do
+		if ladder == ladderBelow then
+			alreadyPresent = true
+		end
+		table.insert(resolved, ladder)
+	end
+	if not alreadyPresent then
+		table.insert(resolved, ladderBelow)
+	end
+	return resolved
 end
 
 function PlayerMovement.applyGravity(collider)
-    local _, v_y = collider:getLinearVelocity()
-    collider:setLinearVelocity(0, v_y)
+	local _, v_y = collider:getLinearVelocity()
+	collider:setLinearVelocity(0, v_y)
 end
 
 return PlayerMovement

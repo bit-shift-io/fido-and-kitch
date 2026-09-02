@@ -13,20 +13,20 @@
 -- + real DestructibleTile with no fixture/Map needed; this file is the one
 -- that proves the real bump-World collider wiring and the map's own
 -- entity-list removal pass actually deliver that behaviour end-to-end.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local Queries = require('tests.support.queries')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local Queries = require("tests.support.queries")
 
-local MAP = 'tests/fixtures/laser_destructible_tile_room.tmj'
+local MAP = "tests/fixtures/laser_destructible_tile_room.tmj"
 
-test('a full-power beam destroys a destructible tile blocking a corridor and reaches the wall behind it', function()
+test("a full-power beam destroys a destructible tile blocking a corridor and reaches the wall behind it", function()
 	local game = GameHarness.startGame(MAP)
-	local laser = Queries.findEntityByName(map, 'laser_tile')
-	local tile = Queries.findEntityByName(map, 'tile_target')
-	local wallBehind = Queries.findEntityByName(map, 'wall_behind')
-	assertTrue(laser ~= nil, 'expected the fixture to load laser_tile')
-	assertTrue(tile ~= nil, 'expected the fixture to load tile_target')
-	assertTrue(wallBehind ~= nil, 'expected the fixture to load wall_behind')
+	local laser = Queries.findEntityByName(map, "laser_tile")
+	local tile = Queries.findEntityByName(map, "tile_target")
+	local wallBehind = Queries.findEntityByName(map, "wall_behind")
+	assertTrue(laser ~= nil, "expected the fixture to load laser_tile")
+	assertTrue(tile ~= nil, "expected the fixture to load tile_target")
+	assertTrue(wallBehind ~= nil, "expected the fixture to load wall_behind")
 
 	-- Step one frame at a time up to the laser's first fully-on frame,
 	-- mirroring the boulder test's own reasoning: the resolver already
@@ -38,10 +38,13 @@ test('a full-power beam destroys a destructible tile blocking a corridor and rea
 		FrameStepper.step(game, 1)
 		frames = frames + 1
 	end
-	assertTrue(laser:isFullyOn(), 'expected the laser to reach full power within 40 frames')
+	assertTrue(laser:isFullyOn(), "expected the laser to reach full power within 40 frames")
 
-	assertTrue(laser.beamHitEntity == tile, 'expected the beam to stop at the destructible tile on contact')
-	assertTrue(laser.beamHitEntity ~= wallBehind, 'expected the wall behind to still be unreached while the tile blocks the corridor')
+	assertTrue(laser.beamHitEntity == tile, "expected the beam to stop at the destructible tile on contact")
+	assertTrue(
+		laser.beamHitEntity ~= wallBehind,
+		"expected the wall behind to still be unreached while the tile blocks the corridor"
+	)
 
 	-- The tile only actually queues its own destruction once a fully-on beam
 	-- has touched it continuously for DESTROY_DELAY (0.5s = 30 frames at
@@ -51,8 +54,12 @@ test('a full-power beam destroys a destructible tile blocking a corridor and rea
 	-- entity-list update pass is what actually removes the tile.
 	FrameStepper.step(game, 35)
 
-	assertTrue(Queries.findEntityByName(map, 'tile_target') == nil,
-		'expected the destructible tile to have been removed from the map after its destroy was queued')
-	assertTrue(laser.beamHitEntity == wallBehind,
-		'expected the beam to now reach past the destroyed tile and stop at the wall behind it')
+	assertTrue(
+		Queries.findEntityByName(map, "tile_target") == nil,
+		"expected the destructible tile to have been removed from the map after its destroy was queued"
+	)
+	assertTrue(
+		laser.beamHitEntity == wallBehind,
+		"expected the beam to now reach past the destroyed tile and stop at the wall behind it"
+	)
 end)

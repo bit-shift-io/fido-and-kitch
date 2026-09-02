@@ -14,11 +14,11 @@
 -- Vertical motion is left entirely to gravity: this component only ever
 -- writes the horizontal component, so a prop that walks off a ledge falls
 -- straight down (ADR 0002) instead of arcing.
-local GroundFaller = require('src.physics.ground_faller')
-local PushableSupport = require('src.components.pushable.pushable_support')
-local Geom = require('src.utils.geom')
+local GroundFaller = require("src.physics.ground_faller")
+local PushableSupport = require("src.components.pushable.pushable_support")
+local Geom = require("src.utils.geom")
 
-local Pushable = Class{}
+local Pushable = Class({})
 
 -- how far beyond a face to look for a pusher. Small: a player has to be
 -- genuinely against the prop, not merely near it.
@@ -32,11 +32,11 @@ local FACE_INSET = 6
 local ON_TOP_HEIGHT = Geom.TILE_SIZE
 
 function Pushable:init(props)
-	self.type = 'pushable'
+	self.type = "pushable"
 	self.collider = props.collider
 	-- 'slide' (a push box) moves only while actively pushed; 'roll' (a boulder)
 	-- carries on under its own momentum after the shove ends
-	self.mode = props.mode or 'slide'
+	self.mode = props.mode or "slide"
 	self.rollVelocity = 0
 	self.allowPushWhenStoodOn = props.allowPushWhenStoodOn or false
 	-- the prop's resting collision group, handed back to the collider whenever
@@ -47,10 +47,10 @@ end
 -- entities (not raw terrain) overlapping a strip just outside one face
 function Pushable:queryFace(bounds, side)
 	local probe
-	if side == 'left' then
-		probe = {left = bounds.left - PROBE_DEPTH, right = bounds.left}
+	if side == "left" then
+		probe = { left = bounds.left - PROBE_DEPTH, right = bounds.left }
 	else
-		probe = {left = bounds.right, right = bounds.right + PROBE_DEPTH}
+		probe = { left = bounds.right, right = bounds.right + PROBE_DEPTH }
 	end
 	probe.top = bounds.top + FACE_INSET
 	probe.bottom = bounds.bottom - FACE_INSET
@@ -64,15 +64,15 @@ end
 function Pushable:findPushers(bounds)
 	local pushers = {}
 
-	for _, side in ipairs({'left', 'right'}) do
+	for _, side in ipairs({ "left", "right" }) do
 		for _, collider in ipairs(self:queryFace(bounds, side)) do
 			local entity = collider.entity
-			if entity and entity.type == 'player' then
+			if entity and entity.type == "player" then
 				table.insert(pushers, {
 					centreX = entity.collider:getX(),
 					grounded = entity:queryOnGround(),
-					holdingLeft = entity:isDown('left'),
-					holdingRight = entity:isDown('right'),
+					holdingLeft = entity:isDown("left"),
+					holdingRight = entity:isDown("right"),
 					speed = entity.speed,
 				})
 			end
@@ -96,7 +96,7 @@ function Pushable:findOnTop(bounds)
 	for _, collider in ipairs(world:queryOverlap(probe)) do
 		local entity = collider.entity
 		if entity and entity ~= self.entity then
-			if entity.type == 'player' then
+			if entity.type == "player" then
 				playerOnTop = true
 			elseif entity.isPushable then
 				pushableOnTop = true
@@ -142,7 +142,7 @@ end
 -- e.g. a teleporter clearing its own tile before activating.
 function Pushable:pushOneTile(direction, speed)
 	self.scriptedPush = {
-		direction = (direction == 'left') and -1 or 1,
+		direction = (direction == "left") and -1 or 1,
 		speed = speed,
 		remaining = map.tilewidth,
 	}
@@ -183,7 +183,7 @@ function Pushable:update(dt)
 	-- In roll mode the prop keeps its own momentum once shoved; in slide mode
 	-- there is no momentum to keep, so the velocity is purely the live push.
 	local velocityX = direction * speed
-	if self.mode == 'roll' then
+	if self.mode == "roll" then
 		self.rollVelocity = PushableSupport.nextRollVelocity({
 			currentRoll = self.rollVelocity,
 			pushVelocity = velocityX,
@@ -206,7 +206,7 @@ function Pushable:update(dt)
 		end
 	end
 
-	local state = {supported = supported, airborne = airborne, moving = velocityX ~= 0}
+	local state = { supported = supported, airborne = airborne, moving = velocityX ~= 0 }
 	self.collider:setType(PushableSupport.bodyTypeFor(state))
 	self.collider:setGroupIndex(PushableSupport.groupIndexFor(state, self.groupIndex))
 

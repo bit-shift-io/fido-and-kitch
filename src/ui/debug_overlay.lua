@@ -16,7 +16,9 @@ function DebugOverlay:new()
 end
 
 function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
-	if not self.enabled or not conf.drawphysics then return end
+	if not self.enabled or not conf.drawphysics then
+		return
+	end
 
 	lg.push()
 	lg.origin()
@@ -25,7 +27,7 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 
 	lg.translate(math.floor(tx), math.floor(ty))
 	lg.scale(sx, sy)
-	lg.setLineWidth(2 / math.max(sx, sy))  -- keep line width consistent in world space
+	lg.setLineWidth(2 / math.max(sx, sy)) -- keep line width consistent in world space
 
 	-- Draw world colliders (physics bodies)
 	if self.showHitboxes and world and world.colliders then
@@ -33,12 +35,12 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 		for collider, _ in pairs(world.colliders) do
 			if collider.getBounds then
 				local b = collider:getBounds()
-				lg.rectangle('line', b.left, b.top, b.width, b.height)
-				
+				lg.rectangle("line", b.left, b.top, b.width, b.height)
+
 				-- Show sensor vs solid
 				if collider.sensor then
 					lg.setColor(1, 0.5, 0, 0.8)
-					lg.rectangle('line', b.left, b.top, b.width, b.height)
+					lg.rectangle("line", b.left, b.top, b.width, b.height)
 				end
 				lg.setColor(1, 1, 1, 0.5)
 			end
@@ -49,7 +51,7 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 	if self.showHitboxes and world and world.queryRects then
 		lg.setColor(1, 0, 0, 0.8)
 		for _, q in ipairs(world.queryRects) do
-			lg.rectangle('line', q.x, q.y, q.width, q.height)
+			lg.rectangle("line", q.x, q.y, q.width, q.height)
 		end
 		-- Clear after drawing so they don't accumulate across frames
 		world.queryRects = {}
@@ -61,7 +63,7 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 		for collider, _ in pairs(world.colliders) do
 			if collider.sensor and collider.entity and collider.entity.isLadder then
 				local b = collider:getBounds()
-				lg.rectangle('line', b.left, b.top, b.width, b.height)
+				lg.rectangle("line", b.left, b.top, b.width, b.height)
 			end
 		end
 	end
@@ -72,7 +74,7 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 		for collider, _ in pairs(world.colliders) do
 			if collider.entity and collider.entity.isKillZone then
 				local b = collider:getBounds()
-				lg.rectangle('line', b.left, b.top, b.width, b.height)
+				lg.rectangle("line", b.left, b.top, b.width, b.height)
 			end
 		end
 	end
@@ -83,8 +85,18 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 		for _, player in ipairs(players) do
 			if player.safePosition then
 				local size = 8
-				lg.line(player.safePosition.x - size, player.safePosition.y, player.safePosition.x + size, player.safePosition.y)
-				lg.line(player.safePosition.x, player.safePosition.y - size, player.safePosition.x, player.safePosition.y + size)
+				lg.line(
+					player.safePosition.x - size,
+					player.safePosition.y,
+					player.safePosition.x + size,
+					player.safePosition.y
+				)
+				lg.line(
+					player.safePosition.x,
+					player.safePosition.y - size,
+					player.safePosition.x,
+					player.safePosition.y + size
+				)
 			end
 		end
 	end
@@ -92,7 +104,7 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 	-- Draw camera framing bounds
 	if self.showCameraBounds and cameraFramingBounds then
 		lg.setColor(1, 1, 0, 0.8)
-		lg.rectangle('line', cameraFramingBounds.x, cameraFramingBounds.y, cameraFramingBounds.w, cameraFramingBounds.h)
+		lg.rectangle("line", cameraFramingBounds.x, cameraFramingBounds.y, cameraFramingBounds.w, cameraFramingBounds.h)
 	end
 
 	-- Draw NPC paths
@@ -104,7 +116,7 @@ function DebugOverlay:draw(world, map, players, viewRect, cameraFramingBounds)
 					if entity.path and entity.path.points then
 						local pts = entity.path.points
 						for i = 1, #pts - 1 do
-							lg.line(pts[i].x, pts[i].y, pts[i+1].x, pts[i+1].y)
+							lg.line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y)
 						end
 					end
 				end

@@ -15,7 +15,7 @@ function Web.new(props)
 	self.duration = props.duration
 	self.fadeDuration = props.fadeDuration or DEFAULT_FADE_DURATION
 	self.elapsed = 0
-	self.color = props.color or {0.75, 0.75, 0.85, 1}
+	self.color = props.color or { 0.75, 0.75, 0.85, 1 }
 	return self
 end
 
@@ -44,10 +44,14 @@ function Web:draw(bounds)
 	local r, g, b, a = love.graphics.getColor()
 	local c = self.color
 	love.graphics.setColor(c[1], c[2], c[3], c[4] * self:alpha())
-	love.graphics.rectangle('fill', bounds.left, bounds.top, bounds.width, bounds.height)
+	love.graphics.rectangle("fill", bounds.left, bounds.top, bounds.width, bounds.height)
 	love.graphics.setColor(r, g, b, a)
 end
 
-setmetatable(Web, {__call = function(_, props) return Web.new(props) end})
+setmetatable(Web, {
+	__call = function(_, props)
+		return Web.new(props)
+	end,
+})
 
 return Web

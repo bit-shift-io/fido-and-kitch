@@ -1,9 +1,9 @@
-local MapInfo = require('src.ui.map_info')
-local LevelRecords = require('src.utils.level_records')
-local Format = require('src.utils.format')
-local Geom = require('src.utils.geom')
+local MapInfo = require("src.ui.map_info")
+local LevelRecords = require("src.utils.level_records")
+local Format = require("src.utils.format")
+local Geom = require("src.utils.geom")
 
-local MapCard = Class{}
+local MapCard = Class({})
 
 local THUMBNAIL_WIDTH = 360
 local THUMBNAIL_HEIGHT = 220
@@ -15,7 +15,9 @@ local MEDAL_COLORS = Format.MEDAL_COLORS
 -- level with no completions must show neither medal nor time, not a
 -- zero-value one.
 local function recordDisplayFor(record)
-	if not record then return nil end
+	if not record then
+		return nil
+	end
 
 	return {
 		medal = record.medal,
@@ -24,15 +26,15 @@ local function recordDisplayFor(record)
 end
 
 local ENTITY_COLORS = {
-	spawn={0.35, 0.85, 1.0, 1},
-	key={1.0, 0.85, 0.2, 1},
-	cage={0.85, 0.45, 1.0, 1},
-	exit_door={0.25, 1.0, 0.35, 1},
-	teleport={0.35, 0.45, 1.0, 1},
-	jump_pad={1.0, 0.45, 0.25, 1},
-	coin={1.0, 0.75, 0.1, 1},
-	bird={1.0, 1.0, 1.0, 1},
-	ladder={0.75, 0.55, 0.3, 1},
+	spawn = { 0.35, 0.85, 1.0, 1 },
+	key = { 1.0, 0.85, 0.2, 1 },
+	cage = { 0.85, 0.45, 1.0, 1 },
+	exit_door = { 0.25, 1.0, 0.35, 1 },
+	teleport = { 0.35, 0.45, 1.0, 1 },
+	jump_pad = { 1.0, 0.45, 0.25, 1 },
+	coin = { 1.0, 0.75, 0.1, 1 },
+	bird = { 1.0, 1.0, 1.0, 1 },
+	ladder = { 0.75, 0.55, 0.3, 1 },
 }
 
 -- tile-specific; not in map_info
@@ -63,16 +65,17 @@ end
 -- rectangles (e.g. sandbox.tmj's "collision" group). Collects every such
 -- collision rect in world pixels.
 local function collisionRects(mapData, decodeFn)
-	decodeFn = decodeFn or function(data)
-		local ok, decoded = pcall(love.data.decode, 'string', 'base64', data)
-		return ok and decoded or nil
-	end
+	decodeFn = decodeFn
+		or function(data)
+			local ok, decoded = pcall(love.data.decode, "string", "base64", data)
+			return ok and decoded or nil
+		end
 
 	local rects = {}
 	for _, layer in ipairs(mapData.layers or {}) do
 		local isCollision = layer.properties and layer.properties.collision
 		if layer.visible ~= false and isCollision then
-			if layer.type == 'tilelayer' and type(layer.data) == 'string' then
+			if layer.type == "tilelayer" and type(layer.data) == "string" then
 				local decoded = decodeFn(layer.data)
 				if decoded then
 					for y = 1, layer.height do
@@ -89,7 +92,7 @@ local function collisionRects(mapData, decodeFn)
 						end
 					end
 				end
-			elseif layer.type == 'objectgroup' then
+			elseif layer.type == "objectgroup" then
 				for _, object in ipairs(layer.objects or {}) do
 					local width = math.max(object.width or 16, 16)
 					local height = math.max(object.height or 16, 16)
@@ -121,7 +124,7 @@ local function drawMapThumbnail(mapData)
 	lg.scale(scale, scale)
 
 	lg.setColor(0.12, 0.14, 0.18, 1)
-	lg.rectangle('fill', 0, 0, mapPixelWidth, mapPixelHeight)
+	lg.rectangle("fill", 0, 0, mapPixelWidth, mapPixelHeight)
 
 	-- Non-collision tile art is faint context only; the preview's shape comes
 	-- from the collision silhouette, which reads accurately regardless of the
@@ -129,15 +132,25 @@ local function drawMapThumbnail(mapData)
 	lg.setColor(1, 1, 1, 0.15)
 	for _, layer in ipairs(mapData.layers or {}) do
 		local isCollision = layer.properties and layer.properties.collision
-		if layer.visible ~= false and not isCollision
-			and layer.type == 'tilelayer' and type(layer.data) == 'string' then
-			local ok, decoded = pcall(love.data.decode, 'string', 'base64', layer.data)
+		if
+			layer.visible ~= false
+			and not isCollision
+			and layer.type == "tilelayer"
+			and type(layer.data) == "string"
+		then
+			local ok, decoded = pcall(love.data.decode, "string", "base64", layer.data)
 			if ok and decoded then
 				for y = 1, layer.height do
 					for x = 1, layer.width do
 						local gid = readTile(decoded, ((y - 1) * layer.width) + x)
 						if gid > 0 then
-							lg.rectangle('fill', (x - 1) * mapData.tilewidth, (y - 1) * mapData.tileheight, mapData.tilewidth, mapData.tileheight)
+							lg.rectangle(
+								"fill",
+								(x - 1) * mapData.tilewidth,
+								(y - 1) * mapData.tileheight,
+								mapData.tilewidth,
+								mapData.tileheight
+							)
 						end
 					end
 				end
@@ -148,19 +161,19 @@ local function drawMapThumbnail(mapData)
 	-- Collision silhouette.
 	lg.setColor(1, 1, 1, 0.55)
 	for _, rect in ipairs(collisionRects(mapData)) do
-		lg.rectangle('fill', rect.x, rect.y, rect.w, rect.h)
+		lg.rectangle("fill", rect.x, rect.y, rect.w, rect.h)
 	end
 
 	-- Entity markers.
 	for _, layer in ipairs(mapData.layers or {}) do
-		if layer.type == 'objectgroup' and layer.visible ~= false then
+		if layer.type == "objectgroup" and layer.visible ~= false then
 			for _, object in ipairs(layer.objects or {}) do
 				local color = ENTITY_COLORS[object.type]
 				if color then
 					lg.setColor(color[1], color[2], color[3], 0.6)
 					local width = math.max(object.width or 16, 16)
 					local height = math.max(object.height or 16, 16)
-					lg.rectangle('fill', object.x or 0, objectTopY(object, height), width, height)
+					lg.rectangle("fill", object.x or 0, objectTopY(object, height), width, height)
 				end
 			end
 		end
@@ -200,7 +213,7 @@ function MapCard:getThumbnailBounds(x, y, scale)
 		x = x,
 		y = y,
 		w = w,
-		h = h
+		h = h,
 	}
 end
 
@@ -208,27 +221,26 @@ function MapCard:drawTitleAndInfo(x, y, w, fonts, colors)
 	local lg = love.graphics
 	lg.setFont(fonts.titleFont)
 	lg.setColor(colors.title[1], colors.title[2], colors.title[3], colors.title[4] or 1)
-	lg.printf(self.title:upper(), x, y, w, 'center')
+	lg.printf(self.title:upper(), x, y, w, "center")
 
 	lg.setFont(fonts.bodyFont)
 	lg.setColor(colors.body[1], colors.body[2], colors.body[3], colors.body[4] or 1)
-	lg.printf(self.description, x + 32, y + 40, w - 64, 'center')
+	lg.printf(self.description, x + 32, y + 40, w - 64, "center")
 
 	lg.setFont(fonts.bodyFont)
 	lg.setColor(colors.players[1], colors.players[2], colors.players[3], colors.players[4] or 1)
-	lg.printf('players: ' .. self.players, x, y + 80, w, 'center')
+	lg.printf("players: " .. self.players, x, y + 80, w, "center")
 
 	if self.recordDisplay then
-		local medalColor = MEDAL_COLORS[self.recordDisplay.medal] or {1, 1, 1, 1}
+		local medalColor = MEDAL_COLORS[self.recordDisplay.medal] or { 1, 1, 1, 1 }
 		lg.setColor(medalColor)
-		lg.printf(self.recordDisplay.medal:upper() .. '  ' .. self.recordDisplay.time, x, y + 108, w, 'center')
+		lg.printf(self.recordDisplay.medal:upper() .. "  " .. self.recordDisplay.time, x, y + 108, w, "center")
 	end
 end
 
 function MapCard:hitTest(x, y, mx, my, scale)
 	local bounds = self:getThumbnailBounds(x, y, scale)
-	return mx >= bounds.x and mx <= bounds.x + bounds.w and
-	       my >= bounds.y and my <= bounds.y + bounds.h
+	return mx >= bounds.x and mx <= bounds.x + bounds.w and my >= bounds.y and my <= bounds.y + bounds.h
 end
 
 MapCard.titleFor = MapInfo.titleFor

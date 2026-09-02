@@ -1,4 +1,4 @@
-local TjTileset = require('src.map.tj_tileset')
+local TjTileset = require("src.map.tj_tileset")
 
 local GENERIC_PLATFORMER_TILES_TSJ = [[{
   "columns": 8,
@@ -50,12 +50,12 @@ local function fakeReader(contents)
 	end
 end
 
-test('resolves a single-image tileset to an STI-shaped tileset table', function()
-	local tileset = TjTileset.resolve('res/entities/tileset_generic_platformer_tiles.tsj', 1, {
+test("resolves a single-image tileset to an STI-shaped tileset table", function()
+	local tileset = TjTileset.resolve("res/entities/tileset_generic_platformer_tiles.tsj", 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ),
 	})
 
-	assertEqual('res/img/generic_platformer_tiles.png', tileset.image)
+	assertEqual("res/img/generic_platformer_tiles.png", tileset.image)
 	assertEqual(256, tileset.imagewidth)
 	assertEqual(576, tileset.imageheight)
 	assertEqual(32, tileset.tilewidth)
@@ -68,27 +68,31 @@ test('resolves a single-image tileset to an STI-shaped tileset table', function(
 end)
 
 test("resolved image path is relative to the tsj file's own directory, not the working directory", function()
-	local tileset = TjTileset.resolve('some/other/dir/generic_platformer_tiles.tsj', 1, {
+	local tileset = TjTileset.resolve("some/other/dir/generic_platformer_tiles.tsj", 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ),
 	})
 
-	assertEqual('some/other/img/generic_platformer_tiles.png', tileset.image)
+	assertEqual("some/other/img/generic_platformer_tiles.png", tileset.image)
 end)
 
-test('raises a clear error naming the file when the tsj cannot be read', function()
+test("raises a clear error naming the file when the tsj cannot be read", function()
 	local ok, err = pcall(function()
-		TjTileset.resolve('res/entities/tileset_missing.tsj', 1, {
-			readFile = function(path) return nil end,
+		TjTileset.resolve("res/entities/tileset_missing.tsj", 1, {
+			readFile = function(path)
+				return nil
+			end,
 		})
 	end)
 
 	assertEqual(false, ok)
-	assertTrue(string.find(tostring(err), 'res/entities/tileset_missing.tsj', 1, true) ~= nil,
-		'expected error to mention the missing file path, got: ' .. tostring(err))
+	assertTrue(
+		string.find(tostring(err), "res/entities/tileset_missing.tsj", 1, true) ~= nil,
+		"expected error to mention the missing file path, got: " .. tostring(err)
+	)
 end)
 
-test('resolves a single-tile tileset to per-tile image entries', function()
-	local tileset = TjTileset.resolve('res/entities/switch.tsj', 1, {
+test("resolves a single-tile tileset to per-tile image entries", function()
+	local tileset = TjTileset.resolve("res/entities/switch.tsj", 1, {
 		readFile = fakeReader(SWITCH_TSJ),
 	})
 
@@ -98,59 +102,61 @@ test('resolves a single-tile tileset to per-tile image entries', function()
 
 	local switchTile = tileset.tiles[1]
 	assertEqual(0, switchTile.id)
-	assertEqual('res/img/entity_switch.png', switchTile.image)
+	assertEqual("res/img/entity_switch.png", switchTile.image)
 	assertEqual(0, switchTile.x)
 	assertEqual(0, switchTile.y)
 	assertEqual(128, switchTile.width)
 	assertEqual(128, switchTile.height)
 end)
 
-test('resolving the same tsj path twice only reads/parses it once', function()
+test("resolving the same tsj path twice only reads/parses it once", function()
 	local readCount = 0
 	local readFile = function(path)
 		readCount = readCount + 1
 		return GENERIC_PLATFORMER_TILES_TSJ
 	end
 
-	TjTileset.resolve('res/entities/tileset_cache_test_a.tsj', 1, { readFile = readFile })
-	local second = TjTileset.resolve('res/entities/tileset_cache_test_a.tsj', 1, { readFile = readFile })
+	TjTileset.resolve("res/entities/tileset_cache_test_a.tsj", 1, { readFile = readFile })
+	local second = TjTileset.resolve("res/entities/tileset_cache_test_a.tsj", 1, { readFile = readFile })
 
 	assertEqual(1, readCount)
-	assertEqual('res/img/generic_platformer_tiles.png', second.image)
+	assertEqual("res/img/generic_platformer_tiles.png", second.image)
 	assertEqual(144, second.tilecount)
 end)
 
-test('two different tsj paths are cached independently', function()
-	local tilesetA = TjTileset.resolve('res/entities/tileset_cache_test_b.tsj', 1, {
+test("two different tsj paths are cached independently", function()
+	local tilesetA = TjTileset.resolve("res/entities/tileset_cache_test_b.tsj", 1, {
 		readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ),
 	})
-	local tilesetB = TjTileset.resolve('res/entities/tileset_cache_test_c.tsj', 145, {
+	local tilesetB = TjTileset.resolve("res/entities/tileset_cache_test_c.tsj", 145, {
 		readFile = fakeReader(SWITCH_TSJ),
 	})
 
-	assertEqual('res/img/generic_platformer_tiles.png', tilesetA.image)
+	assertEqual("res/img/generic_platformer_tiles.png", tilesetA.image)
 	assertEqual(8, tilesetA.columns)
 	assertEqual(0, tilesetB.columns)
 	assertEqual(1, #tilesetB.tiles)
 end)
 
-test('a cached resolution still reflects the firstgid passed on that call', function()
+test("a cached resolution still reflects the firstgid passed on that call", function()
 	local readFile = fakeReader(GENERIC_PLATFORMER_TILES_TSJ)
 
-	TjTileset.resolve('res/entities/tileset_cache_test_d.tsj', 1, { readFile = readFile })
-	local second = TjTileset.resolve('res/entities/tileset_cache_test_d.tsj', 50, { readFile = readFile })
+	TjTileset.resolve("res/entities/tileset_cache_test_d.tsj", 1, { readFile = readFile })
+	local second = TjTileset.resolve("res/entities/tileset_cache_test_d.tsj", 50, { readFile = readFile })
 
 	assertEqual(50, second.firstgid)
 end)
 
-test('raises a clear error naming the file when the tsj is malformed', function()
+test("raises a clear error naming the file when the tsj is malformed", function()
 	local ok, err = pcall(function()
-		TjTileset.resolve('res/entities/tileset_broken.tsj', 1, {
+		TjTileset.resolve("res/entities/tileset_broken.tsj", 1, {
 			readFile = fakeReader('{"name": "not a tileset"}'),
 		})
 	end)
 
 	assertEqual(false, ok)
-	assertTrue(string.find(tostring(err), 'res/entities/tileset_broken.tsj', 1, true) ~= nil,
-		'expected error to mention the broken file path, got: ' .. tostring(err))
+	assertTrue(
+		string.find(tostring(err), "res/entities/tileset_broken.tsj", 1, true) ~= nil,
+		"expected error to mention the broken file path, got: " .. tostring(err)
+	)
 end)

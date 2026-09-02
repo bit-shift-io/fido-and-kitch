@@ -1,96 +1,96 @@
 local defaultTestFiles = {
-	'tests/unit/runner_smoke_test.lua',
-	'tests/unit/player_movement_test.lua',
-	'tests/unit/bump_physics_test.lua',
-	'tests/unit/lives_test.lua',
-	'tests/unit/kill_zone_test.lua',
-	'tests/unit/safe_position_test.lua',
-	'tests/unit/ground_support_test.lua',
-	'tests/unit/player_sensors_test.lua',
-	'tests/unit/camera_test.lua',
-	'tests/unit/timeline_reverse_test.lua',
-	'tests/unit/drawbridge_test.lua',
-	'tests/unit/blocker_test.lua',
-	'tests/unit/map_parallax_test.lua',
-	'tests/unit/pushable_support_test.lua',
-	'tests/unit/ground_faller_test.lua',
-	'tests/unit/pressure_switch_test.lua',
-	'tests/unit/sound_test.lua',
-	'tests/unit/switchable_test.lua',
-	'tests/unit/story_test.lua',
-	'tests/unit/npc_death_test.lua',
-	'tests/unit/spider_wrap_release_test.lua',
-	'tests/unit/web_test.lua',
-	'tests/unit/external_tileset_test.lua',
-	'tests/unit/template_file_props_test.lua',
-	'tests/unit/template_sprite_props_test.lua',
-	'tests/unit/sprite_props_test.lua',
-	'tests/unit/entity_lifecycle_test.lua',
-	'tests/unit/particles_test.lua',
-	'tests/unit/usable_sparkle_test.lua',
-	'tests/unit/usable_items_test.lua',
-	'tests/unit/coin_identity_test.lua',
-	'tests/unit/game_hud_test.lua',
-	'tests/unit/hud_centering_test.lua',
-	'tests/unit/level_generator_rng_test.lua',
-	'tests/unit/level_generator_main_test.lua',
-	'tests/unit/level_generator_movement_model_test.lua',
-	'tests/unit/level_generator_layout_test.lua',
-	'tests/unit/level_generator_plan_test.lua',
-	'tests/unit/level_generator_walkthrough_test.lua',
-	'tests/unit/level_generator_rules_test.lua',
-	'tests/unit/level_generator_decorate_test.lua',
-	'tests/unit/teleport_start_disabled_test.lua',
-	'tests/unit/level_generator_coop_test.lua',
-	'tests/unit/level_generator_pushables_test.lua',
-	'tests/unit/level_generator_dressing_test.lua',
-	'tests/unit/input_manager_test.lua',
-	'tests/unit/settings_test.lua',
-	'tests/unit/level_records_test.lua',
-	'tests/unit/map_list_selection_test.lua',
-	'tests/unit/map_card_test.lua',
-	'tests/unit/ladder_merge_test.lua',
-	'tests/unit/ladder_annotation_test.lua',
-	'tests/unit/ladder_entity_test.lua',
-	'tests/unit/ladder_toggle_test.lua',
-	'tests/unit/mover_platform_test.lua',
-	'tests/unit/mover_platform_physics_test.lua',
-	'tests/unit/color_test.lua',
-	'tests/unit/flag_test.lua',
-	'tests/unit/replicator_test.lua',
-	'tests/unit/export_png_test.lua',
-	'tests/unit/diorama_test.lua',
-	'tests/unit/grid_overlay_test.lua',
-	'tests/unit/level_score_test.lua',
-	'tests/unit/level_complete_state_test.lua',
-	'tests/unit/jump_pad_trajectory_test.lua',
-	'tests/unit/jump_pad_trajectory_bake_test.lua',
-	'tests/unit/path_follow_test.lua',
-	'tests/unit/draw_order_test.lua',
-	'tests/unit/entity_render_split_test.lua',
-	'tests/unit/mesh_ribbon_emitter_test.lua',
-	'tests/unit/mesh_ribbon_render_test.lua',
-	'tests/unit/state_machine_trytransition_test.lua',
-	'tests/unit/swoop_curve_test.lua',
-	'tests/unit/teleport_travel_state_test.lua',
-	'tests/unit/npc_config_test.lua',
-	'tests/unit/world_query_segment_test.lua',
-	'tests/unit/timer_switch_test.lua',
-	'tests/unit/laser_beam_resolver_test.lua',
-	'tests/unit/laser_state_test.lua',
-	'tests/unit/mirror_test.lua',
-	'tests/unit/laser_switch_test.lua',
-	'tests/unit/destructible_tile_test.lua',
-	'tests/unit/destructible_tile_chain_test.lua',
-	'tests/unit/beam_contact_delay_test.lua',
+	"tests/unit/runner_smoke_test.lua",
+	"tests/unit/player_movement_test.lua",
+	"tests/unit/bump_physics_test.lua",
+	"tests/unit/lives_test.lua",
+	"tests/unit/kill_zone_test.lua",
+	"tests/unit/safe_position_test.lua",
+	"tests/unit/ground_support_test.lua",
+	"tests/unit/player_sensors_test.lua",
+	"tests/unit/camera_test.lua",
+	"tests/unit/timeline_reverse_test.lua",
+	"tests/unit/drawbridge_test.lua",
+	"tests/unit/blocker_test.lua",
+	"tests/unit/map_parallax_test.lua",
+	"tests/unit/pushable_support_test.lua",
+	"tests/unit/ground_faller_test.lua",
+	"tests/unit/pressure_switch_test.lua",
+	"tests/unit/sound_test.lua",
+	"tests/unit/switchable_test.lua",
+	"tests/unit/story_test.lua",
+	"tests/unit/npc_death_test.lua",
+	"tests/unit/spider_wrap_release_test.lua",
+	"tests/unit/web_test.lua",
+	"tests/unit/external_tileset_test.lua",
+	"tests/unit/template_file_props_test.lua",
+	"tests/unit/template_sprite_props_test.lua",
+	"tests/unit/sprite_props_test.lua",
+	"tests/unit/entity_lifecycle_test.lua",
+	"tests/unit/particles_test.lua",
+	"tests/unit/usable_sparkle_test.lua",
+	"tests/unit/usable_items_test.lua",
+	"tests/unit/coin_identity_test.lua",
+	"tests/unit/game_hud_test.lua",
+	"tests/unit/hud_centering_test.lua",
+	"tests/unit/level_generator_rng_test.lua",
+	"tests/unit/level_generator_main_test.lua",
+	"tests/unit/level_generator_movement_model_test.lua",
+	"tests/unit/level_generator_layout_test.lua",
+	"tests/unit/level_generator_plan_test.lua",
+	"tests/unit/level_generator_walkthrough_test.lua",
+	"tests/unit/level_generator_rules_test.lua",
+	"tests/unit/level_generator_decorate_test.lua",
+	"tests/unit/teleport_start_disabled_test.lua",
+	"tests/unit/level_generator_coop_test.lua",
+	"tests/unit/level_generator_pushables_test.lua",
+	"tests/unit/level_generator_dressing_test.lua",
+	"tests/unit/input_manager_test.lua",
+	"tests/unit/settings_test.lua",
+	"tests/unit/level_records_test.lua",
+	"tests/unit/map_list_selection_test.lua",
+	"tests/unit/map_card_test.lua",
+	"tests/unit/ladder_merge_test.lua",
+	"tests/unit/ladder_annotation_test.lua",
+	"tests/unit/ladder_entity_test.lua",
+	"tests/unit/ladder_toggle_test.lua",
+	"tests/unit/mover_platform_test.lua",
+	"tests/unit/mover_platform_physics_test.lua",
+	"tests/unit/color_test.lua",
+	"tests/unit/flag_test.lua",
+	"tests/unit/replicator_test.lua",
+	"tests/unit/export_png_test.lua",
+	"tests/unit/diorama_test.lua",
+	"tests/unit/grid_overlay_test.lua",
+	"tests/unit/level_score_test.lua",
+	"tests/unit/level_complete_state_test.lua",
+	"tests/unit/jump_pad_trajectory_test.lua",
+	"tests/unit/jump_pad_trajectory_bake_test.lua",
+	"tests/unit/path_follow_test.lua",
+	"tests/unit/draw_order_test.lua",
+	"tests/unit/entity_render_split_test.lua",
+	"tests/unit/mesh_ribbon_emitter_test.lua",
+	"tests/unit/mesh_ribbon_render_test.lua",
+	"tests/unit/state_machine_trytransition_test.lua",
+	"tests/unit/swoop_curve_test.lua",
+	"tests/unit/teleport_travel_state_test.lua",
+	"tests/unit/npc_config_test.lua",
+	"tests/unit/world_query_segment_test.lua",
+	"tests/unit/timer_switch_test.lua",
+	"tests/unit/laser_beam_resolver_test.lua",
+	"tests/unit/laser_state_test.lua",
+	"tests/unit/mirror_test.lua",
+	"tests/unit/laser_switch_test.lua",
+	"tests/unit/destructible_tile_test.lua",
+	"tests/unit/destructible_tile_chain_test.lua",
+	"tests/unit/beam_contact_delay_test.lua",
 }
 
 local tests = {}
 local failures = {}
 
 local function valueToString(value)
-	if type(value) == 'string' then
-		return string.format('%q', value)
+	if type(value) == "string" then
+		return string.format("%q", value)
 	end
 	return tostring(value)
 end
@@ -101,33 +101,41 @@ end
 
 function test(name, fn)
 	table.insert(tests, {
-		name=name,
-		fn=fn,
+		name = name,
+		fn = fn,
 	})
 end
 
 function assertTrue(value, message)
 	if not value then
-		fail(message or 'expected value to be truthy')
+		fail(message or "expected value to be truthy")
 	end
 end
 
 function assertFalse(value, message)
 	if value then
-		fail(message or 'expected value to be falsey')
+		fail(message or "expected value to be falsey")
 	end
 end
 
 function assertEqual(expected, actual, message)
 	if expected ~= actual then
-		fail(message or string.format('expected %s, got %s', valueToString(expected), valueToString(actual)))
+		fail(message or string.format("expected %s, got %s", valueToString(expected), valueToString(actual)))
 	end
 end
 
 function assertNear(expected, actual, tolerance, message)
 	tolerance = tolerance or 0.000001
 	if math.abs(expected - actual) > tolerance then
-		fail(message or string.format('expected %s to be within %s of %s', valueToString(actual), valueToString(tolerance), valueToString(expected)))
+		fail(
+			message
+				or string.format(
+					"expected %s to be within %s of %s",
+					valueToString(actual),
+					valueToString(tolerance),
+					valueToString(expected)
+				)
+		)
 	end
 end
 
@@ -147,7 +155,7 @@ end
 local function loadTestFile(path)
 	local chunk, err = loadfile(path)
 	if not chunk then
-		error(string.format('Could not load %s: %s', path, err))
+		error(string.format("Could not load %s: %s", path, err))
 	end
 	chunk()
 end
@@ -162,19 +170,19 @@ local function run()
 	for _, case in ipairs(tests) do
 		local ok, err = xpcall(case.fn, debug.traceback)
 		if ok then
-			print('✓ ' .. case.name)
+			print("✓ " .. case.name)
 		else
 			table.insert(failures, {
-				name=case.name,
-				error=err,
+				name = case.name,
+				error = err,
 			})
-			print('✗ ' .. case.name)
+			print("✗ " .. case.name)
 			print(err)
 		end
 	end
 
 	local passed = #tests - #failures
-	print(string.format('\n%d passed, %d failed', passed, #failures))
+	print(string.format("\n%d passed, %d failed", passed, #failures))
 
 	if #failures > 0 then
 		os.exit(1)

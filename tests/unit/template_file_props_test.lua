@@ -3,8 +3,8 @@
 -- .tj's directory, instance props to the map's directory. Both must be
 -- converted to project-root-relative runtime paths at load (same lexing as
 -- stiUtils.format_path already applies to tileset images).
-local TjTemplate = require('src.map.tj_template')
-local Tmj = require('src.map.tmj')
+local TjTemplate = require("src.map.tj_template")
+local Tmj = require("src.map.tmj")
 
 local KEY_TJ = [[{
   "type": "template",
@@ -142,11 +142,11 @@ local function fakeReader(contents)
 	end
 end
 
-test('template file props are resolved relative to the template directory', function()
+test("template file props are resolved relative to the template directory", function()
 	-- Fake content cached under this path -- it intentionally plays no real
 	-- template's identity (a stub asserting template-file-prop conversion must
 	-- not shadow res/entities/key.tj inside the process-wide resolve cache).
-	local template = TjTemplate.resolve('res/entities/key_fake_test.tj', {
+	local template = TjTemplate.resolve("res/entities/key_fake_test.tj", {
 		readFile = fakeReader(KEY_TJ),
 	})
 
@@ -155,59 +155,59 @@ test('template file props are resolved relative to the template directory', func
 		byName[prop.name] = prop
 	end
 
-	assertEqual('res/img/entity_key.png', byName.image.value)
+	assertEqual("res/img/entity_key.png", byName.image.value)
 	assertEqual(1, byName.frames.value)
-	assertEqual('yellow', byName.color.value)
+	assertEqual("yellow", byName.color.value)
 end)
 
-test('template file-prop conversion happens once per cached path', function()
+test("template file-prop conversion happens once per cached path", function()
 	local readCount = 0
 	local readFile = function(path)
 		readCount = readCount + 1
 		return KEY_TJ
 	end
 
-	TjTemplate.resolve('res/entities/key_cache_test.tj', { readFile = readFile })
-	local cached = TjTemplate.resolve('res/entities/key_cache_test.tj', { readFile = readFile })
+	TjTemplate.resolve("res/entities/key_cache_test.tj", { readFile = readFile })
+	local cached = TjTemplate.resolve("res/entities/key_cache_test.tj", { readFile = readFile })
 
 	assertEqual(1, readCount)
 	local image
 	for _, prop in ipairs(cached.object.properties) do
-		if prop.name == 'image' then
+		if prop.name == "image" then
 			image = prop.value
 		end
 	end
-	assertEqual('res/img/entity_key.png', image)
+	assertEqual("res/img/entity_key.png", image)
 end)
 
-test('map instance file props are resolved relative to the map directory', function()
-	local tmpDir = 'tests/unit/_tmptmp'
-	local tmpFile = tmpDir .. '/fileprops.tmj'
-	os.execute('mkdir -p ' .. tmpDir)
-	local file = assert(io.open(tmpFile, 'w'))
+test("map instance file props are resolved relative to the map directory", function()
+	local tmpDir = "tests/unit/_tmptmp"
+	local tmpFile = tmpDir .. "/fileprops.tmj"
+	os.execute("mkdir -p " .. tmpDir)
+	local file = assert(io.open(tmpFile, "w"))
 	file:write(INSTANCE_MAP)
 	file:close()
 
 	local map = Tmj.parse(tmpFile)
 
 	local obj = map.layers[1].objects[1]
-	assertEqual('tests/unit/img/cage/cage.png', obj.properties.image)
-	assertEqual('bird', obj.properties.spawn_type)
+	assertEqual("tests/unit/img/cage/cage.png", obj.properties.image)
+	assertEqual("bird", obj.properties.spawn_type)
 	assertEqual(160, obj.properties.dest_x)
 
 	os.remove(tmpFile)
-	os.execute('rmdir ' .. tmpDir  .. ' 2>/dev/null')
+	os.execute("rmdir " .. tmpDir .. " 2>/dev/null")
 end)
 
-test('instance without an image prop inherits art from the template tileset tile', function()
-	local tmpDir = 'tests/unit/_tmptmp'
-	local tmplDir = tmpDir .. '/templates'
-	local tmpFile = tmpDir .. '/tilesetart.tmj'
-	os.execute('mkdir -p ' .. tmplDir)
-	local tf = assert(io.open(tmplDir .. '/teleport_test.tj', 'w'))
+test("instance without an image prop inherits art from the template tileset tile", function()
+	local tmpDir = "tests/unit/_tmptmp"
+	local tmplDir = tmpDir .. "/templates"
+	local tmpFile = tmpDir .. "/tilesetart.tmj"
+	os.execute("mkdir -p " .. tmplDir)
+	local tf = assert(io.open(tmplDir .. "/teleport_test.tj", "w"))
 	tf:write(TILESET_ART_TJ)
 	tf:close()
-	local file = assert(io.open(tmpFile, 'w'))
+	local file = assert(io.open(tmpFile, "w"))
 	file:write(INSTANCE_MAP_TILESET_ART)
 	file:close()
 
@@ -216,10 +216,14 @@ test('instance without an image prop inherits art from the template tileset tile
 	local obj = map.layers[1].objects[1]
 	assertEqual(1, obj.properties.frames)
 	assertEqual(28, obj.properties.target.id)
-	assertEqual('tests/unit/_tmptmp/img/entity_teleporter.png', obj.properties.image, 'tile art injected into merged props')
+	assertEqual(
+		"tests/unit/_tmptmp/img/entity_teleporter.png",
+		obj.properties.image,
+		"tile art injected into merged props"
+	)
 
 	os.remove(tmpFile)
-	os.remove(tmplDir .. '/teleport_test.tj')
-	os.execute('rmdir ' .. tmplDir .. ' 2>/dev/null')
-	os.execute('rmdir ' .. tmpDir .. ' 2>/dev/null')
+	os.remove(tmplDir .. "/teleport_test.tj")
+	os.execute("rmdir " .. tmplDir .. " 2>/dev/null")
+	os.execute("rmdir " .. tmpDir .. " 2>/dev/null")
 end)

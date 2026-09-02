@@ -1,685 +1,715 @@
-{ "compressionlevel":-1,
- "height":20,
- "infinite":false,
- "layers":[
+{
+  "compressionlevel": -1,
+  "height": 20,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 21,
+      "locked": true,
+      "name": "level",
+      "objects": [
         {
-         "draworder":"topdown",
-         "id":21,
-         "locked":true,
-         "name":"level",
-         "objects":[
-                {
-                 "gid":1,
-                 "height":640,
-                 "id":111,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":640,
-                 "x":0,
-                 "y":640
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "gid": 1,
+          "height": 640,
+          "id": 111,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 640,
+          "x": 0,
+          "y": 640
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 16,
+      "name": "ladder",
+      "objects": [
         {
-         "draworder":"topdown",
-         "id":16,
-         "name":"ladder",
-         "objects":[
-                {
-                 "id":95,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":128,
-                 "y":384
-                }, 
-                {
-                 "id":96,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":128,
-                 "y":352
-                }, 
-                {
-                 "id":97,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":128,
-                 "y":320
-                }, 
-                {
-                 "id":98,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":128,
-                 "y":288
-                }, 
-                {
-                 "id":99,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":128,
-                 "y":256
-                }, 
-                {
-                 "id":100,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":128,
-                 "y":224
-                }, 
-                {
-                 "id":101,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":160,
-                 "y":512
-                }, 
-                {
-                 "id":102,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":160,
-                 "y":480
-                }, 
-                {
-                 "id":103,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":160,
-                 "y":448
-                }, 
-                {
-                 "id":104,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":160,
-                 "y":416
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 95,
+          "template": "../entities/ladder.tj",
+          "x": 128,
+          "y": 384
+        },
         {
-         "draworder":"topdown",
-         "id":19,
-         "name":"kill",
-         "objects":[
-                {
-                 "height":112,
-                 "id":78,
-                 "name":"water_kill",
-                 "opacity":1,
-                 "properties":[
-                        {
-                         "name":"deathType",
-                         "type":"string",
-                         "value":"water"
-                        }],
-                 "rotation":0,
-                 "type":"kill_zone",
-                 "visible":true,
-                 "width":96,
-                 "x":224,
-                 "y":592
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 96,
+          "template": "../entities/ladder.tj",
+          "x": 128,
+          "y": 352
+        },
         {
-         "draworder":"topdown",
-         "id":13,
-         "name":"game",
-         "objects":[
-                {
-                 "id":86,
-                 "template":"..\/entities\/drawbridge.tj",
-                 "x":320,
-                 "y":224
-                }, 
-                {
-                 "id":26,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":63
-                        }],
-                 "template":"..\/entities\/teleport.tj",
-                 "x":64,
-                 "y":512
-                }, 
-                {
-                 "id":38,
-                 "template":"..\/entities\/spawn.tj",
-                 "x":96,
-                 "y":192
-                }, 
-                {
-                 "id":41,
-                 "name":"red_cage",
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/cage\/cage.png"
-                        }, 
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":67
-                        }, 
-                        {
-                         "name":"spawn_type",
-                         "type":"string",
-                         "value":"bird"
-                        }],
-                 "template":"..\/entities\/cage.tj",
-                 "x":32,
-                 "y":384
-                }, 
-                {
-                 "id":43,
-                 "properties":[
-                        {
-                         "name":"actor_count",
-                         "type":"int",
-                         "value":2
-                        }],
-                 "template":"..\/entities\/exit_door.tj",
-                 "x":416,
-                 "y":192
-                }, 
-                {
-                 "id":44,
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":86
-                        }],
-                 "template":"..\/entities\/switch.tj",
-                 "x":288,
-                 "y":192
-                }, 
-                {
-                 "id":106,
-                 "properties":[
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":105
-                        }],
-                 "template":"..\/entities\/mover_platform.tj",
-                 "x":320,
-                 "y":384
-                }, 
-                {
-                 "id":107,
-                 "name":"mover_switch",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":106
-                        }],
-                 "template":"..\/entities\/switch.tj",
-                 "x":384,
-                 "y":352
-                }, 
-                {
-                 "id":62,
-                 "name":"red_key",
-                 "template":"..\/entities\/key.tj",
-                 "x":96,
-                 "y":384
-                }, 
-                {
-                 "id":63,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":26
-                        }],
-                 "template":"..\/entities\/teleport.tj",
-                 "x":384,
-                 "y":544
-                }, 
-                {
-                 "id":68,
-                 "properties":[
-                        {
-                         "name":"image",
-                         "type":"file",
-                         "value":"..\/img\/entity_jump_pad.png"
-                        }, 
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":73
-                        }],
-                 "template":"..\/entities\/jump_pad.tj",
-                 "x":192,
-                 "y":384
-                }, 
-                {
-                 "id":93,
-                 "template":"..\/entities\/blocker.tj",
-                 "x":256,
-                 "y":224
-                }, 
-                {
-                 "id":94,
-                 "name":"blocker_switch",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":93
-                        }],
-                 "template":"..\/entities\/switch.tj",
-                 "x":192,
-                 "y":192
-                }, 
-                {
-                 "height":30.2203,
-                 "id":87,
-                 "name":"robot",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"npc_robot",
-                 "visible":true,
-                 "width":32,
-                 "x":0,
-                 "y":352
-                }, 
-                {
-                 "height":32,
-                 "id":88,
-                 "name":"spider",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"npc_spider",
-                 "visible":true,
-                 "width":32,
-                 "x":416.205,
-                 "y":317.467
-                }, 
-                {
-                 "id":91,
-                 "properties":[
-                        {
-                         "name":"text",
-                         "type":"string",
-                         "value":"Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"
-                        }],
-                 "template":"..\/entities\/story.tj",
-                 "x":544,
-                 "y":544
-                }, 
-                {
-                 "id":92,
-                 "properties":[
-                        {
-                         "name":"text",
-                         "type":"string",
-                         "value":"The inside of this automaton engine isn't made of pistons\u2014it\u2019s an empty nest lined with soft wool and old ribbons. Whatever was kept inside here was taken out very recently."
-                        }],
-                 "template":"..\/entities\/story.tj",
-                 "x":352,
-                 "y":352
-                }, 
-                {
-                 "id":109,
-                 "properties":[
-                        {
-                         "name":"maxSpawns",
-                         "type":"int",
-                         "value":3
-                        }],
-                 "template":"..\/entities\/replicator.tj",
-                 "x":608,
-                 "y":288
-                }, 
-                {
-                 "id":110,
-                 "name":"replicator_switch",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":109
-                        }],
-                 "template":"..\/entities\/switch.tj",
-                 "x":448,
-                 "y":544
-                }, 
-                {
-                 "id":113,
-                 "properties":[
-                        {
-                         "name":"color",
-                         "type":"string",
-                         "value":"blue"
-                        }],
-                 "template":"..\/entities\/cage.tj",
-                 "x":512,
-                 "y":256
-                },
-            
-                {
-                 "id":117,
-                 "template":"..\/entities\/coin.tj",
-                 "x":480,
-                 "y":352
-                }, 
-                {
-                 "id":118,
-                 "properties":[
-                        {
-                         "name":"color",
-                         "type":"string",
-                         "value":"blue"
-                        }],
-                 "template":"..\/entities\/key.tj",
-                 "x":608,
-                 "y":256
-                }, 
-                {
-                 "id":120,
-                 "template":"..\/entities\/coin.tj",
-                 "x":32,
-                 "y":192
-                }, 
-                {
-                 "id":121,
-                 "template":"..\/entities\/drawbridge.tj",
-                 "x":32,
-                 "y":224
-                }, 
-                {
-                 "id":122,
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":121
-                        }],
-                 "template":"..\/entities\/switch.tj",
-                 "x":0,
-                 "y":512
-                }, 
-                {
-                 "id":124,
-                 "template":"..\/entities\/flag.tj",
-                 "x":64,
-                 "y":384
-                }, 
-                {
-                 "id":125,
-                 "properties":[
-                        {
-                         "name":"color",
-                         "type":"string",
-                         "value":"blue"
-                        }],
-                 "template":"..\/entities\/flag.tj",
-                 "x":544,
-                 "y":256
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 97,
+          "template": "../entities/ladder.tj",
+          "x": 128,
+          "y": 320
+        },
         {
-         "draworder":"topdown",
-         "id":18,
-         "name":"waypoints",
-         "objects":[
-                {
-                 "height":0,
-                 "id":73,
-                 "name":"jump_path",
-                 "opacity":1,
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":16,
-                         "y":-48
-                        }, 
-                        {
-                         "x":48,
-                         "y":-80
-                        }, 
-                        {
-                         "x":96,
-                         "y":-96
-                        }, 
-                        {
-                         "x":128,
-                         "y":-88
-                        }, 
-                        {
-                         "x":152,
-                         "y":-64
-                        }, 
-                        {
-                         "x":160,
-                         "y":-32
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":208,
-                 "y":384
-                }, 
-                {
-                 "height":0,
-                 "id":105,
-                 "name":"mover_path",
-                 "opacity":1,
-                 "polyline":[
-                        {
-                         "x":144,
-                         "y":256
-                        }, 
-                        {
-                         "x":96,
-                         "y":192
-                        }, 
-                        {
-                         "x":144,
-                         "y":64
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":192,
-                 "y":288
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 98,
+          "template": "../entities/ladder.tj",
+          "x": 128,
+          "y": 288
+        },
         {
-         "draworder":"topdown",
-         "id":15,
-         "name":"collision",
-         "objects":[
-                {
-                 "height":32,
-                 "id":53,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":256,
-                 "x":96,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":84,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":96,
-                 "x":384,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":54,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":32,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":55,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":192,
-                 "x":448,
-                 "y":256
-                }, 
-                {
-                 "height":32,
-                 "id":56,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":160,
-                 "x":352,
-                 "y":352
-                }, 
-                {
-                 "height":32,
-                 "id":57,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":224,
-                 "x":0,
-                 "y":384
-                }, 
-                {
-                 "height":128,
-                 "id":58,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":224,
-                 "x":0,
-                 "y":512
-                }, 
-                {
-                 "height":96,
-                 "id":59,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":320,
-                 "x":320,
-                 "y":544
-                }],
-         "opacity":1,
-         "properties":[
-                {
-                 "name":"collision",
-                 "type":"bool",
-                 "value":true
-                }],
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }],
- "nextlayerid":22,
- "nextobjectid":126,
- "orientation":"orthogonal",
- "properties":[
+          "id": 99,
+          "template": "../entities/ladder.tj",
+          "x": 128,
+          "y": 256
+        },
         {
-         "name":"background",
-         "type":"string",
-         "value":"night_forest"
-        }, 
+          "id": 100,
+          "template": "../entities/ladder.tj",
+          "x": 128,
+          "y": 224
+        },
         {
-         "name":"description",
-         "type":"string",
-         "value":"A compact test level."
-        }, 
+          "id": 101,
+          "template": "../entities/ladder.tj",
+          "x": 160,
+          "y": 512
+        },
         {
-         "name":"name",
-         "type":"string",
-         "value":"Sandbox"
-        }, 
+          "id": 102,
+          "template": "../entities/ladder.tj",
+          "x": 160,
+          "y": 480
+        },
         {
-         "name":"players",
-         "type":"int",
-         "value":1
-        }],
- "renderorder":"right-down",
- "tiledversion":"1.12.2",
- "tileheight":32,
- "tilesets":[
+          "id": 103,
+          "template": "../entities/ladder.tj",
+          "x": 160,
+          "y": 448
+        },
         {
-         "columns":0,
-         "firstgid":1,
-         "grid":
+          "id": 104,
+          "template": "../entities/ladder.tj",
+          "x": 160,
+          "y": 416
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 19,
+      "name": "kill",
+      "objects": [
+        {
+          "height": 112,
+          "id": 78,
+          "name": "water_kill",
+          "opacity": 1,
+          "properties": [
             {
-             "height":1,
-             "orientation":"orthogonal",
-             "width":1
+              "name": "deathType",
+              "type": "string",
+              "value": "water"
+            }
+          ],
+          "rotation": 0,
+          "type": "kill_zone",
+          "visible": true,
+          "width": 96,
+          "x": 224,
+          "y": 592
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 13,
+      "name": "game",
+      "objects": [
+        {
+          "id": 86,
+          "template": "../entities/drawbridge.tj",
+          "x": 320,
+          "y": 224
+        },
+        {
+          "id": 26,
+          "name": "teleport",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 63
+            }
+          ],
+          "template": "../entities/teleport.tj",
+          "x": 64,
+          "y": 512
+        },
+        {
+          "id": 38,
+          "template": "../entities/spawn.tj",
+          "x": 96,
+          "y": 192
+        },
+        {
+          "id": 41,
+          "name": "red_cage",
+          "properties": [
+            {
+              "name": "image",
+              "type": "file",
+              "value": "../img/cage/cage.png"
             },
-         "margin":0,
-         "name":"level",
-         "spacing":0,
-         "tilecount":1,
-         "tileheight":1024,
-         "tiles":[
-                {
-                 "id":0,
-                 "image":"..\/img\/world\/sandbox.png",
-                 "imageheight":1024,
-                 "imagewidth":1024
-                }],
-         "tilewidth":1024
-        }],
- "tilewidth":32,
- "type":"map",
- "version":"1.11",
- "width":20
+            {
+              "name": "path",
+              "type": "object",
+              "value": 67
+            },
+            {
+              "name": "spawn_type",
+              "type": "string",
+              "value": "bird"
+            }
+          ],
+          "template": "../entities/cage.tj",
+          "x": 32,
+          "y": 384
+        },
+        {
+          "id": 43,
+          "properties": [
+            {
+              "name": "actor_count",
+              "type": "int",
+              "value": 2
+            }
+          ],
+          "template": "../entities/exit_door.tj",
+          "x": 416,
+          "y": 192
+        },
+        {
+          "id": 44,
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 86
+            }
+          ],
+          "template": "../entities/switch.tj",
+          "x": 288,
+          "y": 192
+        },
+        {
+          "id": 106,
+          "properties": [
+            {
+              "name": "path",
+              "type": "object",
+              "value": 105
+            }
+          ],
+          "template": "../entities/mover_platform.tj",
+          "x": 320,
+          "y": 384
+        },
+        {
+          "id": 107,
+          "name": "mover_switch",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 106
+            }
+          ],
+          "template": "../entities/switch.tj",
+          "x": 384,
+          "y": 352
+        },
+        {
+          "id": 62,
+          "name": "red_key",
+          "template": "../entities/key.tj",
+          "x": 96,
+          "y": 384
+        },
+        {
+          "id": 63,
+          "name": "teleport",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 26
+            }
+          ],
+          "template": "../entities/teleport.tj",
+          "x": 384,
+          "y": 544
+        },
+        {
+          "id": 68,
+          "properties": [
+            {
+              "name": "image",
+              "type": "file",
+              "value": "../img/entity_jump_pad.png"
+            },
+            {
+              "name": "path",
+              "type": "object",
+              "value": 73
+            }
+          ],
+          "template": "../entities/jump_pad.tj",
+          "x": 192,
+          "y": 384
+        },
+        {
+          "id": 93,
+          "template": "../entities/blocker.tj",
+          "x": 256,
+          "y": 224
+        },
+        {
+          "id": 94,
+          "name": "blocker_switch",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 93
+            }
+          ],
+          "template": "../entities/switch.tj",
+          "x": 192,
+          "y": 192
+        },
+        {
+          "height": 30.2203,
+          "id": 87,
+          "name": "robot",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "npc_robot",
+          "visible": true,
+          "width": 32,
+          "x": 0,
+          "y": 352
+        },
+        {
+          "height": 32,
+          "id": 88,
+          "name": "spider",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "npc_spider",
+          "visible": true,
+          "width": 32,
+          "x": 416.205,
+          "y": 317.467
+        },
+        {
+          "id": 91,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"
+            }
+          ],
+          "template": "../entities/story.tj",
+          "x": 544,
+          "y": 544
+        },
+        {
+          "id": 92,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "The inside of this automaton engine isn't made of pistons—it’s an empty nest lined with soft wool and old ribbons. Whatever was kept inside here was taken out very recently."
+            }
+          ],
+          "template": "../entities/story.tj",
+          "x": 352,
+          "y": 352
+        },
+        {
+          "id": 109,
+          "properties": [
+            {
+              "name": "maxSpawns",
+              "type": "int",
+              "value": 3
+            }
+          ],
+          "template": "../entities/replicator.tj",
+          "x": 608,
+          "y": 288
+        },
+        {
+          "id": 110,
+          "name": "replicator_switch",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 109
+            }
+          ],
+          "template": "../entities/switch.tj",
+          "x": 448,
+          "y": 544
+        },
+        {
+          "id": 113,
+          "properties": [
+            {
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            }
+          ],
+          "template": "../entities/cage.tj",
+          "x": 512,
+          "y": 256
+        },
+        {
+          "id": 117,
+          "template": "../entities/coin.tj",
+          "x": 480,
+          "y": 352
+        },
+        {
+          "id": 118,
+          "properties": [
+            {
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            }
+          ],
+          "template": "../entities/key.tj",
+          "x": 608,
+          "y": 256
+        },
+        {
+          "id": 120,
+          "template": "../entities/coin.tj",
+          "x": 32,
+          "y": 192
+        },
+        {
+          "id": 121,
+          "template": "../entities/drawbridge.tj",
+          "x": 32,
+          "y": 224
+        },
+        {
+          "id": 122,
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 121
+            }
+          ],
+          "template": "../entities/switch.tj",
+          "x": 0,
+          "y": 512
+        },
+        {
+          "id": 124,
+          "template": "../entities/flag.tj",
+          "x": 64,
+          "y": 384
+        },
+        {
+          "id": 125,
+          "properties": [
+            {
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            }
+          ],
+          "template": "../entities/flag.tj",
+          "x": 544,
+          "y": 256
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 18,
+      "name": "waypoints",
+      "objects": [
+        {
+          "height": 0,
+          "id": 73,
+          "name": "jump_path",
+          "opacity": 1,
+          "polyline": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 16,
+              "y": -48
+            },
+            {
+              "x": 48,
+              "y": -80
+            },
+            {
+              "x": 96,
+              "y": -96
+            },
+            {
+              "x": 128,
+              "y": -88
+            },
+            {
+              "x": 152,
+              "y": -64
+            },
+            {
+              "x": 160,
+              "y": -32
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 208,
+          "y": 384
+        },
+        {
+          "height": 0,
+          "id": 105,
+          "name": "mover_path",
+          "opacity": 1,
+          "polyline": [
+            {
+              "x": 144,
+              "y": 256
+            },
+            {
+              "x": 96,
+              "y": 192
+            },
+            {
+              "x": 144,
+              "y": 64
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 192,
+          "y": 288
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 15,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 32,
+          "id": 53,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 256,
+          "x": 96,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 84,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 96,
+          "x": 384,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 54,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 32,
+          "x": 32,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 55,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 192,
+          "x": 448,
+          "y": 256
+        },
+        {
+          "height": 32,
+          "id": 56,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 160,
+          "x": 352,
+          "y": 352
+        },
+        {
+          "height": 32,
+          "id": 57,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 224,
+          "x": 0,
+          "y": 384
+        },
+        {
+          "height": 128,
+          "id": 58,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 224,
+          "x": 0,
+          "y": 512
+        },
+        {
+          "height": 96,
+          "id": 59,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 320,
+          "x": 320,
+          "y": 544
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "collision",
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 22,
+  "nextobjectid": 126,
+  "orientation": "orthogonal",
+  "properties": [
+    {
+      "name": "background",
+      "type": "string",
+      "value": "night_forest"
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "value": "A compact test level."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "value": "Sandbox"
+    },
+    {
+      "name": "players",
+      "type": "int",
+      "value": 1
+    }
+  ],
+  "renderorder": "right-down",
+  "tiledversion": "1.12.2",
+  "tileheight": 32,
+  "tilesets": [
+    {
+      "columns": 0,
+      "firstgid": 1,
+      "grid": {
+        "height": 1,
+        "orientation": "orthogonal",
+        "width": 1
+      },
+      "margin": 0,
+      "name": "level",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 1024,
+      "tiles": [
+        {
+          "id": 0,
+          "image": "../img/world/sandbox.png",
+          "imageheight": 1024,
+          "imagewidth": 1024
+        }
+      ],
+      "tilewidth": 1024
+    }
+  ],
+  "tilewidth": 32,
+  "type": "map",
+  "version": "1.11",
+  "width": 20
 }

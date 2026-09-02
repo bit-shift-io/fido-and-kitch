@@ -9,10 +9,10 @@
 --
 -- The component requires a fresh markContact() call each frame to accumulate time;
 -- skipping a single frame resets the elapsed counter to zero.
-local BeamContactDelay = Class{}
+local BeamContactDelay = Class({})
 
 function BeamContactDelay:init(props)
-	self.type = 'beam_contact_delay'
+	self.type = "beam_contact_delay"
 	self.delay = props.delay or 0.5
 	self.elapsed = 0
 	self.contacted = false

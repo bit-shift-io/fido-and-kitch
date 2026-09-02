@@ -1,8 +1,8 @@
-local Log = require('src.utils.log')
-local PhysicsTolerance = require('src.utils.physics_tolerance')
-local SpriteProps = require('src.entities.sprite_props')
+local Log = require("src.utils.log")
+local PhysicsTolerance = require("src.utils.physics_tolerance")
+local SpriteProps = require("src.entities.sprite_props")
 
-local Ladder = Class{__includes = Entity}
+local Ladder = Class({ __includes = Entity })
 
 -- Thickness of the standable one-way slab at the ladder's top edge.
 local TOP_THICKNESS = 8
@@ -32,7 +32,7 @@ local DEFAULT_REVEAL_DELAY = 0.12
 -- is rect.y - rect.height. resizeTileHeight/grow raise the top edge and
 -- never move the bottom.
 function Ladder:init(object, map)
-	Entity.init(self, object, 'ladder')
+	Entity.init(self, object, "ladder")
 	self.isLadder = true
 	self.map = map
 	self.family = object.ladderFamily or object
@@ -60,7 +60,7 @@ function Ladder:init(object, map)
 			self:removeTopCollider()
 			self:hideSprites()
 		end
-	else		-- thin alias -- the lead collider/sprites already cover this column
+	else -- thin alias -- the lead collider/sprites already cover this column
 		self.lead = self.family.entity
 		self.collider = self.lead and self.lead.collider or nil
 	end
@@ -112,7 +112,9 @@ end
 function Ladder:buildRevealOrder(originIndex, count)
 	local order = {}
 	local n = count or 0
-	if n == 0 then return order end
+	if n == 0 then
+		return order
+	end
 	originIndex = originIndex or n
 	originIndex = math.max(1, math.min(n, originIndex))
 	table.insert(order, originIndex)
@@ -191,14 +193,14 @@ function Ladder:createCollider()
 		self.collider:destroy()
 	end
 
-	self.collider = self:addComponent(Collider{
-		shape_type='rectangle',
-		shape_arguments=Rect.shapeArgs(self.rect.width, self.rect.height),
-		body_type='static',
-		sensor=true,
-		position=Vector(self.rect.x + self.rect.width * 0.5, self.rect.y - self.rect.height * 0.5),
-		entity=self
-	})
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
+		shape_arguments = Rect.shapeArgs(self.rect.width, self.rect.height),
+		body_type = "static",
+		sensor = true,
+		position = Vector(self.rect.x + self.rect.width * 0.5, self.rect.y - self.rect.height * 0.5),
+		entity = self,
+	}))
 	return self.collider
 end
 
@@ -209,14 +211,14 @@ function Ladder:createTopCollider()
 	self:removeTopCollider()
 
 	local topEdge = self.rect.y - self.rect.height
-	self.topCollider = self:addComponent(Collider{
-		shape_type='rectangle',
-		shape_arguments=Rect.shapeArgs(self.rect.width, TOP_THICKNESS),
-		body_type='static',
-		sensor=false,
-		position=Vector(self.rect.x + self.rect.width * 0.5, topEdge + TOP_THICKNESS * 0.5),
-		entity=self
-	})
+	self.topCollider = self:addComponent(Collider({
+		shape_type = "rectangle",
+		shape_arguments = Rect.shapeArgs(self.rect.width, TOP_THICKNESS),
+		body_type = "static",
+		sensor = false,
+		position = Vector(self.rect.x + self.rect.width * 0.5, topEdge + TOP_THICKNESS * 0.5),
+		entity = self,
+	}))
 	-- Entity-owned colliders are not ground by default; opt in so
 	-- queryOnGround treats the slab as something to stand and walk on.
 	self.topCollider.walkable = true
@@ -240,23 +242,23 @@ function Ladder:createTopCollider()
 	local function topColFilter(a, b)
 		local other = (a == slab) and b or a
 		local entity = other.entity
-		if entity and entity.type == 'player' then
+		if entity and entity.type == "player" then
 			local state = entity.fsm and entity.fsm.currentState
-			if state and state.name == 'LadderState' then
-				return 'cross'
+			if state and state.name == "LadderState" then
+				return "cross"
 			end
 			local feet = other.y + other.height
 			if feet > slab.y + LAND_TOL then
-				return 'cross'
+				return "cross"
 			end
-			return 'slide'
+			return "slide"
 		end
 		if entity and entity.isPushable then
 			local feet = other.y + other.height
 			if feet > slab.y + LAND_TOL then
-				return 'cross'
+				return "cross"
 			end
-			return 'slide'
+			return "slide"
 		end
 		return nil
 	end
@@ -276,12 +278,12 @@ end
 -- side 'top' (default): raise the top edge, bottom edge stays fixed.
 -- side 'bottom': lower the bottom edge, top edge stays fixed.
 function Ladder:resizeTileHeight(newTileHeight, side)
-	Log.debug('resize height to '..newTileHeight)
+	Log.debug("resize height to " .. newTileHeight)
 
 	local newHeight = (newTileHeight * self.map.tileheight)
 	local heightDelta = newHeight - self.rect.height
 	self.rect.height = newHeight
-	if side == 'bottom' then
+	if side == "bottom" then
 		self.rect.y = self.rect.y + heightDelta
 	end
 
@@ -314,7 +316,12 @@ function Ladder:createSprites()
 	-- art comes from the ladder template once; each rung adds its own slot
 	local artProps = SpriteProps.fromObject(self.object)
 	for i = 0, (tileHeight - 1), 1 do
-		local rect = Rect{x=self.rect.x, y=top + (i * self.map.tileheight), width=self.map.tilewidth, height=self.map.tileheight}
+		local rect = Rect({
+			x = self.rect.x,
+			y = top + (i * self.map.tileheight),
+			width = self.map.tilewidth,
+			height = self.map.tileheight,
+		})
 		artProps.position = rect:centre()
 		artProps.shape_arguments = rect:colliderShapeArgs()
 		local sprite = self:addComponent(Sprite(artProps))
@@ -335,19 +342,19 @@ function Ladder:switch(switch, user)
 		return
 	end
 	local origin = switch and switch.target
-	if switch.state == 'off' then
+	if switch.state == "off" then
 		-- volume gone immediately; tiles stagger out
 		self.hidden = true
 		self:removeCollider()
 		self:removeTopCollider()
 		self:startSpriteReveal(origin, false)
-	elseif switch.state == 'on' then
+	elseif switch.state == "on" then
 		self.hidden = false
 		self:createCollider()
 		self:createTopCollider()
 		self:createSprites()
 		if self.object and self.object.exec then
-			self.object:exec('switchOn', self)
+			self.object:exec("switchOn", self)
 		end
 		self:startSpriteReveal(origin, true)
 	end

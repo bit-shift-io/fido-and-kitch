@@ -9,7 +9,7 @@ local MULTIPLIER = 1664525
 local INCREMENT = 1013904223
 
 function Rng.new(seed)
-	return setmetatable({state = seed % MODULUS}, Rng)
+	return setmetatable({ state = seed % MODULUS }, Rng)
 end
 
 function Rng:nextUint32()

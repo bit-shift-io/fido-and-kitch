@@ -6,12 +6,12 @@ local FRAME_DT = 1 / 60
 -- (nil, message) otherwise so the caller can answer with a clear error.
 function HandlerHelpers.inGameState()
 	if not game or not game.fsm or not game.fsm.currentState then
-		return nil, 'Game not loaded'
+		return nil, "Game not loaded"
 	end
 
 	local state = game.fsm.currentState
-	if state.__class and state.__class.name ~= 'InGameState' then
-		return nil, 'Not in game'
+	if state.__class and state.__class.name ~= "InGameState" then
+		return nil, "Not in game"
 	end
 
 	return state

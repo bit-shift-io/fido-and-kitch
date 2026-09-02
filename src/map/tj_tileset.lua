@@ -3,8 +3,8 @@
 -- rest of STI (rendering, animation, Map:getTileProperties) needs no
 -- further changes to consume an external reference. See CONTEXT.md's
 -- "External tileset" glossary entry for the shape contract.
-local stiUtils = require('lib.sti.utils')
-local json = require('src.utils.json')
+local stiUtils = require("lib.sti.utils")
+local json = require("src.utils.json")
 
 local TjTileset = {}
 
@@ -17,22 +17,22 @@ local function defaultReadFile(path)
 		return love.filesystem.read(path)
 	end
 
-	local file = io.open(path, 'r')
+	local file = io.open(path, "r")
 	if not file then
 		return nil
 	end
-	local contents = file:read('*a')
+	local contents = file:read("*a")
 	file:close()
 	return contents
 end
 
 local function dirname(path)
-	local dir = path:match('^(.*)/[^/]+$')
-	return dir and (dir .. '/') or ''
+	local dir = path:match("^(.*)/[^/]+$")
+	return dir and (dir .. "/") or ""
 end
 
 local function deepCopy(value)
-	if type(value) ~= 'table' then
+	if type(value) ~= "table" then
 		return value
 	end
 
@@ -55,23 +55,23 @@ local function resolveTsjUncached(tsjPath, deps)
 
 	local contents = readFile(tsjPath)
 	if not contents then
-		error('External tileset not found: ' .. tsjPath, 2)
+		error("External tileset not found: " .. tsjPath, 2)
 	end
 
 	local ts = json.decode(contents)
-	if not ts or ts.type ~= 'tileset' then
+	if not ts or ts.type ~= "tileset" then
 		error('Malformed tsj "' .. tsjPath .. '": not a tileset', 2)
 	end
 
 	local tileset = {
-		name       = ts.name,
-		tilewidth  = tonumber(ts.tilewidth),
+		name = ts.name,
+		tilewidth = tonumber(ts.tilewidth),
 		tileheight = tonumber(ts.tileheight),
-		spacing    = tonumber(ts.spacing) or 0,
-		margin     = tonumber(ts.margin) or 0,
-		columns    = tonumber(ts.columns) or 0,
-		tilecount  = tonumber(ts.tilecount) or 0,
-		tiles      = {},
+		spacing = tonumber(ts.spacing) or 0,
+		margin = tonumber(ts.margin) or 0,
+		columns = tonumber(ts.columns) or 0,
+		tilecount = tonumber(ts.tilecount) or 0,
+		tiles = {},
 		tileoffset = { x = 0, y = 0 },
 	}
 
@@ -80,7 +80,7 @@ local function resolveTsjUncached(tsjPath, deps)
 	-- Grid tileset with shared image
 	if ts.image then
 		tileset.image = stiUtils.format_path(tsDir .. ts.image)
-		tileset.imagewidth  = tonumber(ts.imagewidth)
+		tileset.imagewidth = tonumber(ts.imagewidth)
 		tileset.imageheight = tonumber(ts.imageheight)
 
 		if ts.tiles then
@@ -96,7 +96,7 @@ local function resolveTsjUncached(tsjPath, deps)
 					t.animation = {}
 					for _, frame in ipairs(tile.animation) do
 						table.insert(t.animation, {
-							tileid   = tonumber(frame.tileid),
+							tileid = tonumber(frame.tileid),
 							duration = tonumber(frame.duration),
 						})
 					end
@@ -105,16 +105,16 @@ local function resolveTsjUncached(tsjPath, deps)
 					t.objectGroup = { objects = {} }
 					for _, obj in ipairs(tile.objectgroup.objects) do
 						table.insert(t.objectGroup.objects, {
-							id     = tonumber(obj.id),
-							name   = obj.name or '',
-							type   = obj.type or '',
-							shape  = obj.shape or 'rectangle',
-							x      = tonumber(obj.x) or 0,
-							y      = tonumber(obj.y) or 0,
-							width  = tonumber(obj.width) or 0,
+							id = tonumber(obj.id),
+							name = obj.name or "",
+							type = obj.type or "",
+							shape = obj.shape or "rectangle",
+							x = tonumber(obj.x) or 0,
+							y = tonumber(obj.y) or 0,
+							width = tonumber(obj.width) or 0,
 							height = tonumber(obj.height) or 0,
 							rotation = tonumber(obj.rotation) or 0,
-							visible  = obj.visible ~= false,
+							visible = obj.visible ~= false,
 							properties = obj.properties or {},
 						})
 					end
@@ -126,9 +126,9 @@ local function resolveTsjUncached(tsjPath, deps)
 		-- Image collection tileset
 		for _, tile in ipairs(ts.tiles) do
 			local t = {
-				id    = tonumber(tile.id),
+				id = tonumber(tile.id),
 				image = tile.image and stiUtils.format_path(tsDir .. tile.image) or nil,
-				width  = tonumber(tile.width) or (tile.imagewidth and tonumber(tile.imagewidth)),
+				width = tonumber(tile.width) or (tile.imagewidth and tonumber(tile.imagewidth)),
 				height = tonumber(tile.height) or (tile.imageheight and tonumber(tile.imageheight)),
 			}
 			if tile.x ~= nil then
@@ -145,7 +145,7 @@ local function resolveTsjUncached(tsjPath, deps)
 				t.animation = {}
 				for _, frame in ipairs(tile.animation) do
 					table.insert(t.animation, {
-						tileid   = tonumber(frame.tileid),
+						tileid = tonumber(frame.tileid),
 						duration = tonumber(frame.duration),
 					})
 				end
@@ -154,16 +154,16 @@ local function resolveTsjUncached(tsjPath, deps)
 				t.objectGroup = { objects = {} }
 				for _, obj in ipairs(tile.objectgroup.objects) do
 					table.insert(t.objectGroup.objects, {
-						id     = tonumber(obj.id),
-						name   = obj.name or '',
-						type   = obj.type or '',
-						shape  = obj.shape or 'rectangle',
-						x      = tonumber(obj.x) or 0,
-						y      = tonumber(obj.y) or 0,
-						width  = tonumber(obj.width) or 0,
+						id = tonumber(obj.id),
+						name = obj.name or "",
+						type = obj.type or "",
+						shape = obj.shape or "rectangle",
+						x = tonumber(obj.x) or 0,
+						y = tonumber(obj.y) or 0,
+						width = tonumber(obj.width) or 0,
 						height = tonumber(obj.height) or 0,
 						rotation = tonumber(obj.rotation) or 0,
-						visible  = obj.visible ~= false,
+						visible = obj.visible ~= false,
 						properties = obj.properties or {},
 					})
 				end

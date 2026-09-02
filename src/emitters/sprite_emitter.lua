@@ -43,11 +43,15 @@
 --                                     exact position)
 local Particles = {}
 
-local Log = require('src.utils.log')
-local AssetManager = require('src.utils.asset_manager')
+local Log = require("src.utils.log")
+local AssetManager = require("src.utils.asset_manager")
 
-local function rand(min, max) return min + math.random() * (max - min) end
-local function lerp(a, b, t) return a + (b - a) * t end
+local function rand(min, max)
+	return min + math.random() * (max - min)
+end
+local function lerp(a, b, t)
+	return a + (b - a) * t
+end
 
 local Emitter = {}
 Emitter.__index = Emitter
@@ -62,7 +66,9 @@ function Emitter:emit(n)
 	local images = self._images
 	local withImages = #images > 0
 	for _ = 1, n do
-		if #self.particles >= self.cap then break end
+		if #self.particles >= self.cap then
+			break
+		end
 		local area = self.opts.area
 		local ox = area and area.w > 0 and rand(-area.w / 2, area.w / 2) or 0
 		local oy = area and area.h > 0 and rand(-area.h / 2, area.h / 2) or 0
@@ -103,7 +109,9 @@ function Emitter:update(dt)
 			self.particles[alive] = p
 		end
 	end
-	for i = alive + 1, #self.particles do self.particles[i] = nil end
+	for i = alive + 1, #self.particles do
+		self.particles[i] = nil
+	end
 end
 
 -- True once every particle has expired — lets an owner reap the emitter.
@@ -117,7 +125,7 @@ function Emitter:loadImage(path)
 		return path
 	end
 	if love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(path) == nil then
-		Log.warn('Particle image not found: ' .. tostring(path))
+		Log.warn("Particle image not found: " .. tostring(path))
 		return nil
 	end
 	return AssetManager.getImage(path)
@@ -127,19 +135,25 @@ end
 -- flat list of loaded Images, once. Missing entries are dropped; if none
 -- resolve, particles degrade to rectangles.
 function Emitter:resolveImages()
-	if self._images ~= nil then return end
+	if self._images ~= nil then
+		return
+	end
 	self._images = {}
 	local src = self.opts.image
-	if not src then return end
+	if not src then
+		return
+	end
 	local list
-	if type(src) == 'table' and not src.getWidth then
+	if type(src) == "table" and not src.getWidth then
 		list = src
 	else
 		list = { src }
 	end
 	for _, entry in ipairs(list) do
 		local img = self:loadImage(entry)
-		if img then self._images[#self._images + 1] = img end
+		if img then
+			self._images[#self._images + 1] = img
+		end
 	end
 end
 
@@ -158,7 +172,13 @@ function Emitter:draw()
 		local area = self.opts.area
 		if area and area.w > 0 and area.h > 0 then
 			love.graphics.setColor(1, 0.55, 0.2, 0.9)
-			love.graphics.rectangle('line', self.opts.position.x - area.w / 2, self.opts.position.y - area.h / 2, area.w, area.h)
+			love.graphics.rectangle(
+				"line",
+				self.opts.position.x - area.w / 2,
+				self.opts.position.y - area.h / 2,
+				area.w,
+				area.h
+			)
 		end
 	end
 	for i = 1, #self.particles do
@@ -170,8 +190,11 @@ function Emitter:draw()
 		end
 		local s = lerp(s0, s1, t) * intro
 		love.graphics.setColor(
-			lerp(c0[1], c1[1], t), lerp(c0[2], c1[2], t),
-			lerp(c0[3], c1[3], t), lerp(c0[4], c1[4], t) * intro)
+			lerp(c0[1], c1[1], t),
+			lerp(c0[2], c1[2], t),
+			lerp(c0[3], c1[3], t),
+			lerp(c0[4], c1[4], t) * intro
+		)
 		local img = p.image
 		if img then
 			local imgW, imgH = img:getWidth(), img:getHeight()
@@ -195,18 +218,18 @@ function Particles.new_emitter(opts)
 	opts = opts or {}
 	local emitter = setmetatable({}, Emitter)
 	emitter.opts = {
-		position = opts.position or {x = 0, y = 0},
-		lifetime = opts.lifetime or {min = 0.5, max = 1},
-		speed = opts.speed or {min = 50, max = 100},
-		direction = opts.direction or {angle = -math.pi / 2, spread = 0.6},
-		gravity = opts.gravity or {x = 0, y = 0},
-		size = opts.size or {start = 4, ["end"] = 1},
-		colors = opts.colors or {start = {1, 1, 1, 1}, ["end"] = {1, 1, 1, 0}},
+		position = opts.position or { x = 0, y = 0 },
+		lifetime = opts.lifetime or { min = 0.5, max = 1 },
+		speed = opts.speed or { min = 50, max = 100 },
+		direction = opts.direction or { angle = -math.pi / 2, spread = 0.6 },
+		gravity = opts.gravity or { x = 0, y = 0 },
+		size = opts.size or { start = 4, ["end"] = 1 },
+		colors = opts.colors or { start = { 1, 1, 1, 1 }, ["end"] = { 1, 1, 1, 0 } },
 		image = opts.image,
-		rotation = opts.rotation or {angle = 0, spread = 0},
-		spin = opts.spin or {min = 0, max = 0},
+		rotation = opts.rotation or { angle = 0, spread = 0 },
+		spin = opts.spin or { min = 0, max = 0 },
 		fadeIn = opts.fadeIn or 0,
-		area = opts.area or {w = 0, h = 0},
+		area = opts.area or { w = 0, h = 0 },
 	}
 	emitter.particles = {}
 	emitter.cap = EMITTER_CAP

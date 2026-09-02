@@ -1,16 +1,18 @@
-local AssetManager = require('src.utils.asset_manager')
+local AssetManager = require("src.utils.asset_manager")
 
-local Sprite = Class{}
+local Sprite = Class({})
 
 local function setImageFilter(image, filter)
 	if image and image.setFilter then
-		image:setFilter(filter or 'linear', filter or 'linear')
+		image:setFilter(filter or "linear", filter or "linear")
 	end
 end
 
 local function cloneArray(arr)
 	local result = {}
-	for i=1,#arr do result[i] = arr[i] end
+	for i = 1, #arr do
+		result[i] = arr[i]
+	end
 	return result
 end
 
@@ -69,7 +71,7 @@ end
 local function framesFromGlob(pattern, frameCount, filter)
 	local frames = {}
 	for i = 1, frameCount do
-		local path = pattern:gsub('${i}', tostring(i))
+		local path = pattern:gsub("${i}", tostring(i))
 		frames[i] = AssetManager.getImage(path)
 		setImageFilter(frames[i], filter)
 	end
@@ -98,21 +100,21 @@ local function fitToShapeArguments(shape_arguments, frameImageWidth, frameImageH
 end
 
 function Sprite:init(props)
-	self.type = 'sprite'
+	self.type = "sprite"
 
 	local frames = props.frames
 	local image = props.image
 	local draw = Sprite.draw_image_frames
-	local filter = props.filter or 'linear'
+	local filter = props.filter or "linear"
 	local framesPerImage = 1 -- sheet mode's per-frame width divisor; 1 for the others
 
-	if type(frames) == 'table' then
+	if type(frames) == "table" then
 		frames = framesFromFileList(frames, filter)
-	elseif type(frames) == 'number' then
+	elseif type(frames) == "number" then
 		framesPerImage = frames
 		frames, image = framesFromSheet(image, frames, filter)
 		draw = Sprite.draw_quad_frames
-	elseif type(frames) == 'string' then
+	elseif type(frames) == "string" then
 		frames = framesFromGlob(frames, props.frameCount, filter)
 	else
 		-- no frames authored: a single-frame sheet. Entities whose art comes
@@ -124,7 +126,7 @@ function Sprite:init(props)
 		if image then
 			frames, image = framesFromSheet(image, 1, filter)
 		else
-			frames = {false}
+			frames = { false }
 		end
 	end
 
@@ -134,7 +136,7 @@ function Sprite:init(props)
 	self.position = props.position or Vector(0, 0)
 	self.scale = props.scale or Vector(1, 1)
 	self.offset = props.offset or Vector(0, 0)
-	self.facing = props.facing or 'right'
+	self.facing = props.facing or "right"
 	self.playingOnEnter = props.playing ~= false
 	self.renderOrder = props.renderOrder
 	-- Gating flag for staggered reveals (e.g. ladder tiles popping in one by
@@ -146,7 +148,14 @@ function Sprite:init(props)
 	if not duration and #self.frames == 1 then
 		duration = 1.0
 	end
-	self.timeline = Timeline({duration = duration, loop = props.loop, bounce = props.bounce, hold = props.hold, playing = props.playing, finish = props.finish})
+	self.timeline = Timeline({
+		duration = duration,
+		loop = props.loop,
+		bounce = props.bounce,
+		hold = props.hold,
+		playing = props.playing,
+		finish = props.finish,
+	})
 
 	-- headless: no real texture loaded (image and frames[1] both nil), so
 	-- there's nothing to measure and no fit to compute -- self.scale/offset
@@ -156,7 +165,8 @@ function Sprite:init(props)
 	if props.shape_arguments and frameImage then
 		local frameImageWidth = frameImage:getWidth() / framesPerImage
 		local frameImageHeight = frameImage:getHeight()
-		self.scale, self.offset = fitToShapeArguments(props.shape_arguments, frameImageWidth, frameImageHeight, self.scale, self.offset)
+		self.scale, self.offset =
+			fitToShapeArguments(props.shape_arguments, frameImageWidth, frameImageHeight, self.scale, self.offset)
 	end
 
 	self:setFacing(self.facing)
@@ -164,23 +174,21 @@ function Sprite:init(props)
 end
 
 function Sprite:setFacing(facing)
-	if facing ~= 'left' and facing ~= 'right' then
+	if facing ~= "left" and facing ~= "right" then
 		return
 	end
 
 	self.facing = facing
 	local x_scale = math.abs(self.scale.x)
-	if facing == 'left' then
+	if facing == "left" then
 		x_scale = -x_scale
 	end
 	self.scale = Vector(x_scale, self.scale.y)
 end
 
-
 function Sprite:setFrameNum(frameNum)
 	self.frameNum = frameNum
 end
-
 
 -- play forward from the start and sync the visible frame immediately
 function Sprite:playForward()
@@ -216,43 +224,62 @@ function Sprite:isPlaying()
 	return self.timeline:isPlaying()
 end
 
-
 function Sprite:setPositionV(pos)
 	self.position = pos
 end
-
 
 function Sprite:getPositionV()
 	return self.position
 end
 
-
 function Sprite:update(dt)
 	-- incase the user wants to manually fudge frame numbers
 	if self.timeline.playing == false then
-		return;
+		return
 	end
-    -- Defensive check for dt being a table
-    if type(dt) ~= 'number' then
-        Log.error("Sprite:update received non-number dt:", type(dt), dt)
-        dt = 1/60  -- fallback
-    end
+	-- Defensive check for dt being a table
+	if type(dt) ~= "number" then
+		Log.error("Sprite:update received non-number dt:", type(dt), dt)
+		dt = 1 / 60 -- fallback
+	end
 	self.timeline:update(dt)
 	self.frameNum = self.timeline:getFrameIndex(#self.frames)
 end
 
-
 function Sprite:draw_image_frames()
-	if self.visible == false then return end
+	if self.visible == false then
+		return
+	end
 	local frame = self.frames[self.frameNum]
-	love.graphics.draw(frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
+	love.graphics.draw(
+		frame,
+		self.position.x,
+		self.position.y,
+		0,
+		self.scale.x,
+		self.scale.y,
+		self.offset.x,
+		self.offset.y
+	)
 end
 
 function Sprite:draw_quad_frames()
-	if self.visible == false then return end
+	if self.visible == false then
+		return
+	end
 	local frame = self.frames[self.frameNum]
 	assert(frame)
-	love.graphics.draw(self.image, frame, self.position.x, self.position.y, 0, self.scale.x, self.scale.y, self.offset.x, self.offset.y)
+	love.graphics.draw(
+		self.image,
+		frame,
+		self.position.x,
+		self.position.y,
+		0,
+		self.scale.x,
+		self.scale.y,
+		self.offset.x,
+		self.offset.y
+	)
 end
 
 return Sprite

@@ -4,12 +4,12 @@
 local MapInfo = {}
 
 function MapInfo.baseName(file)
-	return file:gsub('%.tmj$', '')
+	return file:gsub("%.tmj$", "")
 end
 
 function MapInfo.titleFromFile(file)
-	local title = MapInfo.baseName(file):gsub('_', ' '):gsub('-', ' ')
-	return (title:gsub('(%a)([%w_\']*)', function(first, rest)
+	local title = MapInfo.baseName(file):gsub("_", " "):gsub("-", " ")
+	return (title:gsub("(%a)([%w_']*)", function(first, rest)
 		return first:upper() .. rest:lower()
 	end))
 end
@@ -17,9 +17,9 @@ end
 function MapInfo.collectEntityTypes(mapData)
 	local types = {}
 	for _, layer in ipairs(mapData.layers or {}) do
-		if layer.type == 'objectgroup' then
+		if layer.type == "objectgroup" then
 			for _, object in ipairs(layer.objects or {}) do
-				if object.type and object.type ~= '' and object.type ~= 'spawn' then
+				if object.type and object.type ~= "" and object.type ~= "spawn" then
 					types[object.type] = true
 				end
 			end
@@ -36,12 +36,12 @@ function MapInfo.descriptionFor(file, mapData)
 	local labels = {}
 	local entityTypes = MapInfo.collectEntityTypes(mapData)
 	local ordered = {
-		{'key', 'keys'},
-		{'cage', 'cages'},
-		{'teleport', 'teleporters'},
-		{'jump_pad', 'jump pads'},
-		{'coin', 'coins'},
-		{'exit_door', 'an exit door'},
+		{ "key", "keys" },
+		{ "cage", "cages" },
+		{ "teleport", "teleporters" },
+		{ "jump_pad", "jump pads" },
+		{ "coin", "coins" },
+		{ "exit_door", "an exit door" },
 	}
 	for _, item in ipairs(ordered) do
 		if entityTypes[item[1]] then
@@ -50,10 +50,10 @@ function MapInfo.descriptionFor(file, mapData)
 	end
 
 	if #labels == 0 then
-		return 'A bite-sized Fido and Kitch puzzle map.'
+		return "A bite-sized Fido and Kitch puzzle map."
 	end
 
-	return 'A bite-sized puzzle featuring ' .. table.concat(labels, ', ') .. '.'
+	return "A bite-sized puzzle featuring " .. table.concat(labels, ", ") .. "."
 end
 
 function MapInfo.titleFor(file, mapData)

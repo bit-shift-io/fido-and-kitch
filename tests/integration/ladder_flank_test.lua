@@ -3,13 +3,13 @@
 -- the way, and sliding into them used to pop the player up onto the wall
 -- top. Only once the feet are above the wall tops does a fresh side press
 -- carry them across (the intended top exit).
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local FakeInputModule = require('tests.support.fake_input')
-local Queries = require('tests.support.queries')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local FakeInputModule = require("tests.support.fake_input")
+local Queries = require("tests.support.queries")
 
-local MAP = 'tests/fixtures/ladder_flank_room.tmj'
-local MAP2 = 'tests/fixtures/ladder_side_entry.tmj'
+local MAP = "tests/fixtures/ladder_flank_room.tmj"
+local MAP2 = "tests/fixtures/ladder_side_entry.tmj"
 local CENTRE_X = 144
 
 local function player1(game)
@@ -18,10 +18,10 @@ end
 
 local function runUntil(game, predicate, frames)
 	local ok = FakeInputModule.runUntil(game, predicate, frames)
-	assertTrue(ok ~= false, 'choreography timed out waiting for expected state')
+	assertTrue(ok ~= false, "choreography timed out waiting for expected state")
 end
 
-test('side presses are blocked while the climber is beside flanking walls', function()
+test("side presses are blocked while the climber is beside flanking walls", function()
 	local game = GameHarness.startGame(MAP)
 	local controller = FakeInputModule.FakeInput.new()
 	local player = player1(game)
@@ -30,24 +30,22 @@ test('side presses are blocked while the climber is beside flanking walls', func
 	-- well below the wall tops at y=240.
 	player.collider:setPosition(CENTRE_X, 230)
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'LadderState'
+		return player.fsm.currentState.name == "LadderState"
 	end, 120)
 
-	controller:press('right')
+	controller:press("right")
 	for _ = 1, FrameStepper.secondsToFrames(0.75) do
 		FrameStepper.step(game, 1)
 	end
 
-	assertEqual('LadderState', player.fsm.currentState.name,
-		'a walled-in slide must not eject or teleport the player')
+	assertEqual("LadderState", player.fsm.currentState.name, "a walled-in slide must not eject or teleport the player")
 	local x = Queries.playerPositionV(player).x
-	assertTrue(math.abs(x - CENTRE_X) <= 2,
-		'expected the wall to hold the player in place (x=' .. tostring(x) .. ')')
+	assertTrue(math.abs(x - CENTRE_X) <= 2, "expected the wall to hold the player in place (x=" .. tostring(x) .. ")")
 
-	controller:release('right')
+	controller:release("right")
 end)
 
-test('above the wall tops a side press crosses over and lands', function()
+test("above the wall tops a side press crosses over and lands", function()
 	local game = GameHarness.startGame(MAP)
 	local controller = FakeInputModule.FakeInput.new()
 	local player = player1(game)
@@ -56,26 +54,28 @@ test('above the wall tops a side press crosses over and lands', function()
 	-- above the wall tops at 240.
 	player.collider:setPosition(CENTRE_X, 172)
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'WalkIdleState'
+		return player.fsm.currentState.name == "WalkIdleState"
 			and math.abs(player.collider:getBounds().bottom - 192) <= 4
 	end, 120)
 
-	controller:press('right')
+	controller:press("right")
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'WalkIdleState'
+		return player.fsm.currentState.name == "WalkIdleState"
 			and Queries.playerPositionV(player).x > 160
 			and math.abs(player.collider:getBounds().bottom - 240) <= 6
 	end, FrameStepper.secondsToFrames(3))
-	controller:release('right')
+	controller:release("right")
 
 	local pos = Queries.playerPositionV(player)
-	assertTrue(pos.x > 160, 'expected to cross clear of the slab (x=' .. tostring(pos.x) .. ')')
+	assertTrue(pos.x > 160, "expected to cross clear of the slab (x=" .. tostring(pos.x) .. ")")
 	local bottom = player.collider:getBounds().bottom
-	assertTrue(math.abs(bottom - 240) <= 6,
-		'expected to land standing on the right wall top (feet=' .. tostring(bottom) .. ')')
+	assertTrue(
+		math.abs(bottom - 240) <= 6,
+		"expected to land standing on the right wall top (feet=" .. tostring(bottom) .. ")"
+	)
 end)
 
-test('a sub-top side press finishes the climb to the top then crosses over', function()
+test("a sub-top side press finishes the climb to the top then crosses over", function()
 	local game = GameHarness.startGame(MAP)
 	local controller = FakeInputModule.FakeInput.new()
 	local player = player1(game)
@@ -88,23 +88,22 @@ test('a sub-top side press finishes the climb to the top then crosses over', fun
 	-- the climber up to the top hover, then continues across.
 	player.collider:setPosition(CENTRE_X, 190)
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'LadderState'
+		return player.fsm.currentState.name == "LadderState"
 	end, 120)
 
-	controller:press('right')
+	controller:press("right")
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'WalkIdleState'
+		return player.fsm.currentState.name == "WalkIdleState"
 			and Queries.playerPositionV(player).x > 160
 			and math.abs(player.collider:getBounds().bottom - 240) <= 6
 	end, FrameStepper.secondsToFrames(3))
-	controller:release('right')
+	controller:release("right")
 
 	local bottom = player.collider:getBounds().bottom
-	assertTrue(bottom < 300,
-		'expected the climber to land on the right wall top (feet=' .. tostring(bottom) .. ')')
+	assertTrue(bottom < 300, "expected the climber to land on the right wall top (feet=" .. tostring(bottom) .. ")")
 end)
 
-test('a deep side press slides off the side and falls', function()
+test("a deep side press slides off the side and falls", function()
 	local game = GameHarness.startGame(MAP2)
 	local controller = FakeInputModule.FakeInput.new()
 	local player = player1(game)
@@ -115,23 +114,29 @@ test('a deep side press slides off the side and falls', function()
 	-- off the side and fall -- never rise toward the top.
 	player.collider:setPosition(CENTRE_X, 300)
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'LadderState'
+		return player.fsm.currentState.name == "LadderState"
 	end, 120)
 
-	controller:press('right')
+	controller:press("right")
 	local startFeet = player.collider:getBounds().bottom
 	local minFeet = math.huge
 	runUntil(game, function()
 		minFeet = math.min(minFeet, player.collider:getBounds().bottom)
-		return player.fsm.currentState.name == 'WalkIdleState'
-			and Queries.playerPositionV(player).x > 164
+		return player.fsm.currentState.name == "WalkIdleState" and Queries.playerPositionV(player).x > 164
 	end, FrameStepper.secondsToFrames(3))
-	controller:release('right')
+	controller:release("right")
 
-	assertTrue(minFeet >= startFeet - 2,
-		'a deep side press must slide off the side, not climb (minFeet='
-		.. tostring(minFeet) .. ', startFeet=' .. tostring(startFeet) .. ')')
+	assertTrue(
+		minFeet >= startFeet - 2,
+		"a deep side press must slide off the side, not climb (minFeet="
+			.. tostring(minFeet)
+			.. ", startFeet="
+			.. tostring(startFeet)
+			.. ")"
+	)
 	local bottom = player.collider:getBounds().bottom
-	assertTrue(math.abs(bottom - 416) <= 6,
-		'expected the dismount to fall through to the floor (feet=' .. tostring(bottom) .. ')')
+	assertTrue(
+		math.abs(bottom - 416) <= 6,
+		"expected the dismount to fall through to the floor (feet=" .. tostring(bottom) .. ")"
+	)
 end)

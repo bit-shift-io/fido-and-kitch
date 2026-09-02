@@ -7,9 +7,9 @@
 -- to conf.debug in src/main.lua's setupConf, so `love . debug` shows it).
 local Log = {}
 
-local LEVELS = {error = 1, warn = 2, info = 3, debug = 4}
+local LEVELS = { error = 1, warn = 2, info = 3, debug = 4 }
 
-Log.level = 'info'
+Log.level = "info"
 
 local function log(level, ...)
 	if LEVELS[level] > LEVELS[Log.level] then
@@ -19,19 +19,19 @@ local function log(level, ...)
 end
 
 function Log.error(...)
-	log('error', ...)
+	log("error", ...)
 end
 
 function Log.warn(...)
-	log('warn', ...)
+	log("warn", ...)
 end
 
 function Log.info(...)
-	log('info', ...)
+	log("info", ...)
 end
 
 function Log.debug(...)
-	log('debug', ...)
+	log("debug", ...)
 end
 
 return Log

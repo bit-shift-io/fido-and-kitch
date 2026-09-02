@@ -44,22 +44,22 @@
 -- procedurally lerping, not about requiring a real texture): the renderer
 -- never computes a width or a colour itself, it only reads frame.width/
 -- frame.color.
-local LaserBeamResolver = require('src.entities.laser_beam_resolver')
-local LaserBeam = require('src.fx.laser_beam')
-local SpriteProps = require('src.entities.sprite_props')
+local LaserBeamResolver = require("src.entities.laser_beam_resolver")
+local LaserBeam = require("src.fx.laser_beam")
+local SpriteProps = require("src.entities.sprite_props")
 
-local Laser = Class{__includes = Entity}
+local Laser = Class({ __includes = Entity })
 
 -- Thin red -> full ~half-tile white-hot-core/red-edge, authored directly as
 -- data (see file header) -- frame 1 is the thin red beam the acceptance
 -- criteria describe, the last frame is the fully "on" full-power look.
 -- Widths are in px; 16px is half of the game's 32px tile.
 local POWER_FRAMES = {
-	{width = 2, color = {0.9, 0.1, 0.1}},
-	{width = 5, color = {1, 0.25, 0.15}},
-	{width = 9, color = {1, 0.45, 0.2}},
-	{width = 13, color = {1, 0.7, 0.4}},
-	{width = 16, color = {1, 0.95, 0.85}},
+	{ width = 2, color = { 0.9, 0.1, 0.1 } },
+	{ width = 5, color = { 1, 0.25, 0.15 } },
+	{ width = 9, color = { 1, 0.45, 0.2 } },
+	{ width = 13, color = { 1, 0.7, 0.4 } },
+	{ width = 16, color = { 1, 0.95, 0.85 } },
 }
 
 -- Symmetric telegraph: warming plays this many seconds forward before
@@ -73,30 +73,30 @@ local POWER_DURATION = 0.3
 -- the linked switch's reading -- recomputed fresh every frame, mirroring
 -- src/entities/blocker.lua's nextState. No memory here on purpose.
 local function nextState(state, enabled)
-	if state == 'off' then
+	if state == "off" then
 		if enabled then
-			return 'warming'
+			return "warming"
 		end
 		return state
 	end
 
-	if state == 'warming' then
+	if state == "warming" then
 		if enabled then
 			return state
 		end
-		return 'cooling'
+		return "cooling"
 	end
 
-	if state == 'on' then
+	if state == "on" then
 		if enabled then
 			return state
 		end
-		return 'cooling'
+		return "cooling"
 	end
 
 	-- cooling
 	if enabled then
-		return 'warming'
+		return "warming"
 	end
 	return state
 end
@@ -105,17 +105,17 @@ end
 -- the reverse-start, src/components/timeline.lua) -- mirrors
 -- src/entities/drawbridge.lua's nextStateOnAnimationFinish.
 local function nextStateOnAnimationFinish(state)
-	if state == 'warming' then
-		return 'on'
+	if state == "warming" then
+		return "on"
 	end
-	if state == 'cooling' then
-		return 'off'
+	if state == "cooling" then
+		return "off"
 	end
 	return state
 end
 
 local function isFullyOn(state)
-	return state == 'on'
+	return state == "on"
 end
 
 -- The point on the emitter's own rect the beam departs from -- one edge per
@@ -125,11 +125,11 @@ end
 local function firingEdgePoint(rect, direction)
 	local centreX = rect.x + rect.width * 0.5
 	local centreY = rect.y + rect.height * 0.5
-	if direction == 'up' then
+	if direction == "up" then
 		return centreX, rect.y
-	elseif direction == 'down' then
+	elseif direction == "down" then
 		return centreX, rect.y + rect.height
-	elseif direction == 'left' then
+	elseif direction == "left" then
 		return rect.x, centreY
 	end
 	return rect.x + rect.width, centreY -- 'right'
@@ -139,20 +139,20 @@ end
 -- `direction`, so a beam that hits nothing still terminates at the map edge
 -- instead of casting to infinity.
 local function farEndpoint(startX, startY, direction, mapWidth, mapHeight)
-	if direction == 'up' then
+	if direction == "up" then
 		return startX, 0
-	elseif direction == 'down' then
+	elseif direction == "down" then
 		return startX, mapHeight
-	elseif direction == 'left' then
+	elseif direction == "left" then
 		return 0, startY
 	end
 	return mapWidth, startY -- 'right'
 end
 
 function Laser:init(object, map)
-	Entity.init(self, object, 'laser')
+	Entity.init(self, object, "laser")
 
-	self.direction = (object.properties and object.properties.direction) or 'up'
+	self.direction = (object.properties and object.properties.direction) or "up"
 	self.map = map
 
 	-- Bottom-anchored, like every other gid-template entity (switch, key,
@@ -163,7 +163,7 @@ function Laser:init(object, map)
 	-- fixture-authored instances have no gid at all but are still authored
 	-- bottom-anchored, matching a real Tiled placement).
 	local topLeftY = object.y - object.height
-	self.rect = Rect{x = object.x, y = topLeftY, width = object.width, height = object.height}
+	self.rect = Rect({ x = object.x, y = topLeftY, width = object.width, height = object.height })
 	local position = self.rect:centre()
 
 	local spriteProps = SpriteProps.fromObject(object)
@@ -176,13 +176,13 @@ function Laser:init(object, map)
 	-- straight through World:querySegmentWithCoords below, filtered to
 	-- exclude this very collider), nor something solid a player could
 	-- incorrectly stand on or collide with.
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = self.rect:colliderShapeArgs(),
-		body_type = 'static',
+		body_type = "static",
 		sensor = true,
 		position = position,
-	})
+	}))
 
 	-- Spawn on/off state = the initial Switchable.enabled value. The
 	-- callback only records the reading -- update() recomputes what the
@@ -193,13 +193,13 @@ function Laser:init(object, map)
 		spawnEnabled = object.properties.enabled
 	end
 	self.switchEnabled = spawnEnabled
-	self:addComponent(Switchable{
+	self:addComponent(Switchable({
 		entity = self,
 		enabled = spawnEnabled,
 		onStateChange = function(enabled)
 			self.switchEnabled = enabled
-		end
-	})
+		end,
+	}))
 
 	self.beamStart = Vector(0, 0)
 	self.beamEnd = Vector(0, 0)
@@ -215,18 +215,18 @@ function Laser:init(object, map)
 	-- every laser (spawn-enabled or switch-enabled) goes through the
 	-- same telegraph. See the file header for why this stays a bare
 	-- Timeline rather than a full Sprite.
-	self.powerState = 'off'
-	self.powerTimeline = Timeline{
+	self.powerState = "off"
+	self.powerTimeline = Timeline({
 		duration = POWER_DURATION,
 		finish = utils.bindSelf(self.onPowerAnimationFinish, self),
-	}
-
-	self.sound = self:addComponent(Sound{
-		sounds = {
-			powerup = 'res/snd/entity_laser_powerup.wav',
-			powerdown = 'res/snd/entity_laser_powerdown.wav',
-		}
 	})
+
+	self.sound = self:addComponent(Sound({
+		sounds = {
+			powerup = "res/snd/entity_laser_powerup.wav",
+			powerdown = "res/snd/entity_laser_powerdown.wav",
+		},
+	}))
 end
 
 -- The single gate every interaction (kill/block/destroy/activate) reads --
@@ -250,20 +250,20 @@ function Laser:updatePowerState()
 		return
 	end
 
-	if next == 'warming' then
-		if self.powerState == 'cooling' then
+	if next == "warming" then
+		if self.powerState == "cooling" then
 			self.powerTimeline:reverseFromCurrent()
 		else
 			self.powerTimeline:playForward()
 		end
-		self.sound:play('powerup')
-	elseif next == 'cooling' then
-		if self.powerState == 'warming' then
+		self.sound:play("powerup")
+	elseif next == "cooling" then
+		if self.powerState == "warming" then
 			self.powerTimeline:reverseFromCurrent()
 		else
 			self.powerTimeline:playReverse()
 		end
-		self.sound:play('powerdown')
+		self.sound:play("powerdown")
 	end
 
 	self.powerState = next
@@ -279,7 +279,7 @@ function Laser:update(dt)
 	self.powerTimeline:update(dt)
 	self:updatePowerState()
 
-	if self.powerState == 'off' then
+	if self.powerState == "off" then
 		self.beamHitEntity = nil
 		return
 	end
@@ -320,7 +320,7 @@ function Laser:update(dt)
 	if self:isFullyOn() then
 		for _, killedEntity in ipairs(result.killed) do
 			if killedEntity.die then
-				killedEntity:die('laser')
+				killedEntity:die("laser")
 			end
 		end
 
@@ -357,7 +357,7 @@ end
 function Laser:draw()
 	Entity.draw(self)
 
-	if self.powerState == 'off' then
+	if self.powerState == "off" then
 		return
 	end
 

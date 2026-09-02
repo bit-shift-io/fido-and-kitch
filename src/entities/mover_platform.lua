@@ -5,8 +5,8 @@
 -- of players standing on top, one-way top-only collision (jump/up-through),
 -- and switch start/stop. The grilled decisions live in NOTES.md.
 
-local MoverPlatform = Class{__includes = Entity}
-local SpriteProps = require('src.entities.sprite_props')
+local MoverPlatform = Class({ __includes = Entity })
+local SpriteProps = require("src.entities.sprite_props")
 
 -- Feet-in-top-band tolerance for rider detection, in px. Must be >= the
 -- platform's worst per-frame rise (speed * dt): at default 50px/s and 60fps
@@ -23,7 +23,7 @@ local RIDER_TOL = 8
 -- under the deck -- jump up-through, and the platform's sides never block a
 -- grounded walker (an intentional simplification of the one-way rule; see
 -- NOTES.md).
-local PhysicsTolerance = require('src.utils.physics_tolerance')
+local PhysicsTolerance = require("src.utils.physics_tolerance")
 local LAND_TOL = PhysicsTolerance.LAND_TOL
 
 -- Absolute waypoints: STI re-anchors a polyline object's points in place on
@@ -81,7 +81,7 @@ local function buildLegs(waypoints, endBehavior)
 		end
 	end
 
-	if endBehavior == 'loop' then
+	if endBehavior == "loop" then
 		for i = 1, count - 1 do
 			pushLeg(waypoints[i], waypoints[i + 1])
 		end
@@ -182,7 +182,7 @@ local function advance(stepper, distance)
 end
 
 function MoverPlatform:init(object, map)
-	Entity.init(self, object, 'mover_platform')
+	Entity.init(self, object, "mover_platform")
 
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
@@ -194,14 +194,14 @@ function MoverPlatform:init(object, map)
 	-- solid, walkable ground (platforms carry standing players); manually
 	-- moved each update() along the path -- a static body so gravity/motion
 	-- never applies to it
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = shape_arguments,
-		body_type = 'static',
+		body_type = "static",
 		sprite = self.sprite,
 		position = position,
 		sensor = false,
-	})
+	}))
 	-- Player:queryOnGround()/GroundSupport treat a bare `entity == nil`
 	-- collider as terrain; this collider belongs to a MoverPlatform entity,
 	-- so it needs an explicit opt-in to be recognised as ground a player can
@@ -219,12 +219,12 @@ function MoverPlatform:init(object, map)
 	local function platformColFilter(a, b)
 		local other = (a == platCollider) and b or a
 		local entity = other.entity
-		if entity and entity.type == 'player' then
+		if entity and entity.type == "player" then
 			local feet = other.y + other.height
 			if feet > platCollider.y + LAND_TOL then
-				return 'cross'
+				return "cross"
 			end
-			return 'slide'
+			return "slide"
 		end
 		return nil
 	end
@@ -234,7 +234,7 @@ function MoverPlatform:init(object, map)
 	-- endBehavior 'pingpong' now come from mover_platform.tj, so the lua
 	-- fallbacks exist only for objects authored without the template)
 	self.speed = tonumber(object.properties.speed) or 50
-	self.endBehavior = object.properties.endBehavior or 'pingpong'
+	self.endBehavior = object.properties.endBehavior or "pingpong"
 	self.pause = tonumber(object.properties.pause) or 0.5
 	self.enabled = true
 	if object.properties.enabled ~= nil and object.properties.enabled ~= true then
@@ -261,12 +261,12 @@ function MoverPlatform:init(object, map)
 		self.collider:setPositionV(self.stepper.pos)
 	end
 
-	self:addComponent(Switchable{
+	self:addComponent(Switchable({
 		entity = self,
 		onStateChange = function(enabled)
 			self.running = enabled
-		end
-	})
+		end,
+	}))
 end
 
 -- Advance the platform along its path and carry any standing riders by the
@@ -334,7 +334,7 @@ function MoverPlatform:carryRiders(delta)
 
 	for _, collider in ipairs(overlap) do
 		local entity = collider.entity
-		local isPlayer = entity and entity.type == 'player'
+		local isPlayer = entity and entity.type == "player"
 		local canRide = isPlayer or (entity and entity.config and entity.config.ridePlatforms)
 		if entity and canRide then
 			local feet = collider.y + collider.height

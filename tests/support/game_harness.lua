@@ -3,7 +3,7 @@
 -- skipping MenuState/Slab entirely, per DECISIONS.md Q3: driving Slab menu
 -- UI via simulated input is out of scope, so tests jump straight to the
 -- state that actually loads the map/player/world stack.
-local LoveMock = require('tests.support.love_mock')
+local LoveMock = require("tests.support.love_mock")
 
 local GameHarness = {}
 
@@ -20,45 +20,45 @@ local function bootGlobals(isReal)
 	end
 	globalsBooted = true
 
-	tbl = require('src.utils.tbl')
+	tbl = require("src.utils.tbl")
 
 	if not isReal then
-		conf = require('conf')
+		conf = require("conf")
 		-- love.conf(t) is normally invoked by the LÖVE runtime itself before
 		-- love.load, with `t` pre-seeded with these sub-tables for conf.lua to
 		-- override -- outside LÖVE nobody calls it, so we replicate that here.
-		love.conf({graphics = {}, window = {}, modules = {}, audio = {}})
+		love.conf({ graphics = {}, window = {}, modules = {}, audio = {} })
 		conf.args = {}
 	end
 
-	str = require('src.utils.str')
-	utils = require('src.utils.utils')
-	Log = require('src.utils.log')
+	str = require("src.utils.str")
+	utils = require("src.utils.utils")
+	Log = require("src.utils.log")
 
-	Vector = require('lib.hump.vector')
-	Class = require('lib.hump.class')
-	Tween = require('lib.tween.tween')
+	Vector = require("lib.hump.vector")
+	Class = require("lib.hump.class")
+	Tween = require("lib.tween.tween")
 
-	Rect = require('src.utils.rect')
-	Signal = require('src.utils.signal')
-	World = require('src.world')
-	Entity = require('src.entity')
-	StateMachine = require('src.components.state_machine')
-	Sprite = require('src.components.sprite')
-	Path = require('src.components.path')
-	Timeline = require('src.components.timeline')
-	PathFollow = require('src.components.path_follow')
-	Collider = require('src.components.collider')
-	Pickup = require('src.components.pickup')
-	Inventory = require('src.components.inventory')
-	Usable = require('src.components.usable')
-	Switchable = require('src.components.switchable')
-	Variable = require('src.components.variable')
-	Sound = require('src.components.sound')
-	Map = require('src.map')
-	AutoCamera = require('src.camera')
-	Player = require('src.player.player')
-	InputManager = require('src.input.input_manager')
+	Rect = require("src.utils.rect")
+	Signal = require("src.utils.signal")
+	World = require("src.world")
+	Entity = require("src.entity")
+	StateMachine = require("src.components.state_machine")
+	Sprite = require("src.components.sprite")
+	Path = require("src.components.path")
+	Timeline = require("src.components.timeline")
+	PathFollow = require("src.components.path_follow")
+	Collider = require("src.components.collider")
+	Pickup = require("src.components.pickup")
+	Inventory = require("src.components.inventory")
+	Usable = require("src.components.usable")
+	Switchable = require("src.components.switchable")
+	Variable = require("src.components.variable")
+	Sound = require("src.components.sound")
+	Map = require("src.map")
+	AutoCamera = require("src.camera")
+	Player = require("src.player.player")
+	InputManager = require("src.input.input_manager")
 end
 
 -- Fresh love mock per game so keyboard/joystick state never leaks between
@@ -80,17 +80,26 @@ function GameHarness.startGame(mapPath, opts)
 	-- this test's events. Clear here so each game starts isolated, same as
 	-- a real state transition would leave it. (Required lazily -- signal.lua
 	-- needs the global `Class` that bootGlobals just set up.)
-	require('src.utils.event_bus').clear()
+	require("src.utils.event_bus").clear()
 
 	-- Create InputManager instance (same as main.lua)
 	inputManager = InputManager()
 
-	local MenuState = require('src.states.menu_state')
-	local InGameState = require('src.states.ingame_state')
-	local GameOverState = require('src.states.game_over_state')
-	local LevelCompleteState = require('src.states.level_complete_state')
+	local MenuState = require("src.states.menu_state")
+	local InGameState = require("src.states.ingame_state")
+	local GameOverState = require("src.states.game_over_state")
+	local LevelCompleteState = require("src.states.level_complete_state")
 	local game = {}
-	game.fsm = StateMachine{stateClasses = {MenuState = MenuState, InGameState = InGameState, GameOverState = GameOverState, LevelCompleteState = LevelCompleteState}, entity = game, currentState = 'InGameState'}
+	game.fsm = StateMachine({
+		stateClasses = {
+			MenuState = MenuState,
+			InGameState = InGameState,
+			GameOverState = GameOverState,
+			LevelCompleteState = LevelCompleteState,
+		},
+		entity = game,
+		currentState = "InGameState",
+	})
 
 	-- Mirrors src/game.lua's Game:setGameState, including the input-edge
 	-- swallow -- a transition that behaves differently here than in the real
@@ -115,7 +124,7 @@ function GameHarness.startGame(mapPath, opts)
 		self.fsm:draw()
 	end
 
-	game:load{map = mapPath}
+	game:load({ map = mapPath })
 
 	-- Lets the e2e runner (tests/e2e/run.lua) know which game object to
 	-- render every real drawn frame and capture from; a no-op hook outside

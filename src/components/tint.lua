@@ -14,10 +14,10 @@
 -- what "match the keys" needs (entity_key.png is authored grayscale for this).
 -- Falls back to the old love.graphics.setColor multiply when no GPU shader
 -- is available (headless tests, ancient GL) -- same colors, just duller.
-local Color = require('src.utils.color')
-local Headless = require('src.utils.headless')
+local Color = require("src.utils.color")
+local Headless = require("src.utils.headless")
 
-local Tint = Class{}
+local Tint = Class({})
 
 local SHADER_SOURCE = [[
 extern vec3 uTargetHSV;
@@ -37,8 +37,8 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) 
 ]]
 
 function Tint:init(props)
-	self.type = 'tint'
-	self.color = props.color or {1, 1, 1, 1}
+	self.type = "tint"
+	self.color = props.color or { 1, 1, 1, 1 }
 
 	self.hsv = {}
 	self.hsv[1], self.hsv[2], self.hsv[3] = Color.rgbToHsv(self.color[1], self.color[2], self.color[3])
@@ -48,7 +48,7 @@ function Tint:init(props)
 		local ok, shader = pcall(love.graphics.newShader, SHADER_SOURCE)
 		if ok then
 			self.shader = shader
-			shader:send('uTargetHSV', self.hsv)
+			shader:send("uTargetHSV", self.hsv)
 		end
 	end
 end

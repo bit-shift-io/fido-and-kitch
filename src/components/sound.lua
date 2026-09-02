@@ -1,14 +1,14 @@
 -- Sound component
 -- attaches a table of named WAV sources to an entity; play(name) reuses
 -- stopped sources from a pool or creates a new one with random pitch variation
-local Log = require('src.utils.log')
-local Headless = require('src.utils.headless')
+local Log = require("src.utils.log")
+local Headless = require("src.utils.headless")
 local MAX_POOL_SIZE = 8
 
-local Sound = Class{}
+local Sound = Class({})
 
 function Sound:init(props)
-	self.type = 'sound'
+	self.type = "sound"
 	self.sounds = props.sounds or {}
 	self.volume = props.volume or 1
 	self.pitchVariation = props.pitchVariation or 0.1
@@ -16,16 +16,18 @@ function Sound:init(props)
 end
 
 function Sound:play(name)
-	if Headless.isAudio() then return end
+	if Headless.isAudio() then
+		return
+	end
 
 	local path = self.sounds[name]
 	if path == nil then
-		Log.warn('Sound not found: ' .. tostring(name))
+		Log.warn("Sound not found: " .. tostring(name))
 		return
 	end
 
 	if love.filesystem.getInfo(path) == nil then
-		Log.warn('Sound file not found: ' .. path)
+		Log.warn("Sound file not found: " .. path)
 		return
 	end
 
@@ -52,7 +54,7 @@ function Sound:_acquireSource(name, path)
 		self.pool[name] = sources
 	end
 
-	local source = love.audio.newSource(path, 'static')
+	local source = love.audio.newSource(path, "static")
 	if #sources >= MAX_POOL_SIZE then
 		table.remove(sources, 1):stop()
 	end

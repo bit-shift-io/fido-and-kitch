@@ -4,8 +4,8 @@
 -- needs. Extracted from src/map/tmj.lua so that module stays focused on
 -- map-level setup; `resolveEmbeddedTileset` is shared back with tmj.lua's
 -- map-tileset path.
-local stiUtils = require('lib.sti.utils')
-local TjTemplate = require('src.map.tj_template')
+local stiUtils = require("lib.sti.utils")
+local TjTemplate = require("src.map.tj_template")
 
 local TmjParse = {}
 
@@ -18,23 +18,23 @@ local TmjParse = {}
 -- resolution here.
 function TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
 	local tileset = {
-		name       = ts.name,
-		tilewidth  = tonumber(ts.tilewidth),
+		name = ts.name,
+		tilewidth = tonumber(ts.tilewidth),
 		tileheight = tonumber(ts.tileheight),
-		spacing    = tonumber(ts.spacing) or 0,
-		margin     = tonumber(ts.margin) or 0,
-		columns    = tonumber(ts.columns) or 0,
-		tilecount  = tonumber(ts.tilecount) or 0,
-		tiles      = {},
+		spacing = tonumber(ts.spacing) or 0,
+		margin = tonumber(ts.margin) or 0,
+		columns = tonumber(ts.columns) or 0,
+		tilecount = tonumber(ts.tilecount) or 0,
+		tiles = {},
 		tileoffset = { x = 0, y = 0 },
-		firstgid   = firstgid,
+		firstgid = firstgid,
 	}
 
 	-- Image collection vs grid tileset
 	if ts.image then
 		-- Grid tileset with shared image
 		tileset.image = stiUtils.format_path(mapDir .. ts.image)
-		tileset.imagewidth  = tonumber(ts.imagewidth)
+		tileset.imagewidth = tonumber(ts.imagewidth)
 		tileset.imageheight = tonumber(ts.imageheight)
 
 		if ts.tiles then
@@ -50,7 +50,7 @@ function TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
 					t.animation = {}
 					for _, frame in ipairs(tile.animation) do
 						table.insert(t.animation, {
-							tileid   = tonumber(frame.tileid),
+							tileid = tonumber(frame.tileid),
 							duration = tonumber(frame.duration),
 						})
 					end
@@ -59,16 +59,16 @@ function TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
 					t.objectGroup = { objects = {} }
 					for _, obj in ipairs(tile.objectgroup.objects) do
 						table.insert(t.objectGroup.objects, {
-							id     = tonumber(obj.id),
-							name   = obj.name or '',
-							type   = obj.type or '',
-							shape  = obj.shape or 'rectangle',
-							x      = tonumber(obj.x) or 0,
-							y      = tonumber(obj.y) or 0,
-							width  = tonumber(obj.width) or 0,
+							id = tonumber(obj.id),
+							name = obj.name or "",
+							type = obj.type or "",
+							shape = obj.shape or "rectangle",
+							x = tonumber(obj.x) or 0,
+							y = tonumber(obj.y) or 0,
+							width = tonumber(obj.width) or 0,
 							height = tonumber(obj.height) or 0,
 							rotation = tonumber(obj.rotation) or 0,
-							visible  = obj.visible ~= false,
+							visible = obj.visible ~= false,
 							properties = obj.properties or {},
 						})
 					end
@@ -80,9 +80,9 @@ function TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
 		-- Image collection tileset
 		for _, tile in ipairs(ts.tiles) do
 			local t = {
-				id    = tonumber(tile.id),
+				id = tonumber(tile.id),
 				image = tile.image and stiUtils.format_path(mapDir .. tile.image) or nil,
-				width  = tonumber(tile.width) or (tile.imagewidth and tonumber(tile.imagewidth)),
+				width = tonumber(tile.width) or (tile.imagewidth and tonumber(tile.imagewidth)),
 				height = tonumber(tile.height) or (tile.imageheight and tonumber(tile.imageheight)),
 			}
 			if tile.x ~= nil then
@@ -99,7 +99,7 @@ function TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
 				t.animation = {}
 				for _, frame in ipairs(tile.animation) do
 					table.insert(t.animation, {
-						tileid   = tonumber(frame.tileid),
+						tileid = tonumber(frame.tileid),
 						duration = tonumber(frame.duration),
 					})
 				end
@@ -108,16 +108,16 @@ function TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
 				t.objectGroup = { objects = {} }
 				for _, obj in ipairs(tile.objectgroup.objects) do
 					table.insert(t.objectGroup.objects, {
-						id     = tonumber(obj.id),
-						name   = obj.name or '',
-						type   = obj.type or '',
-						shape  = obj.shape or 'rectangle',
-						x      = tonumber(obj.x) or 0,
-						y      = tonumber(obj.y) or 0,
-						width  = tonumber(obj.width) or 0,
+						id = tonumber(obj.id),
+						name = obj.name or "",
+						type = obj.type or "",
+						shape = obj.shape or "rectangle",
+						x = tonumber(obj.x) or 0,
+						y = tonumber(obj.y) or 0,
+						width = tonumber(obj.width) or 0,
 						height = tonumber(obj.height) or 0,
 						rotation = tonumber(obj.rotation) or 0,
-						visible  = obj.visible ~= false,
+						visible = obj.visible ~= false,
 						properties = obj.properties or {},
 					})
 				end
@@ -142,14 +142,14 @@ end
 -- Shared with tmj.lua's map-tileset match (firstgidForEmbedded).
 function TmjParse.embeddedTilesetKey(resolved)
 	if resolved.image then
-		return { image = resolved.image, kind = 'grid' }
+		return { image = resolved.image, kind = "grid" }
 	end
 	local images = {}
 	for _, t in ipairs(resolved.tiles) do
 		images[#images + 1] = t.image
 	end
 	table.sort(images)
-	return { images = images, kind = 'collection' }
+	return { images = images, kind = "collection" }
 end
 
 -- Do two identity keys denote the same tileset content?
@@ -157,7 +157,7 @@ function TmjParse.embeddedKeyEquals(a, b)
 	if a.kind ~= b.kind then
 		return false
 	end
-	if a.kind == 'grid' then
+	if a.kind == "grid" then
 		return a.image == b.image
 	end
 	if #a.images ~= #b.images then
@@ -177,11 +177,11 @@ local function parseProperties(props)
 	if props then
 		for _, prop in ipairs(props) do
 			local val = prop.value
-			if prop.type == 'bool' then
-				val = prop.value == true or prop.value == 'true'
-			elseif prop.type == 'int' or prop.type == 'float' then
+			if prop.type == "bool" then
+				val = prop.value == true or prop.value == "true"
+			elseif prop.type == "int" or prop.type == "float" then
 				val = tonumber(prop.value)
-			elseif prop.type == 'object' then
+			elseif prop.type == "object" then
 				val = { id = tonumber(prop.value) }
 			end
 			result[prop.name] = val
@@ -242,41 +242,45 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidFo
 		templateTilesetImage = template.tilesetImage
 	end
 
-	local shape = obj.shape or 'rectangle'
+	local shape = obj.shape or "rectangle"
 	local shapeKey, points = nil, nil
 
 	if obj.polygon then
-		shape = 'polygon'
-		shapeKey = 'polygon'
+		shape = "polygon"
+		shapeKey = "polygon"
 		points = {}
 		for _, p in ipairs(obj.polygon) do
 			table.insert(points, { x = tonumber(p.x), y = tonumber(p.y) })
 		end
 	elseif obj.polyline then
-		shape = 'polyline'
-		shapeKey = 'polyline'
+		shape = "polyline"
+		shapeKey = "polyline"
 		points = {}
 		for _, p in ipairs(obj.polyline) do
 			table.insert(points, { x = tonumber(p.x), y = tonumber(p.y) })
 		end
 	elseif obj.ellipse then
-		shape = 'ellipse'
+		shape = "ellipse"
 	elseif obj.point then
-		shape = 'point'
+		shape = "point"
 	end
 
 	-- An empty-string type (e.g. a generated .tmj writing `type: ""` for a
 	-- template instance) must fall through to the template's type, not win
 	-- over it: in Lua '' is truthy and would mask the template default.
 	local instanceType = obj.type
-	if instanceType == '' then instanceType = nil end
+	if instanceType == "" then
+		instanceType = nil
+	end
 	local instanceClass = obj.class
-	if instanceClass == '' then instanceClass = nil end
+	if instanceClass == "" then
+		instanceClass = nil
+	end
 
 	local object = {
 		id = tonumber(obj.id),
-		name = obj.name or base.name or '',
-		type = instanceType or instanceClass or base.type or '',
+		name = obj.name or base.name or "",
+		type = instanceType or instanceClass or base.type or "",
 		shape = shape,
 		x = tonumber(obj.x) or 0,
 		y = tonumber(obj.y) or 0,
@@ -308,11 +312,11 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidFo
 			-- JSON array form from a .tj template
 			for _, prop in ipairs(base.properties) do
 				local val = prop.value
-				if prop.type == 'bool' then
-					val = prop.value == true or prop.value == 'true'
-				elseif prop.type == 'int' or prop.type == 'float' then
+				if prop.type == "bool" then
+					val = prop.value == true or prop.value == "true"
+				elseif prop.type == "int" or prop.type == "float" then
 					val = tonumber(prop.value)
-				elseif prop.type == 'object' then
+				elseif prop.type == "object" then
 					val = { id = tonumber(prop.value) }
 				end
 				object.properties[prop.name] = val
@@ -328,13 +332,13 @@ local function parseObject(obj, tsFirstgidByGid, mapDir, firstgidFor, firstgidFo
 	if obj.properties then
 		for _, prop in ipairs(obj.properties) do
 			local val = prop.value
-			if prop.type == 'bool' then
-				val = prop.value == true or prop.value == 'true'
-			elseif prop.type == 'int' or prop.type == 'float' then
+			if prop.type == "bool" then
+				val = prop.value == true or prop.value == "true"
+			elseif prop.type == "int" or prop.type == "float" then
 				val = tonumber(prop.value)
-			elseif prop.type == 'object' then
+			elseif prop.type == "object" then
 				val = { id = tonumber(prop.value) }
-			elseif prop.type == 'file' and type(prop.value) == 'string' and prop.value ~= '' then
+			elseif prop.type == "file" and type(prop.value) == "string" and prop.value ~= "" then
 				-- Instance asset paths are authored relative to the map's dir.
 				val = stiUtils.format_path(mapDir .. prop.value)
 			end
@@ -357,10 +361,19 @@ end
 --- decode; object groups recurse into parseObject.
 -- @param tsFirstgidByGid Currently unused by the object path but kept in
 --   the signature for continuity with the caller's layer loop.
-function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps)
+function TmjParse.parseLayer(
+	layer,
+	mapWidth,
+	mapHeight,
+	tsFirstgidByGid,
+	mapDir,
+	firstgidFor,
+	firstgidForEmbedded,
+	deps
+)
 	local layerType = layer.type
 
-	if layerType == 'tilelayer' then
+	if layerType == "tilelayer" then
 		local data = layer.data
 		-- Tiled's JSON export writes tile data either as a base64 string
 		-- (with an explicit `encoding` field) or, for the CSV tile layer
@@ -369,14 +382,14 @@ function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir
 		-- already-decoded array left alone -- so only default `encoding`
 		-- to base64 when the data really is a string.
 		local encoding = layer.encoding
-		if encoding == nil and type(data) ~= 'table' then
-			encoding = 'base64'
+		if encoding == nil and type(data) ~= "table" then
+			encoding = "base64"
 		end
 
 		return {
 			id = tonumber(layer.id),
-			name = layer.name or '',
-			class = layer.class or '',
+			name = layer.name or "",
+			class = layer.class or "",
 			visible = layer.visible ~= false,
 			opacity = tonumber(layer.opacity) or 1,
 			offsetx = tonumber(layer.offsetx) or 0,
@@ -384,16 +397,16 @@ function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir
 			parallaxx = tonumber(layer.parallaxx) or 1,
 			parallaxy = tonumber(layer.parallaxy) or 1,
 			properties = parseProperties(layer.properties),
-			type = 'tilelayer',
+			type = "tilelayer",
 			x = tonumber(layer.x) or 0,
 			y = tonumber(layer.y) or 0,
 			width = tonumber(layer.width) or mapWidth,
 			height = tonumber(layer.height) or mapHeight,
 			encoding = encoding,
-			compression = (layer.compression and layer.compression ~= '') and layer.compression or nil,
+			compression = (layer.compression and layer.compression ~= "") and layer.compression or nil,
 			data = data,
 		}
-	elseif layerType == 'objectgroup' then
+	elseif layerType == "objectgroup" then
 		local objects = {}
 		if layer.objects then
 			for _, obj in ipairs(layer.objects) do
@@ -402,8 +415,8 @@ function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir
 		end
 		return {
 			id = tonumber(layer.id),
-			name = layer.name or '',
-			class = layer.class or '',
+			name = layer.name or "",
+			class = layer.class or "",
 			visible = layer.visible ~= false,
 			opacity = tonumber(layer.opacity) or 1,
 			offsetx = tonumber(layer.offsetx) or 0,
@@ -411,15 +424,15 @@ function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir
 			parallaxx = tonumber(layer.parallaxx) or 1,
 			parallaxy = tonumber(layer.parallaxy) or 1,
 			properties = parseProperties(layer.properties),
-			type = 'objectgroup',
-			draworder = layer.draworder or 'topdown',
+			type = "objectgroup",
+			draworder = layer.draworder or "topdown",
 			objects = objects,
 		}
-	elseif layerType == 'imagelayer' then
+	elseif layerType == "imagelayer" then
 		return {
 			id = tonumber(layer.id),
-			name = layer.name or '',
-			class = layer.class or '',
+			name = layer.name or "",
+			class = layer.class or "",
 			visible = layer.visible ~= false,
 			opacity = tonumber(layer.opacity) or 1,
 			offsetx = tonumber(layer.offsetx) or 0,
@@ -427,22 +440,34 @@ function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir
 			parallaxx = tonumber(layer.parallaxx) or 1,
 			parallaxy = tonumber(layer.parallaxy) or 1,
 			properties = parseProperties(layer.properties),
-			type = 'imagelayer',
+			type = "imagelayer",
 			repeatx = layer.repeatx or false,
 			repeaty = layer.repeaty or false,
 			image = layer.image and stiUtils.format_path(mapDir .. layer.image) or nil,
 		}
-	elseif layerType == 'group' then
+	elseif layerType == "group" then
 		local layers = {}
 		if layer.layers then
 			for _, childLayer in ipairs(layer.layers) do
-				table.insert(layers, TmjParse.parseLayer(childLayer, mapWidth, mapHeight, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps))
+				table.insert(
+					layers,
+					TmjParse.parseLayer(
+						childLayer,
+						mapWidth,
+						mapHeight,
+						tsFirstgidByGid,
+						mapDir,
+						firstgidFor,
+						firstgidForEmbedded,
+						deps
+					)
+				)
 			end
 		end
 		return {
 			id = tonumber(layer.id),
-			name = layer.name or '',
-			class = layer.class or '',
+			name = layer.name or "",
+			class = layer.class or "",
 			visible = layer.visible ~= false,
 			opacity = tonumber(layer.opacity) or 1,
 			offsetx = tonumber(layer.offsetx) or 0,
@@ -450,7 +475,7 @@ function TmjParse.parseLayer(layer, mapWidth, mapHeight, tsFirstgidByGid, mapDir
 			parallaxx = tonumber(layer.parallaxx) or 1,
 			parallaxy = tonumber(layer.parallaxy) or 1,
 			properties = parseProperties(layer.properties),
-			type = 'group',
+			type = "group",
 			layers = layers,
 		}
 	end

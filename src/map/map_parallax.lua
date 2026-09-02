@@ -36,8 +36,12 @@ end
 -- (1, currently minViewTiles = 6), clamped to [0, 1].
 function M.computeZoomT(scale, fullMapScale, closestScale)
 	local zoomT = (scale - fullMapScale) / (closestScale - fullMapScale)
-	if zoomT < 0 then return 0 end
-	if zoomT > 1 then return 1 end
+	if zoomT < 0 then
+		return 0
+	end
+	if zoomT > 1 then
+		return 1
+	end
 	return zoomT
 end
 
@@ -72,12 +76,22 @@ function M.computePlayersCenter(targets)
 	for _, t in ipairs(targets or {}) do
 		local x1, y1 = t.x, t.y
 		local x2, y2 = t.x + (t.w or 0), t.y + (t.h or 0)
-		if not minX or x1 < minX then minX = x1 end
-		if not minY or y1 < minY then minY = y1 end
-		if not maxX or x2 > maxX then maxX = x2 end
-		if not maxY or y2 > maxY then maxY = y2 end
+		if not minX or x1 < minX then
+			minX = x1
+		end
+		if not minY or y1 < minY then
+			minY = y1
+		end
+		if not maxX or x2 > maxX then
+			maxX = x2
+		end
+		if not maxY or y2 > maxY then
+			maxY = y2
+		end
 	end
-	if not minX then return nil end
+	if not minX then
+		return nil
+	end
 	return (minX + maxX) / 2, (minY + maxY) / 2
 end
 

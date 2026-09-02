@@ -17,21 +17,21 @@
 --   position    {x, y} spawn origin (alt form)
 --   color       {r,g,b,a} overrides both colors.start and colors.end
 --   hold        if truthy, build an empty emitter without auto-bursting
-local Class = require('lib.hump.class')
-local Particles = require('src.emitters.sprite_emitter')
+local Class = require("lib.hump.class")
+local Particles = require("src.emitters.sprite_emitter")
 
-local FxBase = Class{}
+local FxBase = Class({})
 
 function FxBase:init(props)
 	props = props or {}
-	self.type = 'fx'
+	self.type = "fx"
 	self.renderOrder = props.renderOrder
 
 	local opts = self:config() or {}
-	local pos = props.position or (props.x ~= nil and {x = props.x, y = props.y}) or opts.position
-	opts.position = pos or {x = 0, y = 0}
+	local pos = props.position or (props.x ~= nil and { x = props.x, y = props.y }) or opts.position
+	opts.position = pos or { x = 0, y = 0 }
 	if props.color then
-		opts.colors = {start = props.color, ["end"] = props.color}
+		opts.colors = { start = props.color, ["end"] = props.color }
 	end
 
 	self.emitter = Particles.new_emitter(opts)

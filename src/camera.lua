@@ -13,11 +13,11 @@ Camera.__index = Camera
 --- positional args, eliminating order-slip bugs.
 ---   tx, ty  — top-left corner of the projected world rect (screen px)
 ---   sx, sy  — scale factors (always equal; stored as a pair for API compat)
-local ViewRect = {tx = 0, ty = 0, sx = 1, sy = 1}
+local ViewRect = { tx = 0, ty = 0, sx = 1, sy = 1 }
 ViewRect.__index = ViewRect
 
 function ViewRect.new(tx, ty, sx, sy)
-	return setmetatable({tx = tx or 0, ty = ty or 0, sx = sx or 1, sy = sy or sx or 1}, ViewRect)
+	return setmetatable({ tx = tx or 0, ty = ty or 0, sx = sx or 1, sy = sy or sx or 1 }, ViewRect)
 end
 
 local DEFAULT_MARGIN_TILES = 6
@@ -29,7 +29,7 @@ local DEFAULT_DECAY = 12
 -- Shared constants for modules that mirror camera framing semantics
 -- (parallax_renderer, etc.) so the values never silently diverge.
 Camera.DEFAULT_MIN_VIEW_TILES = DEFAULT_MIN_VIEW_TILES
-Camera.DEFAULT_TILE_SIZE      = DEFAULT_TILE_SIZE
+Camera.DEFAULT_TILE_SIZE = DEFAULT_TILE_SIZE
 
 local function unionBounds(targets)
 	local minX, minY, maxX, maxY
@@ -38,16 +38,24 @@ local function unionBounds(targets)
 		local x1, y1 = t.x, t.y
 		local x2, y2 = t.x + t.w, t.y + t.h
 
-		if not minX or x1 < minX then minX = x1 end
-		if not minY or y1 < minY then minY = y1 end
-		if not maxX or x2 > maxX then maxX = x2 end
-		if not maxY or y2 > maxY then maxY = y2 end
+		if not minX or x1 < minX then
+			minX = x1
+		end
+		if not minY or y1 < minY then
+			minY = y1
+		end
+		if not maxX or x2 > maxX then
+			maxX = x2
+		end
+		if not maxY or y2 > maxY then
+			maxY = y2
+		end
 	end
 
 	return minX, minY, maxX, maxY
 end
 
-local NumberUtils = require('src.utils.number')
+local NumberUtils = require("src.utils.number")
 local clamp = NumberUtils.clamp
 
 -- Pure framing math: given world-space target rects ({x, y, w, h}), the map's
@@ -86,8 +94,12 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 
 	local minW = minViewTiles * tileW
 	local minH = minViewTiles * tileH
-	if bw < minW then bw = minW end
-	if bh < minH then bh = minH end
+	if bw < minW then
+		bw = minW
+	end
+	if bh < minH then
+		bh = minH
+	end
 
 	-- Never show less of the world than the whole map plus `padding` of void
 	-- on every side. When the targets already span the map (full-map view,
@@ -95,8 +107,12 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 	-- desired view to the padded size so the edge never sits flush.
 	local paddedW = mapW + 2 * pad
 	local paddedH = mapH + 2 * pad
-	if bw >= mapW then bw = paddedW end
-	if bh >= mapH then bh = paddedH end
+	if bw >= mapW then
+		bw = paddedW
+	end
+	if bh >= mapH then
+		bh = paddedH
+	end
 
 	local scale = math.min(screenW / bw, screenH / bh)
 
@@ -137,9 +153,12 @@ end
 -- Optional `padding` (world px) keeps that much void around every map edge.
 function Camera.fullMapView(mapW, mapH, screenW, screenH, padding)
 	return Camera.computeFraming(
-		{{x = 0, y = 0, w = mapW, h = mapH}},
-		mapW, mapH, screenW, screenH,
-		{marginTiles = 0, minViewTiles = 0, tileW = 1, tileH = 1, padding = padding}
+		{ { x = 0, y = 0, w = mapW, h = mapH } },
+		mapW,
+		mapH,
+		screenW,
+		screenH,
+		{ marginTiles = 0, minViewTiles = 0, tileW = 1, tileH = 1, padding = padding }
 	)
 end
 
@@ -158,7 +177,7 @@ function Camera.new(opts)
 	self.decay = opts.decay or DEFAULT_DECAY
 	self.padding = opts.padding or 0
 
-	self.mode = 'follow'
+	self.mode = "follow"
 	self.extraTargets = {}
 
 	-- levels open at the full-map view and ease in on the players
@@ -189,12 +208,12 @@ end
 -- Press-to-toggle between follow and the full-map overview. A no-op while
 -- game-over owns the view.
 function Camera:toggleOverview()
-	if self.mode == 'gameover' then
+	if self.mode == "gameover" then
 		return
-	elseif self.mode == 'overview' then
-		self.mode = 'follow'
+	elseif self.mode == "overview" then
+		self.mode = "follow"
 	else
-		self.mode = 'overview'
+		self.mode = "overview"
 	end
 end
 
@@ -209,7 +228,7 @@ end
 -- Computes (without applying) the view the camera is currently easing
 -- toward, given this frame's player target rects.
 function Camera:computeTargetView(playerTargets)
-	if self.mode == 'overview' or self.mode == 'gameover' then
+	if self.mode == "overview" or self.mode == "gameover" then
 		return Camera.fullMapView(self.mapW, self.mapH, self.screenW, self.screenH, self.padding)
 	end
 

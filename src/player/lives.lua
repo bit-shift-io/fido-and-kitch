@@ -8,10 +8,10 @@ end
 
 function Lives.applyDeath(lives)
 	if lives <= 0 then
-		return {lives = lives, outcome = 'gameover'}
+		return { lives = lives, outcome = "gameover" }
 	end
 
-	return {lives = lives - 1, outcome = 'respawn'}
+	return { lives = lives - 1, outcome = "respawn" }
 end
 
 return Lives

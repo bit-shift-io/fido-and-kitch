@@ -24,9 +24,9 @@
 -- (inline `type='jump_pad'`, inline `width`/`height`) never touches disk
 -- for this, since the direct fields short-circuit before any template
 -- lookup is attempted.
-local Trajectory = require('src.utils.jump_pad_trajectory')
-local TjTemplate = require('src.map.tj_template')
-local stiUtils = require('lib.sti.utils')
+local Trajectory = require("src.utils.jump_pad_trajectory")
+local TjTemplate = require("src.map.tj_template")
+local stiUtils = require("lib.sti.utils")
 
 local Bake = {}
 
@@ -36,17 +36,21 @@ local function readFile(path)
 	if love and love.filesystem and love.filesystem.read then
 		return love.filesystem.read(path)
 	end
-	local file = io.open(path, 'r')
-	if not file then return nil end
-	local contents = file:read('*a')
+	local file = io.open(path, "r")
+	if not file then
+		return nil
+	end
+	local contents = file:read("*a")
 	file:close()
 	return contents
 end
 
 local function mapDirOf(filename)
-	if not filename then return '' end
-	local dir = filename:match('^(.*)/[^/]+$')
-	return dir and (dir .. '/') or ''
+	if not filename then
+		return ""
+	end
+	local dir = filename:match("^(.*)/[^/]+$")
+	return dir and (dir .. "/") or ""
 end
 
 -- Resolves the .tj template an object instance points at, relative to the
@@ -59,7 +63,7 @@ local function resolveTemplate(object, mapDir)
 		return nil
 	end
 	local templatePath = stiUtils.format_path(mapDir .. object.template)
-	local ok, template = pcall(TjTemplate.resolve, templatePath, {readFile = readFile})
+	local ok, template = pcall(TjTemplate.resolve, templatePath, { readFile = readFile })
 	if not ok then
 		return nil
 	end
@@ -71,11 +75,11 @@ end
 -- normal way in Tiled (via ../entities/jump_pad.tj) has NO inline type at
 -- all, so skipping this resolution silently finds zero pads in any real map.
 local function effectiveType(object, mapDir)
-	if object.type and object.type ~= '' then
+	if object.type and object.type ~= "" then
 		return object.type
 	end
 	local template = resolveTemplate(object, mapDir)
-	return (template and template.object.type) or (object.type or '')
+	return (template and template.object.type) or (object.type or "")
 end
 
 -- An object's effective width/height: its own inline values if BOTH are
@@ -108,11 +112,11 @@ end
 local function collectObjects(layers, out)
 	out = out or {}
 	for _, layer in ipairs(layers or {}) do
-		if layer.type == 'objectgroup' then
+		if layer.type == "objectgroup" then
 			for _, object in ipairs(layer.objects or {}) do
 				table.insert(out, object)
 			end
-		elseif layer.type == 'group' then
+		elseif layer.type == "group" then
 			collectObjects(layer.layers, out)
 		end
 	end
@@ -148,7 +152,7 @@ end
 -- already used by hand-authored maps (tests/fixtures/jump_pad_room.tmj).
 local function findWaypointsLayer(map)
 	for _, layer in ipairs(map.layers or {}) do
-		if layer.type == 'objectgroup' and layer.name == 'waypoints' then
+		if layer.type == "objectgroup" and layer.name == "waypoints" then
 			return layer
 		end
 	end
@@ -160,7 +164,9 @@ end
 -- existing layer ids, don't assume nextlayerid alone is trustworthy).
 local function ensureWaypointsLayer(map)
 	local layer = findWaypointsLayer(map)
-	if layer then return layer end
+	if layer then
+		return layer
+	end
 
 	local nextLayerId = map.nextlayerid or 1
 	for _, l in ipairs(map.layers or {}) do
@@ -171,12 +177,12 @@ local function ensureWaypointsLayer(map)
 
 	layer = {
 		id = nextLayerId,
-		type = 'objectgroup',
-		name = 'waypoints',
-		draworder = 'topdown',
+		type = "objectgroup",
+		name = "waypoints",
+		draworder = "topdown",
 		visible = true,
 		opacity = 1,
-		class = '',
+		class = "",
 		offsetx = 0,
 		offsety = 0,
 		parallaxx = 1,
@@ -210,7 +216,7 @@ function Bake.findJumpPads(map, filename)
 	local mapDir = mapDirOf(filename)
 	local pads = {}
 	for _, object in ipairs(collectObjects(map.layers)) do
-		if effectiveType(object, mapDir) == 'jump_pad' then
+		if effectiveType(object, mapDir) == "jump_pad" then
 			table.insert(pads, object)
 		end
 	end
@@ -222,24 +228,29 @@ end
 -- missing-target error actionable (naming the file and the object id), it
 -- anchors template-path resolution to the map's own directory.
 function Bake.bakeMap(map, filename)
-	filename = filename or '<map>'
+	filename = filename or "<map>"
 	local mapDir = mapDirOf(filename)
 	local allObjects = collectObjects(map.layers)
 	local baked = 0
 
 	for _, pad in ipairs(allObjects) do
-		if effectiveType(pad, mapDir) == 'jump_pad' then
-			local pathProp = findProperty(pad, 'path')
-			local targetProp = findProperty(pad, 'target')
+		if effectiveType(pad, mapDir) == "jump_pad" then
+			local pathProp = findProperty(pad, "path")
+			local targetProp = findProperty(pad, "target")
 
 			if not pathProp and targetProp then
 				local targetId = targetProp.value
 				local targetObject = findObjectById(allObjects, targetId)
 				if not targetObject then
-					error(string.format(
-						'jump_pad_trajectory bake: %s: jump_pad object id=%s references missing target object id=%s',
-						filename, tostring(pad.id), tostring(targetId)
-					), 0)
+					error(
+						string.format(
+							"jump_pad_trajectory bake: %s: jump_pad object id=%s references missing target object id=%s",
+							filename,
+							tostring(pad.id),
+							tostring(targetId)
+						),
+						0
+					)
 				end
 
 				local padWidth, padHeight = effectiveDimensions(pad, mapDir)
@@ -257,7 +268,7 @@ function Bake.bakeMap(map, filename)
 				local origin = arc[1]
 				local polyline = {}
 				for _, point in ipairs(arc) do
-					table.insert(polyline, {x = point.x - origin.x, y = point.y - origin.y})
+					table.insert(polyline, { x = point.x - origin.x, y = point.y - origin.y })
 				end
 
 				local waypointsLayer = ensureWaypointsLayer(map)
@@ -265,8 +276,8 @@ function Bake.bakeMap(map, filename)
 
 				local pathObject = {
 					id = newId,
-					name = 'jump_pad_path',
-					type = '',
+					name = "jump_pad_path",
+					type = "",
 					x = origin.x,
 					y = origin.y,
 					width = 0,
@@ -280,7 +291,7 @@ function Bake.bakeMap(map, filename)
 				table.insert(allObjects, pathObject)
 
 				pad.properties = pad.properties or {}
-				table.insert(pad.properties, {type = 'object', name = 'path', value = newId})
+				table.insert(pad.properties, { type = "object", name = "path", value = newId })
 
 				map.nextobjectid = newId + 1
 				baked = baked + 1

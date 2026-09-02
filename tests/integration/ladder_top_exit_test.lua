@@ -11,21 +11,21 @@
 -- top of a ladder is IGNORED -- the player stays mounted instead of being
 -- ejected to WalkIdleState/FallState. The only way off is sliding sideways,
 -- so that is how this test dismounts before checking the anti-fly invariant.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local FakeInputModule = require('tests.support.fake_input')
-local Queries = require('tests.support.queries')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local FakeInputModule = require("tests.support.fake_input")
+local Queries = require("tests.support.queries")
 
 local FakeInput = FakeInputModule.FakeInput
 local runUntil = FakeInputModule.runUntil
 
-local MAP = 'tests/fixtures/ladder_platform_top_exit_room.tmj'
+local MAP = "tests/fixtures/ladder_platform_top_exit_room.tmj"
 
 local function player1(game)
 	return game.fsm.currentState.players[1]
 end
 
-test('climbing to the top of a ladder and dismounting onto a platform does not fly upward before landing', function()
+test("climbing to the top of a ladder and dismounting onto a platform does not fly upward before landing", function()
 	local game = GameHarness.startGame(MAP)
 	local controller = FakeInput.new()
 
@@ -36,10 +36,10 @@ test('climbing to the top of a ladder and dismounting onto a platform does not f
 	-- before reaching the floor; climbing from that hang reaches the same
 	-- platform-top spot the original ground-mount flow did.
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'LadderState'
+		return player.fsm.currentState.name == "LadderState"
 	end, 120)
 
-	controller:press('up')
+	controller:press("up")
 
 	-- First require actual climb progress: the mount may begin with a
 	-- realign pause (x slides while y is frozen), which must not be
@@ -63,12 +63,15 @@ test('climbing to the top of a ladder and dismounting onto a platform does not f
 	end, FrameStepper.secondsToFrames(3))
 
 	-- Edge-key no-op: up at the top must be ignored, staying mounted.
-	assertEqual('LadderState', player.fsm.currentState.name,
-		'pressing up at the top of a ladder must be ignored, not eject the player')
-	controller:release('up')
+	assertEqual(
+		"LadderState",
+		player.fsm.currentState.name,
+		"pressing up at the top of a ladder must be ignored, not eject the player"
+	)
+	controller:release("up")
 
 	-- Dismount by sliding sideways off the column; land on the platform.
-	controller:press('right')
+	controller:press("right")
 	local dismountY = nil
 	local minYAfterDismount = nil
 
@@ -77,7 +80,7 @@ test('climbing to the top of a ladder and dismounting onto a platform does not f
 		local stateName = player.fsm.currentState.name
 		local y = Queries.playerPositionV(player).y
 
-		if dismountY == nil and stateName == 'WalkIdleState' then
+		if dismountY == nil and stateName == "WalkIdleState" then
 			dismountY = y
 			minYAfterDismount = y
 		elseif dismountY ~= nil and y < minYAfterDismount then
@@ -85,8 +88,11 @@ test('climbing to the top of a ladder and dismounting onto a platform does not f
 		end
 	end
 
-	controller:release('right')
+	controller:release("right")
 
-	assertTrue(dismountY ~= nil, 'expected the player to dismount onto the platform at the top of the ladder')
-	assertTrue(dismountY - minYAfterDismount < 1, 'expected the player to land on the platform without first flying upward past it (leftover climb velocity should not carry into the dynamic body)')
+	assertTrue(dismountY ~= nil, "expected the player to dismount onto the platform at the top of the ladder")
+	assertTrue(
+		dismountY - minYAfterDismount < 1,
+		"expected the player to land on the platform without first flying upward past it (leftover climb velocity should not carry into the dynamic body)"
+	)
 end)

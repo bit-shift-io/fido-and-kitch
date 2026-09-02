@@ -1,10 +1,10 @@
 -- Parses a Tiled .tmj (JSON) map into the table structure Tiled's Lua
 -- export plugin emits, so the vendored map loader (lib/sti) needs no
 -- changes to consume it. This is the JSON equivalent of tmx.lua.
-local json = require('src.utils.json')
-local stiUtils = require('lib.sti.utils')
-local TjTileset = require('src.map.tj_tileset')
-local TmjParse = require('src.map.tmj_parse')
+local json = require("src.utils.json")
+local stiUtils = require("lib.sti.utils")
+local TjTileset = require("src.map.tj_tileset")
+local TmjParse = require("src.map.tmj_parse")
 
 local Tmj = {}
 
@@ -16,9 +16,11 @@ local function readAndDecode(tmjPath)
 		readFile = love.filesystem.read
 	else
 		readFile = function(path)
-			local file = io.open(path, 'r')
-			if not file then return nil end
-			local contents = file:read('*a')
+			local file = io.open(path, "r")
+			if not file then
+				return nil
+			end
+			local contents = file:read("*a")
 			file:close()
 			return contents
 		end
@@ -26,11 +28,11 @@ local function readAndDecode(tmjPath)
 
 	local contents = readFile(tmjPath)
 	if not contents then
-		error('File not found: ' .. tmjPath, 2)
+		error("File not found: " .. tmjPath, 2)
 	end
 
 	local mapData = json.decode(contents)
-	if not mapData or mapData.type ~= 'map' then
+	if not mapData or mapData.type ~= "map" then
 		error('Malformed tmj "' .. tmjPath .. '": not a map', 2)
 	end
 
@@ -58,9 +60,9 @@ end
 local function buildMapSkeleton(mapData)
 	return {
 		version = mapData.version,
-		luaversion = '5.1',
+		luaversion = "5.1",
 		tiledversion = mapData.tiledversion,
-		class = mapData.class or '',
+		class = mapData.class or "",
 		orientation = mapData.orientation,
 		renderorder = mapData.renderorder,
 		width = tonumber(mapData.width),
@@ -81,11 +83,11 @@ local function parseMapProperties(mapData)
 	if mapData.properties then
 		for _, prop in ipairs(mapData.properties) do
 			local val = prop.value
-			if prop.type == 'bool' then
-				val = prop.value == true or prop.value == 'true'
-			elseif prop.type == 'int' or prop.type == 'float' then
+			if prop.type == "bool" then
+				val = prop.value == true or prop.value == "true"
+			elseif prop.type == "int" or prop.type == "float" then
 				val = tonumber(prop.value)
-			elseif prop.type == 'object' then
+			elseif prop.type == "object" then
 				val = { id = tonumber(prop.value) }
 			end
 			properties[prop.name] = val
@@ -136,7 +138,7 @@ local function buildTemplateAllocator(mapData, mapDir, readFile)
 		else
 			-- Embedded tileset - track by image path
 			local resolved = TmjParse.resolveEmbeddedTileset(ts, firstgid, mapDir)
-			allocator.byPath[resolved.image and resolved.image:gsub('^%.%.', '') or ''] = firstgid
+			allocator.byPath[resolved.image and resolved.image:gsub("^%.%.", "") or ""] = firstgid
 			trueCount = tonumber(ts.tilecount) or 0
 		end
 		if firstgid >= allocator.nextFirstgid then
@@ -151,8 +153,8 @@ end
 function Tmj.parse(tmjPath)
 	local readFile, mapData = readAndDecode(tmjPath)
 
-	local mapDir = tmjPath:match('^(.*)/[^/]+$')
-	mapDir = mapDir and (mapDir .. '/') or ''
+	local mapDir = tmjPath:match("^(.*)/[^/]+$")
+	mapDir = mapDir and (mapDir .. "/") or ""
 
 	local tsFirstgidByGid = buildGidToFirstgid(mapData)
 	local map = buildMapSkeleton(mapData)
@@ -193,7 +195,19 @@ function Tmj.parse(tmjPath)
 	if mapData.layers then
 		local deps = { readFile = readFile }
 		for _, layer in ipairs(mapData.layers) do
-			table.insert(map.layers, TmjParse.parseLayer(layer, map.width, map.height, tsFirstgidByGid, mapDir, firstgidFor, firstgidForEmbedded, deps))
+			table.insert(
+				map.layers,
+				TmjParse.parseLayer(
+					layer,
+					map.width,
+					map.height,
+					tsFirstgidByGid,
+					mapDir,
+					firstgidFor,
+					firstgidForEmbedded,
+					deps
+				)
+			)
 		end
 	end
 	return map

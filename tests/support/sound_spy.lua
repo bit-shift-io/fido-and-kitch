@@ -7,7 +7,7 @@
 local SoundSpy = {}
 
 function SoundSpy.install()
-	local Sound = require('src.components.sound')
+	local Sound = require("src.components.sound")
 	local original = Sound.play
 	local played = {}
 

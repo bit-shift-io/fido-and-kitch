@@ -1,12 +1,16 @@
 local GameAPI = {}
-local json = require('lib.dkjson')
-local Helpers = require('src.ipc.handler_helpers')
-local Geom = require('src.utils.geom')
+local json = require("lib.dkjson")
+local Helpers = require("src.ipc.handler_helpers")
+local Geom = require("src.utils.geom")
 
 local function getColliderInfo(collider)
-	if not collider then return nil end
+	if not collider then
+		return nil
+	end
 	local bounds = collider.getBounds and collider:getBounds() or nil
-	if not bounds then return nil end
+	if not bounds then
+		return nil
+	end
 	return {
 		x = math.floor(bounds.left),
 		y = math.floor(bounds.top),
@@ -14,33 +18,47 @@ local function getColliderInfo(collider)
 		h = math.floor(bounds.height),
 		sensor = collider.isSensor and collider:isSensor() or false,
 		walkable = collider.walkable == true,
-		bodyType = collider.bodyType or collider.getType and collider:getType() or 'unknown'
+		bodyType = collider.bodyType or collider.getType and collider:getType() or "unknown",
 	}
 end
 
 local function serializeMapEntity(entity)
-	if entity.type == 'player' then return nil end
-	if entity.type == 'drawbridge' then return getDrawbridgeInfo(entity) end
+	if entity.type == "player" then
+		return nil
+	end
+	if entity.type == "drawbridge" then
+		return getDrawbridgeInfo(entity)
+	end
 
 	local info = getEntityBaseInfo(entity)
-	if not info then return nil end
-	if entity.state then      info.entityState = entity.state end
-	if entity.itemName then   info.itemName    = entity.itemName end
-	if entity.isLadder then   info.isLadder    = true end
+	if not info then
+		return nil
+	end
+	if entity.state then
+		info.entityState = entity.state
+	end
+	if entity.itemName then
+		info.itemName = entity.itemName
+	end
+	if entity.isLadder then
+		info.isLadder = true
+	end
 	if entity.isKillZone then
 		info.isKillZone = true
-		info.deathType  = entity.deathType
+		info.deathType = entity.deathType
 	end
 	return info
 end
 
 local function getEntityBaseInfo(entity)
-	if not entity then return nil end
+	if not entity then
+		return nil
+	end
 	local info = {
-		type = entity.type or 'unknown',
-		name = entity.name or entity.type or 'unnamed',
+		type = entity.type or "unknown",
+		name = entity.name or entity.type or "unnamed",
 	}
-	
+
 	if entity.collider and entity.collider.getPositionV then
 		local pos = entity.collider:getPositionV()
 		if entity.collider.getBounds then
@@ -61,30 +79,30 @@ local function getEntityBaseInfo(entity)
 		info.w = math.floor(entity.object.width or 0)
 		info.h = math.floor(entity.object.height or 0)
 	end
-	
+
 	info.collider = getColliderInfo(entity.collider)
 	info.hasCollider = entity.collider ~= nil
-	
+
 	return info
 end
 
 local function getPlayerInfo(player, index)
 	local base = getEntityBaseInfo(player)
-	base.type = 'player'
-	base.name = 'player'
+	base.type = "player"
+	base.name = "player"
 	base.index = index
-	
+
 	if player.fsm and player.fsm.currentState then
 		base.state = player.fsm.currentState.name or tostring(player.fsm.currentState)
 	end
 	if player.collider and player.collider.getLinearVelocity then
 		local vx, vy = player.collider:getLinearVelocity()
-		base.velocity = {x = math.floor(vx or 0), y = math.floor(vy or 0)}
+		base.velocity = { x = math.floor(vx or 0), y = math.floor(vy or 0) }
 	end
 	base.grounded = player.queryFullySupported and player:queryFullySupported() or false
-	base.facing = player.facing or 'right'
+	base.facing = player.facing or "right"
 	base.dead = player.isDead and player:isDead() or false
-	
+
 	return base
 end
 
@@ -99,12 +117,16 @@ local function getDrawbridgeInfo(entity)
 	base.colliders = {}
 	if entity.deck then
 		local deckInfo = getColliderInfo(entity.deck)
-		if deckInfo then deckInfo.name = 'deck' end
+		if deckInfo then
+			deckInfo.name = "deck"
+		end
 		table.insert(base.colliders, deckInfo)
 	end
 	if entity.trigger then
 		local triggerInfo = getColliderInfo(entity.trigger)
-		if triggerInfo then triggerInfo.name = 'trigger' end
+		if triggerInfo then
+			triggerInfo.name = "trigger"
+		end
 		table.insert(base.colliders, triggerInfo)
 	end
 	base.hasCollider = true
@@ -119,13 +141,13 @@ function GameAPI.getEntities()
 	end
 
 	local entities = {}
-	
+
 	if state.players then
 		for i, player in ipairs(state.players) do
 			table.insert(entities, getPlayerInfo(player, i))
 		end
 	end
-	
+
 	if map and map.layers then
 		for _, layer in ipairs(map.layers) do
 			if layer.entities then
@@ -144,7 +166,7 @@ function GameAPI.getEntities()
 	local result = {
 		ok = true,
 		count = #entities,
-		entities = entities
+		entities = entities,
 	}
 	return json.encode(result)
 end
@@ -156,21 +178,21 @@ function GameAPI.spawnEntity(entityType, x, y, props)
 	end
 
 	if not map or not map.layers then
-		return nil, 'No map loaded'
+		return nil, "No map loaded"
 	end
-	
+
 	local targetLayer = nil
 	for _, layer in ipairs(map.layers) do
-		if layer.type == 'objectgroup' and layer.entities then
+		if layer.type == "objectgroup" and layer.entities then
 			targetLayer = layer
 			break
 		end
 	end
-	
+
 	if not targetLayer then
-		return nil, 'No suitable layer found for entity'
+		return nil, "No suitable layer found for entity"
 	end
-	
+
 	local mockObject = {
 		type = entityType,
 		name = entityType,
@@ -179,16 +201,16 @@ function GameAPI.spawnEntity(entityType, x, y, props)
 		width = props.width or Geom.TILE_SIZE,
 		height = props.height or Geom.TILE_SIZE,
 		properties = props,
-		layer = targetLayer
+		layer = targetLayer,
 	}
-	
+
 	local entity = map:loadEntity(entityType, targetLayer, mockObject)
-	
+
 	if not entity then
-		return nil, 'Failed to spawn entity: ' .. entityType
+		return nil, "Failed to spawn entity: " .. entityType
 	end
-	
-	return 'OK: Spawned ' .. entityType .. ' at ' .. x .. ',' .. y
+
+	return "OK: Spawned " .. entityType .. " at " .. x .. "," .. y
 end
 
 function GameAPI.getState()
@@ -199,7 +221,7 @@ function GameAPI.getState()
 
 	local players = state.players
 	if not players or #players < 2 then
-		return nil, 'Players not found'
+		return nil, "Players not found"
 	end
 
 	local p1 = players[1]
@@ -208,21 +230,32 @@ function GameAPI.getState()
 	local w = _G.love.graphics.getWidth()
 	local h = _G.love.graphics.getHeight()
 
-	local mapName = state.currentMap or 'unknown'
-	if type(mapName) == 'string' then
-		mapName = mapName:match('([^/]+)%.tmj$') or mapName
+	local mapName = state.currentMap or "unknown"
+	if type(mapName) == "string" then
+		mapName = mapName:match("([^/]+)%.tmj$") or mapName
 	end
 
 	local p1Pos = p1.collider and p1.collider.getPositionV and p1.collider:getPositionV()
 	local p2Pos = p2.collider and p2.collider.getPositionV and p2.collider:getPositionV()
 
 	if not p1Pos or not p2Pos then
-		return nil, 'Cannot get player positions'
+		return nil, "Cannot get player positions"
 	end
 
-	return 'OK: p1x=' .. math.floor(p1Pos.x) .. ' p1y=' .. math.floor(p1Pos.y)
-		.. ' p2x=' .. math.floor(p2Pos.x) .. ' p2y=' .. math.floor(p2Pos.y)
-		.. ' w=' .. w .. ' h=' .. h .. ' map=' .. mapName
+	return "OK: p1x="
+		.. math.floor(p1Pos.x)
+		.. " p1y="
+		.. math.floor(p1Pos.y)
+		.. " p2x="
+		.. math.floor(p2Pos.x)
+		.. " p2y="
+		.. math.floor(p2Pos.y)
+		.. " w="
+		.. w
+		.. " h="
+		.. h
+		.. " map="
+		.. mapName
 end
 
 return GameAPI

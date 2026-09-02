@@ -1,12 +1,12 @@
-local sti = require('lib.sti')
-local Tmj = require('src.map.tmj')
-local EntityFactory = require('src.map.entity_factory')
-local CollisionBuilder = require('src.map.collision_builder')
-local ParallaxRenderer = require('src.map.parallax_renderer')
-local FxManager = require('src.fx.manager')
-local DrawOrder = require('src.map.draw_order')
-local json = require('src.utils.json')
-local Bake = require('tools.jump_pad_trajectory.bake')
+local sti = require("lib.sti")
+local Tmj = require("src.map.tmj")
+local EntityFactory = require("src.map.entity_factory")
+local CollisionBuilder = require("src.map.collision_builder")
+local ParallaxRenderer = require("src.map.parallax_renderer")
+local FxManager = require("src.fx.manager")
+local DrawOrder = require("src.map.draw_order")
+local json = require("src.utils.json")
+local Bake = require("tools.jump_pad_trajectory.bake")
 local lg = love.graphics
 
 local Map = {}
@@ -18,9 +18,11 @@ local function readMapFile(path)
 	if love and love.filesystem and love.filesystem.read then
 		return love.filesystem.read(path)
 	end
-	local file = io.open(path, 'r')
-	if not file then return nil end
-	local contents = file:read('*a')
+	local file = io.open(path, "r")
+	if not file then
+		return nil
+	end
+	local contents = file:read("*a")
 	file:close()
 	return contents
 end
@@ -29,7 +31,7 @@ end
 -- project's real res/map/*.tmj source paths -- io.open bypasses that
 -- sandbox, matching the established precedent at src/export_png.lua:177.
 local function writeMapFile(path, contents)
-	local file, err = io.open(path, 'w')
+	local file, err = io.open(path, "w")
 	if not file then
 		error(string.format('Map: could not write baked map "%s": %s', path, tostring(err)), 0)
 	end
@@ -69,10 +71,10 @@ local function loadSti(path, plugins)
 end
 
 local function resolveMapFile(basePath)
-	if basePath:match('%.tmj$') then
+	if basePath:match("%.tmj$") then
 		return basePath
 	end
-	return basePath .. '.tmj'
+	return basePath .. ".tmj"
 end
 
 Map.resolveMapFile = resolveMapFile
@@ -99,20 +101,20 @@ function Map:new(path, world, debug)
 				-- Forward to the current STI map.
 				local stiMap = mapObj.map
 				if stiMap then
-					if type(stiMap[key]) == 'function' then
+					if type(stiMap[key]) == "function" then
 						return utils.dropCallerSelf(stiMap[key], stiMap)
 					end
 					return stiMap[key]
 				end
-			end
+			end,
 		})
 		self._proxied = true
 	end
 
-	self.typeIgnores = {'', 'spawn'}
+	self.typeIgnores = { "", "spawn" }
 	self.searchPaths = {
-		'src.entities.?',
-		'src.entities.?.?',
+		"src.entities.?",
+		"src.entities.?.?",
 	}
 
 	self.entityFactory = EntityFactory:new(self.searchPaths, self.typeIgnores, self)
@@ -134,9 +136,9 @@ function Map:new(path, world, debug)
 	self:resize()
 
 	local bgName = self.map.properties.background
-	if type(bgName) == 'string' and bgName ~= '' then
+	if type(bgName) == "string" and bgName ~= "" then
 		self.backgroundName = bgName
-		self.backgroundMap = loadSti(resolveMapFile('res/bg/' .. bgName))
+		self.backgroundMap = loadSti(resolveMapFile("res/bg/" .. bgName))
 	end
 
 	return self
@@ -221,29 +223,39 @@ function Map:drawEntities(viewRect)
 			for _, entity in ipairs(layer.entities) do
 				if entity.hasSplitRenderOrder and entity:hasSplitRenderOrder() then
 					if entity:hasColorStateComponent() then
-						Log.error(string.format(
-							"Map:drawEntities: entity '%s' (%s) splits renderOrder across its Sprites while also using Tint/FlashEffect -- color state will bleed onto whatever draws between them (unsupported combination, see docs/memory/entity-atomic-draw-and-tint.md)",
-							entity.name or '?', entity.type or '?'))
+						Log.error(
+							string.format(
+								"Map:drawEntities: entity '%s' (%s) splits renderOrder across its Sprites while also using Tint/FlashEffect -- color state will bleed onto whatever draws between them (unsupported combination, see docs/memory/entity-atomic-draw-and-tint.md)",
+								entity.name or "?",
+								entity.type or "?"
+							)
+						)
 					end
 
 					for _, sprite in ipairs(entity:getSprites()) do
 						units[#units + 1] = {
 							order = sprite.renderOrder or 0,
 							index = #units + 1,
-							draw = function() sprite:draw() end,
+							draw = function()
+								sprite:draw()
+							end,
 						}
 					end
 
 					units[#units + 1] = {
 						order = entityRenderOrder(entity),
 						index = #units + 1,
-						draw = function() entity:drawNonSpriteComponents() end,
+						draw = function()
+							entity:drawNonSpriteComponents()
+						end,
 					}
 				else
 					units[#units + 1] = {
 						order = entityRenderOrder(entity),
 						index = #units + 1,
-						draw = function() entity:draw() end,
+						draw = function()
+							entity:draw()
+						end,
 					}
 				end
 			end
@@ -255,7 +267,9 @@ function Map:drawEntities(viewRect)
 			units[#units + 1] = {
 				order = fx.renderOrder or 0,
 				index = #units + 1,
-				draw = function() fx:draw() end,
+				draw = function()
+					fx:draw()
+				end,
 			}
 		end
 	end
@@ -273,17 +287,17 @@ function Map:getObjectById(id)
 end
 
 function Map:getEntitiesByType(entityType)
-    local entities = {}
-    for _, layer in ipairs(self.map.layers) do
-        if layer.type == "objectgroup" and layer.entities then
-            for _, entity in ipairs(layer.entities) do
-                if entity.type == entityType then
-                    table.insert(entities, entity)
-                end
-            end
-        end
-    end
-    return entities
+	local entities = {}
+	for _, layer in ipairs(self.map.layers) do
+		if layer.type == "objectgroup" and layer.entities then
+			for _, entity in ipairs(layer.entities) do
+				if entity.type == entityType then
+					table.insert(entities, entity)
+				end
+			end
+		end
+	end
+	return entities
 end
 
 function Map:loadEntity(entityName, layer, object)

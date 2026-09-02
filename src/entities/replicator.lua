@@ -15,10 +15,10 @@
 -- the bump world via Collider:init -> world:newCollider. See NOTES.md for
 -- the decided contract.
 
-local Replicator = Class{__includes = Entity}
-local SpriteProps = require('src.entities.sprite_props')
+local Replicator = Class({ __includes = Entity })
+local SpriteProps = require("src.entities.sprite_props")
 
-local DEFAULT_SPAWN_TYPE = 'push_box'
+local DEFAULT_SPAWN_TYPE = "push_box"
 local DEFAULT_MAX_SPAWNS = 1
 
 -- Where a spawned box's TOP edge is emitted, given the replicator's authored
@@ -49,7 +49,7 @@ local function emitY(object)
 end
 
 function Replicator:init(object, map)
-	Entity.init(self, object, 'replicator')
+	Entity.init(self, object, "replicator")
 
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
@@ -81,14 +81,14 @@ function Replicator:init(object, map)
 	-- collide. onStateChange fires on EVERY switch press; the switch's on/off
 	-- state is irrelevant (the `enabled` argument is ignored) -- the handler
 	-- spawns once so long as budget remains.
-	self:addComponent(Switchable{
+	self:addComponent(Switchable({
 		entity = self,
 		onStateChange = function(enabled, switch, user)
 			if self.maxSpawns == nil or self.spawned < self.maxSpawns then
 				self:spawn()
 			end
-		end
-	})
+		end,
+	}))
 end
 
 -- Build a top-anchored mock object at the emit point and hand it to the

@@ -1,5 +1,5 @@
-Class = Class or require('lib.hump.class')
-local InputManager = require('src.input.input_manager')
+Class = Class or require("lib.hump.class")
+local InputManager = require("src.input.input_manager")
 
 -- 'return' is player 1's `start` action (src/input/input_config.lua), and
 -- `start` means two opposite things depending on who is listening: "start the
@@ -12,15 +12,21 @@ local function withMockedLove(fn)
 
 	love = {
 		keyboard = {
-			isDown = function(key) return keysDown[key] == true end,
+			isDown = function(key)
+				return keysDown[key] == true
+			end,
 		},
 		joystick = {
-			getJoysticks = function() return {} end,
+			getJoysticks = function()
+				return {}
+			end,
 		},
 		-- InputConfig:load() looks for a saved config; "no file" keeps the
 		-- defaults, which is what these tests are asserting against.
 		filesystem = {
-			getInfo = function() return nil end,
+			getInfo = function()
+				return nil
+			end,
 		},
 	}
 
@@ -32,68 +38,64 @@ local function withMockedLove(fn)
 	end
 end
 
-test('a press already held when a state transition happens is not reported to the new state', function()
+test("a press already held when a state transition happens is not reported to the new state", function()
 	withMockedLove(function(inputManager, keysDown)
 		-- Enter goes down during the event phase. love.keypressed runs there
 		-- and switches state before inputManager:update() ever polls the key.
-		keysDown['return'] = true
+		keysDown["return"] = true
 		inputManager:swallowEdges()
 
 		inputManager:update(1 / 60)
 
-		assertFalse(inputManager:wasPressed(1, 'start'),
-			'the state entered by this press must not also consume it')
+		assertFalse(inputManager:wasPressed(1, "start"), "the state entered by this press must not also consume it")
 	end)
 end)
 
-test('a press held across a state transition stays consumed while it is held', function()
+test("a press held across a state transition stays consumed while it is held", function()
 	withMockedLove(function(inputManager, keysDown)
-		keysDown['return'] = true
+		keysDown["return"] = true
 		inputManager:swallowEdges()
 		inputManager:update(1 / 60)
 
 		inputManager:update(1 / 60)
 
-		assertFalse(inputManager:wasPressed(1, 'start'),
-			'holding the key longer must not produce a delayed edge')
+		assertFalse(inputManager:wasPressed(1, "start"), "holding the key longer must not produce a delayed edge")
 	end)
 end)
 
-test('a genuine press after a swallowed one is reported', function()
+test("a genuine press after a swallowed one is reported", function()
 	withMockedLove(function(inputManager, keysDown)
-		keysDown['return'] = true
+		keysDown["return"] = true
 		inputManager:swallowEdges()
 		inputManager:update(1 / 60)
 
-		keysDown['return'] = false
+		keysDown["return"] = false
 		inputManager:update(1 / 60)
-		keysDown['return'] = true
+		keysDown["return"] = true
 		inputManager:update(1 / 60)
 
-		assertTrue(inputManager:wasPressed(1, 'start'),
-			'releasing and pressing again is a new command')
+		assertTrue(inputManager:wasPressed(1, "start"), "releasing and pressing again is a new command")
 	end)
 end)
 
-test('an ordinary press is reported without a state transition', function()
+test("an ordinary press is reported without a state transition", function()
 	withMockedLove(function(inputManager, keysDown)
-		keysDown['return'] = true
+		keysDown["return"] = true
 
 		inputManager:update(1 / 60)
 
-		assertTrue(inputManager:wasPressed(1, 'start'))
+		assertTrue(inputManager:wasPressed(1, "start"))
 	end)
 end)
 
-test('swallowing edges only affects the next update', function()
+test("swallowing edges only affects the next update", function()
 	withMockedLove(function(inputManager, keysDown)
 		inputManager:swallowEdges()
 		inputManager:update(1 / 60)
 
-		keysDown['left'] = true
+		keysDown["left"] = true
 		inputManager:update(1 / 60)
 
-		assertTrue(inputManager:wasPressed(1, 'left'),
-			'input pressed after the transition frame is live again')
+		assertTrue(inputManager:wasPressed(1, "left"), "input pressed after the transition frame is live again")
 	end)
 end)

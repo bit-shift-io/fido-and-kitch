@@ -16,11 +16,21 @@ function SpriteProps.fromObject(object)
 	local props = (object and object.properties) or {}
 	local art = {}
 
-	if props.image ~= nil then art.image = props.image end
-	if props.frames ~= nil then art.frames = props.frames end
-	if props.duration ~= nil then art.duration = props.duration end
-	if props.loop ~= nil then art.loop = props.loop end
-	if props.playing ~= nil then art.playing = props.playing end
+	if props.image ~= nil then
+		art.image = props.image
+	end
+	if props.frames ~= nil then
+		art.frames = props.frames
+	end
+	if props.duration ~= nil then
+		art.duration = props.duration
+	end
+	if props.loop ~= nil then
+		art.loop = props.loop
+	end
+	if props.playing ~= nil then
+		art.playing = props.playing
+	end
 	if props.scaleX ~= nil or props.scaleY ~= nil then
 		art.scale = Vector(props.scaleX or 1, props.scaleY or 1)
 	end

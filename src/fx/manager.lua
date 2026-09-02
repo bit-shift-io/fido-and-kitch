@@ -37,13 +37,17 @@ function FxManager:update(dt)
 		local fx = active[i]
 		fx:update(dt)
 		if fx:done() then
-			if fx.onDone then fx:onDone() end
+			if fx.onDone then
+				fx:onDone()
+			end
 		else
 			alive = alive + 1
 			active[alive] = fx
 		end
 	end
-	for i = alive + 1, #active do active[i] = nil end
+	for i = alive + 1, #active do
+		active[i] = nil
+	end
 end
 
 -- Callers draw within whatever world-space transform the map is using

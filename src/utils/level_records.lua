@@ -10,16 +10,18 @@
 -- Inherits Settings' "every read falls back to a default, every write is
 -- best-effort" philosophy -- a missing/corrupt settings file must not crash
 -- level completion.
-local Settings = require('src.utils.settings')
+local Settings = require("src.utils.settings")
 
 local LevelRecords = {}
 
-local SETTINGS_KEY = 'levelRecords'
+local SETTINGS_KEY = "levelRecords"
 
 -- Returns the stored record for mapFile, or nil if it has never been
 -- completed.
 function LevelRecords.get(mapFile)
-	if not mapFile then return nil end
+	if not mapFile then
+		return nil
+	end
 
 	local records = Settings.get(SETTINGS_KEY, {})
 	return records[mapFile]
@@ -31,7 +33,9 @@ end
 -- independent: a faster time is kept even if this run's score is worse, and
 -- vice versa.
 function LevelRecords.recordCompletion(mapFile, result)
-	if not mapFile then return false end
+	if not mapFile then
+		return false
+	end
 
 	local records = Settings.get(SETTINGS_KEY, {})
 	local existing = records[mapFile]

@@ -19,7 +19,7 @@
 -- also backs the ground-following pickup behaviour (coin, key) -- both are
 -- the same "falling vs settled" state machine, so it lives in one place
 -- rather than three (push_box, boulder, pickup) each carrying their own copy.
-local GroundFaller = require('src.physics.ground_faller')
+local GroundFaller = require("src.physics.ground_faller")
 
 local PushableSupport = {}
 
@@ -246,17 +246,17 @@ end
 -- mean "can't go there" from this function's point of view.
 function PushableSupport.sourceTileClearCheck(tileBounds, overlappingPushables, escapeBlocked)
 	if #overlappingPushables == 0 then
-		return {status = 'clear'}
+		return { status = "clear" }
 	end
 
 	local tileCentreX = (tileBounds.left + tileBounds.right) * 0.5
-	local direction = (overlappingPushables[1].centreX < tileCentreX) and 'left' or 'right'
+	local direction = (overlappingPushables[1].centreX < tileCentreX) and "left" or "right"
 
 	if escapeBlocked[direction] then
-		return {status = 'stuck'}
+		return { status = "stuck" }
 	end
 
-	return {status = 'pushable', direction = direction}
+	return { status = "pushable", direction = direction }
 end
 
 -- Whether any Pushable overlaps the destination teleporter's tile at all --

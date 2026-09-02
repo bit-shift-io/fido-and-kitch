@@ -73,19 +73,19 @@ local LaserBeamResolver = {}
 local MAX_BOUNCES = 8
 
 local function isFatal(entity)
-	return entity ~= nil and (entity.type == 'player' or entity.isEnemy == true)
+	return entity ~= nil and (entity.type == "player" or entity.isEnemy == true)
 end
 
 local function isDestructible(entity)
-	return entity ~= nil and (entity.type == 'boulder' or entity.type == 'destructible_tile')
+	return entity ~= nil and (entity.type == "boulder" or entity.type == "destructible_tile")
 end
 
 local function isMirror(entity)
-	return entity ~= nil and entity.type == 'mirror'
+	return entity ~= nil and entity.type == "mirror"
 end
 
 local function isLaserSwitch(entity)
-	return entity ~= nil and entity.type == 'laser_switch'
+	return entity ~= nil and entity.type == "laser_switch"
 end
 
 -- Casts one straight segment from (x1, y1) in `direction`, recursing into a
@@ -98,7 +98,19 @@ end
 -- to wherever it stops), and inserts directly into the shared
 -- `killed`/`destroyed` arrays as it scans.
 -- Returns {x, y, hitEntity} for this segment's own stop point.
-local function castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, bounceCount, segments, killed, destroyed, activated, pivotEntity)
+local function castSegment(
+	x1,
+	y1,
+	direction,
+	farEndpointFn,
+	querySegmentFn,
+	bounceCount,
+	segments,
+	killed,
+	destroyed,
+	activated,
+	pivotEntity
+)
 	local x2, y2 = farEndpointFn(x1, y1, direction)
 	local hits = querySegmentFn(x1, y1, x2, y2) or {}
 
@@ -120,8 +132,8 @@ local function castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, bou
 				table.insert(killed, entity)
 			elseif isDestructible(entity) then
 				table.insert(destroyed, entity)
-				table.insert(segments, {x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1})
-				return {x = hit.x1, y = hit.y1, hitEntity = entity}
+				table.insert(segments, { x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1 })
+				return { x = hit.x1, y = hit.y1, hitEntity = entity }
 			elseif isMirror(entity) then
 				-- Bounce through the mirror's own centre, not the raw
 				-- raycast entry point on its collider's edge. The entry
@@ -142,39 +154,50 @@ local function castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, bou
 					pivotX, pivotY = entity:getPosition()
 				end
 
-				table.insert(segments, {x1 = x1, y1 = y1, x2 = pivotX, y2 = pivotY})
+				table.insert(segments, { x1 = x1, y1 = y1, x2 = pivotX, y2 = pivotY })
 
 				local outgoing = entity.redirect and entity:redirect(direction)
 				if outgoing == nil then
 					-- Not one of this mirror's two connected directions:
 					-- opaque, same as any other obstacle.
-					return {x = pivotX, y = pivotY, hitEntity = entity}
+					return { x = pivotX, y = pivotY, hitEntity = entity }
 				end
 
 				if bounceCount >= MAX_BOUNCES then
 					-- Bounce cap reached: stop here, treated as absorbed.
-					return {x = pivotX, y = pivotY, hitEntity = entity}
+					return { x = pivotX, y = pivotY, hitEntity = entity }
 				end
 
-				return castSegment(pivotX, pivotY, outgoing, farEndpointFn, querySegmentFn,
-					bounceCount + 1, segments, killed, destroyed, activated, entity)
+				return castSegment(
+					pivotX,
+					pivotY,
+					outgoing,
+					farEndpointFn,
+					querySegmentFn,
+					bounceCount + 1,
+					segments,
+					killed,
+					destroyed,
+					activated,
+					entity
+				)
 			elseif isLaserSwitch(entity) then
-				table.insert(segments, {x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1})
+				table.insert(segments, { x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1 })
 
 				if entity.acceptsDirection and entity:acceptsDirection(direction) then
 					table.insert(activated, entity)
 				end
 
-				return {x = hit.x1, y = hit.y1, hitEntity = entity}
+				return { x = hit.x1, y = hit.y1, hitEntity = entity }
 			else
-				table.insert(segments, {x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1})
-				return {x = hit.x1, y = hit.y1, hitEntity = entity}
+				table.insert(segments, { x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1 })
+				return { x = hit.x1, y = hit.y1, hitEntity = entity }
 			end
 		end
 	end
 
-	table.insert(segments, {x1 = x1, y1 = y1, x2 = x2, y2 = y2})
-	return {x = x2, y = y2, hitEntity = nil}
+	table.insert(segments, { x1 = x1, y1 = y1, x2 = x2, y2 = y2 })
+	return { x = x2, y = y2, hitEntity = nil }
 end
 
 -- x1, y1: beam origin (the emitter's firing edge).
@@ -211,7 +234,8 @@ function LaserBeamResolver.resolve(x1, y1, direction, farEndpointFn, querySegmen
 	local destroyed = {}
 	local activated = {}
 
-	local final = castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, 0, segments, killed, destroyed, activated)
+	local final =
+		castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, 0, segments, killed, destroyed, activated)
 
 	return {
 		x = final.x,

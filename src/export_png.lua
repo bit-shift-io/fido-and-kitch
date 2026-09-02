@@ -15,7 +15,7 @@
 -- prints the path + dimensions + color legend to stdout, writes
 -- `export_<map>.png` into the project root (working directory), then quits.
 -- Mirrors the `e2e=<file>` detour in src/main.lua.
-local Tmj = require('src.map.tmj')
+local Tmj = require("src.map.tmj")
 
 local ExportPng = {}
 
@@ -32,26 +32,26 @@ local TILE_BLOCK_SIZE = 128
 local GID_MASK = 0x10000000
 
 local function resolveMapFile(basePath)
-	if basePath:match('%.tmj$') then
+	if basePath:match("%.tmj$") then
 		return basePath
 	end
-	if love and love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(basePath .. '.tmj') then
-		return basePath .. '.tmj'
+	if love and love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(basePath .. ".tmj") then
+		return basePath .. ".tmj"
 	end
-	return basePath .. '.tmj'
+	return basePath .. ".tmj"
 end
 
 local function fileStem(path)
-	local base = path:match('[^/\\]+$') or path
-	return (base:gsub('%.%w+$', ''))
+	local base = path:match("[^/\\]+$") or path
+	return (base:gsub("%.%w+$", ""))
 end
 
 -- Decode a base64 (optionally zlib/gzip-compressed) tile layer into a
 -- [y][x] grid of gids. Requires love.data -- the running game only.
 function ExportPng.decodeTileGrid(layer, mapWidth, mapHeight)
-	local data = love.data.decode('string', 'base64', layer.data)
-	if layer.compression == 'zlib' or layer.compression == 'gzip' then
-		data = love.data.decompress('string', layer.compression, data)
+	local data = love.data.decode("string", "base64", layer.data)
+	if layer.compression == "zlib" or layer.compression == "gzip" then
+		data = love.data.decompress("string", layer.compression, data)
 	end
 
 	local grid = {}
@@ -97,7 +97,7 @@ function ExportPng.buildColorGrid(map)
 
 	for _, layer in ipairs(map.layers) do
 		if layer.properties.collision then
-			if layer.type == 'tilelayer' and layer.data then
+			if layer.type == "tilelayer" and layer.data then
 				for y = 1, height do
 					local row = layer.data[y]
 					if row then
@@ -108,9 +108,9 @@ function ExportPng.buildColorGrid(map)
 						end
 					end
 				end
-			elseif layer.type == 'objectgroup' then
+			elseif layer.type == "objectgroup" then
 				for _, obj in ipairs(layer.objects or {}) do
-					if obj.shape == 'rectangle' then
+					if obj.shape == "rectangle" then
 						paintRect(grid, obj.x, obj.y, obj.width, obj.height, map.tilewidth, map.tileheight, COLOR_SOLID)
 					end
 				end
@@ -121,9 +121,9 @@ function ExportPng.buildColorGrid(map)
 	-- Hazards (kill zones) paint over ground regardless of deathType: a
 	-- lethal cell is blue, not solid.
 	for _, layer in ipairs(map.layers) do
-		if layer.type == 'objectgroup' then
+		if layer.type == "objectgroup" then
 			for _, obj in ipairs(layer.objects or {}) do
-				if obj.type == 'kill_zone' then
+				if obj.type == "kill_zone" then
 					paintRect(grid, obj.x, obj.y, obj.width, obj.height, map.tilewidth, map.tileheight, COLOR_KILLZONE)
 				end
 			end
@@ -158,33 +158,43 @@ end
 -- diagnostics, write to the working directory. Designed to run from the love.load
 -- detour before a Game is constructed.
 function ExportPng.run(mapName)
-	local path = resolveMapFile('res/map/' .. mapName)
+	local path = resolveMapFile("res/map/" .. mapName)
 	local map = Tmj.parse(path)
 	map._exportName = fileStem(path)
 
 	for _, layer in ipairs(map.layers) do
-		if layer.type == 'tilelayer' and layer.data then
+		if layer.type == "tilelayer" and layer.data then
 			layer.data = ExportPng.decodeTileGrid(layer, map.width, map.height)
 		end
 	end
 
 	local grid = ExportPng.buildColorGrid(map)
 	local imageData = ExportPng.buildImageData(grid, map.width, map.height, TILE_BLOCK_SIZE)
-	local png = imageData:encode('png')
+	local png = imageData:encode("png")
 
-	local filename = 'export_' .. mapName .. '.png'
-	local path = love.filesystem.getWorkingDirectory() .. '/' .. filename
-	local file, err = io.open(path, 'wb')
+	local filename = "export_" .. mapName .. ".png"
+	local path = love.filesystem.getWorkingDirectory() .. "/" .. filename
+	local file, err = io.open(path, "wb")
 	if not file then
-		print('ERROR: could not write ' .. path .. ': ' .. tostring(err))
+		print("ERROR: could not write " .. path .. ": " .. tostring(err))
 		return
 	end
 	file:write(png:getString())
 	file:close()
-	print(string.format('Pixel map of %s (%dx%d tiles = %dx%d px, %dpx per tile)', map._exportName or 'map', map.width, map.height, map.width * TILE_BLOCK_SIZE, map.height * TILE_BLOCK_SIZE, TILE_BLOCK_SIZE))
-	print('Colors: (0,0,0) black nothing, (0,255,0) green terrain/collision, (0,0,255) blue killzone/water')
-	print('')
-	print('Wrote ' .. path)
+	print(
+		string.format(
+			"Pixel map of %s (%dx%d tiles = %dx%d px, %dpx per tile)",
+			map._exportName or "map",
+			map.width,
+			map.height,
+			map.width * TILE_BLOCK_SIZE,
+			map.height * TILE_BLOCK_SIZE,
+			TILE_BLOCK_SIZE
+		)
+	)
+	print("Colors: (0,0,0) black nothing, (0,255,0) green terrain/collision, (0,0,255) blue killzone/water")
+	print("")
+	print("Wrote " .. path)
 end
 
 return ExportPng

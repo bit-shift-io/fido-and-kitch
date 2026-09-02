@@ -36,10 +36,10 @@
 -- 2-frame placeholder sheet, one frame per flipMirror state.
 -- Sprite:setFrameNum picks the right static frame directly -- there is no
 -- animation to play, just a flip-driven frame swap.
-local Log = require('src.utils.log')
-local SpriteProps = require('src.entities.sprite_props')
+local Log = require("src.utils.log")
+local SpriteProps = require("src.entities.sprite_props")
 
-local Mirror = Class{__includes = Entity}
+local Mirror = Class({ __includes = Entity })
 
 -- Every incoming direction redirects somewhere -- a double-sided mirror
 -- never blocks. Each table is its own inverse (redirecting the OUTGOING
@@ -47,16 +47,16 @@ local Mirror = Class{__includes = Entity}
 -- how a real mirror works from either face.
 local REFLECTIONS = {
 	[false] = { -- "/" (bottom-left to top-right)
-		up = 'right',
-		right = 'up',
-		down = 'left',
-		left = 'down',
+		up = "right",
+		right = "up",
+		down = "left",
+		left = "down",
 	},
 	[true] = { -- "\" (top-left to bottom-right)
-		up = 'left',
-		left = 'up',
-		down = 'right',
-		right = 'down',
+		up = "left",
+		left = "up",
+		down = "right",
+		right = "down",
 	},
 }
 
@@ -82,7 +82,7 @@ local function redirect(flipMirror, incomingDirection)
 end
 
 function Mirror:init(object, map)
-	Entity.init(self, object, 'mirror')
+	Entity.init(self, object, "mirror")
 
 	self.flipMirror = (object.properties and object.properties.flipMirror) or DEFAULT_FLIP_MIRROR
 
@@ -104,13 +104,13 @@ function Mirror:init(object, map)
 	self.sprite = self:addComponent(Sprite(spriteProps))
 	self:updateSpriteFrame()
 
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = shapeArguments,
-		body_type = 'static',
+		body_type = "static",
 		sensor = false,
 		position = position,
-	})
+	}))
 
 	-- Solid for the BEAM (raycast classification only ever reads .sensor,
 	-- never this) but never a physical obstacle to a player -- a mirror is a
@@ -127,17 +127,17 @@ function Mirror:init(object, map)
 	-- 'on' and 'off' transition; set rotateOnBothTriggers=false to flip on
 	-- the 'on' edge only (e.g. a laser switch, whose own 'off' edge -- the
 	-- beam moving away -- shouldn't also rotate the mirror).
-	self:addComponent(Switchable{
+	self:addComponent(Switchable({
 		entity = self,
 		enabled = true,
 		onStateChange = function(enabled)
 			if enabled or self.rotateOnBothTriggers then
 				self.flipMirror = not self.flipMirror
 				self:updateSpriteFrame()
-				Log.debug('mirror flipped via switch')
+				Log.debug("mirror flipped via switch")
 			end
-		end
-	})
+		end,
+	}))
 end
 
 function Mirror:updateSpriteFrame()

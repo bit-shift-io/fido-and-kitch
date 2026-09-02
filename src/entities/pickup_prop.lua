@@ -6,7 +6,7 @@
 -- each of those files requires and returns directly, so map object type
 -- 'coin'/'key' still resolves to src/entities/coin.lua / key.lua exactly
 -- as before (see AGENTS.md: "New map entity = new src/entities/<type>.lua").
-local GroundFaller = require('src.components.ground_faller')
+local GroundFaller = require("src.components.ground_faller")
 
 local PickupProp = {}
 
@@ -18,7 +18,7 @@ local PickupProp = {}
 --   sprite(object, shape_arguments) -> Sprite{} constructor props
 --   components(object)      -> table of {ComponentName = props} to add
 function PickupProp.define(spec)
-	local Prop = Class{__includes = Entity}
+	local Prop = Class({ __includes = Entity })
 
 	function Prop:init(object)
 		Entity.init(self, object, spec.type)
@@ -32,28 +32,28 @@ function PickupProp.define(spec)
 		if spec.components then
 			local comps = spec.components(object)
 			for compName, compProps in pairs(comps) do
-				local Comp = require('src.components.' .. compName:lower())
+				local Comp = require("src.components." .. compName:lower())
 				self:addComponent(Comp(compProps))
 			end
 		end
 
 		self.sprite = self:addComponent(Sprite(spec.sprite(object, shape_arguments)))
 
-		self.collider = self:addComponent(Collider{
-			shape_type = 'circle',
-			shape_arguments = {spec.pickupRadius or 10},
-			body_type = 'static',
+		self.collider = self:addComponent(Collider({
+			shape_type = "circle",
+			shape_arguments = { spec.pickupRadius or 10 },
+			body_type = "static",
 			sprite = self.sprite,
 			position = position,
 			sensor = true,
 			entity = self,
-		})
+		}))
 
-		self:addComponent(Pickup{
+		self:addComponent(Pickup({
 			itemName = spec.itemName(object),
 			collider = self.collider,
 			entity = self,
-		})
+		}))
 
 		-- keeps this pickup resting exactly where it's placed until whatever
 		-- is under it goes away (e.g. a destructible tile beneath it is
@@ -62,13 +62,13 @@ function PickupProp.define(spec)
 		-- groundProbeOffset uses the object's own authored half-height (its
 		-- visual footprint), not the collider's own physical bottom edge --
 		-- see that component's header for why the two differ for a pickup.
-		self:addComponent(GroundFaller{collider = self.collider, groundProbeOffset = object.height * 0.5})
+		self:addComponent(GroundFaller({ collider = self.collider, groundProbeOffset = object.height * 0.5 }))
 
-		self.sound = self:addComponent(Sound{
+		self.sound = self:addComponent(Sound({
 			sounds = {
 				pickup = spec.pickupSound,
 			},
-		})
+		}))
 
 		-- When picked up the entity is queueDestroy()'d; the burst must keep
 		-- animating after the pickup is gone, so it's handed to the map's
@@ -76,7 +76,7 @@ function PickupProp.define(spec)
 		if spec.pickupFx then
 			self.destroySignal:connect(function()
 				if map and map.fx then
-					map.fx:burst(spec.pickupFx, {x = position.x, y = position.y})
+					map.fx:burst(spec.pickupFx, { x = position.x, y = position.y })
 				end
 			end)
 		end

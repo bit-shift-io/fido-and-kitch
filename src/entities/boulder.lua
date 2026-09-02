@@ -13,28 +13,28 @@
 -- markContact() instead of queueDestroy()-ing it directly. So a boulder must
 -- carry a BeamContactDelay component by the time the laser's destroy loop
 -- runs, attached below via the init wrapper after PushableProp.define returns.
-local PushableProp = require('src.entities.pushable_prop')
-local SpriteProps = require('src.entities.sprite_props')
-local BeamContactDelay = require('src.components.beam_contact_delay')
+local PushableProp = require("src.entities.pushable_prop")
+local SpriteProps = require("src.entities.sprite_props")
+local BeamContactDelay = require("src.components.beam_contact_delay")
 
 -- Delay between a fully-on beam first touching this boulder and it actually
 -- destroying, driven by the BeamContactDelay component attached in init below.
 local DESTROY_DELAY = 0.5
 
-local Boulder = PushableProp.define{
-	type = 'boulder',
+local Boulder = PushableProp.define({
+	type = "boulder",
 	sprite = function(object, shape_arguments)
 		local art = SpriteProps.fromObject(object)
 		art.shape_arguments = shape_arguments
 		return art
 	end,
-	mode = 'roll',
-}
+	mode = "roll",
+})
 
 local originalInit = Boulder.init
 function Boulder:init(object)
 	originalInit(self, object)
-	self.beamContactDelay = self:addComponent(BeamContactDelay{delay = DESTROY_DELAY})
+	self.beamContactDelay = self:addComponent(BeamContactDelay({ delay = DESTROY_DELAY }))
 end
 
 return Boulder

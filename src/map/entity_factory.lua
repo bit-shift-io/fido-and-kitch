@@ -1,7 +1,7 @@
-local Log = require('src.utils.log')
-local NPCRegistry = require('src.npc.npc_registry')
-local LadderMerger = require('src.map.ladder_merger')
-local TjTemplate = require('src.map.tj_template')
+local Log = require("src.utils.log")
+local NPCRegistry = require("src.npc.npc_registry")
+local LadderMerger = require("src.map.ladder_merger")
+local TjTemplate = require("src.map.tj_template")
 
 local EntityFactory = {}
 EntityFactory.__index = EntityFactory
@@ -14,11 +14,11 @@ local templateCache = {}
 -- merged in below, so a value lands on the entity the same way a real
 -- template reference would have delivered it.
 local function coerceProp(prop)
-	if prop.type == 'bool' then
-		return prop.value == true or prop.value == 'true'
-	elseif prop.type == 'int' or prop.type == 'float' then
+	if prop.type == "bool" then
+		return prop.value == true or prop.value == "true"
+	elseif prop.type == "int" or prop.type == "float" then
 		return tonumber(prop.value)
-	elseif prop.type == 'object' then
+	elseif prop.type == "object" then
 		return { id = tonumber(prop.value) }
 	end
 	return prop.value
@@ -31,7 +31,9 @@ end
 -- stub map, without a whole Map/World stack running first.
 function EntityFactory:new(searchPaths, typeIgnores, map)
 	local ignores = {}
-	for _, v in ipairs(typeIgnores or {}) do ignores[v] = true end
+	for _, v in ipairs(typeIgnores or {}) do
+		ignores[v] = true
+	end
 	return setmetatable({
 		searchPaths = searchPaths,
 		typeIgnores = ignores,
@@ -48,7 +50,7 @@ end
 function EntityFactory.annotateLadders(objects)
 	local rungs = {}
 	for _, object in ipairs(objects or {}) do
-		if object.type == 'ladder' then
+		if object.type == "ladder" then
 			table.insert(rungs, object)
 		end
 	end
@@ -109,15 +111,15 @@ function EntityFactory:createEntities(map, world)
 					local eventStr = object.properties[propertyName]
 					if eventStr then
 						for k, v in pairs(object.properties) do
-							local sub = string.format('map:getObjectById(object.properties.%s.id).entity:', k)
-							eventStr = eventStr:gsub(string.format('%s:', k), sub)
+							local sub = string.format("map:getObjectById(object.properties.%s.id).entity:", k)
+							eventStr = eventStr:gsub(string.format("%s:", k), sub)
 						end
 
 						Log.debug("exec script:", eventStr)
 
 						local fn = utils.loadCode(eventStr, {
 							object = object,
-							entity = entity
+							entity = entity,
 						})
 						fn()
 					end
@@ -134,9 +136,7 @@ function EntityFactory:loadEntity(entityName, layer, object)
 	-- objects from replicator/cage/etc) still get the entity type's .tj
 	-- defaults: template first, the object's own props win. Real templated
 	-- instances were already merged at map parse, so they're skipped.
-	if object.template == nil
-		and not self.typeIgnores[entityName]
-		and not NPCRegistry._types[entityName] then
+	if object.template == nil and not self.typeIgnores[entityName] and not NPCRegistry._types[entityName] then
 		self:_mergeTemplateProps(entityName, object)
 	end
 
@@ -153,11 +153,11 @@ function EntityFactory:loadEntity(entityName, layer, object)
 			return npc
 		end
 	end
-	
+
 	if not self.typeIgnores[entityName] then
 		local lastErr
 		for k, pattern in pairs(self.searchPaths) do
-			local path = pattern:gsub('%?', entityName)
+			local path = pattern:gsub("%?", entityName)
 			local ok, err = pcall(require, path)
 			if not ok then
 				lastErr = err
@@ -171,7 +171,7 @@ function EntityFactory:loadEntity(entityName, layer, object)
 				return entity
 			end
 		end
-		Log.error('Entity Error: ' .. tostring(lastErr))
+		Log.error("Entity Error: " .. tostring(lastErr))
 	end
 	return nil
 end
@@ -183,15 +183,21 @@ end
 -- result via SpriteProps.fromObject at construction.
 function EntityFactory:_mergeTemplateProps(entityName, object)
 	local cached = templateCache[entityName]
-	if cached == false then return end
+	if cached == false then
+		return
+	end
 	if cached == nil then
-		cached = TjTemplate.tryResolve('res/entities/' .. entityName .. '.tj') or false
+		cached = TjTemplate.tryResolve("res/entities/" .. entityName .. ".tj") or false
 		templateCache[entityName] = cached
 	end
-	if not cached or not cached.object then return end
+	if not cached or not cached.object then
+		return
+	end
 
 	local base = cached.object.properties
-	if not base then return end
+	if not base then
+		return
+	end
 
 	local merged = {}
 	if object.properties then

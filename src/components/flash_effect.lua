@@ -8,10 +8,10 @@
 --   self.flashEffect:blink(0.15, 8, function() ... end)
 --   self.flashEffect:fadeOut(1.2)
 --   self.flashEffect:fadeIn(1.2)
-local FlashEffect = Class{}
+local FlashEffect = Class({})
 
 function FlashEffect:init(props)
-	self.type = 'flash_effect'
+	self.type = "flash_effect"
 
 	-- Blink state
 	self._blinkActive = false

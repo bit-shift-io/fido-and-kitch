@@ -6,11 +6,11 @@
 -- low-saturation RGBA form Tint already consumed; the Tint shader converts
 -- them to hue for its vibrant recolor.
 local KEY_COLORS = {
-	red    = {1, 0.2, 0.2, 1},
-	blue   = {0.2, 0.4, 1, 1},
-	yellow = {1, 0.9, 0.2, 1},
-	green  = {0.2, 0.8, 0.3, 1},
-	purple = {0.7, 0.3, 1, 1},
+	red = { 1, 0.2, 0.2, 1 },
+	blue = { 0.2, 0.4, 1, 1 },
+	yellow = { 1, 0.9, 0.2, 1 },
+	green = { 0.2, 0.8, 0.3, 1 },
+	purple = { 0.7, 0.3, 1, 1 },
 }
 
 local KeyColors = {

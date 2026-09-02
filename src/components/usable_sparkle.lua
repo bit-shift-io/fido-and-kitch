@@ -19,20 +19,20 @@
 --   range     px of extra space around the box the player must enter to trigger
 --   rate      particles emitted per frame while a player is in range
 --   width,height  emission box override (defaults to the entity's collider box)
-local Particles = require('src.emitters.sprite_emitter')
-local Geom = require('src.utils.geom')
+local Particles = require("src.emitters.sprite_emitter")
+local Geom = require("src.utils.geom")
 
 local TEXTURES = {
-	'res/img/fx/fx_star_glow.png',
-	'res/img/fx/fx_star_outline.png',
-	'res/img/fx/fx_blob_glow.png',
-	'res/img/fx/fx_square_outline.png',
+	"res/img/fx/fx_star_glow.png",
+	"res/img/fx/fx_star_outline.png",
+	"res/img/fx/fx_blob_glow.png",
+	"res/img/fx/fx_square_outline.png",
 }
 
-local UsableSparkle = Class{}
+local UsableSparkle = Class({})
 
 function UsableSparkle:init(props)
-	self.type = 'usable_sparkle'
+	self.type = "usable_sparkle"
 	self.entity = props.entity
 	self.texture = props.texture or TEXTURES
 	self.range = props.range or 24
@@ -46,17 +46,17 @@ end
 
 function UsableSparkle:config()
 	return {
-		position = {x = 0, y = 0},
-		lifetime = {min = 1.4, max = 2.8},
-		speed = {min = 3, max = 8},
-		direction = {angle = math.pi, spread = math.pi},
-		gravity = {x = 0, y = -8},
-		size = {start = 10, ["end"] = 3},
-		colors = {start = {1, 0.98, 0.88, 0.51}, ["end"] = {1, 0.9, 0.6, 0}},
+		position = { x = 0, y = 0 },
+		lifetime = { min = 1.4, max = 2.8 },
+		speed = { min = 3, max = 8 },
+		direction = { angle = math.pi, spread = math.pi },
+		gravity = { x = 0, y = -8 },
+		size = { start = 10, ["end"] = 3 },
+		colors = { start = { 1, 0.98, 0.88, 0.51 }, ["end"] = { 1, 0.9, 0.6, 0 } },
 		image = self.texture,
-		area = {w = 64, h = 64},
-		rotation = {angle = 0, spread = math.pi},
-		spin = {min = -1.2, max = 1.2},
+		area = { w = 64, h = 64 },
+		rotation = { angle = 0, spread = math.pi },
+		spin = { min = -1.2, max = 1.2 },
 		fadeIn = 0.25,
 	}
 end
@@ -77,7 +77,7 @@ function UsableSparkle:isPlayerInRange()
 	}
 	for _, col in ipairs(world:queryOverlap(query)) do
 		local e = col.entity
-		if e and e.type == 'player' then
+		if e and e.type == "player" then
 			return true
 		end
 	end
@@ -94,9 +94,12 @@ function UsableSparkle:getBox()
 	end
 	local cx, cy = self:getAnchor()
 	return {
-		left = cx - Geom.TILE_SIZE / 2, right = cx + Geom.TILE_SIZE / 2,
-		top = cy - Geom.TILE_SIZE / 2, bottom = cy + Geom.TILE_SIZE / 2,
-		width = Geom.TILE_SIZE, height = Geom.TILE_SIZE,
+		left = cx - Geom.TILE_SIZE / 2,
+		right = cx + Geom.TILE_SIZE / 2,
+		top = cy - Geom.TILE_SIZE / 2,
+		bottom = cy + Geom.TILE_SIZE / 2,
+		width = Geom.TILE_SIZE,
+		height = Geom.TILE_SIZE,
 	}
 end
 

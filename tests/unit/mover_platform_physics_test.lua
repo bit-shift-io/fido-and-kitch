@@ -5,11 +5,11 @@
 -- rider carry, halted-platform rider support, and a regression check that
 -- non-platform collision pairs still use the existing World.colFilter
 -- defaults.
-local HeadlessBootstrap = require('tests.support.headless_bootstrap')
+local HeadlessBootstrap = require("tests.support.headless_bootstrap")
 
-local MoverPlatform = require('src.entities.mover_platform')
-local PlayerSensors = require('src.player.player_sensors')
-local World = require('src.physics.bump.world')
+local MoverPlatform = require("src.entities.mover_platform")
+local PlayerSensors = require("src.player.player_sensors")
+local World = require("src.physics.bump.world")
 
 -- A Tiled path object whose waypoints are already absolute (STI re-anchors
 -- them in place): the first waypoint (100,100) is the DECK line -- the
@@ -36,14 +36,17 @@ local function makePlatform(overrides)
 	local props = {
 		path = { id = 1 },
 		speed = 100,
-		endBehavior = 'pingpong',
+		endBehavior = "pingpong",
 		pause = 0,
 	}
 	for k, v in pairs(overrides or {}) do
 		props[k] = v
 	end
 	return MoverPlatform({
-		x = 0, y = 0, width = 128, height = 32,
+		x = 0,
+		y = 0,
+		width = 128,
+		height = 32,
 		properties = props,
 	}, map)
 end
@@ -53,11 +56,11 @@ end
 -- given the real player's groupIndex (-1) so the default World.colFilter
 -- rules behave exactly as they do in-game (terrain colliders stay nil).
 local function makePlayer(centerX, centerY)
-	local c = Collider{
-		shape_type = 'rectangle',
+	local c = Collider({
+		shape_type = "rectangle",
 		shape_arguments = { 50, 50 },
-	}
-	c.entity = { type = 'player' }
+	})
+	c.entity = { type = "player" }
 	c:setGroupIndex(-1)
 	c:setPositionV(Vector(centerX, centerY))
 	return c
@@ -74,11 +77,11 @@ end
 -- through the slab if the pair were cross-compatible, so a stop at 100 is the
 -- signature of a genuine slide block.
 local function makeSolidSlab()
-	local c = Collider{
-		shape_type = 'rectangle',
+	local c = Collider({
+		shape_type = "rectangle",
 		shape_arguments = { 400, 50 },
-		body_type = 'static',
-	}
+		body_type = "static",
+	})
 	c:setPositionV(Vector(200, 75)) -- top=50, bottom=100
 	return c
 end
@@ -87,7 +90,7 @@ end
 -- one-way top-only collision
 --
 
-test('a player collider below the platform jumps straight up through it', function()
+test("a player collider below the platform jumps straight up through it", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	local player = makePlayer(100, 90) -- feet = 115, clearly inside the pass-through zone (deck top 100)
@@ -96,15 +99,15 @@ test('a player collider below the platform jumps straight up through it', functi
 
 	-- 20px of upward travel in one frame must cross the whole deck (top 100)
 	player:worldUpdate(0.01)
-	assertTrue(feet(player) < 100, 'player should have passed through to above the deck, feet=' .. feet(player))
-	assertTrue(feet(player) > 80, 'player should be just above the deck, not miles clear')
+	assertTrue(feet(player) < 100, "player should have passed through to above the deck, feet=" .. feet(player))
+	assertTrue(feet(player) > 80, "player should be just above the deck, not miles clear")
 
 	-- and keep rising, no longer blocked by the (now above) platform
 	player:worldUpdate(0.01)
-	assertTrue(feet(player) < 100, 'player should keep rising clear of the deck')
+	assertTrue(feet(player) < 100, "player should keep rising clear of the deck")
 end)
 
-test('a player below a plain solid is stopped (contrast: the pass-through is one-way, not global)', function()
+test("a player below a plain solid is stopped (contrast: the pass-through is one-way, not global)", function()
 	world = HeadlessBootstrap.resetWorld()
 	makeSolidSlab() -- static slab, bottom face at y=100
 	local player = makePlayer(100, 125) -- feet = 150, flush under the slab
@@ -112,10 +115,10 @@ test('a player below a plain solid is stopped (contrast: the pass-through is one
 	player:setLinearVelocity(0, -2000)
 
 	player:worldUpdate(0.03) -- a cross-compatible pair would rise 60px (feet to 90)
-	assertNear(150, feet(player), 0.01, 'the solid slab should block any rise into it (feet stays at first contact)')
+	assertNear(150, feet(player), 0.01, "the solid slab should block any rise into it (feet stays at first contact)")
 end)
 
-test('falling onto the top lands and stands (ground query true)', function()
+test("falling onto the top lands and stands (ground query true)", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	local player = makePlayer(100, 40) -- feet = 65, above the deck, falling
@@ -125,15 +128,15 @@ test('falling onto the top lands and stands (ground query true)', function()
 		player:worldUpdate(1 / 60)
 	end
 
-	assertNear(100, feet(player), 0.01, 'player should be resting on the deck')
-	assertTrue(PlayerSensors.queryOnGround(world, player), 'a landed rider must report ground')
+	assertNear(100, feet(player), 0.01, "player should be resting on the deck")
+	assertTrue(PlayerSensors.queryOnGround(world, player), "a landed rider must report ground")
 end)
 
 --
 -- rider delta-carry
 --
 
-test('a standing rider is carried by exactly the platform delta', function()
+test("a standing rider is carried by exactly the platform delta", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	local player = makePlayer(100, 75) -- resting on the deck (feet = 100 = top)
@@ -149,23 +152,23 @@ test('a standing rider is carried by exactly the platform delta', function()
 
 	assertNear(50, delta.x, 0.001)
 	assertNear(0, delta.y, 0.001)
-	assertNear(playerBefore.x + delta.x, playerAfter.x, 0.001, 'rider should move with the platform')
+	assertNear(playerBefore.x + delta.x, playerAfter.x, 0.001, "rider should move with the platform")
 	assertNear(playerBefore.y + delta.y, playerAfter.y, 0.001)
-	assertNear(100, feet(player), 0.001, 'rider should stay flush on the deck while carried')
+	assertNear(100, feet(player), 0.001, "rider should stay flush on the deck while carried")
 end)
 
-test('a player whose feet are far below the deck is not carried', function()
+test("a player whose feet are far below the deck is not carried", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	local player = makePlayer(100, 200) -- feet = 225, well under the platform
 
 	p:update(0.5)
 
-	assertNear(100, player:getPositionV().x, 0.001, 'deep-below player must not be dragged')
+	assertNear(100, player:getPositionV().x, 0.001, "deep-below player must not be dragged")
 	assertNear(200, player:getPositionV().y, 0.001)
 end)
 
-test('a player standing fully off the platform edge is not dragged onto it', function()
+test("a player standing fully off the platform edge is not dragged onto it", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	-- standing on terrain at deck height (feet = 100) well right of the path:
@@ -175,7 +178,7 @@ test('a player standing fully off the platform edge is not dragged onto it', fun
 
 	p:update(0.5)
 
-	assertNear(300, player:getPositionV().x, 0.001, 'off-path player must not be pulled onto the deck')
+	assertNear(300, player:getPositionV().x, 0.001, "off-path player must not be pulled onto the deck")
 	assertNear(75, player:getPositionV().y, 0.001)
 end)
 
@@ -183,7 +186,7 @@ end)
 -- halted platform
 --
 
-test('when the platform halts, the rider stays supported and the platform is still', function()
+test("when the platform halts, the rider stays supported and the platform is still", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	local player = makePlayer(100, 75) -- feet = 100, flush on the deck top
@@ -192,8 +195,8 @@ test('when the platform halts, the rider stays supported and the platform is sti
 	assertNear(110, p.collider:getPositionV().x, 0.001)
 	assertNear(110, player:getPositionV().x, 0.001)
 
-	p:getComponent(Switchable):switch({ state = 'off' }, nil)
-	assertFalse(p.running, 'switch should stop the platform')
+	p:getComponent(Switchable):switch({ state = "off" }, nil)
+	assertFalse(p.running, "switch should stop the platform")
 
 	local platPos = p.collider:getPositionV()
 
@@ -202,32 +205,32 @@ test('when the platform halts, the rider stays supported and the platform is sti
 		player:worldUpdate(1 / 60)
 	end
 
-	assertNear(platPos.x, p.collider:getPositionV().x, 0.001, 'halting platform must not move')
+	assertNear(platPos.x, p.collider:getPositionV().x, 0.001, "halting platform must not move")
 	assertNear(platPos.y, p.collider:getPositionV().y, 0.001)
-	assertNear(platPos.x, player:getPositionV().x, 0.001, 'rider should keep their spot over the deck')
-	assertNear(platPos.y - 16, feet(player), 0.001, 'rider should stay supported (feet on deck)')
-	assertTrue(PlayerSensors.queryOnGround(world, player), 'rider should still report ground')
+	assertNear(platPos.x, player:getPositionV().x, 0.001, "rider should keep their spot over the deck")
+	assertNear(platPos.y - 16, feet(player), 0.001, "rider should stay supported (feet on deck)")
+	assertTrue(PlayerSensors.queryOnGround(world, player), "rider should still report ground")
 end)
 
 --
 -- regression: non-platform pairs keep the existing colFilter defaults
 --
 
-test('existing player vs plain-entity collision behaviour is unchanged', function()
+test("existing player vs plain-entity collision behaviour is unchanged", function()
 	world = HeadlessBootstrap.resetWorld()
 	local p = makePlatform()
 	local player = makePlayer(100, 59)
 
-	local terrain = Collider{ shape_arguments = { 50, 50 } }
-	assertEqual('slide', World.colFilter(player, terrain), 'player vs plain terrain stays solid')
+	local terrain = Collider({ shape_arguments = { 50, 50 } })
+	assertEqual("slide", World.colFilter(player, terrain), "player vs plain terrain stays solid")
 
-	terrain.entity = { type = 'entity' }
-	assertEqual('cross', World.colFilter(player, terrain), 'player vs plain entity still passes through')
+	terrain.entity = { type = "entity" }
+	assertEqual("cross", World.colFilter(player, terrain), "player vs plain entity still passes through")
 
-	local box = Collider{ shape_arguments = { 32, 32 } }
-	box.entity = { type = 'pushable' }
+	local box = Collider({ shape_arguments = { 32, 32 } })
+	box.entity = { type = "pushable" }
 	box:setGroupIndex(50) -- real pushables carry a non-nil groupIndex (PushableSupport)
 	-- the platform's colFilterFn returns nil for non-players, so the default
 	-- rules decide: pushables are solid against the platform
-	assertEqual('slide', World.colFilter(box, p.collider), 'platform vs non-player falls through to defaults')
+	assertEqual("slide", World.colFilter(box, p.collider), "platform vs non-player falls through to defaults")
 end)

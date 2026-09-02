@@ -2,21 +2,21 @@
 -- Only a mount sound is wired here -- LadderState
 -- (src/player/player_states.lua) has no horizontal-slide mechanic to hook a
 -- 'slide' sound into.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local FakeInputModule = require('tests.support.fake_input')
-local SoundSpy = require('tests.support.sound_spy')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local FakeInputModule = require("tests.support.fake_input")
+local SoundSpy = require("tests.support.sound_spy")
 
 local FakeInput = FakeInputModule.FakeInput
 local holdFor = FakeInputModule.holdFor
 
-local MAP = 'tests/fixtures/ladder_fall_catch_room.tmj'
+local MAP = "tests/fixtures/ladder_fall_catch_room.tmj"
 
 local function player1(game)
 	return game.fsm.currentState.players[1]
 end
 
-test('entering a ladder by mounting or fall-catch plays the mount sound', function()
+test("entering a ladder by mounting or fall-catch plays the mount sound", function()
 	local game = GameHarness.startGame(MAP)
 	local player = player1(game)
 
@@ -26,9 +26,9 @@ test('entering a ladder by mounting or fall-catch plays the mount sound', functi
 	-- deliberate up/down mount takes.
 	local spy = SoundSpy.install()
 
-	local runUntil = require('tests.support.fake_input').runUntil
+	local runUntil = require("tests.support.fake_input").runUntil
 	runUntil(game, function()
-		return player.fsm.currentState.name == 'LadderState'
+		return player.fsm.currentState.name == "LadderState"
 	end, 120)
 
 	spy.uninstall()
@@ -36,5 +36,5 @@ test('entering a ladder by mounting or fall-catch plays the mount sound', functi
 	for _, name in ipairs(spy.played) do
 		seen[name] = true
 	end
-	assertTrue(seen.mount, 'expected the mount sound to have played on entering the ladder')
+	assertTrue(seen.mount, "expected the mount sound to have played on entering the ladder")
 end)

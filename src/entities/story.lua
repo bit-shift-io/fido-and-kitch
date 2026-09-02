@@ -14,9 +14,9 @@
 -- below -- same pattern as src/entities/drawbridge.lua. Only
 -- drawBubbleScreen touches love.graphics.
 
-local Story = Class{__includes = Entity}
-local SpriteProps = require('src.entities.sprite_props')
-local StoryText = require('src.entities.story_text')
+local Story = Class({ __includes = Entity })
+local SpriteProps = require("src.entities.sprite_props")
+local StoryText = require("src.entities.story_text")
 
 local CONST = StoryText.CONST
 local splitLines = StoryText.typewriter.splitLines
@@ -42,14 +42,14 @@ Story._internal = {
 }
 
 function Story:init(object, map)
-	Entity.init(self, object, 'story')
-	self.text = (object.properties and object.properties.text) or ''
+	Entity.init(self, object, "story")
+	self.text = (object.properties and object.properties.text) or ""
 	self.lines = splitLines(self.text)
 
 	-- retro blocky font for the speech bubble
 	self.font = nil
 	if love and love.graphics then
-		self.font = love.graphics.newFont('res/fnt/SuperMarioBrosNES.ttf', 14)
+		self.font = love.graphics.newFont("res/fnt/SuperMarioBrosNES.ttf", 14)
 	end
 
 	local position = Rect.centreOfMapObject(object)
@@ -58,22 +58,22 @@ function Story:init(object, map)
 	spriteProps.position = position
 	spriteProps.shape_arguments = shape_arguments
 	self.sprite = self:addComponent(Sprite(spriteProps))
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = shape_arguments,
-		body_type = 'static',
+		body_type = "static",
 		position = position,
 		sensor = true,
-	})
-	self:addComponent(Usable{
+	}))
+	self:addComponent(Usable({
 		entity = self,
 		use = utils.bindSelf(self.use, self),
-	})
-	self.sound = self:addComponent(Sound{
+	}))
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			blip = 'res/snd/entity_story_blip.wav',
-		}
-	})
+			blip = "res/snd/entity_story_blip.wav",
+		},
+	}))
 
 	self.bubbles = {}
 end
@@ -92,7 +92,7 @@ function Story:use(user)
 			bubble.visible = true
 			bubble.revealElapsed = 0
 			bubble.cooldownTimer = 0
-			self.sound:play('blip')
+			self.sound:play("blip")
 		end
 		return
 	end
@@ -140,7 +140,9 @@ function Story:drawBubbleScreen(viewRect)
 			local font = self.font or love.graphics.getFont()
 			local lineHeight = font:getHeight()
 			local spacing = lineHeight * 1.5
-			local measure = function(line) return font:getWidth(line) end
+			local measure = function(line)
+				return font:getWidth(line)
+			end
 			local visible = wrapLines(visibleText(self.lines, bubble.revealElapsed), measure, CONST.MAX_WIDTH)
 
 			-- screenPoint takes a world-space translation; the camera's
@@ -148,7 +150,11 @@ function Story:drawBubbleScreen(viewRect)
 			local anchorX, anchorY = screenPoint(
 				self.collider:getX(),
 				self.collider:getY() - self.collider.height * 0.5,
-				tx / sx, ty / sy, sx, sy)
+				tx / sx,
+				ty / sy,
+				sx,
+				sy
+			)
 
 			local width = boxWidth(visible, measure)
 			local height = boxHeight(#visible, spacing)
@@ -161,10 +167,10 @@ function Story:drawBubbleScreen(viewRect)
 			love.graphics.push()
 			love.graphics.setFont(font)
 			love.graphics.setColor(0.1, 0.1, 0.1, 0.9)
-			love.graphics.rectangle('fill', boxX, boxY, width, height, CONST.CORNER_RADIUS, CONST.CORNER_RADIUS)
+			love.graphics.rectangle("fill", boxX, boxY, width, height, CONST.CORNER_RADIUS, CONST.CORNER_RADIUS)
 			love.graphics.setColor(1, 1, 1, 1)
-			love.graphics.rectangle('line', boxX, boxY, width, height, CONST.CORNER_RADIUS, CONST.CORNER_RADIUS)
-			love.graphics.polygon('fill', tail[1].x, tail[1].y, tail[2].x, tail[2].y, tail[3].x, tail[3].y)
+			love.graphics.rectangle("line", boxX, boxY, width, height, CONST.CORNER_RADIUS, CONST.CORNER_RADIUS)
+			love.graphics.polygon("fill", tail[1].x, tail[1].y, tail[2].x, tail[2].y, tail[3].x, tail[3].y)
 			love.graphics.setColor(1, 1, 1, 1)
 			local textTop = boxY + CONST.PADDING
 			for i, line in ipairs(visible) do

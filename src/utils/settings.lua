@@ -7,18 +7,20 @@
 -- file. Nothing here is required for the game to run — every read falls back to
 -- a default and every write is best-effort, so a missing, unwritable or corrupt
 -- file only ever costs the remembered preference.
-local json = require('src.utils.json')
-local Log = require('src.utils.log')
+local json = require("src.utils.json")
+local Log = require("src.utils.log")
 
 local Settings = {}
 
-local FILE = 'settings.json'
-local IDENTITY = 'fido-and-kitch'
+local FILE = "settings.json"
+local IDENTITY = "fido-and-kitch"
 
 local cache = nil
 
 local function filesystem()
-	if not love or not love.filesystem then return nil end
+	if not love or not love.filesystem then
+		return nil
+	end
 	-- Game:keypressed's F12 handler and the IPC screenshot both call
 	-- setIdentity, so don't trust whatever identity is current.
 	if love.filesystem.setIdentity then
@@ -28,7 +30,9 @@ local function filesystem()
 end
 
 function Settings.load()
-	if cache then return cache end
+	if cache then
+		return cache
+	end
 
 	cache = {}
 
@@ -43,8 +47,8 @@ function Settings.load()
 	end
 
 	local data, err = json.decode(content)
-	if type(data) ~= 'table' then
-		Log.warn('Could not read ' .. FILE .. ': ' .. tostring(err))
+	if type(data) ~= "table" then
+		Log.warn("Could not read " .. FILE .. ": " .. tostring(err))
 		return cache
 	end
 
@@ -54,11 +58,13 @@ end
 
 function Settings.save()
 	local fs = filesystem()
-	if not fs or not fs.write then return false end
+	if not fs or not fs.write then
+		return false
+	end
 
 	local ok, err = pcall(fs.write, FILE, json.encode(Settings.load()))
 	if not ok then
-		Log.warn('Could not write ' .. FILE .. ': ' .. tostring(err))
+		Log.warn("Could not write " .. FILE .. ": " .. tostring(err))
 		return false
 	end
 	return true

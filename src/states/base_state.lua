@@ -6,24 +6,18 @@
 -- a given callback overrides it after __includes = BaseState -- the same
 -- override-by-copy mechanism Entity/component mixins already use
 -- throughout the codebase (see lib/hump/class.lua's `include`).
-local BaseState = Class{}
+local BaseState = Class({})
 
-function BaseState:gamepadpressed(joystick, button)
-end
+function BaseState:gamepadpressed(joystick, button) end
 
-function BaseState:joystickpressed(joystick, button)
-end
+function BaseState:joystickpressed(joystick, button) end
 
-function BaseState:mousepressed(x, y, button)
-end
+function BaseState:mousepressed(x, y, button) end
 
-function BaseState:touchpressed(id, x, y)
-end
+function BaseState:touchpressed(id, x, y) end
 
-function BaseState:textinput(t)
-end
+function BaseState:textinput(t) end
 
-function BaseState:resize(w, h)
-end
+function BaseState:resize(w, h) end
 
 return BaseState

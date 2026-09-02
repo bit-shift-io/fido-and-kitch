@@ -8,7 +8,7 @@ local MovementModel = {}
 
 -- Sourced from src/, not duplicated as literals, so the model can never
 -- drift from the real player's speeds (DECISIONS.md Q12).
-MovementModel.constants = require('src.player.movement_constants')
+MovementModel.constants = require("src.player.movement_constants")
 
 --- True if a and b sit on the same row with touching or overlapping
 -- x-ranges -- i.e. the player can walk from one directly into the other.
@@ -42,8 +42,8 @@ end
 --- Builds the set of zone indices reachable from `startIndex` by walking
 -- and/or climbing ladders, per the two transitions above.
 function MovementModel.reachableFrom(zones, ladders, startIndex)
-	local reachable = {[startIndex] = true}
-	local frontier = {startIndex}
+	local reachable = { [startIndex] = true }
+	local frontier = { startIndex }
 
 	while #frontier > 0 do
 		local current = table.remove(frontier)

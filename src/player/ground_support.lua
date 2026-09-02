@@ -2,7 +2,7 @@
 -- under BOTH feet corners (with an inward margin), not just anywhere under a
 -- wide strip. Used to gate safe-position recording so a player hanging off
 -- a ledge edge never gets recorded as "safely" grounded there.
-local NumberUtils = require('src.utils.number')
+local NumberUtils = require("src.utils.number")
 local clamp = NumberUtils.clamp
 
 local PLAYER_PROBE_MARGIN = 4
@@ -15,7 +15,7 @@ local GroundSupport = {}
 -- (under their centre-x, see ADR 0002) and duplicating the walkable/sensor
 -- rules is exactly how the two would drift apart.
 function GroundSupport.hasGroundAt(world, x, top, bottom)
-	local probe = {left = x - PLAYER_PROBE_MARGIN, right = x + PLAYER_PROBE_MARGIN, top = top, bottom = bottom}
+	local probe = { left = x - PLAYER_PROBE_MARGIN, right = x + PLAYER_PROBE_MARGIN, top = top, bottom = bottom }
 	local colls = world:queryBounds(probe)
 	for _, c in ipairs(colls) do
 		-- `walkable` is a capability flag, not a standing guarantee -- an

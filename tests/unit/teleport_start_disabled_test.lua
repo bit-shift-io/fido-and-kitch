@@ -4,28 +4,31 @@
 -- author `enabled`, so the default (true) must be unchanged -- see
 -- tests/integration/switchable_teleport_test.lua's "starts enabled" case,
 -- which stays green.
-local HeadlessBootstrap = require('tests.support.headless_bootstrap')
-local Teleport = require('src.entities.teleport')
+local HeadlessBootstrap = require("tests.support.headless_bootstrap")
+local Teleport = require("src.entities.teleport")
 
 local function makeTeleport(properties)
 	HeadlessBootstrap.resetWorld()
 	return Teleport({
-		x = 96, y = 96, width = 32, height = 32,
+		x = 96,
+		y = 96,
+		width = 32,
+		height = 32,
 		properties = properties,
 	})
 end
 
-test('with no enabled property authored, a teleporter starts usable (unchanged default)', function()
+test("with no enabled property authored, a teleporter starts usable (unchanged default)", function()
 	local teleport = makeTeleport({})
 	assertTrue(teleport.usable.enabled)
 end)
 
-test('an authored enabled=false teleporter starts blocked', function()
-	local teleport = makeTeleport({enabled = false})
+test("an authored enabled=false teleporter starts blocked", function()
+	local teleport = makeTeleport({ enabled = false })
 	assertFalse(teleport.usable.enabled)
 end)
 
-test('an authored enabled=true teleporter starts usable', function()
-	local teleport = makeTeleport({enabled = true})
+test("an authored enabled=true teleporter starts usable", function()
+	local teleport = makeTeleport({ enabled = true })
 	assertTrue(teleport.usable.enabled)
 end)

@@ -1,22 +1,22 @@
 -- Unit tests for World:querySegment and World:querySegmentWithCoords
-Class = Class or require('lib.hump.class')
-local World = require('src.physics.bump.world')
-Collider = Collider or require('src.physics.bump.collider')
+Class = Class or require("lib.hump.class")
+local World = require("src.physics.bump.world")
+Collider = Collider or require("src.physics.bump.collider")
 
 local function makeStaticBox(x, y, width, height, entity)
-	local col = Collider{
-		shape_type = 'rectangle',
-		shape_arguments = {width, height},
-		body_type = 'static',
-		position = {x = x, y = y},
-	}
+	local col = Collider({
+		shape_type = "rectangle",
+		shape_arguments = { width, height },
+		body_type = "static",
+		position = { x = x, y = y },
+	})
 	if entity then
 		col.entity = entity
 	end
 	return col
 end
 
-test('querySegment returns empty array when segment hits nothing', function()
+test("querySegment returns empty array when segment hits nothing", function()
 	world = World:new(0, 0, true)
 
 	-- Create a single box at (100, 100)
@@ -28,7 +28,7 @@ test('querySegment returns empty array when segment hits nothing', function()
 	assertEqual(0, #results)
 end)
 
-test('querySegment returns single item when segment hits one collider', function()
+test("querySegment returns single item when segment hits one collider", function()
 	world = World:new(0, 0, true)
 
 	-- Create a box at (100, 100) with dimensions 50x50, centered
@@ -42,13 +42,13 @@ test('querySegment returns single item when segment hits one collider', function
 	assertTrue(results[1] == box)
 end)
 
-test('querySegment returns items in nearest-first order', function()
+test("querySegment returns items in nearest-first order", function()
 	world = World:new(0, 0, true)
 
 	-- Create three boxes in a line along x-axis
-	local box1 = makeStaticBox(100, 100, 40, 40)  -- spans ~[80, 120]
-	local box2 = makeStaticBox(200, 100, 40, 40)  -- spans ~[180, 220]
-	local box3 = makeStaticBox(300, 100, 40, 40)  -- spans ~[280, 320]
+	local box1 = makeStaticBox(100, 100, 40, 40) -- spans ~[80, 120]
+	local box2 = makeStaticBox(200, 100, 40, 40) -- spans ~[180, 220]
+	local box3 = makeStaticBox(300, 100, 40, 40) -- spans ~[280, 320]
 
 	-- Cast a horizontal segment through all three: from (0, 100) to (400, 100)
 	local results = world:querySegment(0, 100, 400, 100)
@@ -60,7 +60,7 @@ test('querySegment returns items in nearest-first order', function()
 	assertTrue(results[3] == box3)
 end)
 
-test('querySegment respects filter callback', function()
+test("querySegment respects filter callback", function()
 	world = World:new(0, 0, true)
 
 	local box1 = makeStaticBox(100, 100, 40, 40)
@@ -79,10 +79,10 @@ test('querySegment respects filter callback', function()
 	assertTrue(results[2] == box3)
 end)
 
-test('querySegment attaches .entity to results', function()
+test("querySegment attaches .entity to results", function()
 	world = World:new(0, 0, true)
 
-	local entity = {type = 'test_entity'}
+	local entity = { type = "test_entity" }
 	local box = makeStaticBox(100, 100, 40, 40, entity)
 
 	local results = world:querySegment(50, 100, 150, 100)
@@ -91,7 +91,7 @@ test('querySegment attaches .entity to results', function()
 	assertTrue(results[1].entity == entity)
 end)
 
-test('querySegment handles items without .entity', function()
+test("querySegment handles items without .entity", function()
 	world = World:new(0, 0, true)
 
 	-- Create a box without an entity
@@ -104,7 +104,7 @@ test('querySegment handles items without .entity', function()
 	assertTrue(results[1].entity == nil)
 end)
 
-test('querySegmentWithCoords returns hit coordinates', function()
+test("querySegmentWithCoords returns hit coordinates", function()
 	world = World:new(0, 0, true)
 
 	-- Create a box at (100, 100) with dimensions 50x50
@@ -133,7 +133,7 @@ test('querySegmentWithCoords returns hit coordinates', function()
 	assertTrue((result.x2 >= 70 and result.x2 <= 80) or (result.x2 >= 120 and result.x2 <= 130))
 end)
 
-test('querySegmentWithCoords returns items in nearest-first order', function()
+test("querySegmentWithCoords returns items in nearest-first order", function()
 	world = World:new(0, 0, true)
 
 	local box1 = makeStaticBox(100, 100, 40, 40)
@@ -148,11 +148,11 @@ test('querySegmentWithCoords returns items in nearest-first order', function()
 	assertTrue(results[3].item == box3)
 end)
 
-test('querySegmentWithCoords attaches .entity to results', function()
+test("querySegmentWithCoords attaches .entity to results", function()
 	world = World:new(0, 0, true)
 
-	local entity1 = {type = 'entity_a'}
-	local entity2 = {type = 'entity_b'}
+	local entity1 = { type = "entity_a" }
+	local entity2 = { type = "entity_b" }
 
 	local box1 = makeStaticBox(100, 100, 40, 40, entity1)
 	local box2 = makeStaticBox(200, 100, 40, 40, entity2)
@@ -170,17 +170,17 @@ end)
 -- underlying collider (itemInfo[i].item.sensor) the same way .entity already
 -- is, or every hit reads sensor=nil (indistinguishable from a solid hit) and
 -- an open/passable sensor collider wrongly blocks a beam.
-test('querySegmentWithCoords attaches .sensor to results', function()
+test("querySegmentWithCoords attaches .sensor to results", function()
 	world = World:new(0, 0, true)
 
 	local solidBox = makeStaticBox(100, 100, 40, 40)
-	local sensorBox = Collider{
-		shape_type = 'rectangle',
-		shape_arguments = {40, 40},
-		body_type = 'static',
+	local sensorBox = Collider({
+		shape_type = "rectangle",
+		shape_arguments = { 40, 40 },
+		body_type = "static",
 		sensor = true,
-		position = {x = 200, y = 100},
-	}
+		position = { x = 200, y = 100 },
+	})
 
 	local results = world:querySegmentWithCoords(0, 100, 400, 100)
 
@@ -191,7 +191,7 @@ test('querySegmentWithCoords attaches .sensor to results', function()
 	assertTrue(results[2].sensor)
 end)
 
-test('querySegmentWithCoords respects filter callback', function()
+test("querySegmentWithCoords respects filter callback", function()
 	world = World:new(0, 0, true)
 
 	local box1 = makeStaticBox(100, 100, 40, 40)
@@ -207,7 +207,7 @@ test('querySegmentWithCoords respects filter callback', function()
 	assertTrue(results[1].item == box2)
 end)
 
-test('querySegment works with diagonal segments', function()
+test("querySegment works with diagonal segments", function()
 	world = World:new(0, 0, true)
 
 	-- Create boxes along a diagonal
@@ -222,7 +222,7 @@ test('querySegment works with diagonal segments', function()
 	assertTrue(results[2] == box2)
 end)
 
-test('querySegmentWithCoords handles diagonal segments with coordinates', function()
+test("querySegmentWithCoords handles diagonal segments with coordinates", function()
 	world = World:new(0, 0, true)
 
 	local box = makeStaticBox(100, 100, 30, 30)

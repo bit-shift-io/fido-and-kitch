@@ -5,7 +5,7 @@ local Queries = {}
 
 function Queries.findEntityByType(mapInstance, entityType)
 	for _, layer in ipairs(mapInstance.layers) do
-		if layer.type == 'objectgroup' and layer.entities then
+		if layer.type == "objectgroup" and layer.entities then
 			for _, entity in pairs(layer.entities) do
 				if entity.type == entityType then
 					return entity
@@ -19,7 +19,7 @@ end
 function Queries.findEntitiesByType(mapInstance, entityType)
 	local entities = {}
 	for _, layer in ipairs(mapInstance.layers) do
-		if layer.type == 'objectgroup' and layer.entities then
+		if layer.type == "objectgroup" and layer.entities then
 			for _, entity in pairs(layer.entities) do
 				if entity.type == entityType then
 					table.insert(entities, entity)
@@ -35,7 +35,7 @@ end
 -- within a layer is not something a test should depend on.
 function Queries.findEntityByName(mapInstance, name)
 	for _, layer in ipairs(mapInstance.layers) do
-		if layer.type == 'objectgroup' and layer.entities then
+		if layer.type == "objectgroup" and layer.entities then
 			for _, entity in pairs(layer.entities) do
 				if entity.name == name then
 					return entity

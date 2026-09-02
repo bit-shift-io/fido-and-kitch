@@ -53,9 +53,9 @@
 -- order; the difference is a same-frame reaction vs a one-frame lag, never
 -- a mistaken final state once the beam has been on (or off) for more than a
 -- single frame.
-local SpriteProps = require('src.entities.sprite_props')
+local SpriteProps = require("src.entities.sprite_props")
 
-local LaserSwitch = Class{__includes = Entity}
+local LaserSwitch = Class({ __includes = Entity })
 
 -- Pure: does a beam travelling `incomingDirection` validly hit a face whose
 -- accepted direction is `switchDirection`? Kept as a free function (with a
@@ -67,17 +67,17 @@ local function acceptsDirection(incomingDirection, switchDirection)
 end
 
 function LaserSwitch:init(object, map)
-	Entity.init(self, object, 'laser_switch')
+	Entity.init(self, object, "laser_switch")
 
-	self.direction = (object.properties and object.properties.direction) or 'up'
-	self.state = 'off'
+	self.direction = (object.properties and object.properties.direction) or "up"
+	self.state = "off"
 	self.hitThisFrame = false
 
 	-- Bottom-anchored, like every other gid-template mounted fixture
 	-- (laser, mirror, blocker, switch): object.y is the mount's BOTTOM
 	-- edge, so the rect's top sits one height above it.
 	local topLeftY = object.y - object.height
-	self.rect = Rect{x = object.x, y = topLeftY, width = object.width, height = object.height}
+	self.rect = Rect({ x = object.x, y = topLeftY, width = object.width, height = object.height })
 	local position = self.rect:centre()
 
 	local spriteProps = SpriteProps.fromObject(object)
@@ -90,13 +90,13 @@ function LaserSwitch:init(object, map)
 	-- already stops any beam here, valid direction or not, with zero
 	-- resolver logic beyond recording the valid-direction case (see
 	-- src/entities/laser_beam_resolver.lua's isLaserSwitch branch).
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = self.rect:colliderShapeArgs(),
-		body_type = 'static',
+		body_type = "static",
 		sensor = false,
 		position = position,
-	})
+	}))
 
 	-- Solid for the BEAM (raycast classification only ever reads .sensor,
 	-- never this) but never a physical obstacle to a player -- like
@@ -116,16 +116,16 @@ function LaserSwitch:init(object, map)
 		self.target = map:getObjectById(object.properties.target.id)
 	end
 
-	self.sound = self:addComponent(Sound{
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			press = 'res/snd/entity_pressure_press.wav',
-			release = 'res/snd/entity_pressure_release.wav',
-		}
-	})
+			press = "res/snd/entity_pressure_press.wav",
+			release = "res/snd/entity_pressure_release.wav",
+		},
+	}))
 end
 
 function LaserSwitch:isActive()
-	return self.state == 'on'
+	return self.state == "on"
 end
 
 -- incomingDirection -> true/false, the generic seam
@@ -154,8 +154,8 @@ function LaserSwitch:update(dt)
 		return
 	end
 
-	self.state = isActive and 'on' or 'off'
-	self.sound:play(isActive and 'press' or 'release')
+	self.state = isActive and "on" or "off"
+	self.sound:play(isActive and "press" or "release")
 	self:driveTarget()
 end
 

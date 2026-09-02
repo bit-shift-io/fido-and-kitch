@@ -8,7 +8,7 @@ local TILE = 32
 local MIN_ZONE_WIDTH = 6
 
 local Rule = {}
-Rule.id = 'switch-disables-jump-pad-hop'
+Rule.id = "switch-disables-jump-pad-hop"
 
 local function surfaceY(row)
 	return (row - 1) * TILE
@@ -41,34 +41,34 @@ function Rule.apply(rng, layout, startId)
 		objects = {
 			{
 				id = pathId,
-				name = 'jump_path',
+				name = "jump_path",
 				x = padX,
 				y = y,
 				-- Short hop landing 4 tiles further along the same zone --
 				-- always within [zone.x1, zone.x2] given MIN_ZONE_WIDTH.
-				polyline = {{x = 0, y = 0}, {x = TILE * 2, y = -TILE}, {x = TILE * 4, y = 0}},
+				polyline = { { x = 0, y = 0 }, { x = TILE * 2, y = -TILE }, { x = TILE * 4, y = 0 } },
 			},
 			{
 				id = padId,
-				template = '../../entities/jump_pad.tj',
-				name = 'jump_pad',
-				type = 'jump_pad',
+				template = "../../entities/jump_pad.tj",
+				name = "jump_pad",
+				type = "jump_pad",
 				x = padX,
 				y = y,
-				properties = {{name = 'path', type = 'object', value = pathId}},
+				properties = { { name = "path", type = "object", value = pathId } },
 			},
 			{
 				id = switchId,
-				template = '../../entities/switch.tj',
-				name = 'switch',
-				type = 'switch',
+				template = "../../entities/switch.tj",
+				name = "switch",
+				type = "switch",
 				x = math.min(zone.x1 + 1, zone.x2) * TILE,
 				y = y,
-				properties = {{name = 'target', type = 'object', value = padId}},
+				properties = { { name = "target", type = "object", value = padId } },
 			},
 		},
 		idsUsed = 3,
-		walkthroughStep = '(optional) a jump pad gives a quick hop across the platform; its switch can turn it off and back on.',
+		walkthroughStep = "(optional) a jump pad gives a quick hop across the platform; its switch can turn it off and back on.",
 	}
 end
 

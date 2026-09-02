@@ -3,12 +3,12 @@
 local LogSpy = {}
 
 function LogSpy.install()
-	local Log = require('src.utils.log')
+	local Log = require("src.utils.log")
 	local original = Log.error
 	local errors = {}
 
 	Log.error = function(...)
-		table.insert(errors, table.concat({...}, ' '))
+		table.insert(errors, table.concat({ ... }, " "))
 		return original(...)
 	end
 

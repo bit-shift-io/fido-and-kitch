@@ -7,8 +7,8 @@
 -- map object type 'push_box'/'boulder' still resolves to
 -- src/entities/push_box.lua / boulder.lua exactly as before (see AGENTS.md:
 -- "New map entity = new src/entities/<type>.lua").
-local Pushable = require('src.components.pushable.pushable')
-local PushableSupport = require('src.components.pushable.pushable_support')
+local Pushable = require("src.components.pushable.pushable")
+local PushableSupport = require("src.components.pushable.pushable_support")
 
 local PushableProp = {}
 
@@ -26,7 +26,7 @@ PushableProp.RENDER_ORDER = 10
 --          the map object's own `image` property is no longer ignored)
 --   mode   passed straight through to Pushable{} (nil = box, 'roll' = boulder)
 function PushableProp.define(spec)
-	local Prop = Class{__includes = Entity}
+	local Prop = Class({ __includes = Entity })
 
 	function Prop:init(object)
 		Entity.init(self, object, spec.type)
@@ -39,18 +39,18 @@ function PushableProp.define(spec)
 		spriteProps.renderOrder = spriteProps.renderOrder or PushableProp.RENDER_ORDER
 		self.sprite = self:addComponent(Sprite(spriteProps))
 
-		self.collider = self:addComponent(Collider{
-			shape_type = 'rectangle',
+		self.collider = self:addComponent(Collider({
+			shape_type = "rectangle",
 			shape_arguments = shape_arguments,
 			-- starts dynamic so it falls to the ground on load; the Pushable
 			-- component parks it as static once it settles (see
 			-- PushableSupport.bodyTypeFor)
-			body_type = 'dynamic',
+			body_type = "dynamic",
 			position = position,
 			-- Collider:worldUpdate moves the body; handing it the sprite is how
 			-- the art is kept on the prop rather than left behind at spawn
 			sprite = self.sprite,
-		})
+		}))
 		-- its own group, so it collides with terrain, players and every other
 		-- prop -- see PushableSupport.nextGroupIndex for why all three depend on it
 		self.collider:setGroupIndex(PushableSupport.nextGroupIndex())
@@ -65,11 +65,11 @@ function PushableProp.define(spec)
 		-- the prop below from being shoved out from under it
 		self.isPushable = true
 
-		self.pushable = self:addComponent(Pushable{
+		self.pushable = self:addComponent(Pushable({
 			collider = self.collider,
 			mode = spec.mode,
 			allowPushWhenStoodOn = object.properties and object.properties.allowPushWhenStoodOn,
-		})
+		}))
 	end
 
 	return Prop

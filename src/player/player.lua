@@ -1,234 +1,251 @@
-local PlayerStates = require('src.player.player_states')
-local SafePosition = require('src.player.safe_position')
-local FlashEffect = require('src.components.flash_effect')
-local SpeedStreak = require('src.components.speed_streak')
-local Web = require('src.npc.web')
-local PlayerSensors = require('src.player.player_sensors')
-local MovementConstants = require('src.player.movement_constants')
-local SpawnFlash = require('src.utils.spawn_flash')
-local Log = require('src.utils.log')
+local PlayerStates = require("src.player.player_states")
+local SafePosition = require("src.player.safe_position")
+local FlashEffect = require("src.components.flash_effect")
+local SpeedStreak = require("src.components.speed_streak")
+local Web = require("src.npc.web")
+local PlayerSensors = require("src.player.player_sensors")
+local MovementConstants = require("src.player.movement_constants")
+local SpawnFlash = require("src.utils.spawn_flash")
+local Log = require("src.utils.log")
 
-local Player = Class{__includes = Entity}
+local Player = Class({ __includes = Entity })
 
 local function buildAnimations(character, position, shape_arguments, offset)
-    return {
-        idle=Sprite{
-            frames=string.format('res/img/%s/Idle (${i}).png', character),
-            frameCount=10, duration=1.0, loop=true,
-            position=position, playing=true,
-            shape_arguments=shape_arguments, offset=offset,
-        },
-        fall=Sprite{
-            frames=string.format('res/img/%s/Fall (${i}).png', character),
-            frameCount=8, duration=1.0, loop=true,
-            position=position, playing=true,
-            shape_arguments=shape_arguments, offset=offset,
-        },
-        walk=Sprite{
-            frames=string.format('res/img/%s/Run (${i}).png', character),
-            frameCount=8, duration=0.65, loop=true,
-            position=position, playing=true,
-            shape_arguments=shape_arguments, offset=offset,
-        },
-        climb=Sprite{
-            -- No dedicated climb art yet; reuse the run cycle (matches walk).
-            frames=string.format('res/img/%s/Run (${i}).png', character),
-            frameCount=8, duration=0.65, loop=true,
-            position=position, playing=true,
-            shape_arguments=shape_arguments, offset=offset,
-        },
-    }
+	return {
+		idle = Sprite({
+			frames = string.format("res/img/%s/Idle (${i}).png", character),
+			frameCount = 10,
+			duration = 1.0,
+			loop = true,
+			position = position,
+			playing = true,
+			shape_arguments = shape_arguments,
+			offset = offset,
+		}),
+		fall = Sprite({
+			frames = string.format("res/img/%s/Fall (${i}).png", character),
+			frameCount = 8,
+			duration = 1.0,
+			loop = true,
+			position = position,
+			playing = true,
+			shape_arguments = shape_arguments,
+			offset = offset,
+		}),
+		walk = Sprite({
+			frames = string.format("res/img/%s/Run (${i}).png", character),
+			frameCount = 8,
+			duration = 0.65,
+			loop = true,
+			position = position,
+			playing = true,
+			shape_arguments = shape_arguments,
+			offset = offset,
+		}),
+		climb = Sprite({
+			-- No dedicated climb art yet; reuse the run cycle (matches walk).
+			frames = string.format("res/img/%s/Run (${i}).png", character),
+			frameCount = 8,
+			duration = 0.65,
+			loop = true,
+			position = position,
+			playing = true,
+			shape_arguments = shape_arguments,
+			offset = offset,
+		}),
+	}
 end
 
 function Player:init(props)
-    Entity.init(self)
+	Entity.init(self)
 
-    local object = props.object
-    self.index = props.index
-    self.name = 'player'
-    self.type = 'player'
-    self.ladder = nil
-    local character = self.index == 1 and 'dog' or 'cat';
-    local height = 50
-    local width = 50
-    local position = Vector(object.x + width * 0.5, object.y - height * 0.5)
-    local offset = Vector(0,8)
-    local shape_arguments = {width, height}
-    local physics_arguments = {20, 30}
+	local object = props.object
+	self.index = props.index
+	self.name = "player"
+	self.type = "player"
+	self.ladder = nil
+	local character = self.index == 1 and "dog" or "cat"
+	local height = 50
+	local width = 50
+	local position = Vector(object.x + width * 0.5, object.y - height * 0.5)
+	local offset = Vector(0, 8)
+	local shape_arguments = { width, height }
+	local physics_arguments = { 20, 30 }
 
-    local animations = buildAnimations(character, position, shape_arguments, offset)
+	local animations = buildAnimations(character, position, shape_arguments, offset)
 
-    -- speedStreak must be added BEFORE flashEffect/animations: Entity:draw()
-    -- draws every component's draw() before any postDraw() runs, so the mesh
-    -- ribbon must draw first to render behind the player sprite (and to draw
-    -- with the pre-flash color instead of inheriting flashEffect's tint).
-    self.speedStreak = self:addComponent(SpeedStreak{
-        entity = self,
-        minSpeed = 200,
-        emitRate = 100
-    })
+	-- speedStreak must be added BEFORE flashEffect/animations: Entity:draw()
+	-- draws every component's draw() before any postDraw() runs, so the mesh
+	-- ribbon must draw first to render behind the player sprite (and to draw
+	-- with the pre-flash color instead of inheriting flashEffect's tint).
+	self.speedStreak = self:addComponent(SpeedStreak({
+		entity = self,
+		minSpeed = 200,
+		emitRate = 100,
+	}))
 
-    -- FlashEffect must be added BEFORE the animations StateMachine so its
-    -- draw() sets the color before the sprite renders (no one-frame delay).
-    self.flashEffect = self:addComponent(FlashEffect{})
-    self.animations = self:addComponent(StateMachine{
-        states=animations,
-        entity=self,
-        currentState='idle'
-    })
+	-- FlashEffect must be added BEFORE the animations StateMachine so its
+	-- draw() sets the color before the sprite renders (no one-frame delay).
+	self.flashEffect = self:addComponent(FlashEffect({}))
+	self.animations = self:addComponent(StateMachine({
+		states = animations,
+		entity = self,
+		currentState = "idle",
+	}))
 
-    self.object = object
-    self.speed = MovementConstants.speed;
-    self.climbSpeed = MovementConstants.climbSpeed;
-    self.slideSpeed = MovementConstants.slideSpeed; -- slow slide speed for on-ladder horizontal movement
-    self.facing = 'right'
+	self.object = object
+	self.speed = MovementConstants.speed
+	self.climbSpeed = MovementConstants.climbSpeed
+	self.slideSpeed = MovementConstants.slideSpeed -- slow slide speed for on-ladder horizontal movement
+	self.facing = "right"
 
-    -- Per-axis edge tracking for last-pressed arbitration
-    self.verticalHeld = false
-    self.horizontalHeld = false
-    self.verticalNewlyPressed = false
-    self.horizontalNewlyPressed = false
-    self.previousLadderAxis = 'vertical'
+	-- Per-axis edge tracking for last-pressed arbitration
+	self.verticalHeld = false
+	self.horizontalHeld = false
+	self.verticalNewlyPressed = false
+	self.horizontalNewlyPressed = false
+	self.previousLadderAxis = "vertical"
 
-    self.collider = self:addComponent(Collider{
-        shape_type='rectangle',
-        shape_arguments=physics_arguments,
-        postSolve=utils.bindSelf(self.contact, self),
-        sprite=self.animations,
-        position=position,
-        entity=self,
-        fixedRotation=true
-    })
-    self.collider:setGroupIndex(-1)
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
+		shape_arguments = physics_arguments,
+		postSolve = utils.bindSelf(self.contact, self),
+		sprite = self.animations,
+		position = position,
+		entity = self,
+		fixedRotation = true,
+	}))
+	self.collider:setGroupIndex(-1)
 
-    self.inventory = self:addComponent(Inventory{})
+	self.inventory = self:addComponent(Inventory({}))
 
-    self.sound = self:addComponent(Sound{
-        sounds = {
-            land = 'res/snd/character_land.wav',
-            step = 'res/snd/character_walk.wav',
-            death = 'res/snd/character_death.wav',
-            mount = 'res/snd/character_climb.wav',
-        }
-    })
-    self.stepTimer = 0
+	self.sound = self:addComponent(Sound({
+		sounds = {
+			land = "res/snd/character_land.wav",
+			step = "res/snd/character_walk.wav",
+			death = "res/snd/character_death.wav",
+			mount = "res/snd/character_climb.wav",
+		},
+	}))
+	self.stepTimer = 0
 
-    self.fsm = self:addComponent(StateMachine{
-        stateClasses=PlayerStates,
-        entity=self,
-        currentState='WalkIdleState'
-    })
+	self.fsm = self:addComponent(StateMachine({
+		stateClasses = PlayerStates,
+		entity = self,
+		currentState = "WalkIdleState",
+	}))
 
-    self.safePosition = SafePosition.new(position.x, position.y)
+	self.safePosition = SafePosition.new(position.x, position.y)
 
-    self.visible = true
-    self.alpha = 1
-    self.deathSignal = Signal{}
+	self.visible = true
+	self.alpha = 1
+	self.deathSignal = Signal({})
 end
 
 function Player:setAnimation(name)
-    self.animations:setState(name)
+	self.animations:setState(name)
 end
 
 function Player:setFacing(facing)
-    if self.facing == facing then
-        return
-    end
+	if self.facing == facing then
+		return
+	end
 
-    self.facing = facing
-    for _, animation in pairs(self.animations.states) do
-        if animation.setFacing then
-            animation:setFacing(facing)
-        end
-    end
+	self.facing = facing
+	for _, animation in pairs(self.animations.states) do
+		if animation.setFacing then
+			animation:setFacing(facing)
+		end
+	end
 end
 
 function Player:contact(other)
-    Log.debug('player has made contact with something!')
+	Log.debug("player has made contact with something!")
 end
 
 function Player:checkForUsables()
-    local x = self.collider:getX()
-    local y = self.collider:getY()
-    local bounds = {left = x-16, top = y-16, right = x+16, bottom = y+16}
-    local colls = world:queryOverlap(bounds)
-    for _, c in ipairs(colls) do
-        local entity = c.entity
-        if entity then
-            local usable = entity:getComponent(Usable)
-            if usable ~= nil then
-                Log.debug('found entity with usable', c.entity.name)
-                if usable:canUse(self) then
-                    usable:use(self)
-                end
-            end
-        end
-    end
+	local x = self.collider:getX()
+	local y = self.collider:getY()
+	local bounds = { left = x - 16, top = y - 16, right = x + 16, bottom = y + 16 }
+	local colls = world:queryOverlap(bounds)
+	for _, c in ipairs(colls) do
+		local entity = c.entity
+		if entity then
+			local usable = entity:getComponent(Usable)
+			if usable ~= nil then
+				Log.debug("found entity with usable", c.entity.name)
+				if usable:canUse(self) then
+					usable:use(self)
+				end
+			end
+		end
+	end
 end
 
 function Player:update(dt)
-    Entity.update(self, dt)
+	Entity.update(self, dt)
 
-    if not self:isDead() then
-        local killZone = PlayerSensors.queryKillZone(world, self.collider)
-        if killZone then
-            killZone.sound:play(killZone.deathType)
-            self:die(killZone.deathType)
-        end
-    end
+	if not self:isDead() then
+		local killZone = PlayerSensors.queryKillZone(world, self.collider)
+		if killZone then
+			killZone.sound:play(killZone.deathType)
+			self:die(killZone.deathType)
+		end
+	end
 
-    local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and PlayerSensors.queryFullySupported(world, self.collider:getBounds())
-    -- Standing on a destructible_tile never counts as a safe-position
-    -- candidate: that ground can be destroyed later by an unrelated laser
-    -- elsewhere on the map, which would otherwise respawn the player into
-    -- open space. This only narrows what's eligible to become the recorded
-    -- safe position -- the real physics grounded/support checks above are
-    -- untouched.
-    local safeGrounded = grounded and not PlayerSensors.queryOnDestructibleTile(world, self.collider)
-    self.safePosition:update(dt, safeGrounded, self.collider:getX(), self.collider:getY())
+	local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState
+		and PlayerSensors.queryFullySupported(world, self.collider:getBounds())
+	-- Standing on a destructible_tile never counts as a safe-position
+	-- candidate: that ground can be destroyed later by an unrelated laser
+	-- elsewhere on the map, which would otherwise respawn the player into
+	-- open space. This only narrows what's eligible to become the recorded
+	-- safe position -- the real physics grounded/support checks above are
+	-- untouched.
+	local safeGrounded = grounded and not PlayerSensors.queryOnDestructibleTile(world, self.collider)
+	self.safePosition:update(dt, safeGrounded, self.collider:getX(), self.collider:getY())
 end
 
 function Player:draw()
-    if self.visible then
-        love.graphics.setColor(1, 1, 1, self.alpha)
-        Entity.draw(self)
-        love.graphics.setColor(1, 1, 1, 1)
+	if self.visible then
+		love.graphics.setColor(1, 1, 1, self.alpha)
+		Entity.draw(self)
+		love.graphics.setColor(1, 1, 1, 1)
 
-        if self.web then
-            self.web:draw(self.collider:getBounds())
-        end
-    end
+		if self.web then
+			self.web:draw(self.collider:getBounds())
+		end
+	end
 
-    if conf.drawphysics then
-        self:drawSafePositionMarker()
-    end
+	if conf.drawphysics then
+		self:drawSafePositionMarker()
+	end
 end
 
 function Player:isDead()
-    return self.fsm.currentState == self.fsm.states.DeadState
+	return self.fsm.currentState == self.fsm.states.DeadState
 end
 
 function Player:die(deathType)
-    if self:isDead() then
-        return
-    end
+	if self:isDead() then
+		return
+	end
 
-    self.deathType = deathType
-    self.fsm:setState('DeadState')
+	self.deathType = deathType
+	self.fsm:setState("DeadState")
 end
 
 function Player:resolveDeath()
-    local EventBus = require('src.utils.event_bus')
-    EventBus.emit('player_died', {player = self, deathType = self.deathType})
+	local EventBus = require("src.utils.event_bus")
+	EventBus.emit("player_died", { player = self, deathType = self.deathType })
 end
 
 function Player:wrap(duration)
-    if self.wrapped or self:isDead() then
-        return
-    end
+	if self.wrapped or self:isDead() then
+		return
+	end
 
-    self.web = Web{duration = duration}
-    self.fsm:setState('WrappedState')
+	self.web = Web({ duration = duration })
+	self.fsm:setState("WrappedState")
 end
 
 -- Force-ends a wrap immediately (e.g. the Spider that wrapped this player
@@ -236,57 +253,57 @@ end
 -- this is a same-frame release rather than something WrappedState notices
 -- on its own next update.
 function Player:releaseWrap()
-    if self.fsm.currentState == self.fsm.states.WrappedState then
-        self.fsm:setState('WalkIdleState')
-    end
+	if self.fsm.currentState == self.fsm.states.WrappedState then
+		self.fsm:setState("WalkIdleState")
+	end
 end
 
 function Player:respawn()
-    self.collider:setPosition(self.safePosition.x, self.safePosition.y)
-    self.fsm:setState('WalkIdleState')
-    self:startSpawnFlash()
+	self.collider:setPosition(self.safePosition.x, self.safePosition.y)
+	self.fsm:setState("WalkIdleState")
+	self:startSpawnFlash()
 end
 
 function Player:startSpawnFlash()
-    self.flashEffect:fadeIn(SpawnFlash.FADE * SpawnFlash.BLINKS)
-    self.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS)
+	self.flashEffect:fadeIn(SpawnFlash.FADE * SpawnFlash.BLINKS)
+	self.flashEffect:blink(SpawnFlash.FADE, SpawnFlash.BLINKS)
 end
 
 function Player:drawSafePositionMarker()
-    local size = 6
-    love.graphics.setColor(0, 1, 0, 1)
-    love.graphics.line(self.safePosition.x - size, self.safePosition.y, self.safePosition.x + size, self.safePosition.y)
-    love.graphics.line(self.safePosition.x, self.safePosition.y - size, self.safePosition.x, self.safePosition.y + size)
-    love.graphics.setColor(1, 1, 1, 1)
+	local size = 6
+	love.graphics.setColor(0, 1, 0, 1)
+	love.graphics.line(self.safePosition.x - size, self.safePosition.y, self.safePosition.x + size, self.safePosition.y)
+	love.graphics.line(self.safePosition.x, self.safePosition.y - size, self.safePosition.x, self.safePosition.y + size)
+	love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Player:pickup(pickup)
-    local entity = pickup.entity
-    Log.debug('player picked up a ' .. pickup.itemName)
-    local sound = entity:getComponent(Sound)
-    if sound ~= nil then
-        sound:play('pickup')
-    end
-    self.inventory:addItems(pickup.itemName, pickup.itemCount)
+	local entity = pickup.entity
+	Log.debug("player picked up a " .. pickup.itemName)
+	local sound = entity:getComponent(Sound)
+	if sound ~= nil then
+		sound:play("pickup")
+	end
+	self.inventory:addItems(pickup.itemName, pickup.itemCount)
 
-    if pickup.itemName == 'coin' then
-        local EventBus = require('src.utils.event_bus')
-        EventBus.emit('coin_collected', {x = entity.sprite.position.x, y = entity.sprite.position.y})
-    end
+	if pickup.itemName == "coin" then
+		local EventBus = require("src.utils.event_bus")
+		EventBus.emit("coin_collected", { x = entity.sprite.position.x, y = entity.sprite.position.y })
+	end
 
-    entity:queueDestroy()
+	entity:queueDestroy()
 end
 
 function Player:queryOnGround()
-    return PlayerSensors.queryOnGround(world, self.collider)
+	return PlayerSensors.queryOnGround(world, self.collider)
 end
 
 function Player:queryFullySupported()
-    return PlayerSensors.queryFullySupported(world, self.collider:getBounds())
+	return PlayerSensors.queryFullySupported(world, self.collider:getBounds())
 end
 
 function Player:isDown(action)
-    return inputManager:isDown(self.index, action)
+	return inputManager:isDown(self.index, action)
 end
 
 return Player

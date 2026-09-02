@@ -7,9 +7,9 @@
 local Layout = {}
 
 local SIZE_PRESETS = {
-	small = {width = 24, height = 16, zoneCount = 3},
-	medium = {width = 40, height = 25, zoneCount = 5},
-	large = {width = 56, height = 36, zoneCount = 7},
+	small = { width = 24, height = 16, zoneCount = 3 },
+	medium = { width = 40, height = 25, zoneCount = 5 },
+	large = { width = 56, height = 36, zoneCount = 7 },
 }
 
 local MIN_VERTICAL_MARGIN = 2 -- rows always left clear above the topmost zone
@@ -33,11 +33,11 @@ end
 -- @return { width, height, zones = {{x1,x2,y}, ...}, ladders = {{x,yTop,yBottom}, ...} }
 function Layout.generate(rng, opts)
 	opts = opts or {}
-	local preset = SIZE_PRESETS[opts.size or 'medium']
+	local preset = SIZE_PRESETS[opts.size or "medium"]
 
 	local width, height, zoneCount = preset.width, preset.height, preset.zoneCount
 
-	local zones = {{x1 = 1, x2 = width, y = height}}
+	local zones = { { x1 = 1, x2 = width, y = height } }
 	local ladders = {}
 
 	local prev = zones[1]
@@ -69,17 +69,17 @@ function Layout.generate(rng, opts)
 		-- future edit to the clamp math fails loudly instead of emitting an
 		-- unreachable zone.
 		if ladderX < x1 or ladderX > x2 then
-			error('Layout: ladder column drifted outside its platform after clamping')
+			error("Layout: ladder column drifted outside its platform after clamping")
 		end
 
-		local zone = {x1 = x1, x2 = x2, y = newY}
+		local zone = { x1 = x1, x2 = x2, y = newY }
 		table.insert(zones, zone)
-		table.insert(ladders, {x = ladderX, yTop = newY, yBottom = prev.y})
+		table.insert(ladders, { x = ladderX, yTop = newY, yBottom = prev.y })
 
 		prev = zone
 	end
 
-	return {width = width, height = height, zones = zones, ladders = ladders}
+	return { width = width, height = height, zones = zones, ladders = ladders }
 end
 
 return Layout

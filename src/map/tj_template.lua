@@ -8,8 +8,8 @@
 -- and auto-registering the tileset if that map doesn't declare it, are
 -- map-specific concerns that belong to the caller (src/map/tmj.lua), not
 -- to this cache.
-local json = require('src.utils.json')
-local stiUtils = require('lib.sti.utils')
+local json = require("src.utils.json")
+local stiUtils = require("lib.sti.utils")
 
 local TjTemplate = {}
 
@@ -28,9 +28,11 @@ local function parseTj(templatePath, deps)
 			readFile = love.filesystem.read
 		else
 			readFile = function(path)
-				local file = io.open(path, 'r')
-				if not file then return nil end
-				local contents = file:read('*a')
+				local file = io.open(path, "r")
+				if not file then
+					return nil
+				end
+				local contents = file:read("*a")
 				file:close()
 				return contents
 			end
@@ -39,16 +41,16 @@ local function parseTj(templatePath, deps)
 
 	local contents = readFile(templatePath)
 	if not contents then
-		error('File not found: ' .. templatePath, 2)
+		error("File not found: " .. templatePath, 2)
 	end
 
 	local tj = json.decode(contents)
-	if not tj or tj.type ~= 'template' then
+	if not tj or tj.type ~= "template" then
 		error('Malformed template "' .. templatePath .. '": not a template', 2)
 	end
 
-	local templateDir = templatePath:match('^(.*)/[^/]+$')
-	templateDir = templateDir and (templateDir .. '/') or ''
+	local templateDir = templatePath:match("^(.*)/[^/]+$")
+	templateDir = templateDir and (templateDir .. "/") or ""
 
 	local tilesetRef = nil
 	local tilesetEmbedded = nil
@@ -60,7 +62,7 @@ local function parseTj(templatePath, deps)
 				path = tj.tileset.source,
 			}
 			-- Resolve relative to template directory
-			if not tilesetRef.path:match('^/') then
+			if not tilesetRef.path:match("^/") then
 				tilesetRef.path = templateDir .. tilesetRef.path
 			end
 		else
@@ -79,7 +81,7 @@ local function parseTj(templatePath, deps)
 	if tilesetEmbedded then
 		local tile = tilesetEmbedded.tiles and tilesetEmbedded.tiles[1]
 		local image = tile and tile.image or tilesetEmbedded.image
-		if type(image) == 'string' and image ~= '' then
+		if type(image) == "string" and image ~= "" then
 			tilesetImage = stiUtils.format_path(templateDir .. image)
 		end
 	end
@@ -95,7 +97,7 @@ local function parseTj(templatePath, deps)
 		local converted = {}
 		for i, prop in ipairs(properties) do
 			converted[i] = { name = prop.name, type = prop.type, value = prop.value }
-			if prop.type == 'file' and type(prop.value) == 'string' and prop.value ~= '' then
+			if prop.type == "file" and type(prop.value) == "string" and prop.value ~= "" then
 				converted[i].value = stiUtils.format_path(templateDir .. prop.value)
 			end
 		end
@@ -108,8 +110,8 @@ local function parseTj(templatePath, deps)
 		tilesetImage = tilesetImage,
 		dir = templateDir,
 		object = {
-			name = obj.name or '',
-			type = obj.type or '',
+			name = obj.name or "",
+			type = obj.type or "",
 			gid = obj.gid,
 			width = obj.width,
 			height = obj.height,
@@ -152,9 +154,11 @@ function TjTemplate.tryResolve(templatePath, deps)
 		readFile = love.filesystem.read
 	else
 		readFile = function(path)
-			local file = io.open(path, 'r')
-			if not file then return nil end
-			local contents = file:read('*a')
+			local file = io.open(path, "r")
+			if not file then
+				return nil
+			end
+			local contents = file:read("*a")
 			file:close()
 			return contents
 		end

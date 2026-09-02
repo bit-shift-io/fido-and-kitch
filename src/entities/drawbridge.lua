@@ -19,9 +19,9 @@
 -- See tests/unit/drawbridge_test.lua for the entity-level tests this
 -- enables.
 
-local Drawbridge = Class{__includes = Entity}
-local SpriteProps = require('src.entities.sprite_props')
-local Geom = require('src.utils.geom')
+local Drawbridge = Class({ __includes = Entity })
+local SpriteProps = require("src.entities.sprite_props")
+local Geom = require("src.utils.geom")
 
 -- centre-offset (from the bridge tile's own centre) for the arrival-side
 -- trigger sensor, positioned flush against the gap's edge -- not a full
@@ -48,9 +48,9 @@ end
 -- gap). A missing value falls back to the non-flipped mapping.
 local function spriteFacing(flipCrossing)
 	if flipCrossing then
-		return 'left'
+		return "left"
 	end
-	return 'right'
+	return "right"
 end
 
 -- The sprite fills the authored object's own rect, 1:1 -- like the
@@ -66,7 +66,7 @@ local function spriteBoxDimensions(objectWidth, objectHeight)
 end
 
 local function isDeckSolid(state)
-	return state ~= 'closed'
+	return state ~= "closed"
 end
 
 -- Two zones, evaluated fresh every frame: triggerHeld (the lead-in tile on
@@ -82,23 +82,23 @@ end
 -- crossed from the far side, or never having left) is a legitimate reason
 -- to reopen, not a rescue.
 local function nextStateOnHeldChange(state, triggerHeld, deckHeld)
-	if state == 'closed' then
+	if state == "closed" then
 		if triggerHeld then
-			return 'opening'
+			return "opening"
 		end
 		return state
 	end
 
-	if state == 'closing' then
+	if state == "closing" then
 		if triggerHeld or deckHeld then
-			return 'opening'
+			return "opening"
 		end
 		return state
 	end
 
-	if state == 'open' or state == 'opening' then
+	if state == "open" or state == "opening" then
 		if not (triggerHeld or deckHeld) then
-			return 'closing'
+			return "closing"
 		end
 		return state
 	end
@@ -107,12 +107,12 @@ local function nextStateOnHeldChange(state, triggerHeld, deckHeld)
 end
 
 local function nextStateOnAnimationFinish(state)
-	if state == 'opening' then
-		return 'open'
+	if state == "opening" then
+		return "open"
 	end
 
-	if state == 'closing' then
-		return 'closed'
+	if state == "closing" then
+		return "closed"
 	end
 
 	return state
@@ -139,8 +139,8 @@ local function isHeld(overlaps, selfEntity)
 end
 
 function Drawbridge:init(object)
-	Entity.init(self, object, 'drawbridge')
-	self.state = 'closed'
+	Entity.init(self, object, "drawbridge")
+	self.state = "closed"
 
 	self.rect = Rect(object)
 
@@ -164,7 +164,7 @@ function Drawbridge:buildSprite(object)
 
 	local spriteProps = SpriteProps.fromObject(object)
 	spriteProps.position = spritePosition + Vector(spriteOffsetX, spriteOffsetY)
-	spriteProps.shape_arguments = {spriteBoxWidth, spriteBoxHeight}
+	spriteProps.shape_arguments = { spriteBoxWidth, spriteBoxHeight }
 	spriteProps.facing = spriteFacing(self.flipCrossing)
 	spriteProps.finish = utils.bindSelf(self.onAnimationFinish, self)
 
@@ -195,25 +195,25 @@ function Drawbridge:buildDeckAndTrigger(object)
 	if self.flipCrossing then
 		colliderOffsetX = self.rect.width - colliderWidth - colliderOffsetX
 	end
-	self.rect = Rect{
+	self.rect = Rect({
 		x = self.rect.x + colliderOffsetX,
 		y = self.rect.y + colliderOffsetY,
 		width = colliderWidth,
 		height = colliderHeight,
-	}
+	})
 	local shape_arguments = self.rect:colliderShapeArgs()
 	local position = self.rect:centre()
 
 	-- solid walkable ground while open/opening/closing, absent while closed
 	-- (closed leaves the gap fully exposed -- no barrier; the wrong side is
 	-- a real hazard, not a wall)
-	self.deck = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.deck = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = shape_arguments,
-		body_type = 'static',
+		body_type = "static",
 		position = position,
 		sensor = not isDeckSolid(self.state),
-	})
+	}))
 	-- Player:queryOnGround()/GroundSupport treat a bare `entity == nil`
 	-- collider as terrain; the deck belongs to this Drawbridge entity, so it
 	-- needs an explicit opt-in to be recognised as ground a player can
@@ -230,22 +230,22 @@ function Drawbridge:buildDeckAndTrigger(object)
 	self.triggerWidth = self.rect.width * 0.25
 	local triggerOffset = triggerOffsetX(self.flipCrossing, self.rect.width, self.triggerWidth)
 	self.triggerCentre = position + Vector(triggerOffset, 0)
-	self.trigger = self:addComponent(Collider{
-		shape_type = 'rectangle',
-		shape_arguments = {self.triggerWidth, self.rect.height},
-		body_type = 'static',
+	self.trigger = self:addComponent(Collider({
+		shape_type = "rectangle",
+		shape_arguments = { self.triggerWidth, self.rect.height },
+		body_type = "static",
 		sensor = true,
 		position = self.triggerCentre,
-	})
+	}))
 end
 
 function Drawbridge:buildSound()
-	self.sound = self:addComponent(Sound{
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			open = 'res/snd/entity_drawbridge_open.wav',
-			close = 'res/snd/entity_drawbridge_close.wav',
-		}
-	})
+			open = "res/snd/entity_drawbridge_open.wav",
+			close = "res/snd/entity_drawbridge_close.wav",
+		},
+	}))
 end
 
 function Drawbridge:buildSwitch()
@@ -263,36 +263,36 @@ function Drawbridge:buildSwitch()
 	-- has acted yet, so the plain occupancy behaviour governs unless/until
 	-- a switch turns it on.
 	self.switchHeld = nil
-	self:addComponent(Switchable{
+	self:addComponent(Switchable({
 		entity = self,
 		onStateChange = function(enabled)
 			if enabled then
 				self.switchHeld = true
-				if self.state == 'open' or self.state == 'opening' then
+				if self.state == "open" or self.state == "opening" then
 					return
 				end
-				if self.state == 'closing' then
+				if self.state == "closing" then
 					self.sprite:reverseFromCurrent()
 				else
 					self.sprite:playForward()
 				end
-				self.sound:play('open')
-				self:setState('opening')
+				self.sound:play("open")
+				self:setState("opening")
 			else
 				self.switchHeld = nil
-				if self.state == 'closed' or self.state == 'closing' then
+				if self.state == "closed" or self.state == "closing" then
 					return
 				end
-				if self.state == 'opening' then
+				if self.state == "opening" then
 					self.sprite:reverseFromCurrent()
 				else
 					self.sprite:playReverse()
 				end
-				self.sound:play('close')
-				self:setState('closing')
+				self.sound:play("close")
+				self:setState("closing")
 			end
-		end
-	})
+		end,
+	}))
 end
 
 -- flip solidity to match the new state
@@ -344,20 +344,20 @@ function Drawbridge:checkHeld()
 		return
 	end
 
-	if nextState == 'closing' then
-		if self.state == 'opening' then
+	if nextState == "closing" then
+		if self.state == "opening" then
 			self.sprite:reverseFromCurrent() -- reverse in place, no snap
 		else
 			self.sprite:playReverse() -- fresh close from the fully-open end
 		end
-		self.sound:play('close')
-	elseif nextState == 'opening' then
-		if self.state == 'closing' then
+		self.sound:play("close")
+	elseif nextState == "opening" then
+		if self.state == "closing" then
 			self.sprite:reverseFromCurrent() -- reverse in place, no snap
 		else
 			self.sprite:playForward() -- fresh open from the fully-closed end
 		end
-		self.sound:play('open')
+		self.sound:play("open")
 	end
 
 	self:setState(nextState)

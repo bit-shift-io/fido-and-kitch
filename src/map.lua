@@ -1,1 +1,1 @@
-return require('src.map.init')
+return require("src.map.init")

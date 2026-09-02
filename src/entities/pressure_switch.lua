@@ -20,10 +20,10 @@
 -- locals here instead of a separate _support module. See
 -- tests/unit/pressure_switch_test.lua for the entity-level tests this enables.
 
-local SpriteProps = require('src.entities.sprite_props')
-local Geom = require('src.utils.geom')
+local SpriteProps = require("src.entities.sprite_props")
+local Geom = require("src.utils.geom")
 
-local PressureSwitch = Class{__includes = Entity}
+local PressureSwitch = Class({ __includes = Entity })
 
 -- How far a weight's centre-x may sit from the plate tile's centre and still
 -- count as being on it. "Substantially on it" (DECISIONS Q11): merely
@@ -68,8 +68,8 @@ end
 -- and never moves.
 
 function PressureSwitch:init(object, map)
-	Entity.init(self, object, 'pressure_switch')
-	self.state = 'off'
+	Entity.init(self, object, "pressure_switch")
+	self.state = "off"
 	self.latching = (object.properties and object.properties.latching) or false
 	-- lets a pushable recognise this as something to seat itself on
 	self.isPressurePlate = true
@@ -82,19 +82,19 @@ function PressureSwitch:init(object, map)
 	-- gid template instances, tests/fixtures/pressure_switch_room.tmj hand-
 	-- authors plain rectangles.
 	local topLeftY = object.gid and (object.y - object.height) or object.y
-	self.rect = Rect{x = object.x, y = topLeftY, width = object.width, height = object.height}
+	self.rect = Rect({ x = object.x, y = topLeftY, width = object.width, height = object.height })
 	local position = self.rect:centre()
 	self.plateCentreX = position.x
 
 	-- a sensor: weights rest on the ground/floor it sits on and cross the
 	-- plate freely rather than being blocked or held up by it
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = self.rect:colliderShapeArgs(),
-		body_type = 'static',
+		body_type = "static",
 		sensor = true,
 		position = position,
-	})
+	}))
 
 	-- the art fills the authored object box; optional `spriteOffsetY` (px,
 	-- positive = down) moves only the art, never the sensor -- the exact
@@ -102,7 +102,7 @@ function PressureSwitch:init(object, map)
 	local spriteOffsetY = tonumber(object.properties and object.properties.spriteOffsetY) or 0
 	local spriteProps = SpriteProps.fromObject(object)
 	spriteProps.position = position + Vector(0, spriteOffsetY)
-	spriteProps.shape_arguments = {self.rect.width, self.rect.height}
+	spriteProps.shape_arguments = { self.rect.width, self.rect.height }
 	self:addComponent(Sprite(spriteProps))
 
 	-- resolved the same way src/entities/switch.lua resolves its own target
@@ -112,16 +112,16 @@ function PressureSwitch:init(object, map)
 
 	-- no assets yet at res/snd/entity_pressure_{press,release}.wav;
 	-- Sound:play warns and skips until they're added
-	self.sound = self:addComponent(Sound{
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			press = 'res/snd/entity_pressure_press.wav',
-			release = 'res/snd/entity_pressure_release.wav',
-		}
-	})
+			press = "res/snd/entity_pressure_press.wav",
+			release = "res/snd/entity_pressure_release.wav",
+		},
+	}))
 end
 
 function PressureSwitch:isActive()
-	return self.state == 'on'
+	return self.state == "on"
 end
 
 -- Where a prop at this centre-x should seat itself, or nil if it is not close
@@ -148,7 +148,7 @@ function PressureSwitch:hasWeight()
 
 	for _, collider in ipairs(world:queryOverlap(bounds)) do
 		local entity = collider.entity
-		if entity and entity ~= self and (entity.type == 'player' or entity.isPushable) then
+		if entity and entity ~= self and (entity.type == "player" or entity.isPushable) then
 			if isWeightOn(collider:getX(), self.plateCentreX) then
 				return true
 			end
@@ -168,8 +168,8 @@ function PressureSwitch:update(dt)
 		return
 	end
 
-	self.state = isActive and 'on' or 'off'
-	self.sound:play(isActive and 'press' or 'release')
+	self.state = isActive and "on" or "off"
+	self.sound:play(isActive and "press" or "release")
 	self:driveTarget()
 end
 

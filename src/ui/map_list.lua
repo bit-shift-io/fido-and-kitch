@@ -1,9 +1,9 @@
-local Tmj = require('src.map.tmj')
-local Log = require('src.utils.log')
-local MapInfo = require('src.ui.map_info')
-local MapCard = require('src.ui.map_card')
+local Tmj = require("src.map.tmj")
+local Log = require("src.utils.log")
+local MapInfo = require("src.ui.map_info")
+local MapCard = require("src.ui.map_card")
 
-local MapList = Class{}
+local MapList = Class({})
 
 local THUMBNAIL_WIDTH = 360
 local THUMBNAIL_HEIGHT = 220
@@ -21,25 +21,25 @@ function MapList:init(props)
 	table.sort(files)
 
 	for _, file in ipairs(files) do
-		if str.endsWith(file, '.tmj') then
-			local path = self.dir .. '/' .. file
+		if str.endsWith(file, ".tmj") then
+			local path = self.dir .. "/" .. file
 			local ok, mapData = pcall(Tmj.parse, path)
 			if ok and mapData then
 				local title = MapInfo.titleFor(file, mapData)
 				local description = MapInfo.descriptionFor(file, mapData)
 				local players = mapData.properties and mapData.properties.players or 1
 
-				local card = MapCard{
-					file=file,
-					path=path,
-					title=title,
-					description=description,
-					players=players,
-					mapData=mapData,
-				}
+				local card = MapCard({
+					file = file,
+					path = path,
+					title = title,
+					description = description,
+					players = players,
+					mapData = mapData,
+				})
 				table.insert(self.cards, card)
 			else
-				Log.warn('Could not load map for menu: ' .. path)
+				Log.warn("Could not load map for menu: " .. path)
 			end
 		end
 	end
@@ -94,10 +94,10 @@ function MapList:update(dt)
 		return nil
 	end
 
-	if inputManager:isDown(1, 'left') or inputManager:wasPressed(1, 'left') then
+	if inputManager:isDown(1, "left") or inputManager:wasPressed(1, "left") then
 		self:previous()
 		self.inputCooldown = 0.25
-	elseif inputManager:isDown(1, 'right') or inputManager:wasPressed(1, 'right') then
+	elseif inputManager:isDown(1, "right") or inputManager:wasPressed(1, "right") then
 		self:next()
 		self.inputCooldown = 0.25
 	end
@@ -150,12 +150,14 @@ function MapList:pressed(x, y)
 	local currentCard = self.cards[self.selectedIndex]
 	local currentX = centerX - thumbW * 0.5
 	if currentCard and currentCard:hitTest(currentX, thumbY, x, y, thumbScale) then
-		return 'start'
+		return "start"
 	end
 
 	-- Check previous thumbnail
 	local prevIndex = self.selectedIndex - 1
-	if prevIndex < 1 then prevIndex = #self.cards end
+	if prevIndex < 1 then
+		prevIndex = #self.cards
+	end
 	local prevCard = self.cards[prevIndex]
 	local prevX = currentX - cardGap - thumbW
 	if prevCard and prevCard:hitTest(prevX, thumbY, x, y, thumbScale) then
@@ -165,7 +167,9 @@ function MapList:pressed(x, y)
 
 	-- Check next thumbnail
 	local nextIndex = self.selectedIndex + 1
-	if nextIndex > #self.cards then nextIndex = 1 end
+	if nextIndex > #self.cards then
+		nextIndex = 1
+	end
 	local nextCard = self.cards[nextIndex]
 	local nextX = currentX + thumbW + cardGap
 	if nextCard and nextCard:hitTest(nextX, thumbY, x, y, thumbScale) then
@@ -185,16 +189,16 @@ function MapList:draw()
 	local contentX = (w - contentW) * 0.5
 
 	lg.setColor(0.015, 0.018, 0.025, 1)
-	lg.rectangle('fill', 0, 0, w, h)
+	lg.rectangle("fill", 0, 0, w, h)
 
 	lg.setFont(self.titleFont)
 	lg.setColor(1, 1, 1, 1)
-	lg.printf('FIDO & KITCH', contentX, h * 0.12, contentW, 'center')
+	lg.printf("FIDO & KITCH", contentX, h * 0.12, contentW, "center")
 
 	if not card then
 		lg.setFont(self.bodyFont)
 		lg.setColor(1, 1, 1, 0.82)
-		lg.printf('No exported .tmj maps found in ' .. self.dir, contentX, h * 0.38, contentW, 'center')
+		lg.printf("No exported .tmj maps found in " .. self.dir, contentX, h * 0.38, contentW, "center")
 		lg.setColor(1, 1, 1, 1)
 		return
 	end
@@ -212,7 +216,9 @@ function MapList:draw()
 
 	-- Draw previous entry (faded, left)
 	local prevIndex = self.selectedIndex - 1
-	if prevIndex < 1 then prevIndex = #self.cards end
+	if prevIndex < 1 then
+		prevIndex = #self.cards
+	end
 	local prevCard = self.cards[prevIndex]
 	if prevCard then
 		-- Left card right edge aligns with current card left edge minus gap
@@ -226,7 +232,9 @@ function MapList:draw()
 
 	-- Draw next entry (faded, right)
 	local nextIndex = self.selectedIndex + 1
-	if nextIndex > #self.cards then nextIndex = 1 end
+	if nextIndex > #self.cards then
+		nextIndex = 1
+	end
 	local nextCard = self.cards[nextIndex]
 	if nextCard then
 		-- Right card left edge aligns with current card right edge plus gap
@@ -241,9 +249,9 @@ function MapList:draw()
 		bodyFont = self.bodyFont,
 		smallFont = self.smallFont,
 	}, {
-		title = {1, 0.86, 0.22, 1},
-		body = {1, 1, 1, 0.76},
-		players = {1, 1, 1, 0.76},
+		title = { 1, 0.86, 0.22, 1 },
+		body = { 1, 1, 1, 0.76 },
+		players = { 1, 1, 1, 0.76 },
 	})
 
 	-- Pips at bottom
@@ -257,10 +265,10 @@ function MapList:draw()
 		local pipX = pipStartX + (i - 1) * pipGap
 		if i == self.selectedIndex then
 			lg.setColor(1, 0.86, 0.22, 1)
-			lg.rectangle('fill', pipX, pipY, pipSize, pipSize, 3, 3)
+			lg.rectangle("fill", pipX, pipY, pipSize, pipSize, 3, 3)
 		else
 			lg.setColor(1, 1, 1, 0.3)
-			lg.rectangle('line', pipX, pipY, pipSize, pipSize, 3, 3)
+			lg.rectangle("line", pipX, pipY, pipSize, pipSize, 3, 3)
 		end
 	end
 

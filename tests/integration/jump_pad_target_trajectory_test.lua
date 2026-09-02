@@ -26,16 +26,16 @@
 -- 30px tall -- see src/player/player.lua's `physics_arguments = {20, 30}`,
 -- not the 50px used for its sprite/position math -- so resting height on
 -- this floor is floor_top - 15 = 410, not floor_top - 25).
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local Queries = require('tests.support.queries')
-local json = require('src.utils.json')
-local Bake = require('tools.jump_pad_trajectory.bake')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local Queries = require("tests.support.queries")
+local json = require("src.utils.json")
+local Bake = require("tools.jump_pad_trajectory.bake")
 
-local SOURCE_FIXTURE = 'tests/fixtures/jump_pad_target_room.tmj'
-local BOOTSTRAP_FIXTURE = 'tests/fixtures/jump_pad_room.tmj'
-local OFFLINE_SCRATCH = 'res/map/generated/_test_jump_pad_target_offline.tmj'
-local DEBUG_SCRATCH = 'res/map/generated/_test_jump_pad_target_debug.tmj'
+local SOURCE_FIXTURE = "tests/fixtures/jump_pad_target_room.tmj"
+local BOOTSTRAP_FIXTURE = "tests/fixtures/jump_pad_room.tmj"
+local OFFLINE_SCRATCH = "res/map/generated/_test_jump_pad_target_offline.tmj"
+local DEBUG_SCRATCH = "res/map/generated/_test_jump_pad_target_debug.tmj"
 
 -- GameHarness.bootGlobals/love.conf only ever wire up on the FIRST
 -- GameHarness.startGame call in the process (see jump_pad_debug_bake_test.lua
@@ -53,15 +53,17 @@ local TARGET_CENTRE = Vector(436, 410)
 local POSITION_TOLERANCE = 24
 
 local function readFile(path)
-	local file = io.open(path, 'r')
-	if not file then return nil end
-	local contents = file:read('*a')
+	local file = io.open(path, "r")
+	if not file then
+		return nil
+	end
+	local contents = file:read("*a")
 	file:close()
 	return contents
 end
 
 local function writeFile(path, contents)
-	local file = io.open(path, 'w')
+	local file = io.open(path, "w")
 	file:write(contents)
 	file:close()
 end
@@ -92,7 +94,7 @@ end
 
 local function findObjectByType(rawMap, objectType)
 	for _, layer in ipairs(rawMap.layers or {}) do
-		if layer.type == 'objectgroup' then
+		if layer.type == "objectgroup" then
 			for _, object in ipairs(layer.objects or {}) do
 				if object.type == objectType then
 					return object
@@ -105,7 +107,7 @@ end
 
 local function findObjectById(rawMap, id)
 	for _, layer in ipairs(rawMap.layers or {}) do
-		if layer.type == 'objectgroup' then
+		if layer.type == "objectgroup" then
 			for _, object in ipairs(layer.objects or {}) do
 				if object.id == id then
 					return object
@@ -142,71 +144,89 @@ local function driveJumpAndLand(game, pad, maxFrames)
 	for _ = 1, maxFrames do
 		FrameStepper.step(game, 1)
 		local stateName = player.fsm.currentState.name
-		if stateName ~= 'JumpTravelState' then
+		if stateName ~= "JumpTravelState" then
 			return player.collider:getPositionV(), stateName
 		end
 	end
 
-	return nil, 'JumpTravelState (timed out)'
+	return nil, "JumpTravelState (timed out)"
 end
 
-test('offline bake tool route: a baked pad carries the player to its target', function()
-	assertFalse(Conf.debug, 'this route should work with conf.debug at its default (false)')
+test("offline bake tool route: a baked pad carries the player to its target", function()
+	assertFalse(Conf.debug, "this route should work with conf.debug at its default (false)")
 
 	local rawMap = json.decode(readFile(SOURCE_FIXTURE))
 	local baked = Bake.bakeMap(rawMap, SOURCE_FIXTURE)
-	assertEqual(1, baked, 'fixture should have exactly one eligible (target-linked, path-less) jump pad')
+	assertEqual(1, baked, "fixture should have exactly one eligible (target-linked, path-less) jump pad")
 	writeFile(OFFLINE_SCRATCH, json.encode(rawMap))
 
 	local game = GameHarness.startGame(OFFLINE_SCRATCH)
 	FrameStepper.step(game, 5) -- let entities finish initialising
 
-	local pad = Queries.findEntityByName(map, 'jump_pad1')
-	assertTrue(pad ~= nil, 'fixture check: jump pad should be present')
-	assertTrue(pad.pathObject ~= nil and pad.pathObject.polyline ~= nil and #pad.pathObject.polyline > 0,
-		'offline bake should have produced a usable non-empty path')
+	local pad = Queries.findEntityByName(map, "jump_pad1")
+	assertTrue(pad ~= nil, "fixture check: jump pad should be present")
+	assertTrue(
+		pad.pathObject ~= nil and pad.pathObject.polyline ~= nil and #pad.pathObject.polyline > 0,
+		"offline bake should have produced a usable non-empty path"
+	)
 
 	local landedPos, stateName = driveJumpAndLand(game, pad, 600)
-	assertEqual('WalkIdleState', stateName, 'expected a clean grounded landing, got: ' .. tostring(stateName))
-	assertTrue(landedPos ~= nil, 'expected a landing position')
-	assertTrue(landedPos:dist(TARGET_CENTRE) < POSITION_TOLERANCE,
-		string.format('expected to land near (%d, %d), landed at (%.1f, %.1f)',
-			TARGET_CENTRE.x, TARGET_CENTRE.y, landedPos.x, landedPos.y))
+	assertEqual("WalkIdleState", stateName, "expected a clean grounded landing, got: " .. tostring(stateName))
+	assertTrue(landedPos ~= nil, "expected a landing position")
+	assertTrue(
+		landedPos:dist(TARGET_CENTRE) < POSITION_TOLERANCE,
+		string.format(
+			"expected to land near (%d, %d), landed at (%.1f, %.1f)",
+			TARGET_CENTRE.x,
+			TARGET_CENTRE.y,
+			landedPos.x,
+			landedPos.y
+		)
+	)
 
 	os.remove(OFFLINE_SCRATCH)
 end)
 
-test('in-game debug bake route: a baked pad carries the player to its target', function()
+test("in-game debug bake route: a baked pad carries the player to its target", function()
 	writeFile(DEBUG_SCRATCH, readFile(SOURCE_FIXTURE))
 
 	withDebug(true, function()
 		local game = GameHarness.startGame(DEBUG_SCRATCH)
 		FrameStepper.step(game, 5) -- let entities finish initialising (and the debug bake to have already run before Tmj.parse)
 
-		local pad = Queries.findEntityByName(map, 'jump_pad1')
-		assertTrue(pad ~= nil, 'fixture check: jump pad should be present')
-		assertTrue(pad.pathObject ~= nil and pad.pathObject.polyline ~= nil and #pad.pathObject.polyline > 0,
-			'in-game debug bake should have produced a usable non-empty path')
+		local pad = Queries.findEntityByName(map, "jump_pad1")
+		assertTrue(pad ~= nil, "fixture check: jump pad should be present")
+		assertTrue(
+			pad.pathObject ~= nil and pad.pathObject.polyline ~= nil and #pad.pathObject.polyline > 0,
+			"in-game debug bake should have produced a usable non-empty path"
+		)
 
 		local landedPos, stateName = driveJumpAndLand(game, pad, 600)
-		assertEqual('WalkIdleState', stateName, 'expected a clean grounded landing, got: ' .. tostring(stateName))
-		assertTrue(landedPos ~= nil, 'expected a landing position')
-		assertTrue(landedPos:dist(TARGET_CENTRE) < POSITION_TOLERANCE,
-			string.format('expected to land near (%d, %d), landed at (%.1f, %.1f)',
-				TARGET_CENTRE.x, TARGET_CENTRE.y, landedPos.x, landedPos.y))
+		assertEqual("WalkIdleState", stateName, "expected a clean grounded landing, got: " .. tostring(stateName))
+		assertTrue(landedPos ~= nil, "expected a landing position")
+		assertTrue(
+			landedPos:dist(TARGET_CENTRE) < POSITION_TOLERANCE,
+			string.format(
+				"expected to land near (%d, %d), landed at (%.1f, %.1f)",
+				TARGET_CENTRE.x,
+				TARGET_CENTRE.y,
+				landedPos.x,
+				landedPos.y
+			)
+		)
 	end)
 
 	-- Also confirms this route actually wrote a real `path` back to disk,
 	-- same stronger evidence jump_pad_debug_bake_test.lua already checks --
 	-- kept here too since this test uses its own independent scratch file.
 	local onDiskMap = json.decode(readFile(DEBUG_SCRATCH))
-	local bakedPad = findObjectByType(onDiskMap, 'jump_pad')
-	assertTrue(findProperty(bakedPad, 'path') ~= nil, 'the debug bake should have written a path property back to disk')
+	local bakedPad = findObjectByType(onDiskMap, "jump_pad")
+	assertTrue(findProperty(bakedPad, "path") ~= nil, "the debug bake should have written a path property back to disk")
 
 	os.remove(DEBUG_SCRATCH)
 end)
 
-test('farther and closer targets produce visibly different (taller/shorter) arcs', function()
+test("farther and closer targets produce visibly different (taller/shorter) arcs", function()
 	-- Reuses/extends the already-baked map table (see the module header and
 	-- the slice notes: preferred over adding a third fixture file) -- both
 	-- variants move the SAME target object to a different x before baking,
@@ -223,17 +243,17 @@ test('farther and closer targets produce visibly different (taller/shorter) arcs
 	local function bakedMidpointDeviation(targetX)
 		local rawMap = json.decode(readFile(SOURCE_FIXTURE))
 		local target = findObjectById(rawMap, 4)
-		assertTrue(target ~= nil, 'fixture check: target object id=4 should be present')
+		assertTrue(target ~= nil, "fixture check: target object id=4 should be present")
 		target.x = targetX
 
 		local baked = Bake.bakeMap(rawMap, SOURCE_FIXTURE)
-		assertEqual(1, baked, 'expected exactly one pad to bake')
+		assertEqual(1, baked, "expected exactly one pad to bake")
 
-		local pad = findObjectByType(rawMap, 'jump_pad')
-		local pathId = findProperty(pad, 'path').value
+		local pad = findObjectByType(rawMap, "jump_pad")
+		local pathId = findProperty(pad, "path").value
 		local pathObject = findObjectById(rawMap, pathId)
 		local polyline = pathObject.polyline
-		assertTrue(#polyline >= 3, 'expected a multi-point sampled polyline')
+		assertTrue(#polyline >= 3, "expected a multi-point sampled polyline")
 
 		-- Trajectory.computeArc samples 21 points (0..20); its parabolic term
 		-- peaks at t=0.5, i.e. exactly the middle point of that 21-point
@@ -252,7 +272,12 @@ test('farther and closer targets produce visibly different (taller/shorter) arcs
 	-- line, i.e. smaller y, since this engine's y grows downward -- see
 	-- src/utils/jump_pad_trajectory.lua), so "visibly larger" means a
 	-- larger magnitude, not a larger signed value.
-	assertTrue(math.abs(farDeviation) > math.abs(nearDeviation) + 10,
-		string.format('expected a farther target to produce a visibly larger arc deviation, got near=%.1f far=%.1f',
-			nearDeviation, farDeviation))
+	assertTrue(
+		math.abs(farDeviation) > math.abs(nearDeviation) + 10,
+		string.format(
+			"expected a farther target to produce a visibly larger arc deviation, got near=%.1f far=%.1f",
+			nearDeviation,
+			farDeviation
+		)
+	)
 end)

@@ -1,62 +1,63 @@
-{ "object":
-    {
-     "gid":1,
-     "height":48,
-     "id":1,
-     "name":"cage",
-     "opacity":1,
-     "properties":[
-            {
-             "name":"color",
-             "type":"string",
-             "value":"red"
-            },
-            {
-             "name":"duration",
-             "type":"float",
-             "value":1
-            },
-            {
-             "name":"frames",
-             "type":"int",
-             "value":2
-            },
-            {
-             "name":"loop",
-             "type":"bool",
-             "value":false
-            },
-            {
-             "name":"spawn_type",
-             "type":"string",
-             "value":"bird"
-            },
-            {
-             "name":"target",
-             "type":"object",
-             "value":0
-            }],
-     "rotation":0,
-     "type":"cage",
-     "visible":true,
-     "width":48
-    },
- "tileset":
-    {
-     "firstgid":1,
-     "name":"cage",
-     "tilecount":1,
-     "tiles":[
-            {
-             "height":370,
-             "id":0,
-             "image":"..\/img\/cage\/cage.png",
-             "imageheight":370,
-             "imagewidth":760,
-             "width":380,
-             "x":0,
-             "y":0
-            }]
-    },
- "type":"template"
+{
+  "object": {
+    "gid": 1,
+    "height": 48,
+    "id": 1,
+    "name": "cage",
+    "opacity": 1,
+    "properties": [
+      {
+        "name": "color",
+        "type": "string",
+        "value": "red"
+      },
+      {
+        "name": "duration",
+        "type": "float",
+        "value": 1
+      },
+      {
+        "name": "frames",
+        "type": "int",
+        "value": 2
+      },
+      {
+        "name": "loop",
+        "type": "bool",
+        "value": false
+      },
+      {
+        "name": "spawn_type",
+        "type": "string",
+        "value": "bird"
+      },
+      {
+        "name": "target",
+        "type": "object",
+        "value": 0
+      }
+    ],
+    "rotation": 0,
+    "type": "cage",
+    "visible": true,
+    "width": 48
+  },
+  "tileset": {
+    "firstgid": 1,
+    "name": "cage",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 370,
+        "id": 0,
+        "image": "../img/cage/cage.png",
+        "imageheight": 370,
+        "imagewidth": 760,
+        "width": 380,
+        "x": 0,
+        "y": 0
+      }
+    ]
+  },
+  "type": "template"
 }

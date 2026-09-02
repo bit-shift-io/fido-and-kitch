@@ -56,9 +56,9 @@
 -- timer for its own neighbors purely by going through the same code path a
 -- directly-beamed tile does. A plain neighbor just finds self.chainBreak
 -- false and does nothing further.
-local SpriteProps = require('src.entities.sprite_props')
-local TileShatter = require('src.fx.tile_shatter')
-local BeamContactDelay = require('src.components.beam_contact_delay')
+local SpriteProps = require("src.entities.sprite_props")
+local TileShatter = require("src.fx.tile_shatter")
+local BeamContactDelay = require("src.components.beam_contact_delay")
 
 -- ~0.3s fixed delay between a chainBreak tile's destruction and its
 -- neighbors being force-destroyed, driven by a dt accumulator (not a frame
@@ -143,9 +143,9 @@ end
 
 function ChainBreakTimer:trigger()
 	local tiles = {}
-	for _, entity in ipairs(self.mapRef:getEntitiesByType('destructible_tile')) do
+	for _, entity in ipairs(self.mapRef:getEntitiesByType("destructible_tile")) do
 		if entity.gridPosition then
-			table.insert(tiles, {gridPosition = entity.gridPosition, entity = entity})
+			table.insert(tiles, { gridPosition = entity.gridPosition, entity = entity })
 		end
 	end
 
@@ -160,13 +160,12 @@ end
 
 -- no-op: FxManager:draw() calls this unconditionally on every active effect,
 -- and this timer has no visual.
-function ChainBreakTimer:draw()
-end
+function ChainBreakTimer:draw() end
 
-local DestructibleTile = Class{__includes = Entity}
+local DestructibleTile = Class({ __includes = Entity })
 
 function DestructibleTile:init(object, mapRef)
-	Entity.init(self, object, 'destructible_tile')
+	Entity.init(self, object, "destructible_tile")
 	self.mapRef = mapRef
 	self.chainBreak = (object.properties and object.properties.chainBreak) or false
 
@@ -176,7 +175,7 @@ function DestructibleTile:init(object, mapRef)
 	-- fixture-authored instance with no gid at all is still authored this
 	-- way (see src/entities/laser.lua's own comment on the same point).
 	local topLeftY = object.y - object.height
-	self.rect = Rect{x = object.x, y = topLeftY, width = object.width, height = object.height}
+	self.rect = Rect({ x = object.x, y = topLeftY, width = object.width, height = object.height })
 	local position = self.rect:centre()
 	-- Kept on self (not just the local) so destroy() -- called after the
 	-- collider/sprite are already gone -- still knows where to spawn the
@@ -203,13 +202,13 @@ function DestructibleTile:init(object, mapRef)
 	-- src/entities/blocker.lua's barrier fraction), no dynamic fall (unlike
 	-- the boulder/push_box pushables): a destructible tile is a static
 	-- obstacle until a fully-on beam destroys it.
-	self.collider = self:addComponent(Collider{
-		shape_type = 'rectangle',
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
 		shape_arguments = self.rect:colliderShapeArgs(),
-		body_type = 'static',
+		body_type = "static",
 		sensor = false,
 		position = position,
-	})
+	}))
 	-- Player:queryOnGround()/GroundSupport treat a bare `entity == nil`
 	-- collider as terrain; this collider belongs to this DestructibleTile
 	-- entity, so it needs an explicit opt-in to be recognised as ground a
@@ -222,7 +221,7 @@ function DestructibleTile:init(object, mapRef)
 	-- it actually destroying: src/entities/laser.lua calls
 	-- self.beamContactDelay:markContact() every frame a fully-on beam hits
 	-- this tile instead of queueDestroy()-ing it directly.
-	self.beamContactDelay = self:addComponent(BeamContactDelay{delay = DESTROY_DELAY})
+	self.beamContactDelay = self:addComponent(BeamContactDelay({ delay = DESTROY_DELAY }))
 end
 
 -- Base cleanup first (collider/sprite removal, same as every other
@@ -235,7 +234,7 @@ function DestructibleTile:destroy()
 	Entity.destroy(self)
 
 	if self.mapRef and self.mapRef.fx and self.position then
-		self.mapRef.fx:burst(TileShatter, {x = self.position.x, y = self.position.y})
+		self.mapRef.fx:burst(TileShatter, { x = self.position.x, y = self.position.y })
 	end
 
 	if self.chainBreak and self.mapRef and self.mapRef.fx and self.gridPosition then

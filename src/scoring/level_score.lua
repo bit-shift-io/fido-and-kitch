@@ -24,11 +24,11 @@ function LevelScore.compute(input)
 	-- Determine medal tier
 	local medal
 	if totalPct == 100 then
-		medal = 'gold'
+		medal = "gold"
 	elseif totalPct > 50 then
-		medal = 'silver'
+		medal = "silver"
 	else
-		medal = 'bronze'
+		medal = "bronze"
 	end
 
 	return {

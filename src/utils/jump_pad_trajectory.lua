@@ -1,7 +1,7 @@
 -- Trajectory module: computes a distance-proportional parabolic arc, with a
 -- minimum clearance floor so short/level jumps still read as a real launch.
 -- Given start and target points, returns polyline-like list of {x, y} points
-local Camera = require('src.camera')
+local Camera = require("src.camera")
 
 local Trajectory = {}
 
@@ -29,8 +29,8 @@ function Trajectory.computeArc(startPoint, targetPoint, arcHeightFactor, minClea
 	if math.abs(dx) < 0.001 then
 		-- Return vertical line with a small arc
 		return {
-			{x = x0, y = y0},
-			{x = x0, y = y1}
+			{ x = x0, y = y0 },
+			{ x = x0, y = y1 },
 		}
 	end
 
@@ -72,7 +72,7 @@ function Trajectory.computeArc(startPoint, targetPoint, arcHeightFactor, minClea
 		-- Parabolic offset: 4*t*(1-t) has peak of 1 at t=0.5
 		local y = y0 + t * dy - arcHeight * 4 * t * (1 - t)
 
-		table.insert(points, {x = x, y = y})
+		table.insert(points, { x = x, y = y })
 	end
 
 	return points

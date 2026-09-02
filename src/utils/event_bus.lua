@@ -1,11 +1,11 @@
-local Signal = require('src.utils.signal')
+local Signal = require("src.utils.signal")
 
 local EventBus = {}
 EventBus.signals = {}
 
 function EventBus.getSignal(name)
 	if not EventBus.signals[name] then
-		EventBus.signals[name] = Signal{}
+		EventBus.signals[name] = Signal({})
 	end
 	return EventBus.signals[name]
 end

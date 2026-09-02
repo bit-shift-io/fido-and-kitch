@@ -51,7 +51,9 @@ local function spriteBox(sprite)
 end
 
 function SpriteOutlineOverlay:draw(map, players, viewRect)
-	if not self.enabled or not conf.draw_sprite_outlines then return end
+	if not self.enabled or not conf.draw_sprite_outlines then
+		return
+	end
 
 	lg.push()
 	lg.origin()
@@ -65,11 +67,11 @@ function SpriteOutlineOverlay:draw(map, players, viewRect)
 
 	if map and map.layers then
 		for _, layer in ipairs(map.layers) do
-			if layer.type == 'objectgroup' and layer.entities then
+			if layer.type == "objectgroup" and layer.entities then
 				for _, entity in ipairs(layer.entities) do
 					local box = spriteBox(entity.sprite)
 					if box then
-						lg.rectangle('line', box.left, box.top, box.width, box.height)
+						lg.rectangle("line", box.left, box.top, box.width, box.height)
 					end
 				end
 			end
@@ -81,7 +83,7 @@ function SpriteOutlineOverlay:draw(map, players, viewRect)
 			local box = spriteBox(player.sprite)
 			if box then
 				lg.setColor(1, 0.6, 0.2, 0.9)
-				lg.rectangle('line', box.left, box.top, box.width, box.height)
+				lg.rectangle("line", box.left, box.top, box.width, box.height)
 			end
 		end
 	end

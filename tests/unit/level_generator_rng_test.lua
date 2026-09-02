@@ -1,6 +1,6 @@
-local Rng = require('tools.level_generator.rng')
+local Rng = require("tools.level_generator.rng")
 
-test('same seed produces the same sequence of values', function()
+test("same seed produces the same sequence of values", function()
 	local a = Rng.new(42)
 	local b = Rng.new(42)
 
@@ -9,7 +9,7 @@ test('same seed produces the same sequence of values', function()
 	end
 end)
 
-test('different seeds produce different sequences', function()
+test("different seeds produce different sequences", function()
 	local a = Rng.new(1)
 	local b = Rng.new(2)
 
@@ -23,19 +23,19 @@ test('different seeds produce different sequences', function()
 	assertFalse(same)
 end)
 
-test('nextInt stays within the requested inclusive range', function()
+test("nextInt stays within the requested inclusive range", function()
 	local rng = Rng.new(7)
 
 	for i = 1, 200 do
 		local v = rng:nextInt(3, 9)
-		assertTrue(v >= 3 and v <= 9, 'expected ' .. v .. ' to be within [3, 9]')
+		assertTrue(v >= 3 and v <= 9, "expected " .. v .. " to be within [3, 9]")
 	end
 end)
 
-test('deriveSeed is deterministic for the same base seed and index', function()
+test("deriveSeed is deterministic for the same base seed and index", function()
 	assertEqual(Rng.deriveSeed(42, 3), Rng.deriveSeed(42, 3))
 end)
 
-test('deriveSeed gives different seeds for different batch indices', function()
+test("deriveSeed gives different seeds for different batch indices", function()
 	assertFalse(Rng.deriveSeed(42, 0) == Rng.deriveSeed(42, 1))
 end)

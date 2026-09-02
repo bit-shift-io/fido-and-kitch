@@ -16,8 +16,8 @@
 -- (no love.* at module scope); draw methods no-op gracefully without
 -- love.graphics, and missing art is skipped with a memoized Log.warn so the
 -- game runs before the assets land.
-local AssetManager = require('src.utils.asset_manager')
-local Log = require('src.utils.log')
+local AssetManager = require("src.utils.asset_manager")
+local Log = require("src.utils.log")
 
 local Diorama = {}
 
@@ -26,67 +26,72 @@ local Diorama = {}
 local UNIT_SCALE = { x = 1, y = 1 }
 
 Diorama.config = {
-		void = { img = 'res/img/diorama/diorama_void.png' },
-		frame = {
-			-- Width of the tiling band (world px). A tile texture is mapped so
-			-- its thickness dimension fills this width 1:1 (scale == 1 when the
-			-- art is authored at exactly this width) and its long dimension runs
-			-- along the edge, repeating until the whole edge is tiled.
-			tileSize = 32,
-			-- How far out from the world boundary the frame line is pushed
-			-- (world px). The band sits centred on that line, so with the
-			-- default 14 (vs tileSize/2 = 16) the band's inner 2px overlaps
-			-- the playfield edge -- an intentional, barely-visible tuck-in
-			-- that avoids a hairline gap at fractional camera offsets.
-			outset = 14,
-			tiles = {
-				top = 'res/img/diorama/diorama_frame_horizontal.png',
-				bottom = 'res/img/diorama/diorama_frame_horizontal.png',
-				left = 'res/img/diorama/diorama_frame_vertical.png',
-				right = 'res/img/diorama/diorama_frame_vertical.png',
+	void = { img = "res/img/diorama/diorama_void.png" },
+	frame = {
+		-- Width of the tiling band (world px). A tile texture is mapped so
+		-- its thickness dimension fills this width 1:1 (scale == 1 when the
+		-- art is authored at exactly this width) and its long dimension runs
+		-- along the edge, repeating until the whole edge is tiled.
+		tileSize = 32,
+		-- How far out from the world boundary the frame line is pushed
+		-- (world px). The band sits centred on that line, so with the
+		-- default 14 (vs tileSize/2 = 16) the band's inner 2px overlaps
+		-- the playfield edge -- an intentional, barely-visible tuck-in
+		-- that avoids a hairline gap at fractional camera offsets.
+		outset = 14,
+		tiles = {
+			top = "res/img/diorama/diorama_frame_horizontal.png",
+			bottom = "res/img/diorama/diorama_frame_horizontal.png",
+			left = "res/img/diorama/diorama_frame_vertical.png",
+			right = "res/img/diorama/diorama_frame_vertical.png",
+		},
+		-- Interstitial ornaments per edge, one list entry per piece, never
+		-- tiled. Each entry is `{img, pos, offset?, scale?}` where `pos` is
+		-- the PERCENTAGE position along the edge (0 = left/top corner,
+		-- 1 = right/bottom corner), so authors get exact placement instead
+		-- of a derived even interval. `offset` is world px PERPENDICULAR
+		-- to the edge: positive pushes the piece away from the playfield
+		-- (out into the void), negative toward it; 0 parks it centred on
+		-- the frame line. `scale` is an `{x, y}` pair (default `{x=1,
+		-- y=1}`): negative values flip along that axis, arbitrary values
+		-- stretch, and pieces can be sized independently. `corners` is a
+		-- subsection inside `ornaments` (they are ornaments too): four
+		-- fixed pieces centred on the corners of the frame line, each with
+		-- its own optional `offset` (moves the corner diagonally out) and
+		-- `scale`.
+		ornaments = {
+			corners = {
+				topLeft = { img = "res/img/diorama/corner_purple.png", scale = { x = 0.7, y = 0.7 } },
+				topRight = { img = "res/img/diorama/corner_red.png", scale = { x = 0.7, y = 0.7 } },
+				bottomLeft = { img = "res/img/diorama/corner_blue.png", scale = { x = 0.7, y = 0.7 } },
+				bottomRight = { img = "res/img/diorama/corner_yellow.png", scale = { x = 0.7, y = 0.7 } },
 			},
-			-- Interstitial ornaments per edge, one list entry per piece, never
-			-- tiled. Each entry is `{img, pos, offset?, scale?}` where `pos` is
-			-- the PERCENTAGE position along the edge (0 = left/top corner,
-			-- 1 = right/bottom corner), so authors get exact placement instead
-			-- of a derived even interval. `offset` is world px PERPENDICULAR
-			-- to the edge: positive pushes the piece away from the playfield
-			-- (out into the void), negative toward it; 0 parks it centred on
-			-- the frame line. `scale` is an `{x, y}` pair (default `{x=1,
-			-- y=1}`): negative values flip along that axis, arbitrary values
-			-- stretch, and pieces can be sized independently. `corners` is a
-			-- subsection inside `ornaments` (they are ornaments too): four
-			-- fixed pieces centred on the corners of the frame line, each with
-			-- its own optional `offset` (moves the corner diagonally out) and
-			-- `scale`.
-			ornaments = {
-				corners = {
-					topLeft = { img = 'res/img/diorama/corner_purple.png', scale = { x = 0.7, y = 0.7 } },
-					topRight = { img = 'res/img/diorama/corner_red.png', scale = { x = 0.7, y = 0.7 } },
-					bottomLeft = { img = 'res/img/diorama/corner_blue.png', scale = { x = 0.7, y = 0.7 } },
-					bottomRight = { img = 'res/img/diorama/corner_yellow.png', scale = { x = 0.7, y = 0.7 } },
+			top = {
+				{ img = "res/img/diorama/ornament_purple.png", pos = 1 / 4, offset = 4, scale = { x = 0.5, y = 0.5 } },
+				{
+					img = "res/img/diorama/ornament_top_hero.png",
+					pos = 0.5,
+					offset = -16,
+					scale = { x = 0.4, y = 0.4 },
 				},
-                top = {
-    				{ img = 'res/img/diorama/ornament_purple.png', pos = 1 / 4, offset = 4, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_top_hero.png', pos = 0.5, offset = -16, scale = { x = 0.4, y = 0.4 } },
-					{ img = 'res/img/diorama/ornament_green.png', pos = 3 / 4, offset = 4, scale = { x = 0.5, y = 0.5 } },
-				},
-				bottom = {
-					{ img = 'res/img/diorama/ornament_bottom.png', pos = 0.5, offset = -6 },
-				},
-				left = {
-					{ img = 'res/img/diorama/ornament_blue.png', pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, offset = 8, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_purple.png', pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
-				},
-				right = {
-					{ img = 'res/img/diorama/ornament_green.png', pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_smile.png', pos = 0.5, offset = 8, scale = { x = -0.5, y = 0.5 } },
-					{ img = 'res/img/diorama/ornament_blue.png', pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
-				},
+				{ img = "res/img/diorama/ornament_green.png", pos = 3 / 4, offset = 4, scale = { x = 0.5, y = 0.5 } },
+			},
+			bottom = {
+				{ img = "res/img/diorama/ornament_bottom.png", pos = 0.5, offset = -6 },
+			},
+			left = {
+				{ img = "res/img/diorama/ornament_blue.png", pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
+				{ img = "res/img/diorama/ornament_smile.png", pos = 0.5, offset = 8, scale = { x = 0.5, y = 0.5 } },
+				{ img = "res/img/diorama/ornament_purple.png", pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
+			},
+			right = {
+				{ img = "res/img/diorama/ornament_green.png", pos = 1 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
+				{ img = "res/img/diorama/ornament_smile.png", pos = 0.5, offset = 8, scale = { x = -0.5, y = 0.5 } },
+				{ img = "res/img/diorama/ornament_blue.png", pos = 3 / 4, offset = 0, scale = { x = 0.5, y = 0.5 } },
 			},
 		},
-	}
+	},
+}
 
 -- The projected world rect in screen coordinates. Must match how the world is
 -- actually drawn: ParallaxRenderer:drawMainLayers translates by
@@ -189,7 +194,7 @@ local function computeFrame(mapW, mapH, config)
 		for _, orn in ipairs(list or {}) do
 			local coord = (orn.pos or 0) * edgeLen
 			local offset = (orn.offset or 0) * outSign
-			if fixedAxis == 'x' then
+			if fixedAxis == "x" then
 				table.insert(slots, { x = fixedValue + offset, y = coord, img = orn.img, scale = orn.scale })
 			else
 				table.insert(slots, { x = coord, y = fixedValue + offset, img = orn.img, scale = orn.scale })
@@ -197,10 +202,10 @@ local function computeFrame(mapW, mapH, config)
 		end
 		return slots
 	end
-	ornamentSlots.top = buildSlots(mapW, f.ornaments.top, 'y', -outset, -1)
-	ornamentSlots.bottom = buildSlots(mapW, f.ornaments.bottom, 'y', mapH + outset, 1)
-	ornamentSlots.left = buildSlots(mapH, f.ornaments.left, 'x', -outset, -1)
-	ornamentSlots.right = buildSlots(mapH, f.ornaments.right, 'x', mapW + outset, 1)
+	ornamentSlots.top = buildSlots(mapW, f.ornaments.top, "y", -outset, -1)
+	ornamentSlots.bottom = buildSlots(mapW, f.ornaments.bottom, "y", mapH + outset, 1)
+	ornamentSlots.left = buildSlots(mapH, f.ornaments.left, "x", -outset, -1)
+	ornamentSlots.right = buildSlots(mapH, f.ornaments.right, "x", mapW + outset, 1)
 
 	return {
 		cornerOrnaments = cornerOrnaments,
@@ -224,7 +229,7 @@ local function loadImage(path)
 	if not love.filesystem or love.filesystem.getInfo(path) == nil then
 		if not warned[path] then
 			warned[path] = true
-			Log.warn('Diorama image not found: ' .. path)
+			Log.warn("Diorama image not found: " .. path)
 		end
 		return nil
 	end
@@ -307,7 +312,7 @@ function Diorama.drawFrame(viewRect, mapW, mapH)
 		local img = loadImage(config.tiles[side])
 		if img then
 			local iw, ih = img:getWidth(), img:getHeight()
-			local vertical = side == 'left' or side == 'right'
+			local vertical = side == "left" or side == "right"
 			local thickness = vertical and iw or ih
 			local along = vertical and ih or iw
 			local scale = tile / thickness
@@ -330,7 +335,14 @@ function Diorama.drawFrame(viewRect, mapW, mapH)
 		local img = loadImage(corner.img)
 		if img then
 			local scale = corner.scale or UNIT_SCALE
-			lg.draw(img, corner.x - img:getWidth() * scale.x / 2, corner.y - img:getHeight() * scale.y / 2, 0, scale.x, scale.y)
+			lg.draw(
+				img,
+				corner.x - img:getWidth() * scale.x / 2,
+				corner.y - img:getHeight() * scale.y / 2,
+				0,
+				scale.x,
+				scale.y
+			)
 		end
 	end
 
@@ -341,7 +353,14 @@ function Diorama.drawFrame(viewRect, mapW, mapH)
 			local img = loadImage(slot.img)
 			if img then
 				local scale = slot.scale or UNIT_SCALE
-				lg.draw(img, slot.x - img:getWidth() * scale.x / 2, slot.y - img:getHeight() * scale.y / 2, 0, scale.x, scale.y)
+				lg.draw(
+					img,
+					slot.x - img:getWidth() * scale.x / 2,
+					slot.y - img:getHeight() * scale.y / 2,
+					0,
+					scale.x,
+					scale.y
+				)
 			end
 		end
 	end

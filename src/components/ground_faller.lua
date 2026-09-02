@@ -35,19 +35,18 @@
 -- unsupported and drops them a few pixels at load. Passing the authored
 -- half-height instead makes the probe agree with where the object was
 -- actually placed.
-local GroundFaller = require('src.physics.ground_faller')
+local GroundFaller = require("src.physics.ground_faller")
 
-local GroundFallerComponent = Class{}
+local GroundFallerComponent = Class({})
 
 function GroundFallerComponent:init(props)
-	self.type = 'ground_faller'
+	self.type = "ground_faller"
 	self.collider = props.collider
 	self.groundProbeOffset = props.groundProbeOffset
 end
 
 function GroundFallerComponent:update(dt)
-	local bottom = self.groundProbeOffset
-		and (self.collider:getY() + self.groundProbeOffset)
+	local bottom = self.groundProbeOffset and (self.collider:getY() + self.groundProbeOffset)
 		or self.collider:getBounds().bottom
 	local supported = GroundFaller.hasSupportUnderCentre(world, self.collider:getX(), bottom)
 
@@ -56,7 +55,7 @@ function GroundFallerComponent:update(dt)
 		self.collider:setLinearVelocity(velocityX, 0)
 	end
 
-	self.collider:setType(GroundFaller.bodyTypeFor({supported = supported}))
+	self.collider:setType(GroundFaller.bodyTypeFor({ supported = supported }))
 end
 
 return GroundFallerComponent

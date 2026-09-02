@@ -12,7 +12,7 @@
 -- Quad/Image, so this draws a solid-colour rectangle sized/coloured
 -- entirely from that frame rather than a tiled/wrapped texture. Width and
 -- colour both come from the caller's frame -- no lerp, no computation here.
-local Headless = require('src.utils.headless')
+local Headless = require("src.utils.headless")
 
 local LaserBeam = {}
 
@@ -41,7 +41,7 @@ function LaserBeam.draw(x1, y1, x2, y2, frame)
 	local previousBlendMode
 	if blendSupported then
 		previousBlendMode = love.graphics.getBlendMode()
-		love.graphics.setBlendMode('add')
+		love.graphics.setBlendMode("add")
 	end
 
 	local r, g, b, a = love.graphics.getColor()
@@ -50,7 +50,7 @@ function LaserBeam.draw(x1, y1, x2, y2, frame)
 	love.graphics.push()
 	love.graphics.translate(x1, y1)
 	love.graphics.rotate(angle)
-	love.graphics.rectangle('fill', 0, -frame.width * 0.5, length, frame.width)
+	love.graphics.rectangle("fill", 0, -frame.width * 0.5, length, frame.width)
 	love.graphics.pop()
 
 	love.graphics.setColor(r, g, b, a)

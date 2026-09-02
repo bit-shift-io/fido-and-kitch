@@ -1,6 +1,6 @@
-local server = require('src.ipc.server')
-local command_handlers = require('src.ipc.command_handlers')
-local game_api = require('src.ipc.game_api')
+local server = require("src.ipc.server")
+local command_handlers = require("src.ipc.command_handlers")
+local game_api = require("src.ipc.game_api")
 
 local handler = command_handlers(game_api)
 local ipc_server = server(handler)
@@ -14,5 +14,5 @@ return {
 	end,
 	stop = function()
 		ipc_server:close()
-	end
+	end,
 }

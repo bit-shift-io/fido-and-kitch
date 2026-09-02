@@ -10,10 +10,16 @@
 local LoveMock = {}
 
 local function newFakeImage(width, height)
-	local image = {width = width or 32, height = height or 32}
-	function image:getWidth() return self.width end
-	function image:getHeight() return self.height end
-	function image:getDimensions() return self.width, self.height end
+	local image = { width = width or 32, height = height or 32 }
+	function image:getWidth()
+		return self.width
+	end
+	function image:getHeight()
+		return self.height
+	end
+	function image:getDimensions()
+		return self.width, self.height
+	end
 	function image:setFilter() end
 	return image
 end
@@ -21,13 +27,17 @@ end
 local function newFakeImageData()
 	local data = {}
 	function data:mapPixel() end
-	function data:getWidth() return 32 end
-	function data:getHeight() return 32 end
+	function data:getWidth()
+		return 32
+	end
+	function data:getHeight()
+		return 32
+	end
 	return data
 end
 
 local function newFakeQuad(x, y, w, h, sw, sh)
-	return {x = x, y = y, w = w, h = h, sw = sw, sh = sh}
+	return { x = x, y = y, w = w, h = h, sw = sw, sh = sh }
 end
 
 local function newFakeSpriteBatch()
@@ -45,20 +55,20 @@ end
 -- every map with a tile layer (i.e. every real map under res/map/) would
 -- load with garbage tile ids. This is the assumption flagged in DECISIONS.md
 -- as needing verification against real STI output.
-local BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 local BASE64_INDEX = {}
 for i = 1, #BASE64_CHARS do
 	BASE64_INDEX[BASE64_CHARS:sub(i, i)] = i - 1
 end
 
 local function base64Decode(data)
-	data = data:gsub('[^' .. BASE64_CHARS .. '=]', '')
+	data = data:gsub("[^" .. BASE64_CHARS .. "=]", "")
 	local bytes = {}
 	local bits, bitCount = 0, 0
 
 	for i = 1, #data do
 		local c = data:sub(i, i)
-		if c ~= '=' then
+		if c ~= "=" then
 			bits = (bits * 64) + BASE64_INDEX[c]
 			bitCount = bitCount + 6
 
@@ -80,7 +90,7 @@ end
 -- bird/jump_pad only need a deterministic, error-free position along the
 -- path for a headless smoke run, not visually-accurate curvature.
 local function newFakeBezierCurve(points)
-	local curve = {points = points}
+	local curve = { points = points }
 
 	function curve:evaluate(t)
 		t = math.min(1, math.max(0, t))
@@ -126,7 +136,7 @@ function LoveMock.new()
 		-- the game's source, nil otherwise; checking the real repo file is
 		-- enough for headless tests since res/ paths are real on disk
 		getInfo = function(path)
-			local file = io.open(path, 'rb')
+			local file = io.open(path, "rb")
 			if file == nil then
 				return nil
 			end
@@ -134,11 +144,11 @@ function LoveMock.new()
 			return {}
 		end,
 		read = function(path)
-			local file = io.open(path, 'r')
+			local file = io.open(path, "r")
 			if file == nil then
 				return nil
 			end
-			local contents = file:read('*a')
+			local contents = file:read("*a")
 			file:close()
 			return contents
 		end,
@@ -148,7 +158,7 @@ function LoveMock.new()
 		-- all_maps_load_test.lua already does for res/map/*.tmj.
 		getDirectoryItems = function(path)
 			local items = {}
-			local pipe = io.popen('ls ' .. path .. ' 2>/dev/null')
+			local pipe = io.popen("ls " .. path .. " 2>/dev/null")
 			if pipe then
 				for line in pipe:lines() do
 					table.insert(items, line)
@@ -161,7 +171,7 @@ function LoveMock.new()
 
 	love.data = {
 		decode = function(containerType, format, data)
-			assert(format == 'base64', 'love_mock only supports base64-decoding tile layer data')
+			assert(format == "base64", "love_mock only supports base64-decoding tile layer data")
 			return base64Decode(data)
 		end,
 	}
@@ -174,19 +184,25 @@ function LoveMock.new()
 
 	love.math = {
 		newBezierCurve = newFakeBezierCurve,
-		isConvex = function() return true end,
-		triangulate = function(vertices) return {vertices} end,
-		random = function() return 0.5 end,
+		isConvex = function()
+			return true
+		end,
+		triangulate = function(vertices)
+			return { vertices }
+		end,
+		random = function()
+			return 0.5
+		end,
 	}
 
 	-- Timer module for dt tracking in headless tests
 	love.timer = {
 		_getTime = 0,
 		getDelta = function()
-			return 1/60  -- fixed dt for deterministic testing
+			return 1 / 60 -- fixed dt for deterministic testing
 		end,
 		getTime = function()
-			love.timer._getTime = love.timer._getTime + 1/60
+			love.timer._getTime = love.timer._getTime + 1 / 60
 			return love.timer._getTime
 		end,
 		sleep = function() end,
@@ -199,16 +215,26 @@ function LoveMock.new()
 		return 11, 4, 0
 	end
 
-	state.audio = {created = {}}
+	state.audio = { created = {} }
 
 	love.audio = {
 		newSource = function(path, kind)
-			local source = {path = path, kind = kind, pitch = 1, volume = 1, playing = false}
-			function source:setPitch(pitch) self.pitch = pitch end
-			function source:setVolume(vol) self.volume = vol end
-			function source:play() self.playing = true end
-			function source:stop() self.playing = false end
-			function source:isPlaying() return self.playing end
+			local source = { path = path, kind = kind, pitch = 1, volume = 1, playing = false }
+			function source:setPitch(pitch)
+				self.pitch = pitch
+			end
+			function source:setVolume(vol)
+				self.volume = vol
+			end
+			function source:play()
+				self.playing = true
+			end
+			function source:stop()
+				self.playing = false
+			end
+			function source:isPlaying()
+				return self.playing
+			end
 			function source:seek(offset) end
 			table.insert(state.audio.created, source)
 			return source
@@ -220,30 +246,56 @@ function LoveMock.new()
 			vertices = {},
 			texture = nil,
 		}
-		function mesh:setVertices(verts) self.vertices = verts end
-		function mesh:getVertices() return self.vertices end
-		function mesh:setTexture(tex) self.texture = tex end
+		function mesh:setVertices(verts)
+			self.vertices = verts
+		end
+		function mesh:getVertices()
+			return self.vertices
+		end
+		function mesh:setTexture(tex)
+			self.texture = tex
+		end
 		function mesh:draw() end
-		function mesh:getVertexCount() return #self.vertices end
+		function mesh:getVertexCount()
+			return #self.vertices
+		end
 		return mesh
 	end
 
 	love.graphics = {
-		newImage = function(source) return newFakeImage() end,
+		newImage = function(source)
+			return newFakeImage()
+		end,
 		newQuad = newFakeQuad,
 		newSpriteBatch = newFakeSpriteBatch,
-		newMesh = function(vertexFormat, vertices, drawMode) return newFakeMesh() end,
+		newMesh = function(vertexFormat, vertices, drawMode)
+			return newFakeMesh()
+		end,
 		-- STI's atlas packer (used for image-collection tilesets, e.g.
 		-- props.tsj in the real maps) treats the returned canvas as an
 		-- image afterwards (tileset.image:getWidth() etc.), so it needs
 		-- the same shape as newImage's fake.
-		newCanvas = function(w, h) return newFakeImage(w, h) end,
-		newFont = function() return {} end,
-		getFont = function() return {getWidth = function() return 0 end} end,
-		getSystemLimits = function() return {texturesize = 16384} end,
+		newCanvas = function(w, h)
+			return newFakeImage(w, h)
+		end,
+		newFont = function()
+			return {}
+		end,
+		getFont = function()
+			return {
+				getWidth = function()
+					return 0
+				end,
+			}
+		end,
+		getSystemLimits = function()
+			return { texturesize = 16384 }
+		end,
 		draw = function() end,
 		setColor = function() end,
-		getColor = function() return 1, 1, 1, 1 end,
+		getColor = function()
+			return 1, 1, 1, 1
+		end,
 		print = function() end,
 		push = function() end,
 		pop = function() end,
@@ -258,21 +310,25 @@ function LoveMock.new()
 		getCanvas = function() end,
 		setCanvas = function() end,
 		setDefaultFilter = function() end,
-		getWidth = function() return 800 end,
-		getHeight = function() return 600 end,
+		getWidth = function()
+			return 800
+		end,
+		getHeight = function()
+			return 600
+		end,
 	}
 
 	-- Window state for mock
 	local windowState = {
 		fullscreen = false,
-		fullscreentype = 'desktop',
+		fullscreentype = "desktop",
 		maximized = false,
 		minimized = false,
 		width = 800,
 		height = 600,
 		x = 100,
 		y = 100,
-		title = 'Fido & Kitch',
+		title = "Fido & Kitch",
 		displayindex = 1,
 		vsync = 1,
 		msaa = 0,
@@ -284,7 +340,9 @@ function LoveMock.new()
 		-- Fullscreen
 		setFullscreen = function(fullscreen, fullscreentype)
 			windowState.fullscreen = fullscreen == true
-			if fullscreentype then windowState.fullscreentype = fullscreentype end
+			if fullscreentype then
+				windowState.fullscreentype = fullscreentype
+			end
 			return true
 		end,
 		getFullscreen = function()
@@ -392,17 +450,39 @@ function LoveMock.new()
 			flags = flags or {}
 			windowState.width = width
 			windowState.height = height
-			if flags.fullscreen ~= nil then windowState.fullscreen = flags.fullscreen end
-			if flags.fullscreentype then windowState.fullscreentype = flags.fullscreentype end
-			if flags.vsync ~= nil then windowState.vsync = flags.vsync end
-			if flags.msaa ~= nil then windowState.msaa = flags.msaa end
-			if flags.resizable ~= nil then windowState.resizable = flags.resizable end
-			if flags.borderless ~= nil then windowState.borderless = flags.borderless end
-			if flags.display ~= nil then windowState.displayindex = flags.display end
-			if flags.minwidth then windowState.minwidth = flags.minwidth end
-			if flags.minheight then windowState.minheight = flags.minheight end
-			if flags.x then windowState.x = flags.x end
-			if flags.y then windowState.y = flags.y end
+			if flags.fullscreen ~= nil then
+				windowState.fullscreen = flags.fullscreen
+			end
+			if flags.fullscreentype then
+				windowState.fullscreentype = flags.fullscreentype
+			end
+			if flags.vsync ~= nil then
+				windowState.vsync = flags.vsync
+			end
+			if flags.msaa ~= nil then
+				windowState.msaa = flags.msaa
+			end
+			if flags.resizable ~= nil then
+				windowState.resizable = flags.resizable
+			end
+			if flags.borderless ~= nil then
+				windowState.borderless = flags.borderless
+			end
+			if flags.display ~= nil then
+				windowState.displayindex = flags.display
+			end
+			if flags.minwidth then
+				windowState.minwidth = flags.minwidth
+			end
+			if flags.minheight then
+				windowState.minheight = flags.minheight
+			end
+			if flags.x then
+				windowState.x = flags.x
+			end
+			if flags.y then
+				windowState.y = flags.y
+			end
 			return true
 		end,
 

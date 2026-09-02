@@ -1,12 +1,12 @@
 -- Unifies the hearts (a LivesHud) and the per-level coin counter behind one
 -- shared fade alpha. Alpha is applied the FlashEffect way -- the ambient
 -- love.graphics colour around each drawn piece -- not as a Sprite field.
-local Sprite = require('src.components.sprite')
-local LivesHud = require('src.ui.lives_hud')
-local EventBus = require('src.utils.event_bus')
-local utils = require('src.utils.utils')
+local Sprite = require("src.components.sprite")
+local LivesHud = require("src.ui.lives_hud")
+local EventBus = require("src.utils.event_bus")
+local utils = require("src.utils.utils")
 
-local GameHud = Class{}
+local GameHud = Class({})
 
 -- Heart geometry mirrors LivesHud's locals (48/16/16) so the coin counter
 -- can sit immediately right of the last heart.
@@ -36,8 +36,7 @@ GameHud._internal = {
 		return HEART_SPACING + ICON_SIZE + TEXT_SPACING + textWidth
 	end,
 	blockWidth = function(lives, hasCoins, textWidth)
-		return GameHud._internal.heartRunWidth(lives)
-			+ GameHud._internal.coinSegmentWidth(hasCoins, textWidth)
+		return GameHud._internal.heartRunWidth(lives) + GameHud._internal.coinSegmentWidth(hasCoins, textWidth)
 	end,
 }
 
@@ -47,7 +46,7 @@ function GameHud:init(props)
 	self.getTotal = props.getTotal
 	self.getCameraMode = props.getCameraMode
 
-	self.livesHud = props.livesHud or LivesHud{getLives = self.getLives}
+	self.livesHud = props.livesHud or LivesHud({ getLives = self.getLives })
 
 	self.alpha = 0
 	self._fadeIn = false
@@ -58,8 +57,8 @@ function GameHud:init(props)
 	self.coinIcon = nil
 
 	-- Cleared along with everything else by InGameState:exit() -> EventBus.clear()
-	EventBus.on('coin_collected', utils.bindSelf(self._onTrigger, self))
-	EventBus.on('player_died', utils.bindSelf(self._onTrigger, self))
+	EventBus.on("coin_collected", utils.bindSelf(self._onTrigger, self))
+	EventBus.on("player_died", utils.bindSelf(self._onTrigger, self))
 end
 
 function GameHud:_onTrigger()
@@ -77,7 +76,7 @@ end
 
 function GameHud:update(dt)
 	local mode = self.getCameraMode()
-	if mode == 'overview' or mode == 'gameover' then
+	if mode == "overview" or mode == "gameover" then
 		self._fadeIn = false
 		self._fadeOut = false
 		self.holdTimer = 0
@@ -130,12 +129,14 @@ function GameHud:draw()
 	local text
 	local textWidth = 0
 	if coins > 0 then
-		text = string.format('%d/%d', coins, self.getTotal())
+		text = string.format("%d/%d", coins, self.getTotal())
 		textWidth = love.graphics.getFont():getWidth(text)
 	end
 
-	local offset = GameHud._internal.centerOffset(love.graphics.getWidth(),
-		GameHud._internal.blockWidth(self.getLives(), coins > 0, textWidth))
+	local offset = GameHud._internal.centerOffset(
+		love.graphics.getWidth(),
+		GameHud._internal.blockWidth(self.getLives(), coins > 0, textWidth)
+	)
 
 	self.livesHud:draw(offset)
 
@@ -146,11 +147,11 @@ function GameHud:draw()
 		local x = offset + GameHud._internal.heartRunWidth(self.getLives()) + HEART_SPACING
 		local icon = self.coinIcon
 		if not icon then
-			icon = Sprite{
-				frames = {'res/img/ui_coin.png'},
+			icon = Sprite({
+				frames = { "res/img/ui_coin.png" },
 				position = Vector(x, MARGIN),
 				scale = Vector(ICON_SIZE / 128, ICON_SIZE / 128),
-			}
+			})
 			self.coinIcon = icon
 		end
 		icon.position = Vector(x, MARGIN)

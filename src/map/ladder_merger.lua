@@ -49,7 +49,7 @@ function LadderMerger.merge(objects)
 	local columns = {}
 	local columnKeys = {}
 	for _, rung in ipairs(objects) do
-		local key = rung.x .. ':' .. rung.width
+		local key = rung.x .. ":" .. rung.width
 		if not columns[key] then
 			columns[key] = {}
 			table.insert(columnKeys, key)

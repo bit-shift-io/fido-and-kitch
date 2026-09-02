@@ -1,11 +1,11 @@
-local Log = require('src.utils.log')
-local EventBus = require('src.utils.event_bus')
-local SpriteProps = require('src.entities.sprite_props')
+local Log = require("src.utils.log")
+local EventBus = require("src.utils.event_bus")
+local SpriteProps = require("src.entities.sprite_props")
 
-local Cage = Class{__includes = Entity}
+local Cage = Class({ __includes = Entity })
 
 function Cage:init(object, map)
-	Entity.init(self, object, 'cage')
+	Entity.init(self, object, "cage")
 	local color = object.properties.color
 	local position = Rect.centreOfMapObject(object)
 
@@ -20,42 +20,42 @@ function Cage:init(object, map)
 	spriteProps.position = position + Vector(0, spriteOffsetY)
 	spriteProps.shape_arguments = shape_arguments
 	self.sprite = self:addComponent(Sprite(spriteProps))
-	self.lockSprite = self:addComponent(Sprite{
-		image=string.format('res/img/cage/cage_lock_%s.png', color),
-		frames=1,
-		duration=1.0,
-		loop=false,
-		position=position + Vector(0, spriteOffsetY),
-		shape_arguments=shape_arguments,
-	})
+	self.lockSprite = self:addComponent(Sprite({
+		image = string.format("res/img/cage/cage_lock_%s.png", color),
+		frames = 1,
+		duration = 1.0,
+		loop = false,
+		position = position + Vector(0, spriteOffsetY),
+		shape_arguments = shape_arguments,
+	}))
 	-- the use sensor follows the object's own rect too (bottom-flush): the
 	-- cage reads at its art footprint rather than a 1x1 tile
-	self.collider = self:addComponent(Collider{
-		shape_type='rectangle',
-		shape_arguments=shape_arguments,
-		body_type='static',
-		sensor=true,
-		position=position
-	})
-	
-	self:addComponent(Usable{
-		entity=self,
-		use=utils.bindSelf(self.use, self),
-		requiredItem=string.format('key_%s', color)
-	})
+	self.collider = self:addComponent(Collider({
+		shape_type = "rectangle",
+		shape_arguments = shape_arguments,
+		body_type = "static",
+		sensor = true,
+		position = position,
+	}))
 
-	self.sound = self:addComponent(Sound{
+	self:addComponent(Usable({
+		entity = self,
+		use = utils.bindSelf(self.use, self),
+		requiredItem = string.format("key_%s", color),
+	}))
+
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			open = 'res/snd/entity_cage_open.wav'
-		}
-	})
+			open = "res/snd/entity_cage_open.wav",
+		},
+	}))
 
 	-- Store spawn params; NPC is spawned when the cage is opened, not on map load
 	local spawnTypeMap = {
-		bird = 'npc_bird',
-		rabbit = 'npc_rabbit',
+		bird = "npc_bird",
+		rabbit = "npc_rabbit",
 	}
-	local spawnType = object.properties.spawn_type or object.properties.actor or 'bird'
+	local spawnType = object.properties.spawn_type or object.properties.actor or "bird"
 	local npcType = spawnTypeMap[spawnType] or spawnType
 
 	-- Resolve target if present (same pattern as switch.lua)
@@ -65,14 +65,14 @@ function Cage:init(object, map)
 	end
 
 	-- Rabbit cage with target is a misconfiguration: log error and ignore target
-	if npcType == 'npc_rabbit' and self.targetObject then
-		Log.error('Cage spawn_type=rabbit cannot use target property; ignoring target')
+	if npcType == "npc_rabbit" and self.targetObject then
+		Log.error("Cage spawn_type=rabbit cannot use target property; ignoring target")
 		self.targetObject = nil
 	end
 
 	-- Let entity type defaults define NPC sprite dimensions
 	-- (bird=155x155, rabbit=142x137, etc.)
-	local npcProps = {properties = {}}
+	local npcProps = { properties = {} }
 
 	-- Spawn the NPC at the cage's own position (Tiled tile objects are
 	-- bottom-edge anchored). Use the original object so NPCBase.initPosition
@@ -91,10 +91,10 @@ function Cage:init(object, map)
 end
 
 function Cage:use(user)
-	Log.debug('Cage has been used')
+	Log.debug("Cage has been used")
 	self:removeComponent(self.lockSprite)
 	self.sprite.timeline:play()
-	self.sound:play('open')
+	self.sound:play("open")
 
 	-- Spawn the NPC before emitting cage_unlocked: opening the LAST cage
 	-- makes that emit cascade synchronously into all_cages_unlocked ->
@@ -105,14 +105,14 @@ function Cage:use(user)
 		self.actor = self.map:loadEntity(self.spawnNpcType, self.spawnLayer, self.spawnNpcProps)
 	end
 
-	EventBus.emit('cage_unlocked', {cage = self})
+	EventBus.emit("cage_unlocked", { cage = self })
 
 	if self.actor == nil then
 		return
 	end
 
 	-- Hand target to flying NPC if resolved
-	if self.spawnNpcType == 'npc_bird' and self.targetObject then
+	if self.spawnNpcType == "npc_bird" and self.targetObject then
 		self.actor.switchTarget = self.targetObject
 	end
 

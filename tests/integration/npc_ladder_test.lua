@@ -5,10 +5,10 @@
 -- remodel leaked into NPC code.
 -- Uses the top room: its perched player hugs the slab, leaving the column
 -- interior below empty, so the drop path crosses no other body.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
 
-local MAP = 'tests/fixtures/ladder_top_room.tmj'
+local MAP = "tests/fixtures/ladder_top_room.tmj"
 
 -- Drop point centred in the ladder column (x=128..160), just under the
 -- perched player's feet (y=192) and well above the floor at y=352. Set via
@@ -19,28 +19,28 @@ local DROP_Y = 320
 
 local function objectLayer(mapInstance)
 	for _, layer in ipairs(mapInstance.layers) do
-		if layer.type == 'objectgroup' then
+		if layer.type == "objectgroup" then
 			return layer
 		end
 	end
 	return nil
 end
 
-test('an npc dropped through a ladder volume is not caught and lands on the terrain', function()
+test("an npc dropped through a ladder volume is not caught and lands on the terrain", function()
 	local game = GameHarness.startGame(MAP)
 	local mapInstance = map
 
 	local mock = {
-		type = 'npc_rabbit',
-		name = 'npc_drop',
+		type = "npc_rabbit",
+		name = "npc_drop",
 		x = DROP_X - 16,
 		y = DROP_Y - 16,
 		width = 32,
 		height = 32,
 		properties = {},
 	}
-	local rabbit = mapInstance:loadEntity('npc_rabbit', objectLayer(mapInstance), mock)
-	assertTrue(rabbit ~= nil, 'fixture sanity: rabbit spawned')
+	local rabbit = mapInstance:loadEntity("npc_rabbit", objectLayer(mapInstance), mock)
+	assertTrue(rabbit ~= nil, "fixture sanity: rabbit spawned")
 	rabbit.collider:setPosition(DROP_X, DROP_Y)
 
 	local landed = false
@@ -53,8 +53,7 @@ test('an npc dropped through a ladder volume is not caught and lands on the terr
 		end
 	end
 
-	assertTrue(landed, 'expected the rabbit to fall through the volume onto the floor')
+	assertTrue(landed, "expected the rabbit to fall through the volume onto the floor")
 	local b = rabbit.collider:getBounds()
-	assertTrue(b.left >= 100 and b.right <= 190,
-		'expected the rabbit to stay in the column band while landing')
+	assertTrue(b.left >= 100 and b.right <= 190, "expected the rabbit to stay in the column band while landing")
 end)

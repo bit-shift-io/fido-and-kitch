@@ -1,6 +1,6 @@
-local Sprite = require('src.components.sprite')
+local Sprite = require("src.components.sprite")
 
-local LivesHud = Class{}
+local LivesHud = Class({})
 
 local HEART_SIZE = 48
 local HEART_SPACING = 16
@@ -19,11 +19,11 @@ function LivesHud:draw(startX)
 	while #self.hearts < lives do
 		local i = #self.hearts + 1
 		local x = baseX + (i - 1) * (HEART_SIZE + HEART_SPACING)
-		local heart = Sprite{
-			frames = {'res/img/ui_heart.png'},
+		local heart = Sprite({
+			frames = { "res/img/ui_heart.png" },
 			position = Vector(x, MARGIN),
 			scale = Vector(HEART_SIZE / 128, HEART_SIZE / 128),
-		}
+		})
 		table.insert(self.hearts, heart)
 	end
 

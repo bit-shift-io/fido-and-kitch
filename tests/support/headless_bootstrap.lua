@@ -17,23 +17,23 @@
 -- used ad hoc in kill_zone_test.lua and ground_support_test.lua; this file
 -- just gives that convention one shared home covering the full set an
 -- entity (rather than a bare Collider) needs.
-tbl      = tbl or require('src.utils.tbl')
-Class    = Class or require('lib.hump.class')
-Vector   = Vector or require('lib.hump.vector')
-utils    = utils or require('src.utils.utils')
-Log      = Log or require('src.utils.log')
-Signal   = Signal or require('src.utils.signal')
-Rect     = Rect or require('src.utils.rect')
-Entity   = Entity or require('src.entity')
-Tween    = Tween or require('lib.tween.tween')
-Timeline = Timeline or require('src.components.timeline')
-Sprite   = Sprite or require('src.components.sprite')
-Collider = Collider or require('src.components.collider')
-Sound    = Sound or require('src.components.sound')
-Usable   = Usable or require('src.components.usable')
-Switchable = Switchable or require('src.components.switchable')
+tbl = tbl or require("src.utils.tbl")
+Class = Class or require("lib.hump.class")
+Vector = Vector or require("lib.hump.vector")
+utils = utils or require("src.utils.utils")
+Log = Log or require("src.utils.log")
+Signal = Signal or require("src.utils.signal")
+Rect = Rect or require("src.utils.rect")
+Entity = Entity or require("src.entity")
+Tween = Tween or require("lib.tween.tween")
+Timeline = Timeline or require("src.components.timeline")
+Sprite = Sprite or require("src.components.sprite")
+Collider = Collider or require("src.components.collider")
+Sound = Sound or require("src.components.sound")
+Usable = Usable or require("src.components.usable")
+Switchable = Switchable or require("src.components.switchable")
 
-local World = require('src.world')
+local World = require("src.world")
 
 local HeadlessBootstrap = {}
 

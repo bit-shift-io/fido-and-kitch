@@ -15,14 +15,14 @@
 -- Frame/tile/void art does not exist yet, so every Diorama config path is
 -- pre-seeded in AssetManager.textures with a solid-colour placeholder and the
 -- test asserts on those exact colours.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local Capture = require('tests.support.capture')
-local AssetManager = require('src.utils.asset_manager')
-local Diorama = require('src.diorama')
-local Camera = require('src.camera')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local Capture = require("tests.support.capture")
+local AssetManager = require("src.utils.asset_manager")
+local Diorama = require("src.diorama")
+local Camera = require("src.camera")
 
-local MAP = 'res/map/sandbox.tmj'
+local MAP = "res/map/sandbox.tmj"
 
 local COLORS = {
 	void = { 255, 255, 255 },
@@ -54,21 +54,21 @@ local function seedPlaceholders()
 	-- silently overwrite the shared entry).
 	local f = Diorama.config.frame
 	local seeded = {}
-	for _, side in ipairs({ 'top', 'bottom', 'left', 'right' }) do
+	for _, side in ipairs({ "top", "bottom", "left", "right" }) do
 		local path = f.tiles[side]
 		if not seeded[path] then
 			seeded[path] = true
-			local color = (side == 'top' or side == 'bottom') and c.horizontal or c.vertical
+			local color = (side == "top" or side == "bottom") and c.horizontal or c.vertical
 			AssetManager.textures[path] = makePlaceholder(color[1], color[2], color[3])
 		end
 	end
 
-	for _, key in ipairs({ 'topLeft', 'topRight', 'bottomLeft', 'bottomRight' }) do
+	for _, key in ipairs({ "topLeft", "topRight", "bottomLeft", "bottomRight" }) do
 		AssetManager.textures[f.ornaments.corners[key].img] = makePlaceholder(c.corner[1], c.corner[2], c.corner[3])
 	end
 
 	for side, orn in pairs(f.ornaments) do
-		if side ~= 'corners' then
+		if side ~= "corners" then
 			for _, item in ipairs(orn) do
 				AssetManager.textures[item.img] = makePlaceholder(c.ornament[1], c.ornament[2], c.ornament[3])
 			end
@@ -79,7 +79,7 @@ end
 local function renderToCanvas(game)
 	local w, h = love.graphics.getWidth(), love.graphics.getHeight()
 	local canvas = love.graphics.newCanvas(w, h)
-	love.graphics.push('all')
+	love.graphics.push("all")
 	love.graphics.setCanvas(canvas)
 	love.graphics.clear()
 	game:draw()
@@ -104,17 +104,17 @@ local function worldToScreen(wx, wy, tx, ty, sx, sy)
 	return math.floor(tx) + wx * sx, math.floor(ty) + wy * sy
 end
 
-test('the void fills the out-of-world strips and the frame sits on the world boundary', function()
+test("the void fills the out-of-world strips and the frame sits on the world boundary", function()
 	love.window.setMode(1200, 500)
 
-	local game = GameHarness.startGame(MAP, {real = true})
+	local game = GameHarness.startGame(MAP, { real = true })
 	seedPlaceholders()
 
 	local mapW, mapH = map:getPixelSize()
 	local screenW, screenH = love.graphics.getWidth(), love.graphics.getHeight()
-	assertEqual(1200, screenW, 'expected the wide test window')
-	assertEqual(500, screenH, 'expected the short test window')
-	assertEqual(640, mapW, 'sandbox is 20x20 tiles of 32px')
+	assertEqual(1200, screenW, "expected the wide test window")
+	assertEqual(500, screenH, "expected the short test window")
+	assertEqual(640, mapW, "sandbox is 20x20 tiles of 32px")
 	assertEqual(640, mapH)
 
 	-- Force the deterministic full-map overview (exact geometry, no easing).
@@ -127,7 +127,7 @@ test('the void fills the out-of-world strips and the frame sits on the world bou
 	cam.padding = 0
 	local full = Camera.fullMapView(mapW, mapH, screenW, screenH)
 	cam.cx, cam.cy, cam.scale = full.cx, full.cy, full.scale
-	cam:setMode('overview')
+	cam:setMode("overview")
 
 	FrameStepper.step(game, 30) -- settle the world/players after the resize
 
@@ -138,17 +138,17 @@ test('the void fills the out-of-world strips and the frame sits on the world bou
 	local wr = internal.worldScreenRect(vr.tx, vr.ty, vr.sx, vr.sy, mapW, mapH)
 	local rects = internal.computeVoidRects(screenW, screenH, wr)
 
-	assertEqual(2, #rects, 'a wide screen over a 1:1 map yields left and right void strips')
-	assertTrue(rects[1].w > 0 and rects[2].w > 0, 'both void strips must be non-zero')
+	assertEqual(2, #rects, "a wide screen over a 1:1 map yields left and right void strips")
+	assertTrue(rects[1].w > 0 and rects[2].w > 0, "both void strips must be non-zero")
 
 	-- The void strips must be free of any map/world content: pure void colour.
 	local canvas = renderToCanvas(game)
-	Capture.capture('01_void_and_frame')
+	Capture.capture("01_void_and_frame")
 
 	local voidLeft = pixelAt(canvas, math.floor(rects[1].x + rects[1].w / 2), math.floor(rects[1].y + rects[1].h / 2))
-	assertTrue(sameColor(voidLeft, COLORS.void), 'left void strip should be the void placeholder colour')
+	assertTrue(sameColor(voidLeft, COLORS.void), "left void strip should be the void placeholder colour")
 	local voidRight = pixelAt(canvas, math.floor(rects[2].x + rects[2].w / 2), math.floor(rects[2].y + rects[2].h / 2))
-	assertTrue(sameColor(voidRight, COLORS.void), 'right void strip should be the void placeholder colour')
+	assertTrue(sameColor(voidRight, COLORS.void), "right void strip should be the void placeholder colour")
 
 	-- The frame band is centred on the outset frame line, so a point just
 	-- outside the world (left/right edges, and the top edge where it is on
@@ -156,22 +156,28 @@ test('the void fills the out-of-world strips and the frame sits on the world bou
 	-- Left/right share the vertical tile texture, top/bottom the horizontal.
 	local lx, ly = worldToScreen(-4, 336, tx, ty, sx, sy)
 	local lc = pixelAt(canvas, math.floor(lx), math.floor(ly))
-	assertTrue(sameColor(lc, COLORS.vertical), 'left frame edge tile should sit just outside the world')
+	assertTrue(sameColor(lc, COLORS.vertical), "left frame edge tile should sit just outside the world")
 	local rx, ry = worldToScreen(644, 336, tx, ty, sx, sy)
-	assertTrue(sameColor(pixelAt(canvas, math.floor(rx), math.floor(ry)), COLORS.vertical), 'right frame edge tile should sit just outside the world')
+	assertTrue(
+		sameColor(pixelAt(canvas, math.floor(rx), math.floor(ry)), COLORS.vertical),
+		"right frame edge tile should sit just outside the world"
+	)
 
 	if ty > 4 then
 		local txp, typ = worldToScreen(336, -4, tx, ty, sx, sy)
-		assertTrue(sameColor(pixelAt(canvas, math.floor(txp), math.floor(typ)), COLORS.horizontal), 'top frame edge tile should sit just above the world')
+		assertTrue(
+			sameColor(pixelAt(canvas, math.floor(txp), math.floor(typ)), COLORS.horizontal),
+			"top frame edge tile should sit just above the world"
+		)
 	end
 
 	-- The inside of the world is map content, neither void nor frame colour.
 	local ix, iy = worldToScreen(320, 320, tx, ty, sx, sy)
 	local inside = pixelAt(canvas, math.floor(ix), math.floor(iy))
-	assertFalse(sameColor(inside, COLORS.void), 'world interior should not be void colour')
+	assertFalse(sameColor(inside, COLORS.void), "world interior should not be void colour")
 	for _, c in ipairs({ COLORS.horizontal, COLORS.vertical }) do
-		assertFalse(sameColor(inside, c), 'world interior should not be a frame edge-tile colour')
+		assertFalse(sameColor(inside, c), "world interior should not be a frame edge-tile colour")
 	end
 
-	Capture.capture('02_inside_world')
+	Capture.capture("02_inside_world")
 end)

@@ -6,12 +6,12 @@
 local Sensors = {}
 
 -- Spatial probe constants (world px) used by the collision queries.
-local KILL_ZONE_INSET = 2            -- shrink the hitbox when probing kill zones
-local GROUND_PROBE = {min = 1, max = 3} -- probe band just below the feet
-local WALL_PROBE_DIST = 8            -- how far ahead a wall check reaches
-local WALL_PROBE_INSET = 2           -- vertical inset of the wall probe
-local GROUND_AHEAD_PROBE_DIST = 16   -- how far ahead a ground check reaches
-local GROUND_AHEAD_VERT_RANGE = 8    -- vertical range of the ground probe
+local KILL_ZONE_INSET = 2 -- shrink the hitbox when probing kill zones
+local GROUND_PROBE = { min = 1, max = 3 } -- probe band just below the feet
+local WALL_PROBE_DIST = 8 -- how far ahead a wall check reaches
+local WALL_PROBE_INSET = 2 -- vertical inset of the wall probe
+local GROUND_AHEAD_PROBE_DIST = 16 -- how far ahead a ground check reaches
+local GROUND_AHEAD_VERT_RANGE = 8 -- vertical range of the ground probe
 
 -- Shared "is anything solid in these bounds" scan used by the ground/wall
 -- probes below. With requireSolid=true only terrain (no owning entity) and
@@ -31,7 +31,9 @@ end
 function Sensors.isOnGround(npc)
 	if npc.collider then
 		local w = npc.collider.world or world
-		if not w then return false end
+		if not w then
+			return false
+		end
 		local bounds = {
 			left = npc.collider.x,
 			right = npc.collider.x + npc.collider.width,
@@ -44,11 +46,15 @@ function Sensors.isOnGround(npc)
 end
 
 function Sensors.isWallAhead(npc, direction)
-	if not npc.collider then return false end
+	if not npc.collider then
+		return false
+	end
 	local w = npc.collider.world or world
-	if not w then return false end
+	if not w then
+		return false
+	end
 	local bounds = npc.collider:getBounds()
-	if direction == 'right' then
+	if direction == "right" then
 		bounds.left = bounds.right
 		bounds.right = bounds.right + WALL_PROBE_DIST
 	else
@@ -61,11 +67,15 @@ function Sensors.isWallAhead(npc, direction)
 end
 
 function Sensors.isGroundAhead(npc, direction)
-	if not npc.collider then return false end
+	if not npc.collider then
+		return false
+	end
 	local w = npc.collider.world or world
-	if not w then return false end
+	if not w then
+		return false
+	end
 	local bounds = npc.collider:getBounds()
-	if direction == 'right' then
+	if direction == "right" then
 		bounds.left = bounds.right
 		bounds.right = bounds.right + GROUND_AHEAD_PROBE_DIST
 	else
@@ -80,11 +90,13 @@ end
 -- Kill-zone overlap check: probe the world just inside the collider bounds
 -- and die immediately if any kill zone is found.
 function Sensors.checkKillZones(npc)
-	if not world then return false end
+	if not world then
+		return false
+	end
 	local bounds = npc.collider:getBounds()
-	bounds.left   = bounds.left   + KILL_ZONE_INSET
-	bounds.right  = bounds.right  - KILL_ZONE_INSET
-	bounds.top    = bounds.top    + KILL_ZONE_INSET
+	bounds.left = bounds.left + KILL_ZONE_INSET
+	bounds.right = bounds.right - KILL_ZONE_INSET
+	bounds.top = bounds.top + KILL_ZONE_INSET
 	bounds.bottom = bounds.bottom - KILL_ZONE_INSET
 
 	local cols = world:queryBounds(bounds)
@@ -100,7 +112,9 @@ end
 -- Scan all players and set the NPC's target to the closest one within
 -- detection radius.
 function Sensors.detectNearestPlayer(npc)
-	if not players or #players == 0 then return end
+	if not players or #players == 0 then
+		return
+	end
 	local closest, closestDist = nil, npc.config.detectionRadius
 	for _, player in ipairs(players) do
 		if player and not player.dead and player.collider then
@@ -110,7 +124,7 @@ function Sensors.detectNearestPlayer(npc)
 			local dist = math.sqrt(dx * dx + dy * dy)
 			if dist < closestDist then
 				closestDist = dist
-				closest = {x = px, y = py}
+				closest = { x = px, y = py }
 			end
 		end
 	end
@@ -130,7 +144,9 @@ function Sensors.checkDespawn(npc)
 		return
 	end
 	local tx, ty = npc:getTargetPos()
-	if not tx then return end
+	if not tx then
+		return
+	end
 	local dx, dy = tx - npc.x, ty - npc.y
 	local dist = math.sqrt(dx * dx + dy * dy)
 	if dist > npc.config.despawnDistance then

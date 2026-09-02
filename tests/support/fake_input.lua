@@ -11,13 +11,13 @@
 -- reading its own state, sitting in front of the real ones for the rest of
 -- the process -- physical keyboard/gamepad input never reaches an entity's
 -- input query (see DECISIONS.md Q13).
-local FrameStepper = require('tests.support.frame_stepper')
+local FrameStepper = require("tests.support.frame_stepper")
 
 local Joystick = {}
 Joystick.__index = Joystick
 
 local function newJoystick()
-	return setmetatable({axes = {0, 0}, buttons = {}}, Joystick)
+	return setmetatable({ axes = { 0, 0 }, buttons = {} }, Joystick)
 end
 
 -- consumed by Player:isDown via love.joystick.getJoysticks()[index]:getAxes()
@@ -40,7 +40,7 @@ function Joystick:isGamepad()
 end
 
 function Joystick:getName()
-	return 'Fake Joystick'
+	return "Fake Joystick"
 end
 
 -- consumed by Player:isDown via love.joystick.getJoysticks()[index]:isDown(1)
@@ -49,7 +49,7 @@ function Joystick:isDown(button)
 end
 
 function Joystick:setAxes(horizontal, vertical)
-	self.axes = {horizontal, vertical}
+	self.axes = { horizontal, vertical }
 end
 
 function Joystick:setButtonDown(button, isDown)
@@ -60,7 +60,7 @@ local FakeInput = {}
 FakeInput.__index = FakeInput
 
 function FakeInput.new()
-	local state = love._state or {keysDown = {}, joysticks = {}}
+	local state = love._state or { keysDown = {}, joysticks = {} }
 	love._state = state
 
 	love.keyboard.isDown = function(key)
@@ -71,7 +71,7 @@ function FakeInput.new()
 		return state.joysticks
 	end
 
-	return setmetatable({state = state}, FakeInput)
+	return setmetatable({ state = state }, FakeInput)
 end
 
 function FakeInput:press(key)
@@ -109,7 +109,7 @@ local WindowControl = {}
 WindowControl.__index = WindowControl
 
 function WindowControl.new(controller)
-	return setmetatable({controller = controller}, WindowControl)
+	return setmetatable({ controller = controller }, WindowControl)
 end
 
 function WindowControl:maximize()
@@ -216,7 +216,7 @@ local function runUntil(game, predicate, maxFrames)
 			return
 		end
 	end
-	error(string.format('runUntil: predicate not satisfied within %d frames', maxFrames))
+	error(string.format("runUntil: predicate not satisfied within %d frames", maxFrames))
 end
 
 return {

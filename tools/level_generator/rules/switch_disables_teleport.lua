@@ -8,7 +8,7 @@
 local TILE = 32
 
 local Rule = {}
-Rule.id = 'switch-disables-teleport-shortcut'
+Rule.id = "switch-disables-teleport-shortcut"
 
 local function surfaceY(row)
 	return (row - 1) * TILE
@@ -34,35 +34,35 @@ function Rule.apply(rng, layout, startId)
 		objects = {
 			{
 				id = teleportAId,
-				template = '../../entities/teleport.tj',
-				name = 'teleport',
-				type = 'teleport',
+				template = "../../entities/teleport.tj",
+				name = "teleport",
+				type = "teleport",
 				x = aX,
 				y = surfaceY(a.y),
-				properties = {{name = 'target', type = 'object', value = teleportBId}},
+				properties = { { name = "target", type = "object", value = teleportBId } },
 			},
 			{
 				id = teleportBId,
-				template = '../../entities/teleport.tj',
-				name = 'teleport',
-				type = 'teleport',
+				template = "../../entities/teleport.tj",
+				name = "teleport",
+				type = "teleport",
 				x = bX,
 				y = surfaceY(b.y),
-				properties = {{name = 'target', type = 'object', value = teleportAId}},
+				properties = { { name = "target", type = "object", value = teleportAId } },
 			},
 			{
 				id = switchId,
-				template = '../../entities/switch.tj',
-				name = 'switch',
-				type = 'switch',
+				template = "../../entities/switch.tj",
+				name = "switch",
+				type = "switch",
 				x = switchX,
 				y = surfaceY(a.y),
-				properties = {{name = 'target', type = 'object', value = teleportAId}},
+				properties = { { name = "target", type = "object", value = teleportAId } },
 			},
 		},
 		idsUsed = 3,
-		walkthroughStep = '(optional) a shortcut teleporter links the ground to the top platform; '
-			.. 'a nearby switch can turn it off and back on, but it starts working and nothing requires it.',
+		walkthroughStep = "(optional) a shortcut teleporter links the ground to the top platform; "
+			.. "a nearby switch can turn it off and back on, but it starts working and nothing requires it.",
 	}
 end
 

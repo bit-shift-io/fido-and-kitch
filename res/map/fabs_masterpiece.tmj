@@ -1,925 +1,952 @@
-{ "compressionlevel":-1,
- "height":20,
- "infinite":false,
- "layers":[
+{
+  "compressionlevel": -1,
+  "height": 20,
+  "infinite": false,
+  "layers": [
+    {
+      "compression": "",
+      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAKgAAACoAAAAqAAAAAAAAACoAAAAqAAAAKgAAAAoAAAAqAAAAKgAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAqAAAAKgAAACoAAAAqAAAACgAAAAoAAAAKAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAqAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAAAAKgAAACoAAAAqAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAoAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACYAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAnAAAAAAAAAAAAAAAAAAAABQAAAAYAAAAAAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAoAAAAAAAAAAAAAAAAAAAAAAAAACgAAAAoAAAAKAAAACgAAACYAAAAmAAAAAAAAAAAAAAAAAAAAAAAAABkAAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAKAAAADgAAAA4AAAAOAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJgAAACYAAAAmAAAAJgAAACYAAAAmAAAAAwAAAAMAAAADAAAAAwAAAA4AAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAAYAAAAGAAAABgAAAAoAAAAKAAAACAAAAAAAAAAAAAAA",
+      "encoding": "base64",
+      "height": 20,
+      "id": 1,
+      "name": "ground",
+      "opacity": 1,
+      "properties": [
         {
-         "compression":"",
-         "data":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAKgAAACoAAAAqAAAAAAAAACoAAAAqAAAAKgAAAAoAAAAqAAAAKgAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAqAAAAKgAAACoAAAAqAAAACgAAAAoAAAAKAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAqAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAAAAKgAAACoAAAAqAAAAKgAAACoAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAoAAAAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACYAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAnAAAAAAAAAAAAAAAAAAAABQAAAAYAAAAAAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAoAAAAAAAAAAAAAAAAAAAAAAAAACgAAAAoAAAAKAAAACgAAACYAAAAmAAAAAAAAAAAAAAAAAAAAAAAAABkAAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAKAAAADgAAAA4AAAAOAAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJgAAACYAAAAmAAAAJgAAACYAAAAmAAAAAwAAAAMAAAADAAAAAwAAAA4AAAAnAAAAAAAAAAAAAAAAAAAAHAAAAA4AAAAOAAAADgAAAA4AAAAOAAAADgAAAAYAAAAGAAAABgAAAAoAAAAKAAAACAAAAAAAAAAAAAAA",
-         "encoding":"base64",
-         "height":20,
-         "id":1,
-         "name":"ground",
-         "opacity":1,
-         "properties":[
-                {
-                 "name":"collision",
-                 "type":"bool",
-                 "value":true
-                }],
-         "type":"tilelayer",
-         "visible":true,
-         "width":30,
-         "x":0,
-         "y":0
-        }, 
+          "name": "collision",
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "type": "tilelayer",
+      "visible": true,
+      "width": 30,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "compression": "",
+      "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaQAAAGkAAABpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeQAAAHkAAABxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGkAAABpAAAA",
+      "encoding": "base64",
+      "height": 20,
+      "id": 14,
+      "name": "water",
+      "opacity": 1,
+      "type": "tilelayer",
+      "visible": true,
+      "width": 30,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 16,
+      "name": "ladder",
+      "objects": [
         {
-         "compression":"",
-         "data":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaQAAAGkAAABpAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeQAAAHkAAABxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGkAAABpAAAA",
-         "encoding":"base64",
-         "height":20,
-         "id":14,
-         "name":"water",
-         "opacity":1,
-         "type":"tilelayer",
-         "visible":true,
-         "width":30,
-         "x":0,
-         "y":0
-        }, 
+          "id": 111,
+          "template": "../entities/ladder.tj",
+          "x": 288,
+          "y": 384
+        },
         {
-         "draworder":"topdown",
-         "id":16,
-         "name":"ladder",
-         "objects":[
-                {
-                 "id":111,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":288,
-                 "y":384
-                }, 
-                {
-                 "id":112,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":288,
-                 "y":352
-                }, 
-                {
-                 "id":113,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":288,
-                 "y":320
-                }, 
-                {
-                 "id":114,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":288,
-                 "y":288
-                }, 
-                {
-                 "id":115,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":288,
-                 "y":256
-                }, 
-                {
-                 "id":116,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":288,
-                 "y":224
-                }, 
-                {
-                 "id":117,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":320,
-                 "y":512
-                }, 
-                {
-                 "id":118,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":320,
-                 "y":480
-                }, 
-                {
-                 "id":119,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":320,
-                 "y":448
-                }, 
-                {
-                 "id":120,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":320,
-                 "y":416
-                }, 
-                {
-                 "id":121,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":96,
-                 "y":608
-                }, 
-                {
-                 "id":122,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":96,
-                 "y":576
-                }, 
-                {
-                 "id":123,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":96,
-                 "y":544
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 112,
+          "template": "../entities/ladder.tj",
+          "x": 288,
+          "y": 352
+        },
         {
-         "draworder":"topdown",
-         "id":19,
-         "name":"kill",
-         "objects":[
-                {
-                 "height":48,
-                 "id":78,
-                 "name":"water_kill",
-                 "opacity":1,
-                 "properties":[
-                        {
-                         "name":"deathType",
-                         "type":"string",
-                         "value":"water"
-                        }],
-                 "rotation":0,
-                 "type":"kill_zone",
-                 "visible":true,
-                 "width":96,
-                 "x":384,
-                 "y":592
-                }, 
-                {
-                 "height":32,
-                 "id":103,
-                 "name":"water_kill",
-                 "opacity":1,
-                 "properties":[
-                        {
-                         "name":"deathType",
-                         "type":"string",
-                         "value":"water"
-                        }],
-                 "rotation":0,
-                 "type":"kill_zone",
-                 "visible":true,
-                 "width":64,
-                 "x":896,
-                 "y":608
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 113,
+          "template": "../entities/ladder.tj",
+          "x": 288,
+          "y": 320
+        },
         {
-         "draworder":"topdown",
-         "id":13,
-         "name":"game",
-         "objects":[
-                {
-                 "id":86,
-                 "template":"..\/entities\/drawbridge.tj",
-                 "x":352,
-                 "y":224
-                }, 
-                {
-                 "id":26,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":63
-                        }],
-                 "template":"..\/entities\/teleport.tj",
-                 "x":272,
-                 "y":608
-                }, 
-                {
-                 "id":36,
-                 "template":"..\/entities\/coin.tj",
-                 "x":640,
-                 "y":352
-                }, 
-                {
-                 "id":38,
-                 "template":"..\/entities\/spawn.tj",
-                 "x":32,
-                 "y":576
-                }, 
-                {
-                 "id":41,
-                 "name":"red_cage",
-                 "properties":[
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":67
-                        }, 
-                        {
-                         "name":"spawn_type",
-                         "type":"string",
-                         "value":"bird"
-                        }],
-                 "template":"..\/entities\/cage.tj",
-                 "x":192,
-                 "y":384
-                }, 
-                {
-                 "id":43,
-                 "properties":[
-                        {
-                         "name":"actor_count",
-                         "type":"int",
-                         "value":2
-                        }],
-                 "template":"..\/entities\/exit_door.tj",
-                 "x":0,
-                 "y":576
-                }, 
-                {
-                 "id":44,
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":43
-                        }],
-                 "template":"..\/entities\/switch.tj",
-                 "x":480,
-                 "y":192
-                }, 
-                {
-                 "id":62,
-                 "name":"red_key",
-                 "template":"..\/entities\/key.tj",
-                 "x":224,
-                 "y":608
-                }, 
-                {
-                 "id":63,
-                 "name":"teleport",
-                 "properties":[
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":26
-                        }],
-                 "template":"..\/entities\/teleport.tj",
-                 "x":720,
-                 "y":608
-                }, 
-                {
-                 "id":68,
-                 "properties":[
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":126
-                        }, 
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":124
-                        }],
-                 "template":"..\/entities\/jump_pad.tj",
-                 "x":864,
-                 "y":608
-                }, 
-                {
-                 "height":0,
-                 "id":124,
-                 "name":"jump_pad_target",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":768,
-                 "y":544
-                }, 
-                {
-                 "id":75,
-                 "name":"blue_cage",
-                 "properties":[
-                        {
-                         "name":"color",
-                         "type":"string",
-                         "value":"blue"
-                        }, 
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":77
-                        }, 
-                        {
-                         "name":"spawn_type",
-                         "type":"string",
-                         "value":"rabbit"
-                        }],
-                 "template":"..\/entities\/cage.tj",
-                 "x":672,
-                 "y":256
-                }, 
-                {
-                 "id":76,
-                 "name":"blue_key",
-                 "properties":[
-                        {
-                         "name":"color",
-                         "type":"string",
-                         "value":"blue"
-                        }],
-                 "template":"..\/entities\/key.tj",
-                 "x":704,
-                 "y":544
-                }, 
-                {
-                 "id":81,
-                 "properties":[
-                        {
-                         "name":"allowPushWhenStoodOn",
-                         "type":"bool",
-                         "value":true
-                        }],
-                 "template":"..\/entities\/push_box.tj",
-                 "x":768,
-                 "y":544
-                }, 
-                {
-                 "height":30.2203,
-                 "id":87,
-                 "name":"robot",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"npc_robot",
-                 "visible":true,
-                 "width":32,
-                 "x":608,
-                 "y":512
-                }, 
-                {
-                 "height":32,
-                 "id":88,
-                 "name":"spider",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"npc_spider",
-                 "visible":true,
-                 "width":32,
-                 "x":576.205,
-                 "y":317.467
-                }, 
-                {
-                 "id":91,
-                 "properties":[
-                        {
-                         "name":"text",
-                         "type":"string",
-                         "value":"Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"
-                        }],
-                 "template":"..\/entities\/story.tj",
-                 "x":800,
-                 "y":256
-                }, 
-                {
-                 "id":92,
-                 "properties":[
-                        {
-                         "name":"text",
-                         "type":"string",
-                         "value":"The inside of this automaton engine isn't made of pistons\u2014it\u2019s an empty nest lined with soft wool and old ribbons. Whatever was kept inside here was taken out very recently."
-                        }],
-                 "template":"..\/entities\/story.tj",
-                 "x":512,
-                 "y":352
-                }, 
-                {
-                 "id":95,
-                 "template":"..\/entities\/coin.tj",
-                 "x":928,
-                 "y":448
-                }, 
-                {
-                 "id":106,
-                 "properties":[
-                        {
-                         "name":"path",
-                         "type":"object",
-                         "value":127
-                        }, 
-                        {
-                         "name":"target",
-                         "type":"object",
-                         "value":125
-                        }],
-                 "template":"..\/entities\/jump_pad.tj",
-                 "x":480,
-                 "y":544
-                }, 
-                {
-                 "height":0,
-                 "id":125,
-                 "name":"jump_pad_target",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":368,
-                 "y":512
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 114,
+          "template": "../entities/ladder.tj",
+          "x": 288,
+          "y": 288
+        },
         {
-         "draworder":"topdown",
-         "id":18,
-         "name":"waypoints",
-         "objects":[
-                {
-                 "height":0,
-                 "id":126,
-                 "name":"jump_pad_path",
-                 "opacity":1,
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-5.6,
-                         "y":-19.12
-                        }, 
-                        {
-                         "x":-11.2,
-                         "y":-36.48
-                        }, 
-                        {
-                         "x":-16.8,
-                         "y":-52.08
-                        }, 
-                        {
-                         "x":-22.4,
-                         "y":-65.92
-                        }, 
-                        {
-                         "x":-28,
-                         "y":-78
-                        }, 
-                        {
-                         "x":-33.6,
-                         "y":-88.32
-                        }, 
-                        {
-                         "x":-39.2,
-                         "y":-96.88
-                        }, 
-                        {
-                         "x":-44.8,
-                         "y":-103.68
-                        }, 
-                        {
-                         "x":-50.4,
-                         "y":-108.72
-                        }, 
-                        {
-                         "x":-56,
-                         "y":-112
-                        }, 
-                        {
-                         "x":-61.6,
-                         "y":-113.52
-                        }, 
-                        {
-                         "x":-67.2,
-                         "y":-113.28
-                        }, 
-                        {
-                         "x":-72.8,
-                         "y":-111.28
-                        }, 
-                        {
-                         "x":-78.4,
-                         "y":-107.52
-                        }, 
-                        {
-                         "x":-84,
-                         "y":-102
-                        }, 
-                        {
-                         "x":-89.6,
-                         "y":-94.72
-                        }, 
-                        {
-                         "x":-95.2,
-                         "y":-85.68
-                        }, 
-                        {
-                         "x":-100.8,
-                         "y":-74.88
-                        }, 
-                        {
-                         "x":-106.4,
-                         "y":-62.32
-                        }, 
-                        {
-                         "x":-112,
-                         "y":-48
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":880,
-                 "y":592
-                }, 
-                {
-                 "height":0,
-                 "id":127,
-                 "name":"jump_pad_path",
-                 "opacity":1,
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-6.4,
-                         "y":-14.48
-                        }, 
-                        {
-                         "x":-12.8,
-                         "y":-27.52
-                        }, 
-                        {
-                         "x":-19.2,
-                         "y":-39.12
-                        }, 
-                        {
-                         "x":-25.6,
-                         "y":-49.28
-                        }, 
-                        {
-                         "x":-32,
-                         "y":-58
-                        }, 
-                        {
-                         "x":-38.4,
-                         "y":-65.28
-                        }, 
-                        {
-                         "x":-44.8,
-                         "y":-71.12
-                        }, 
-                        {
-                         "x":-51.2,
-                         "y":-75.52
-                        }, 
-                        {
-                         "x":-57.6,
-                         "y":-78.48
-                        }, 
-                        {
-                         "x":-64,
-                         "y":-80
-                        }, 
-                        {
-                         "x":-70.4,
-                         "y":-80.08
-                        }, 
-                        {
-                         "x":-76.8,
-                         "y":-78.72
-                        }, 
-                        {
-                         "x":-83.2,
-                         "y":-75.92
-                        }, 
-                        {
-                         "x":-89.6,
-                         "y":-71.68
-                        }, 
-                        {
-                         "x":-96,
-                         "y":-66
-                        }, 
-                        {
-                         "x":-102.4,
-                         "y":-58.88
-                        }, 
-                        {
-                         "x":-108.8,
-                         "y":-50.32
-                        }, 
-                        {
-                         "x":-115.2,
-                         "y":-40.32
-                        }, 
-                        {
-                         "x":-121.6,
-                         "y":-28.88
-                        }, 
-                        {
-                         "x":-128,
-                         "y":-16
-                        }],
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":496,
-                 "y":528
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }, 
+          "id": 115,
+          "template": "../entities/ladder.tj",
+          "x": 288,
+          "y": 256
+        },
         {
-         "draworder":"topdown",
-         "id":15,
-         "name":"collision",
-         "objects":[
-                {
-                 "height":32,
-                 "id":53,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":128,
-                 "x":256,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":84,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":96,
-                 "x":544,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":54,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":192,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":55,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":288,
-                 "x":608,
-                 "y":256
-                }, 
-                {
-                 "height":32,
-                 "id":56,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":160,
-                 "x":512,
-                 "y":352
-                }, 
-                {
-                 "height":32,
-                 "id":57,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":224,
-                 "x":160,
-                 "y":384
-                }, 
-                {
-                 "height":128,
-                 "id":58,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":320,
-                 "y":512
-                }, 
-                {
-                 "height":96,
-                 "id":59,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":128,
-                 "x":576,
-                 "y":544
-                }, 
-                {
-                 "height":64,
-                 "id":96,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":128,
-                 "x":0,
-                 "y":576
-                }, 
-                {
-                 "height":128,
-                 "id":97,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":128,
-                 "y":512
-                }, 
-                {
-                 "height":32,
-                 "id":98,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":128,
-                 "x":192,
-                 "y":512
-                }, 
-                {
-                 "height":32,
-                 "id":99,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":128,
-                 "x":192,
-                 "y":608
-                }, 
-                {
-                 "height":32,
-                 "id":100,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":128,
-                 "x":704,
-                 "y":544
-                }, 
-                {
-                 "height":32,
-                 "id":101,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":192,
-                 "x":704,
-                 "y":608
-                }, 
-                {
-                 "height":32,
-                 "id":102,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":96,
-                 "x":864,
-                 "y":448
-                }, 
-                {
-                 "height":32,
-                 "id":104,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":224,
-                 "x":416,
-                 "y":192
-                }, 
-                {
-                 "height":32,
-                 "id":105,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":96,
-                 "y":512
-                }, 
-                {
-                 "height":64,
-                 "id":109,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":544,
-                 "y":576
-                }, 
-                {
-                 "height":96,
-                 "id":110,
-                 "name":"",
-                 "opacity":1,
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":480,
-                 "y":544
-                }],
-         "opacity":1,
-         "properties":[
-                {
-                 "name":"collision",
-                 "type":"bool",
-                 "value":true
-                }],
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
-        }],
- "nextlayerid":20,
- "nextobjectid":128,
- "orientation":"orthogonal",
- "properties":[
+          "id": 116,
+          "template": "../entities/ladder.tj",
+          "x": 288,
+          "y": 224
+        },
         {
-         "name":"background",
-         "type":"string",
-         "value":"night_forest"
-        }, 
+          "id": 117,
+          "template": "../entities/ladder.tj",
+          "x": 320,
+          "y": 512
+        },
         {
-         "name":"description",
-         "type":"string",
-         "value":"A new work-in-progress level."
-        }, 
+          "id": 118,
+          "template": "../entities/ladder.tj",
+          "x": 320,
+          "y": 480
+        },
         {
-         "name":"name",
-         "type":"string",
-         "value":"Fab's Masterpiece"
-        }, 
+          "id": 119,
+          "template": "../entities/ladder.tj",
+          "x": 320,
+          "y": 448
+        },
         {
-         "name":"players",
-         "type":"int",
-         "value":2
-        }],
- "renderorder":"right-down",
- "tiledversion":"1.12.2",
- "tileheight":32,
- "tilesets":[
+          "id": 120,
+          "template": "../entities/ladder.tj",
+          "x": 320,
+          "y": 416
+        },
         {
-         "firstgid":1,
-         "source":"..\/entities\/tileset_generic_platformer_tiles.tsj"
-        }],
- "tilewidth":32,
- "type":"map",
- "version":"1.11",
- "width":30
+          "id": 121,
+          "template": "../entities/ladder.tj",
+          "x": 96,
+          "y": 608
+        },
+        {
+          "id": 122,
+          "template": "../entities/ladder.tj",
+          "x": 96,
+          "y": 576
+        },
+        {
+          "id": 123,
+          "template": "../entities/ladder.tj",
+          "x": 96,
+          "y": 544
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 19,
+      "name": "kill",
+      "objects": [
+        {
+          "height": 48,
+          "id": 78,
+          "name": "water_kill",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "deathType",
+              "type": "string",
+              "value": "water"
+            }
+          ],
+          "rotation": 0,
+          "type": "kill_zone",
+          "visible": true,
+          "width": 96,
+          "x": 384,
+          "y": 592
+        },
+        {
+          "height": 32,
+          "id": 103,
+          "name": "water_kill",
+          "opacity": 1,
+          "properties": [
+            {
+              "name": "deathType",
+              "type": "string",
+              "value": "water"
+            }
+          ],
+          "rotation": 0,
+          "type": "kill_zone",
+          "visible": true,
+          "width": 64,
+          "x": 896,
+          "y": 608
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 13,
+      "name": "game",
+      "objects": [
+        {
+          "id": 86,
+          "template": "../entities/drawbridge.tj",
+          "x": 352,
+          "y": 224
+        },
+        {
+          "id": 26,
+          "name": "teleport",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 63
+            }
+          ],
+          "template": "../entities/teleport.tj",
+          "x": 272,
+          "y": 608
+        },
+        {
+          "id": 36,
+          "template": "../entities/coin.tj",
+          "x": 640,
+          "y": 352
+        },
+        {
+          "id": 38,
+          "template": "../entities/spawn.tj",
+          "x": 32,
+          "y": 576
+        },
+        {
+          "id": 41,
+          "name": "red_cage",
+          "properties": [
+            {
+              "name": "path",
+              "type": "object",
+              "value": 67
+            },
+            {
+              "name": "spawn_type",
+              "type": "string",
+              "value": "bird"
+            }
+          ],
+          "template": "../entities/cage.tj",
+          "x": 192,
+          "y": 384
+        },
+        {
+          "id": 43,
+          "properties": [
+            {
+              "name": "actor_count",
+              "type": "int",
+              "value": 2
+            }
+          ],
+          "template": "../entities/exit_door.tj",
+          "x": 0,
+          "y": 576
+        },
+        {
+          "id": 44,
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 43
+            }
+          ],
+          "template": "../entities/switch.tj",
+          "x": 480,
+          "y": 192
+        },
+        {
+          "id": 62,
+          "name": "red_key",
+          "template": "../entities/key.tj",
+          "x": 224,
+          "y": 608
+        },
+        {
+          "id": 63,
+          "name": "teleport",
+          "properties": [
+            {
+              "name": "target",
+              "type": "object",
+              "value": 26
+            }
+          ],
+          "template": "../entities/teleport.tj",
+          "x": 720,
+          "y": 608
+        },
+        {
+          "id": 68,
+          "properties": [
+            {
+              "name": "path",
+              "type": "object",
+              "value": 126
+            },
+            {
+              "name": "target",
+              "type": "object",
+              "value": 124
+            }
+          ],
+          "template": "../entities/jump_pad.tj",
+          "x": 864,
+          "y": 608
+        },
+        {
+          "height": 0,
+          "id": 124,
+          "name": "jump_pad_target",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 768,
+          "y": 544
+        },
+        {
+          "id": 75,
+          "name": "blue_cage",
+          "properties": [
+            {
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            },
+            {
+              "name": "path",
+              "type": "object",
+              "value": 77
+            },
+            {
+              "name": "spawn_type",
+              "type": "string",
+              "value": "rabbit"
+            }
+          ],
+          "template": "../entities/cage.tj",
+          "x": 672,
+          "y": 256
+        },
+        {
+          "id": 76,
+          "name": "blue_key",
+          "properties": [
+            {
+              "name": "color",
+              "type": "string",
+              "value": "blue"
+            }
+          ],
+          "template": "../entities/key.tj",
+          "x": 704,
+          "y": 544
+        },
+        {
+          "id": 81,
+          "properties": [
+            {
+              "name": "allowPushWhenStoodOn",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "template": "../entities/push_box.tj",
+          "x": 768,
+          "y": 544
+        },
+        {
+          "height": 30.2203,
+          "id": 87,
+          "name": "robot",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "npc_robot",
+          "visible": true,
+          "width": 32,
+          "x": 608,
+          "y": 512
+        },
+        {
+          "height": 32,
+          "id": 88,
+          "name": "spider",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "npc_spider",
+          "visible": true,
+          "width": 32,
+          "x": 576.205,
+          "y": 317.467
+        },
+        {
+          "id": 91,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "Looking through the cracked green glass reveals shimmering blue lines carved into the floorboards. Someone mapped out these portal paths long before the clockwork patrols arrived... but who were they trying to lead?"
+            }
+          ],
+          "template": "../entities/story.tj",
+          "x": 800,
+          "y": 256
+        },
+        {
+          "id": 92,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "The inside of this automaton engine isn't made of pistons—it’s an empty nest lined with soft wool and old ribbons. Whatever was kept inside here was taken out very recently."
+            }
+          ],
+          "template": "../entities/story.tj",
+          "x": 512,
+          "y": 352
+        },
+        {
+          "id": 95,
+          "template": "../entities/coin.tj",
+          "x": 928,
+          "y": 448
+        },
+        {
+          "id": 106,
+          "properties": [
+            {
+              "name": "path",
+              "type": "object",
+              "value": 127
+            },
+            {
+              "name": "target",
+              "type": "object",
+              "value": 125
+            }
+          ],
+          "template": "../entities/jump_pad.tj",
+          "x": 480,
+          "y": 544
+        },
+        {
+          "height": 0,
+          "id": 125,
+          "name": "jump_pad_target",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 368,
+          "y": 512
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 18,
+      "name": "waypoints",
+      "objects": [
+        {
+          "height": 0,
+          "id": 126,
+          "name": "jump_pad_path",
+          "opacity": 1,
+          "polyline": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": -5.6,
+              "y": -19.12
+            },
+            {
+              "x": -11.2,
+              "y": -36.48
+            },
+            {
+              "x": -16.8,
+              "y": -52.08
+            },
+            {
+              "x": -22.4,
+              "y": -65.92
+            },
+            {
+              "x": -28,
+              "y": -78
+            },
+            {
+              "x": -33.6,
+              "y": -88.32
+            },
+            {
+              "x": -39.2,
+              "y": -96.88
+            },
+            {
+              "x": -44.8,
+              "y": -103.68
+            },
+            {
+              "x": -50.4,
+              "y": -108.72
+            },
+            {
+              "x": -56,
+              "y": -112
+            },
+            {
+              "x": -61.6,
+              "y": -113.52
+            },
+            {
+              "x": -67.2,
+              "y": -113.28
+            },
+            {
+              "x": -72.8,
+              "y": -111.28
+            },
+            {
+              "x": -78.4,
+              "y": -107.52
+            },
+            {
+              "x": -84,
+              "y": -102
+            },
+            {
+              "x": -89.6,
+              "y": -94.72
+            },
+            {
+              "x": -95.2,
+              "y": -85.68
+            },
+            {
+              "x": -100.8,
+              "y": -74.88
+            },
+            {
+              "x": -106.4,
+              "y": -62.32
+            },
+            {
+              "x": -112,
+              "y": -48
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 880,
+          "y": 592
+        },
+        {
+          "height": 0,
+          "id": 127,
+          "name": "jump_pad_path",
+          "opacity": 1,
+          "polyline": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": -6.4,
+              "y": -14.48
+            },
+            {
+              "x": -12.8,
+              "y": -27.52
+            },
+            {
+              "x": -19.2,
+              "y": -39.12
+            },
+            {
+              "x": -25.6,
+              "y": -49.28
+            },
+            {
+              "x": -32,
+              "y": -58
+            },
+            {
+              "x": -38.4,
+              "y": -65.28
+            },
+            {
+              "x": -44.8,
+              "y": -71.12
+            },
+            {
+              "x": -51.2,
+              "y": -75.52
+            },
+            {
+              "x": -57.6,
+              "y": -78.48
+            },
+            {
+              "x": -64,
+              "y": -80
+            },
+            {
+              "x": -70.4,
+              "y": -80.08
+            },
+            {
+              "x": -76.8,
+              "y": -78.72
+            },
+            {
+              "x": -83.2,
+              "y": -75.92
+            },
+            {
+              "x": -89.6,
+              "y": -71.68
+            },
+            {
+              "x": -96,
+              "y": -66
+            },
+            {
+              "x": -102.4,
+              "y": -58.88
+            },
+            {
+              "x": -108.8,
+              "y": -50.32
+            },
+            {
+              "x": -115.2,
+              "y": -40.32
+            },
+            {
+              "x": -121.6,
+              "y": -28.88
+            },
+            {
+              "x": -128,
+              "y": -16
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 0,
+          "x": 496,
+          "y": 528
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 15,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 32,
+          "id": 53,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 256,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 84,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 96,
+          "x": 544,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 54,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 32,
+          "x": 192,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 55,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 288,
+          "x": 608,
+          "y": 256
+        },
+        {
+          "height": 32,
+          "id": 56,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 160,
+          "x": 512,
+          "y": 352
+        },
+        {
+          "height": 32,
+          "id": 57,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 224,
+          "x": 160,
+          "y": 384
+        },
+        {
+          "height": 128,
+          "id": 58,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 64,
+          "x": 320,
+          "y": 512
+        },
+        {
+          "height": 96,
+          "id": 59,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 576,
+          "y": 544
+        },
+        {
+          "height": 64,
+          "id": 96,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 0,
+          "y": 576
+        },
+        {
+          "height": 128,
+          "id": 97,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 64,
+          "x": 128,
+          "y": 512
+        },
+        {
+          "height": 32,
+          "id": 98,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 192,
+          "y": 512
+        },
+        {
+          "height": 32,
+          "id": 99,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 192,
+          "y": 608
+        },
+        {
+          "height": 32,
+          "id": 100,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 128,
+          "x": 704,
+          "y": 544
+        },
+        {
+          "height": 32,
+          "id": 101,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 192,
+          "x": 704,
+          "y": 608
+        },
+        {
+          "height": 32,
+          "id": 102,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 96,
+          "x": 864,
+          "y": 448
+        },
+        {
+          "height": 32,
+          "id": 104,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 224,
+          "x": 416,
+          "y": 192
+        },
+        {
+          "height": 32,
+          "id": 105,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 32,
+          "x": 96,
+          "y": 512
+        },
+        {
+          "height": 64,
+          "id": 109,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 32,
+          "x": 544,
+          "y": 576
+        },
+        {
+          "height": 96,
+          "id": 110,
+          "name": "",
+          "opacity": 1,
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 64,
+          "x": 480,
+          "y": 544
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "collision",
+          "type": "bool",
+          "value": true
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 20,
+  "nextobjectid": 128,
+  "orientation": "orthogonal",
+  "properties": [
+    {
+      "name": "background",
+      "type": "string",
+      "value": "night_forest"
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "value": "A new work-in-progress level."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "value": "Fab's Masterpiece"
+    },
+    {
+      "name": "players",
+      "type": "int",
+      "value": 2
+    }
+  ],
+  "renderorder": "right-down",
+  "tiledversion": "1.12.2",
+  "tileheight": 32,
+  "tilesets": [
+    {
+      "firstgid": 1,
+      "source": "../entities/tileset_generic_platformer_tiles.tsj"
+    }
+  ],
+  "tilewidth": 32,
+  "type": "map",
+  "version": "1.11",
+  "width": 30
 }

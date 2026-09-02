@@ -7,7 +7,7 @@
 -- pushable-specific in pushable_support.lua. Sits beside
 -- src/player/ground_support.lua, which owns the actual world-query
 -- predicate this composes.
-local GroundSupport = require('src.player.ground_support')
+local GroundSupport = require("src.player.ground_support")
 
 local GroundFaller = {}
 
@@ -43,10 +43,10 @@ end
 -- feet), or moving under its own push/momentum.
 function GroundFaller.bodyTypeFor(state)
 	if not state.supported or state.airborne or state.moving then
-		return 'dynamic'
+		return "dynamic"
 	end
 
-	return 'static'
+	return "static"
 end
 
 return GroundFaller

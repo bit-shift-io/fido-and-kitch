@@ -13,7 +13,7 @@ local context = nil
 -- tier, before any capture can happen. `game` is the object to render;
 -- `outputDir` is where this test file's captures land.
 function Capture.setContext(game, outputDir)
-	context = {game = game, outputDir = outputDir, frameCount = 0}
+	context = { game = game, outputDir = outputDir, frameCount = 0 }
 	os.execute(string.format('mkdir -p "%s"', outputDir))
 end
 
@@ -36,8 +36,8 @@ end
 function Capture.capture(name)
 	if not context then
 		error(
-			'Capture.capture() called outside the e2e tier: frame capture needs real rendering, '
-				.. 'which the unit/integration tiers cannot provide. Move this scenario to tests/e2e/ to use captures.',
+			"Capture.capture() called outside the e2e tier: frame capture needs real rendering, "
+				.. "which the unit/integration tiers cannot provide. Move this scenario to tests/e2e/ to use captures.",
 			2
 		)
 	end
@@ -46,7 +46,7 @@ function Capture.capture(name)
 	local height = love.graphics.getHeight()
 	local canvas = love.graphics.newCanvas(width, height)
 
-	love.graphics.push('all')
+	love.graphics.push("all")
 	love.graphics.setCanvas(canvas)
 	love.graphics.clear()
 	context.game:draw()
@@ -54,10 +54,10 @@ function Capture.capture(name)
 	love.graphics.pop()
 
 	local imageData = canvas:newImageData()
-	local fileData = imageData:encode('png')
+	local fileData = imageData:encode("png")
 
-	local path = context.outputDir .. '/' .. name .. '.png'
-	local file = assert(io.open(path, 'wb'))
+	local path = context.outputDir .. "/" .. name .. ".png"
+	local file = assert(io.open(path, "wb"))
 	file:write(fileData:getString())
 	file:close()
 

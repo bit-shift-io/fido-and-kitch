@@ -9,12 +9,12 @@
 -- bridge itself, so a bare dynamic collider tagged {type = 'enemy'} stands
 -- in for one, mirroring the fake-collider convention in
 -- tests/unit/kill_zone_test.lua.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local Queries = require('tests.support.queries')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local Queries = require("tests.support.queries")
 
-local MAP = 'tests/fixtures/drawbridge_room.tmj'
-local SWITCH_MAP = 'tests/fixtures/drawbridge_switch_room.tmj'
+local MAP = "tests/fixtures/drawbridge_room.tmj"
+local SWITCH_MAP = "tests/fixtures/drawbridge_switch_room.tmj"
 
 local GAP_START_X = 128
 local GAP_END_X = 160
@@ -23,13 +23,13 @@ local GAP_END_X = 160
 local RESTING_Y = 113
 
 local function spawnEnemy(x)
-	local enemy = Collider{
-		shape_type = 'rectangle',
-		shape_arguments = {20, 30},
-		body_type = 'dynamic',
-		position = {x = x, y = RESTING_Y},
-	}
-	enemy.entity = {type = 'enemy'}
+	local enemy = Collider({
+		shape_type = "rectangle",
+		shape_arguments = { 20, 30 },
+		body_type = "dynamic",
+		position = { x = x, y = RESTING_Y },
+	})
+	enemy.entity = { type = "enemy" }
 	-- Two colliders with no groupIndex both read as nil, and nil == nil is
 	-- true in Lua, so World.colFilter's own-group check (meant to make
 	-- players ignore each other, see Player:init's setGroupIndex(-1)) also
@@ -64,12 +64,12 @@ local function walk(game, enemy, vx, frames)
 	end
 end
 
-test('anything overlapping the trigger opens the bridge -- an enemy, with no eligibility to opt into', function()
+test("anything overlapping the trigger opens the bridge -- an enemy, with no eligibility to opt into", function()
 	local game = GameHarness.startGame(MAP)
 	FrameStepper.step(game, 10)
 
-	local bridge = Queries.findEntityByType(map, 'drawbridge')
-	assertEqual('closed', Queries.drawbridgeState(bridge))
+	local bridge = Queries.findEntityByType(map, "drawbridge")
+	assertEqual("closed", Queries.drawbridgeState(bridge))
 
 	local enemy = spawnEnemy(80)
 
@@ -79,106 +79,106 @@ test('anything overlapping the trigger opens the bridge -- an enemy, with no eli
 		enemy:setLinearVelocity(97, vy)
 		FrameStepper.step(game, 1)
 		local state = Queries.drawbridgeState(bridge)
-		if state == 'opening' or state == 'open' then
+		if state == "opening" or state == "open" then
 			opened = true
 			break
 		end
 	end
 
-	assertTrue(opened, 'expected the enemy to open the bridge from the correct side -- nothing is ineligible')
+	assertTrue(opened, "expected the enemy to open the bridge from the correct side -- nothing is ineligible")
 end)
 
-test('once open, an enemy can cross the deck without falling', function()
+test("once open, an enemy can cross the deck without falling", function()
 	local game = GameHarness.startGame(MAP)
 	FrameStepper.step(game, 10)
 
-	local bridge = Queries.findEntityByType(map, 'drawbridge')
+	local bridge = Queries.findEntityByType(map, "drawbridge")
 	-- bypass the approach and set up the "already open" precondition
 	-- directly -- only the crossing itself is under test here
-	bridge:setState('open')
+	bridge:setState("open")
 
 	local enemy = spawnEnemy(80)
 	walk(game, enemy, 97, 150) -- walk all the way across
 
 	local finalX = enemy:getX()
-	assertTrue(finalX > GAP_END_X, 'expected the enemy to have crossed onto the far side')
+	assertTrue(finalX > GAP_END_X, "expected the enemy to have crossed onto the far side")
 	-- falling into the pit would leave the enemy well below the walking
 	-- surface; crossing safely keeps it at the same resting height
-	assertNear(RESTING_Y, enemy:getY(), 2, 'expected the enemy to stay on its feet, not fall into the gap')
+	assertNear(RESTING_Y, enemy:getY(), 2, "expected the enemy to stay on its feet, not fall into the gap")
 end)
 
-test('every drawbridge resets to closed on level restart', function()
+test("every drawbridge resets to closed on level restart", function()
 	local game = GameHarness.startGame(MAP)
 	FrameStepper.step(game, 10)
 
-	local bridge = Queries.findEntityByType(map, 'drawbridge')
-	bridge:setState('open')
-	assertEqual('open', Queries.drawbridgeState(bridge))
+	local bridge = Queries.findEntityByType(map, "drawbridge")
+	bridge:setState("open")
+	assertEqual("open", Queries.drawbridgeState(bridge))
 
-	game:load{map = MAP} -- InGameState:load rebuilds World/Map from scratch,
+	game:load({ map = MAP }) -- InGameState:load rebuilds World/Map from scratch,
 	-- the same path a real "restart level" menu action takes -- so a fresh
 	-- drawbridge entity, starting closed, is the natural/only outcome; there
 	-- is no reset hook to write or forget.
 
-	local restarted = Queries.findEntityByType(map, 'drawbridge')
-	assertTrue(restarted ~= bridge, 'expected a restart to instantiate a fresh drawbridge entity')
-	assertEqual('closed', Queries.drawbridgeState(restarted), 'expected every drawbridge to reset to closed on restart')
+	local restarted = Queries.findEntityByType(map, "drawbridge")
+	assertTrue(restarted ~= bridge, "expected a restart to instantiate a fresh drawbridge entity")
+	assertEqual("closed", Queries.drawbridgeState(restarted), "expected every drawbridge to reset to closed on restart")
 end)
 
-test('a switch linked to a drawbridge opens it when turned on', function()
+test("a switch linked to a drawbridge opens it when turned on", function()
 	local game = GameHarness.startGame(SWITCH_MAP)
 	FrameStepper.step(game, 10)
 
-	local bridge = Queries.findEntityByType(map, 'drawbridge')
-	assertEqual('closed', Queries.drawbridgeState(bridge))
+	local bridge = Queries.findEntityByType(map, "drawbridge")
+	assertEqual("closed", Queries.drawbridgeState(bridge))
 
 	-- Put an occupant on the switch's side so a switch-misread (relying on
 	-- occupancy) would wrongly leave the bridge closed: it must still open.
-	local enemy = Collider{
-		shape_type = 'rectangle',
-		shape_arguments = {20, 30},
-		body_type = 'dynamic',
-		position = {x = 80, y = RESTING_Y},
-	}
-	enemy.entity = {type = 'enemy'}
+	local enemy = Collider({
+		shape_type = "rectangle",
+		shape_arguments = { 20, 30 },
+		body_type = "dynamic",
+		position = { x = 80, y = RESTING_Y },
+	})
+	enemy.entity = { type = "enemy" }
 	enemy:setGroupIndex(100)
 
 	-- Now use the switch to open it
-	local switch = Queries.findEntityByType(map, 'switch')
+	local switch = Queries.findEntityByType(map, "switch")
 	switch:use(nil) -- turn switch on
 
 	-- Bridge should start opening (play opening animation)
 	FrameStepper.step(game, 1)
 	local state = Queries.drawbridgeState(bridge)
-	assertEqual('opening', state, 'expected bridge to start opening when switch turned on')
+	assertEqual("opening", state, "expected bridge to start opening when switch turned on")
 
 	-- Wait for animation to finish
 	local open = false
 	for _ = 1, 60 do
 		FrameStepper.step(game, 1)
-		if Queries.drawbridgeState(bridge) == 'open' then
+		if Queries.drawbridgeState(bridge) == "open" then
 			open = true
 			break
 		end
 	end
-	assertTrue(open, 'expected bridge to finish opening and remain open')
-	assertEqual('open', Queries.drawbridgeState(bridge))
+	assertTrue(open, "expected bridge to finish opening and remain open")
+	assertEqual("open", Queries.drawbridgeState(bridge))
 
 	-- Turn switch off - bridge should close and lock closed
 	switch:use(nil) -- turn switch off
 
 	FrameStepper.step(game, 1)
 	state = Queries.drawbridgeState(bridge)
-	assertEqual('closing', state, 'expected bridge to start closing when switch turned off')
+	assertEqual("closing", state, "expected bridge to start closing when switch turned off")
 
 	local closed = false
 	for _ = 1, 60 do
 		FrameStepper.step(game, 1)
-		if Queries.drawbridgeState(bridge) == 'closed' then
+		if Queries.drawbridgeState(bridge) == "closed" then
 			closed = true
 			break
 		end
 	end
-	assertTrue(closed, 'expected bridge to finish closing and remain closed')
-	assertEqual('closed', Queries.drawbridgeState(bridge))
+	assertTrue(closed, "expected bridge to finish closing and remain closed")
+	assertEqual("closed", Queries.drawbridgeState(bridge))
 end)

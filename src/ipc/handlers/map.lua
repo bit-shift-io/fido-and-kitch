@@ -1,22 +1,22 @@
 local GameAPI = {}
-local Helpers = require('src.ipc.handler_helpers')
+local Helpers = require("src.ipc.handler_helpers")
 
 function GameAPI.loadMap(mapName)
 	if not mapName then
-		return nil, 'Map name required'
+		return nil, "Map name required"
 	end
-	
+
 	if not game or not game.fsm then
-		return nil, 'Game not loaded'
+		return nil, "Game not loaded"
 	end
-	
-	local Map = require('src.map')
-	local mapPath = Map.resolveMapFile('res/map/' .. mapName)
-	
-	game:setGameState('InGameState')
-	game:load{map = mapPath}
-	
-	return 'OK: Loaded ' .. mapName
+
+	local Map = require("src.map")
+	local mapPath = Map.resolveMapFile("res/map/" .. mapName)
+
+	game:setGameState("InGameState")
+	game:load({ map = mapPath })
+
+	return "OK: Loaded " .. mapName
 end
 
 function GameAPI.restartLevel()
@@ -27,34 +27,34 @@ function GameAPI.restartLevel()
 
 	local map = state.currentMap
 	if not map then
-		return nil, 'No current map to restart'
+		return nil, "No current map to restart"
 	end
 
-	game:setGameState('InGameState')
-	game:load{map = map}
-	return 'OK: Level restarted'
+	game:setGameState("InGameState")
+	game:load({ map = map })
+	return "OK: Level restarted"
 end
 
 function GameAPI.goToMenu()
 	if not game or not game.fsm then
-		return nil, 'Game not loaded'
+		return nil, "Game not loaded"
 	end
 
-	game:setGameState('MenuState')
-	return 'OK: Returned to menu'
+	game:setGameState("MenuState")
+	return "OK: Returned to menu"
 end
 
 function GameAPI.getTileGrid()
 	if not map or not map.map then
-		return nil, 'No map loaded'
+		return nil, "No map loaded"
 	end
-	
-	local json = require('lib.dkjson')
+
+	local json = require("lib.dkjson")
 	local tileWidth = map.map.tilewidth
 	local tileHeight = map.map.tileheight
 	local mapWidth = map.map.width
 	local mapHeight = map.map.height
-	
+
 	local grid = {}
 	for y = 1, mapHeight do
 		grid[y] = {}
@@ -62,9 +62,9 @@ function GameAPI.getTileGrid()
 			grid[y][x] = 0
 		end
 	end
-	
+
 	for _, layer in ipairs(map.map.layers) do
-		if layer.type == 'tilelayer' and layer.data then
+		if layer.type == "tilelayer" and layer.data then
 			for y, row in pairs(layer.data) do
 				for x, cell in pairs(row) do
 					if cell and cell.gid and cell.gid > 0 then
@@ -74,11 +74,11 @@ function GameAPI.getTileGrid()
 			end
 		end
 	end
-	
+
 	local function markLadders(grid, objects, tileWidth, tileHeight)
 		for _, obj in ipairs(objects) do
-			if obj.type == 'ladder' then
-				local topY  = obj.y - (obj.height or 0)
+			if obj.type == "ladder" then
+				local topY = obj.y - (obj.height or 0)
 				local tileX = math.floor(obj.x / tileWidth) + 1
 				for ty = math.floor(topY / tileHeight) + 1, math.floor(obj.y / tileHeight) do
 					if grid[ty] and grid[ty][tileX] then
@@ -88,7 +88,7 @@ function GameAPI.getTileGrid()
 			end
 		end
 	end
-	
+
 	local function markKillzones(grid, objects, tileWidth, tileHeight)
 		for _, obj in ipairs(objects) do
 			if obj.properties and obj.properties.killzone then
@@ -100,15 +100,15 @@ function GameAPI.getTileGrid()
 			end
 		end
 	end
-	
+
 	for _, layer in ipairs(map.map.layers) do
-		if layer.type == 'objectgroup' and layer.objects then
+		if layer.type == "objectgroup" and layer.objects then
 			markLadders(grid, layer.objects, tileWidth, tileHeight)
 			markKillzones(grid, layer.objects, tileWidth, tileHeight)
 		end
 	end
-	
-	return json.encode({ok = true, grid = grid, width = mapWidth, height = mapHeight})
+
+	return json.encode({ ok = true, grid = grid, width = mapWidth, height = mapHeight })
 end
 
 return GameAPI

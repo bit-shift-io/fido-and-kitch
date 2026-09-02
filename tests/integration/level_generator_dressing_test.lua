@@ -1,8 +1,8 @@
 -- Issue 08 (enemies and dressing): the generated background/coins/enemies
 -- must load as real entities in the actual game, not just valid-looking TMX.
-local GameHarness = require('tests.support.game_harness')
-local FrameStepper = require('tests.support.frame_stepper')
-local Main = require('tools.level_generator.main')
+local GameHarness = require("tests.support.game_harness")
+local FrameStepper = require("tests.support.frame_stepper")
+local Main = require("tools.level_generator.main")
 
 -- NPC entities never reliably get self.name/self.type set from the Tiled
 -- object (src/npc/npc_base.lua's Spider/Robot :init don't forward the raw
@@ -14,19 +14,21 @@ local Main = require('tools.level_generator.main')
 -- Required lazily (inside the test) since it needs the Class global that
 -- only exists after GameHarness has booted globals.
 local function countNpcsByType(typeName)
-	local NPCRegistry = require('src.npc.npc_registry')
+	local NPCRegistry = require("src.npc.npc_registry")
 	local count = 0
 	for _, npc in ipairs(NPCRegistry.getAll()) do
-		if npc._typeName == typeName then count = count + 1 end
+		if npc._typeName == typeName then
+			count = count + 1
+		end
 	end
 	return count
 end
 
-local GENERATED_PATH = 'res/map/generated/_test_dressing.tmj'
+local GENERATED_PATH = "res/map/generated/_test_dressing.tmj"
 
 local function writeGeneratedFixture(seed, size, difficulty)
-	local result = Main.generate({seed = seed, count = 1, size = size, difficulty = difficulty})[1]
-	local file = io.open(GENERATED_PATH, 'w')
+	local result = Main.generate({ seed = seed, count = 1, size = size, difficulty = difficulty })[1]
+	local file = io.open(GENERATED_PATH, "w")
 	file:write(result.tmj)
 	file:close()
 end
@@ -35,19 +37,19 @@ local function removeGeneratedFixture()
 	os.remove(GENERATED_PATH)
 end
 
-test('a difficulty-5 generated level loads real coins and enemies, and a real background', function()
-	writeGeneratedFixture(55, 'large', 5)
+test("a difficulty-5 generated level loads real coins and enemies, and a real background", function()
+	writeGeneratedFixture(55, "large", 5)
 	local ok, err = pcall(function()
 		local game = GameHarness.startGame(GENERATED_PATH)
 		FrameStepper.step(game, 5)
 
-		local coins = map:getEntitiesByType('coin')
-		assertTrue(#coins >= 1, 'expected at least one real coin entity')
+		local coins = map:getEntitiesByType("coin")
+		assertTrue(#coins >= 1, "expected at least one real coin entity")
 
 		local enemyCount = countNpcsByType("npc_spider") + countNpcsByType("npc_robot")
-		assertTrue(enemyCount >= 1, 'expected at least one real enemy entity')
+		assertTrue(enemyCount >= 1, "expected at least one real enemy entity")
 
-		assertTrue(map.backgroundMap ~= nil, 'expected a loaded background map')
+		assertTrue(map.backgroundMap ~= nil, "expected a loaded background map")
 	end)
 	removeGeneratedFixture()
 
@@ -56,8 +58,8 @@ test('a difficulty-5 generated level loads real coins and enemies, and a real ba
 	end
 end)
 
-test('a difficulty-1 generated level loads with zero enemies', function()
-	writeGeneratedFixture(55, 'large', 1)
+test("a difficulty-1 generated level loads with zero enemies", function()
+	writeGeneratedFixture(55, "large", 1)
 	local ok, err = pcall(function()
 		local game = GameHarness.startGame(GENERATED_PATH)
 		FrameStepper.step(game, 5)

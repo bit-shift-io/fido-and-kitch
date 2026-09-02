@@ -27,11 +27,11 @@ StoryText.CONST = {
 --
 
 local function splitLines(text)
-	if text == nil or text == '' then
+	if text == nil or text == "" then
 		return {}
 	end
 	local lines = {}
-	for line in (text .. '\n'):gmatch('(.-)\n') do
+	for line in (text .. "\n"):gmatch("(.-)\n") do
 		table.insert(lines, line)
 	end
 	return lines
@@ -65,7 +65,7 @@ local function revealedCount(line, t)
 	-- the start of the phase, then the remaining characters reveal linearly
 	local firstWordEnd = 0
 	local cumulative = 0
-	for word in string.gmatch(line, '%S+') do
+	for word in string.gmatch(line, "%S+") do
 		cumulative = cumulative + #word
 		if firstWordEnd == 0 and cumulative >= StoryText.CONST.LETTER_COUNT then
 			firstWordEnd = cumulative
@@ -103,9 +103,12 @@ local function utf8Cut(s, n)
 	while count < n and i <= #s do
 		local b = s:byte(i)
 		local width = 1
-		if b >= 0xF0 then width = 4
-		elseif b >= 0xE0 then width = 3
-		elseif b >= 0xC0 then width = 2
+		if b >= 0xF0 then
+			width = 4
+		elseif b >= 0xE0 then
+			width = 3
+		elseif b >= 0xC0 then
+			width = 2
 		end
 		i = i + width
 		count = count + 1
@@ -122,7 +125,7 @@ local function visibleText(lines, t)
 		if elapsed + duration <= t then
 			result[i] = line
 		elseif t <= elapsed then
-			result[i] = ''
+			result[i] = ""
 		else
 			result[i] = utf8Cut(line, revealedCount(line, t - elapsed))
 		end
@@ -216,12 +219,12 @@ local function wrapLine(line, measure, maxWidth)
 		return { line }
 	end
 	local wrapped = {}
-	local current = ''
-	for word in string.gmatch(line, '%S+') do
-		if current == '' then
+	local current = ""
+	for word in string.gmatch(line, "%S+") do
+		if current == "" then
 			current = word
-		elseif measure(current .. ' ' .. word) <= maxWidth then
-			current = current .. ' ' .. word
+		elseif measure(current .. " " .. word) <= maxWidth then
+			current = current .. " " .. word
 		else
 			table.insert(wrapped, current)
 			current = word

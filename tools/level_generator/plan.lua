@@ -7,7 +7,7 @@
 -- ordering constraint between objectives is required.
 local Plan = {}
 
-local COLORS = {'red', 'blue', 'yellow', 'green', 'purple'}
+local COLORS = { "red", "blue", "yellow", "green", "purple" }
 
 local function shuffledZonePool(rng, zoneCount)
 	local pool = {}

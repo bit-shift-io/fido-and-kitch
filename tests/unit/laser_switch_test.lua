@@ -16,21 +16,21 @@
 -- laser beam driving a real laser_switch driving a real blocker, across
 -- real frames) is covered by
 -- tests/integration/laser_switch_activation_test.lua.
-local HeadlessBootstrap = require('tests.support.headless_bootstrap')
-local SoundSpy = require('tests.support.sound_spy')
+local HeadlessBootstrap = require("tests.support.headless_bootstrap")
+local SoundSpy = require("tests.support.sound_spy")
 
-local LaserSwitch = require('src.entities.laser_switch')
+local LaserSwitch = require("src.entities.laser_switch")
 local L = LaserSwitch._internal
 
 --
 -- Part 1: pure decision helpers
 --
 
-test('acceptsDirection is true only when the incoming direction matches the configured one', function()
-	assertTrue(L.acceptsDirection('up', 'up'))
-	assertFalse(L.acceptsDirection('down', 'up'))
-	assertFalse(L.acceptsDirection('left', 'up'))
-	assertFalse(L.acceptsDirection('right', 'up'))
+test("acceptsDirection is true only when the incoming direction matches the configured one", function()
+	assertTrue(L.acceptsDirection("up", "up"))
+	assertFalse(L.acceptsDirection("down", "up"))
+	assertFalse(L.acceptsDirection("left", "up"))
+	assertFalse(L.acceptsDirection("right", "up"))
 end)
 
 --
@@ -40,38 +40,48 @@ end)
 local function makeSwitch(properties)
 	HeadlessBootstrap.resetWorld()
 	local props = {}
-	for k, v in pairs(properties or {}) do props[k] = v end
-	props.direction = props.direction or 'up'
+	for k, v in pairs(properties or {}) do
+		props[k] = v
+	end
+	props.direction = props.direction or "up"
 	-- template art merged in-game (res/entities/laser_switch.tj); stub
 	-- mirrors it so the sprite has real frames to index into
-	props.image = props.image or 'res/img/entity_switch.png'
+	props.image = props.image or "res/img/entity_switch.png"
 	props.frames = props.frames or 1
 	props.duration = props.duration or 1
 	return LaserSwitch({
-		x = 128, y = 96, width = 32, height = 32,
+		x = 128,
+		y = 96,
+		width = 32,
+		height = 32,
 		properties = props,
 	}, nil)
 end
 
-test('constructs headless with a real Sprite/Collider/World stack, off, solid, and at its authored direction', function()
-	local switch = makeSwitch({direction = 'up'})
+test(
+	"constructs headless with a real Sprite/Collider/World stack, off, solid, and at its authored direction",
+	function()
+		local switch = makeSwitch({ direction = "up" })
 
-	assertEqual('up', switch.direction)
-	assertEqual('off', switch.state)
-	assertFalse(switch:isActive())
-	assertFalse(switch.collider:isSensor(), 'a laser_switch must be solid so it absorbs the beam for free')
-	assertTrue(switch.collider.nonSolidEntityTypes and switch.collider.nonSolidEntityTypes.player,
-		'solid for the beam is not the same as solid for a player -- a laser_switch must never physically block one')
+		assertEqual("up", switch.direction)
+		assertEqual("off", switch.state)
+		assertFalse(switch:isActive())
+		assertFalse(switch.collider:isSensor(), "a laser_switch must be solid so it absorbs the beam for free")
+		assertTrue(
+			switch.collider.nonSolidEntityTypes and switch.collider.nonSolidEntityTypes.player,
+			"solid for the beam is not the same as solid for a player -- a laser_switch must never physically block one"
+		)
+	end
+)
+
+test(":acceptsDirection delegates to the configured direction", function()
+	local switch = makeSwitch({ direction = "up" })
+
+	assertTrue(switch:acceptsDirection("up"))
+	assertFalse(switch:acceptsDirection("down"))
 end)
 
-test(':acceptsDirection delegates to the configured direction', function()
-	local switch = makeSwitch({direction = 'up'})
-
-	assertTrue(switch:acceptsDirection('up'))
-	assertFalse(switch:acceptsDirection('down'))
-end)
-
-test('a valid hit this frame activates the switch and plays the press sound', function()
+test("a valid hit this frame activates the switch and plays the press sound", function()
 	local switch = makeSwitch()
 	local spy = SoundSpy.install()
 
@@ -79,12 +89,12 @@ test('a valid hit this frame activates the switch and plays the press sound', fu
 	switch:update(1 / 60)
 
 	assertTrue(switch:isActive())
-	assertEqual('press', spy.played[1])
+	assertEqual("press", spy.played[1])
 
 	spy.uninstall()
 end)
 
-test('no hit this frame leaves the switch off', function()
+test("no hit this frame leaves the switch off", function()
 	local switch = makeSwitch()
 
 	switch:update(1 / 60)
@@ -92,7 +102,7 @@ test('no hit this frame leaves the switch off', function()
 	assertFalse(switch:isActive())
 end)
 
-test('the switch deactivates (and plays the release sound) the frame a valid hit stops', function()
+test("the switch deactivates (and plays the release sound) the frame a valid hit stops", function()
 	local switch = makeSwitch()
 
 	switch:receiveValidHit()
@@ -102,15 +112,19 @@ test('the switch deactivates (and plays the release sound) the frame a valid hit
 	local spy = SoundSpy.install()
 	switch:update(1 / 60) -- no :receiveValidHit() this frame -- the hit stopped
 	assertFalse(switch:isActive())
-	assertEqual('release', spy.played[1])
+	assertEqual("release", spy.played[1])
 
 	spy.uninstall()
 end)
 
-test('a continuing valid hit every frame keeps the switch on without re-driving the target', function()
+test("a continuing valid hit every frame keeps the switch on without re-driving the target", function()
 	local switch = makeSwitch()
 	local switchedCount = 0
-	switch.target = {entity = {switch = function() switchedCount = switchedCount + 1 end}}
+	switch.target = { entity = {
+		switch = function()
+			switchedCount = switchedCount + 1
+		end,
+	} }
 
 	for _ = 1, 5 do
 		switch:receiveValidHit()
@@ -118,10 +132,10 @@ test('a continuing valid hit every frame keeps the switch on without re-driving 
 	end
 
 	assertTrue(switch:isActive())
-	assertEqual(1, switchedCount, 'expected the target to be driven only once, on the on-transition')
+	assertEqual(1, switchedCount, "expected the target to be driven only once, on the on-transition")
 end)
 
-test('the hit flag is consumed each frame -- it never latches without a fresh :receiveValidHit()', function()
+test("the hit flag is consumed each frame -- it never latches without a fresh :receiveValidHit()", function()
 	local switch = makeSwitch()
 
 	switch:receiveValidHit()
@@ -132,12 +146,17 @@ test('the hit flag is consumed each frame -- it never latches without a fresh :r
 	assertFalse(switch:isActive())
 end)
 
-test('activating drives the target through :switch(), the same mechanism pressure_switch/switch use', function()
+test("activating drives the target through :switch(), the same mechanism pressure_switch/switch use", function()
 	local switch = makeSwitch()
 	local switchedWith = {}
 	-- bypasses map:getObjectById (no real Map here) -- driveTarget only
 	-- reads self.target.entity, so a bare fake stands in fine
-	switch.target = {entity = {switch = function(self_, triggeringSwitch) table.insert(switchedWith, triggeringSwitch) end}}
+	switch.target =
+		{ entity = {
+			switch = function(self_, triggeringSwitch)
+				table.insert(switchedWith, triggeringSwitch)
+			end,
+		} }
 
 	switch:receiveValidHit()
 	switch:update(1 / 60)

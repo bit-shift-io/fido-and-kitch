@@ -56,8 +56,12 @@ GridOverlay._internal = {
 }
 
 function GridOverlay:draw(mapW, mapH, viewRect)
-	if not self.enabled or not conf.draw_grid then return end
-	if not lg then return end
+	if not self.enabled or not conf.draw_grid then
+		return
+	end
+	if not lg then
+		return
+	end
 
 	lg.push()
 	lg.origin()

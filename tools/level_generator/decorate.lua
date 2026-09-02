@@ -61,14 +61,22 @@ function Decorate.hazardsForLayout(rng, layout, difficulty)
 
 			if ladderLeftPx > 0 then
 				table.insert(hazards, {
-					x = 0, y = top, width = ladderLeftPx, height = height,
-					deathType = 'water', ladder = ladder,
+					x = 0,
+					y = top,
+					width = ladderLeftPx,
+					height = height,
+					deathType = "water",
+					ladder = ladder,
 				})
 			end
 			if ladderRightPx < mapWidthPx then
 				table.insert(hazards, {
-					x = ladderRightPx, y = top, width = mapWidthPx - ladderRightPx, height = height,
-					deathType = 'water', ladder = ladder,
+					x = ladderRightPx,
+					y = top,
+					width = mapWidthPx - ladderRightPx,
+					height = height,
+					deathType = "water",
+					ladder = ladder,
 				})
 			end
 			placed = placed + 1
@@ -81,7 +89,7 @@ end
 -- res/bg/<name>.tmj by this map property) -- gradient/cloud_spawner
 -- objects are documented in CONTEXT.md's glossary but have no implementation
 -- anywhere in src/ (DECISIONS.md Q16), so they're not emitted.
-local BACKGROUNDS = {'night_forest', 'mushroom_cave', 'sky'}
+local BACKGROUNDS = { "night_forest", "mushroom_cave", "sky" }
 
 function Decorate.pickBackground(rng)
 	return BACKGROUNDS[rng:nextInt(1, #BACKGROUNDS)]
@@ -95,7 +103,7 @@ function Decorate.coinsForLayout(rng, layout)
 	for _, zone in ipairs(layout.zones) do
 		local width = zone.x2 - zone.x1 + 1
 		local column = zone.x1 + rng:nextInt(0, width - 1)
-		table.insert(coins, {x = (column - 1) * TILE, y = surfaceY(zone.y)})
+		table.insert(coins, { x = (column - 1) * TILE, y = surfaceY(zone.y) })
 	end
 	return coins
 end
@@ -109,7 +117,7 @@ function Decorate.enemyCountForDifficulty(difficulty, zoneCount)
 	return math.max(1, math.floor(fraction * zoneCount + 0.5))
 end
 
-local ENEMY_TYPES = {'npc_spider', 'npc_robot'}
+local ENEMY_TYPES = { "npc_spider", "npc_robot" }
 
 --- Places enemies on zone surfaces, never on a ladder column (a stationary
 -- enemy sitting exactly on the one mandatory climb tile would be a blocker,
@@ -143,7 +151,7 @@ function Decorate.enemiesForLayout(rng, layout, difficulty)
 
 		if column then
 			local enemyType = ENEMY_TYPES[rng:nextInt(1, #ENEMY_TYPES)]
-			table.insert(enemies, {x = (column - 1) * TILE, y = surfaceY(zone.y), type = enemyType})
+			table.insert(enemies, { x = (column - 1) * TILE, y = surfaceY(zone.y), type = enemyType })
 		end
 	end
 	return enemies

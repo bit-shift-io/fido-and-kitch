@@ -31,12 +31,12 @@ function Coop.planVault(layout)
 
 	local wallCells = {}
 	for col = originCol, originCol + VAULT_WIDTH - 1 do
-		table.insert(wallCells, {row = originRow, col = col}) -- roof
-		table.insert(wallCells, {row = floorRow, col = col}) -- floor
+		table.insert(wallCells, { row = originRow, col = col }) -- roof
+		table.insert(wallCells, { row = floorRow, col = col }) -- floor
 	end
 	for row = originRow + 1, floorRow - 1 do
-		table.insert(wallCells, {row = row, col = originCol}) -- left wall
-		table.insert(wallCells, {row = row, col = originCol + VAULT_WIDTH - 1}) -- right wall
+		table.insert(wallCells, { row = row, col = originCol }) -- left wall
+		table.insert(wallCells, { row = row, col = originCol + VAULT_WIDTH - 1 }) -- right wall
 	end
 
 	return {

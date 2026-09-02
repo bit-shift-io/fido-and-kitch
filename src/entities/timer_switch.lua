@@ -12,7 +12,7 @@
 -- are kept as private locals with a _internal white-box seam for tests/unit/.
 -- See tests/unit/timer_switch_test.lua for the entity-level tests.
 
-local TimerSwitch = Class{__includes = Entity}
+local TimerSwitch = Class({ __includes = Entity })
 
 -- The next phase (and remaining time) given current elapsed time in the
 -- accumulator and the durations for each phase.
@@ -24,20 +24,20 @@ local TimerSwitch = Class{__includes = Entity}
 --   1. If accumulator hasn't exceeded the current phase duration, no change.
 --   2. If it has, flip phase and subtract the duration from accumulator.
 local function nextPhase(currentPhase, elapsed, onDuration, offDuration)
-	local currentDuration = (currentPhase == 'on') and onDuration or offDuration
+	local currentDuration = (currentPhase == "on") and onDuration or offDuration
 	if elapsed < currentDuration then
 		return currentPhase, elapsed
 	end
 
 	-- Phase has elapsed. Flip and carry remainder to next phase.
-	local nextPhaseStr = (currentPhase == 'on') and 'off' or 'on'
+	local nextPhaseStr = (currentPhase == "on") and "off" or "on"
 	local remainder = elapsed - currentDuration
 	return nextPhaseStr, remainder
 end
 
 function TimerSwitch:init(object, map)
-	Entity.init(self, object, 'timer_switch')
-	self.state = 'off'
+	Entity.init(self, object, "timer_switch")
+	self.state = "off"
 	self.accumulator = 0
 
 	-- Duration for each phase, in seconds. Defaults: 1 second each if not set.
@@ -51,16 +51,16 @@ function TimerSwitch:init(object, map)
 
 	-- no assets yet at res/snd/entity_timer_switch_{on,off}.wav;
 	-- Sound:play warns and skips until they're added
-	self.sound = self:addComponent(Sound{
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			on = 'res/snd/entity_timer_switch_on.wav',
-			off = 'res/snd/entity_timer_switch_off.wav',
-		}
-	})
+			on = "res/snd/entity_timer_switch_on.wav",
+			off = "res/snd/entity_timer_switch_off.wav",
+		},
+	}))
 end
 
 function TimerSwitch:isActive()
-	return self.state == 'on'
+	return self.state == "on"
 end
 
 function TimerSwitch:update(dt)

@@ -1,19 +1,19 @@
 -- Rectangle class
-local Rect = Class{}
+local Rect = Class({})
 
 function Rect:init(props)
-    self.x = props.x
-    self.y = props.y
-    self.width = props.width
-    self.height = props.height
+	self.x = props.x
+	self.y = props.y
+	self.width = props.width
+	self.height = props.height
 end
 
 function Rect:centre()
-    return Vector(self.x + self.width * 0.5, self.y + self.height * 0.5)
+	return Vector(self.x + self.width * 0.5, self.y + self.height * 0.5)
 end
 
 function Rect:colliderShapeArgs()
-    return {self.width, self.height}
+	return { self.width, self.height }
 end
 
 -- Centre of a Tiled map object authored as a tile object (dragged from a
@@ -28,14 +28,14 @@ end
 -- shapes across the project's maps and branches on object.gid itself rather
 -- than picking one of these helpers.
 function Rect.centreOfMapObject(object)
-    return Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
+	return Vector(object.x + object.width * 0.5, object.y - object.height * 0.5)
 end
 
 -- Collider shape_arguments for a rectangle of the given size -- dimensions
 -- only; collider position is supplied separately (Collider props.position),
 -- never as part of the shape arguments.
 function Rect.shapeArgs(width, height)
-    return {width, height}
+	return { width, height }
 end
 
 return Rect

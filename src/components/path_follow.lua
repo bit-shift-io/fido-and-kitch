@@ -1,53 +1,52 @@
 -- Path follow component
 -- follow a polyline
 
-local World = require('src.physics.bump.world')
+local World = require("src.physics.bump.world")
 
-local PathFollow = Class{}
+local PathFollow = Class({})
 
 function PathFollow:init(props)
-	self.type = 'path_follow'
-    self.path = props.path
-    self.sprite = props.sprite
-    self.collider = props.collider
-    self.offset = props.offset or Vector(0, 0)
-    self.ignoreCollider = props.ignoreCollider
+	self.type = "path_follow"
+	self.path = props.path
+	self.sprite = props.sprite
+	self.collider = props.collider
+	self.offset = props.offset or Vector(0, 0)
+	self.ignoreCollider = props.ignoreCollider
 
-    self._blocked = false
-    self._checkedFirstSample = false
-    self._lastGoodPos = self.path:getPositionV(0) + self.offset
+	self._blocked = false
+	self._checkedFirstSample = false
+	self._lastGoodPos = self.path:getPositionV(0) + self.offset
 
-    if self.collider then
-        self.previousGravityScale = self.collider.gravityScale
-        self.previousVelocityX, self.previousVelocityY = self.collider:getLinearVelocity()
-        self.collider:setGravityScale(0)
-        self.collider:setLinearVelocity(0, 0)
-    end
+	if self.collider then
+		self.previousGravityScale = self.collider.gravityScale
+		self.previousVelocityX, self.previousVelocityY = self.collider:getLinearVelocity()
+		self.collider:setGravityScale(0)
+		self.collider:setLinearVelocity(0, 0)
+	end
 
-    local speed = props.speed
-    local duration = self.path.length / speed
-    local finish = props.finish
-    self.timeline = Timeline({
-        duration=duration,
-        easing=props.easing,
-        finish=function()
-            self:finish()
-            if finish then
-                finish()
-            end
-        end
-    })
+	local speed = props.speed
+	local duration = self.path.length / speed
+	local finish = props.finish
+	self.timeline = Timeline({
+		duration = duration,
+		easing = props.easing,
+		finish = function()
+			self:finish()
+			if finish then
+				finish()
+			end
+		end,
+	})
 
-    self._lastPos = nil
-    self._velocity = Vector(0, 0)
+	self._lastPos = nil
+	self._velocity = Vector(0, 0)
 
-    if self.sprite then
-        local pos = self.path:getPositionV(0)
-        self.sprite:setPositionV(pos)
-        self._lastPos = pos
-    end
+	if self.sprite then
+		local pos = self.path:getPositionV(0)
+		self.sprite:setPositionV(pos)
+		self._lastPos = pos
+	end
 end
-
 
 function PathFollow:update(dt)
 	if self.timeline.playing == false then
@@ -98,7 +97,7 @@ function PathFollow:_isBlocked(pos)
 	}
 
 	local asDynamic = {
-		bodyType = 'dynamic',
+		bodyType = "dynamic",
 		sensor = self.collider.sensor,
 		groupIndex = self.collider.groupIndex,
 		colFilterFn = self.collider.colFilterFn,
@@ -108,7 +107,7 @@ function PathFollow:_isBlocked(pos)
 
 	for _, other in ipairs(world:queryOverlap(bounds)) do
 		if other ~= self.collider and other ~= self.ignoreCollider then
-			if World.colFilter(asDynamic, other) == 'slide' then
+			if World.colFilter(asDynamic, other) == "slide" then
 				return true
 			end
 		end
@@ -121,39 +120,36 @@ function PathFollow:wasBlocked()
 	return self._blocked
 end
 
-
 function PathFollow:getPositionV()
-    local distance = self.timeline:timePercent() * self.path.length
-    local pos = self.path:getPositionV(distance)
-    return pos
+	local distance = self.timeline:timePercent() * self.path.length
+	local pos = self.path:getPositionV(distance)
+	return pos
 end
 
 function PathFollow:getVelocity()
-    if self.finished then
-        return Vector(0, 0)
-    end
-    return self._velocity:clone()
+	if self.finished then
+		return Vector(0, 0)
+	end
+	return self._velocity:clone()
 end
 
 function PathFollow:finish()
-    if self.finished then
-        return
-    end
+	if self.finished then
+		return
+	end
 
-    self.finished = true
-    if self.collider then
-        self.collider:setGravityScale(self.previousGravityScale or 1)
-    end
+	self.finished = true
+	if self.collider then
+		self.collider:setGravityScale(self.previousGravityScale or 1)
+	end
 end
 
 function PathFollow:destroy()
-    self:finish()
+	self:finish()
 end
-
 
 function PathFollow:draw()
-    self.path:draw()
+	self.path:draw()
 end
-
 
 return PathFollow

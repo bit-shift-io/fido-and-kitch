@@ -31,9 +31,9 @@
 -- locals here and are reached only through the `Blocker._internal` white-box
 -- seam at the bottom -- the drawbridge/pressure-switch pattern.
 
-local Blocker = Class{__includes = Entity}
+local Blocker = Class({ __includes = Entity })
 
-local SpriteProps = require('src.entities.sprite_props')
+local SpriteProps = require("src.entities.sprite_props")
 
 -- Passable in exactly one state. Every other state -- closed, and the whole
 -- opening animation -- blocks, so nothing slips through the gap while the
@@ -44,7 +44,7 @@ local SpriteProps = require('src.entities.sprite_props')
 local OPENING_DURATION = 1
 
 local function isBlocking(state)
-	return state ~= 'open'
+	return state ~= "open"
 end
 
 -- The barrier is a thin vertical strip 60% of the object wide, centred in
@@ -78,25 +78,25 @@ end
 -- to trust, which is what kept the drawbridge from getting permanently
 -- stuck (see its DECISIONS.md Q3/Q4).
 local function nextState(state, enabled)
-	if state == 'closed' then
+	if state == "closed" then
 		if enabled then
-			return 'opening'
+			return "opening"
 		end
 		return state
 	end
 
-	if state == 'opening' then
+	if state == "opening" then
 		if enabled then
 			return state
 		end
-		return 'closed'
+		return "closed"
 	end
 
 	-- open
 	if enabled then
 		return state
 	end
-	return 'closed'
+	return "closed"
 end
 
 -- A blocker has no `closing` state: a close is a same-frame state flip --
@@ -112,8 +112,8 @@ end
 -- an instant art snap. Blocking never waits on it and never depends on it.
 
 function Blocker:init(object)
-	Entity.init(self, object, 'blocker')
-	self.state = 'closed'
+	Entity.init(self, object, "blocker")
+	self.state = "closed"
 
 	self.rect = Rect(object)
 
@@ -123,10 +123,10 @@ function Blocker:init(object)
 	-- it. The sandbox instance (blocker.tj at x=256, y=224, 32x64) therefore
 	-- occupies y=160..224 -- a 64px gate rising out of the walkway -- not
 	-- top-anchored at y=224..288, which hung the whole gate below the
--- passage. This is the same bottom-anchored centre (Rect.centreOfMapObject)
--- every gid entity uses -- and, like the cage/teleport/exit_door/drawbridge
--- art boxes now, the blocker's is the authored object itself, so there is
--- no oversized 2x box to lift.
+	-- passage. This is the same bottom-anchored centre (Rect.centreOfMapObject)
+	-- every gid entity uses -- and, like the cage/teleport/exit_door/drawbridge
+	-- art boxes now, the blocker's is the authored object itself, so there is
+	-- no oversized 2x box to lift.
 	local position = Rect.centreOfMapObject(object)
 
 	-- Optional visual-only offset, read from the Tiled object's custom
@@ -144,7 +144,7 @@ function Blocker:init(object)
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
 	local spriteProps = SpriteProps.fromObject(object)
 	spriteProps.position = position + Vector(0, spriteOffsetY)
-	spriteProps.shape_arguments = {spriteBoxWidth, spriteBoxHeight}
+	spriteProps.shape_arguments = { spriteBoxWidth, spriteBoxHeight }
 	self.sprite = self:addComponent(Sprite(spriteProps))
 
 	-- start at rest closed: the gate fully lowered -- the FIRST frame of the
@@ -157,20 +157,20 @@ function Blocker:init(object)
 	-- flag is for entity-owned colliders a player walks along (the
 	-- drawbridge's deck), and an unlock would drop whoever was standing here.
 	local barrierWidth, barrierHeight = barrierDimensions(self.rect.width, self.rect.height)
-	self.barrier = self:addComponent(Collider{
-		shape_type = 'rectangle',
-		shape_arguments = {barrierWidth, barrierHeight},
-		body_type = 'static',
+	self.barrier = self:addComponent(Collider({
+		shape_type = "rectangle",
+		shape_arguments = { barrierWidth, barrierHeight },
+		body_type = "static",
 		position = position,
 		sensor = not isBlocking(self.state),
-	})
+	}))
 
-	self.sound = self:addComponent(Sound{
+	self.sound = self:addComponent(Sound({
 		sounds = {
-			open = 'res/snd/entity_blocker_open.wav',
-			close = 'res/snd/entity_blocker_close.wav',
-		}
-	})
+			open = "res/snd/entity_blocker_open.wav",
+			close = "res/snd/entity_blocker_close.wav",
+		},
+	}))
 
 	-- Switchable defaults enabled = true; a blocker must start LOCKED, so the
 	-- default is overridden explicitly. The callback only records the
@@ -178,13 +178,13 @@ function Blocker:init(object)
 	-- input, so a switch flipped twice between frames can't leave the blocker
 	-- acting on a state that no longer holds.
 	self.switchEnabled = false
-	self:addComponent(Switchable{
+	self:addComponent(Switchable({
 		entity = self,
 		enabled = false,
 		onStateChange = function(enabled)
 			self.switchEnabled = enabled
-		end
-	})
+		end,
+	}))
 
 	self.openingTimer = 0
 end
@@ -201,21 +201,21 @@ function Blocker:update(dt)
 	-- recomputed fresh every frame, never remembered
 	local nextBlockerState = nextState(self.state, self.switchEnabled)
 
-	if nextBlockerState == 'opening' then
-		if self.state ~= 'opening' then
+	if nextBlockerState == "opening" then
+		if self.state ~= "opening" then
 			-- fresh open: raise the gate (forward -- frame 1 up to the last
 			-- frame) and start the telegraph timer
 			self.sprite:playForward()
-			self.sound:play('open')
+			self.sound:play("open")
 			self.openingTimer = 0
-			self:setState('opening')
+			self:setState("opening")
 		end
 
 		-- the passage opens on the timer, not on animation finish -- the
 		-- sprite may stall or be absent and the blocker still opens on time
 		self.openingTimer = self.openingTimer + dt
 		if self.openingTimer >= OPENING_DURATION then
-			self:setState('open')
+			self:setState("open")
 		end
 		return
 	end
@@ -225,8 +225,8 @@ function Blocker:update(dt)
 		-- gate-lowering animation plays out as cosmetics, reversing the
 		-- opening motion in place
 		self.sprite:reverseFromCurrent()
-		self.sound:play('close')
-		self:setState('closed')
+		self.sound:play("close")
+		self:setState("closed")
 	end
 end
 

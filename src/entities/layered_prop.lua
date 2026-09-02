@@ -5,28 +5,28 @@
 -- Map:drawEntities in src/map/init.lua): since its two Sprites carry
 -- different renderOrder values by default, this entity always draws as two
 -- separate units in the global sort rather than as one atomic entity.
-local LayeredProp = Class{__includes = Entity}
+local LayeredProp = Class({ __includes = Entity })
 
 function LayeredProp:init(object)
-	Entity.init(self, object, 'layered_prop')
+	Entity.init(self, object, "layered_prop")
 
 	local props = object.properties or {}
 	local position = Rect.centreOfMapObject(object)
 	local shape_arguments = Rect.shapeArgs(object.width, object.height)
 
-	self.backSprite = self:addComponent(Sprite{
+	self.backSprite = self:addComponent(Sprite({
 		image = props.backImage,
 		position = position,
 		shape_arguments = shape_arguments,
 		renderOrder = tonumber(props.backRenderOrder) or -1,
-	})
+	}))
 
-	self.frontSprite = self:addComponent(Sprite{
+	self.frontSprite = self:addComponent(Sprite({
 		image = props.frontImage,
 		position = position,
 		shape_arguments = shape_arguments,
 		renderOrder = tonumber(props.frontRenderOrder) or 1,
-	})
+	}))
 end
 
 return LayeredProp

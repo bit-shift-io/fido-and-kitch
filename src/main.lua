@@ -1,4 +1,4 @@
-tbl = require('src.utils.tbl')
+tbl = require("src.utils.tbl")
 
 -- IPC log capture: intercept print() so GET_LOG can retrieve console output
 if not _ipc_log then
@@ -8,10 +8,10 @@ if not _ipc_log then
 	function print(...)
 		_original_print(...)
 		local parts = {}
-		for i = 1, select('#', ...) do
+		for i = 1, select("#", ...) do
 			parts[#parts + 1] = tostring(select(i, ...))
 		end
-		local msg = table.concat(parts, '\t')
+		local msg = table.concat(parts, "\t")
 		_ipc_log[#_ipc_log + 1] = msg
 		if #_ipc_log > _ipc_log_max then
 			table.remove(_ipc_log, 1)
@@ -19,72 +19,73 @@ if not _ipc_log then
 	end
 end
 
-if tbl.includes(arg, 'debug') then
-	local ok, debugger = pcall(require, 'lldebugger')
+if tbl.includes(arg, "debug") then
+	local ok, debugger = pcall(require, "lldebugger")
 	if ok then
 		debugger.start()
 	else
-		print('lldebugger not found; continuing without debugger')
+		print("lldebugger not found; continuing without debugger")
 	end
 end
 
-if tbl.includes(arg, 'profile') then
-	profile = require('src.utils.profile')
+if tbl.includes(arg, "profile") then
+	profile = require("src.utils.profile")
 end
 
 -- includes
 
 -- global includes to save having to include in other files!
-conf = require('conf')
-str = require('src.utils.str')
-utils = require('src.utils.utils')
-Log = require('src.utils.log')
+conf = require("conf")
+str = require("src.utils.str")
+utils = require("src.utils.utils")
+Log = require("src.utils.log")
 
-Vector = require('lib.hump.vector')
-Class = require('lib.hump.class')
-Tween = require('lib.tween.tween')
-local Slab = require('lib.Slab')
+Vector = require("lib.hump.vector")
+Class = require("lib.hump.class")
+Tween = require("lib.tween.tween")
+local Slab = require("lib.Slab")
 
-Rect = require('src.utils.rect')
-Signal = require('src.utils.signal')
-World = require('src.world')
-Entity = require('src.entity')
-StateMachine = require('src.components.state_machine')
-Sprite = require('src.components.sprite')
-Path = require('src.components.path')
-Timeline = require('src.components.timeline')
-PathFollow = require('src.components.path_follow')
-Collider = require('src.components.collider')
-Pickup = require('src.components.pickup')
-Inventory = require('src.components.inventory')
-Usable = require('src.components.usable')
-Switchable = require('src.components.switchable')
-Variable = require('src.components.variable')
-Sound = require('src.components.sound')
-Particles = require('src.emitters.sprite_emitter')
-FxManager = require('src.fx.manager')
-CoinPickup = require('src.fx.coin_pickup')
-Map = require('src.map')
-Player = require('src.player.player')
-Game = require('src.game')
-InputManager = require('src.input.input_manager')
-
+Rect = require("src.utils.rect")
+Signal = require("src.utils.signal")
+World = require("src.world")
+Entity = require("src.entity")
+StateMachine = require("src.components.state_machine")
+Sprite = require("src.components.sprite")
+Path = require("src.components.path")
+Timeline = require("src.components.timeline")
+PathFollow = require("src.components.path_follow")
+Collider = require("src.components.collider")
+Pickup = require("src.components.pickup")
+Inventory = require("src.components.inventory")
+Usable = require("src.components.usable")
+Switchable = require("src.components.switchable")
+Variable = require("src.components.variable")
+Sound = require("src.components.sound")
+Particles = require("src.emitters.sprite_emitter")
+FxManager = require("src.fx.manager")
+CoinPickup = require("src.fx.coin_pickup")
+Map = require("src.map")
+Player = require("src.player.player")
+Game = require("src.game")
+InputManager = require("src.input.input_manager")
 
 -- local includes only accessible to this file
 
 function setupConf(args)
 	conf.args = args
-    conf.drawphysics = tbl.includes(conf.args, 'drawphysics')
-    conf.draw_grid = tbl.includes(conf.args, 'drawgrid')
-	conf.debug = tbl.includes(conf.args, 'debug')
-    conf.ipc_enabled = tbl.includes(conf.args, 'ipc')
-    local portArg = tbl.find(conf.args, function(e) return str.startsWith(e, 'ipc_port=') end)
-    if portArg then
-        conf.ipc_port = tonumber(str.split(portArg, '=')[2]) or 8080
-    end
-    -- `love . debug` also turns on Log.debug's per-action gameplay chatter
-    -- (state enters, "X has been used", pickups, ...), silent otherwise
-    Log.level = conf.debug and 'debug' or 'info'
+	conf.drawphysics = tbl.includes(conf.args, "drawphysics")
+	conf.draw_grid = tbl.includes(conf.args, "drawgrid")
+	conf.debug = tbl.includes(conf.args, "debug")
+	conf.ipc_enabled = tbl.includes(conf.args, "ipc")
+	local portArg = tbl.find(conf.args, function(e)
+		return str.startsWith(e, "ipc_port=")
+	end)
+	if portArg then
+		conf.ipc_port = tonumber(str.split(portArg, "=")[2]) or 8080
+	end
+	-- `love . debug` also turns on Log.debug's per-action gameplay chatter
+	-- (state enters, "X has been used", pickups, ...), silent otherwise
+	Log.level = conf.debug and "debug" or "info"
 end
 
 -- e2e=<path/to/scenario_test.lua>, following the same launch-argument style
@@ -92,11 +93,13 @@ end
 -- can hand control to the e2e runner instead of constructing the normal
 -- Game (DECISIONS.md Q11).
 local function findE2ETestFile(args)
-	local e2eArg = tbl.find(args, function(e) return str.startsWith(e, 'e2e=') end)
+	local e2eArg = tbl.find(args, function(e)
+		return str.startsWith(e, "e2e=")
+	end)
 	if not e2eArg then
 		return nil
 	end
-	return str.split(e2eArg, '=')[2]
+	return str.split(e2eArg, "=")[2]
 end
 
 -- export=<map> renders the map's terrain as a pixel map / segmentation map
@@ -104,29 +107,31 @@ end
 -- and writes the PNG to the project root, then quits.
 -- Same early-detour style as e2e=: no Game is constructed.
 local function findExportArg(args)
-	local exportArg = tbl.find(args, function(e) return str.startsWith(e, 'export=') end)
+	local exportArg = tbl.find(args, function(e)
+		return str.startsWith(e, "export=")
+	end)
 	if not exportArg then
 		return nil
 	end
-	return str.split(exportArg, '=')[2]
+	return str.split(exportArg, "=")[2]
 end
 
 function love.load(args)
 	setupConf(args)
-	love.graphics.setDefaultFilter('linear', 'linear')
+	love.graphics.setDefaultFilter("linear", "linear")
 
 	local e2eTestFile = findE2ETestFile(args)
 	if e2eTestFile then
 		-- requiring tests.e2e.run defines its own love.update/love.draw/
 		-- love.quit, replacing the ones below for the rest of this process.
-		local E2ERunner = require('tests.e2e.run')
+		local E2ERunner = require("tests.e2e.run")
 		E2ERunner.start(e2eTestFile, args)
 		return
 	end
 
 	local exportMapName = findExportArg(args)
 	if exportMapName then
-		local ExportPng = require('src.export_png')
+		local ExportPng = require("src.export_png")
 		ExportPng.run(exportMapName)
 		love.event.quit(0)
 		return
@@ -137,7 +142,7 @@ function love.load(args)
 	inputManager = InputManager()
 
 	if conf.ipc_enabled then
-		ipc = require('src.ipc.init')
+		ipc = require("src.ipc.init")
 		ipc.start(conf.ipc_port or 8080)
 	end
 end
@@ -220,5 +225,3 @@ function love.quit()
 		ipc.stop()
 	end
 end
-
-

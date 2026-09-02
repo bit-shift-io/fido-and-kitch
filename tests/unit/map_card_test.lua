@@ -1,24 +1,24 @@
-Class = Class or require('lib.hump.class')
-local MapCard = require('src.ui.map_card')
+Class = Class or require("lib.hump.class")
+local MapCard = require("src.ui.map_card")
 
 -- Thumbnail anchor math: Tiled tile objects (gid set) are bottom-anchored,
 -- plain rectangles (no gid, e.g. ladders) are top-anchored.
-test('a gid tile object draws above its anchor point', function()
-	local y = MapCard.objectTopY({gid = 123, y = 544}, 32)
+test("a gid tile object draws above its anchor point", function()
+	local y = MapCard.objectTopY({ gid = 123, y = 544 }, 32)
 	assertEqual(544 - 32, y)
 end)
 
-test('a gid-less rectangle object draws from its anchor point down', function()
-	local y = MapCard.objectTopY({y = 160}, 192)
+test("a gid-less rectangle object draws from its anchor point down", function()
+	local y = MapCard.objectTopY({ y = 160 }, 192)
 	assertEqual(160, y)
 end)
 
-test('missing y falls back to the top edge for gid-less objects', function()
+test("missing y falls back to the top edge for gid-less objects", function()
 	assertEqual(0, MapCard.objectTopY({}, 32))
 end)
 
 local function collisionMap(...)
-	local layers = {...}
+	local layers = { ... }
 	return {
 		width = 2,
 		height = 2,
@@ -40,17 +40,19 @@ local function tileData(tiles)
 	return table.concat(bytes)
 end
 
-test('collision rects are collected from collision-flagged tile layers', function()
+test("collision rects are collected from collision-flagged tile layers", function()
 	local map = collisionMap({
-		type = 'tilelayer',
+		type = "tilelayer",
 		visible = true,
-		properties = {collision = true},
+		properties = { collision = true },
 		width = 2,
 		height = 2,
-		data = tileData({1, 0, 0, 1}),
+		data = tileData({ 1, 0, 0, 1 }),
 	})
 
-	local rects = MapCard.collisionRects(map, function() return tileData({1, 0, 0, 1}) end)
+	local rects = MapCard.collisionRects(map, function()
+		return tileData({ 1, 0, 0, 1 })
+	end)
 	assertEqual(2, #rects)
 	assertEqual(0, rects[1].x)
 	assertEqual(0, rects[1].y)
@@ -62,14 +64,14 @@ test('collision rects are collected from collision-flagged tile layers', functio
 	assertEqual(32, rects[2].h)
 end)
 
-test('collision rects are collected from collision-flagged object groups', function()
+test("collision rects are collected from collision-flagged object groups", function()
 	local map = collisionMap({
-		type = 'objectgroup',
+		type = "objectgroup",
 		visible = true,
-		properties = {collision = true},
+		properties = { collision = true },
 		objects = {
-			{x = 96, y = 192, width = 256, height = 32},
-			{x = 32, y = 64, width = 32, height = 32, gid = 1},
+			{ x = 96, y = 192, width = 256, height = 32 },
+			{ x = 32, y = 64, width = 32, height = 32, gid = 1 },
 		},
 	})
 
@@ -85,30 +87,30 @@ test('collision rects are collected from collision-flagged object groups', funct
 	assertEqual(32, rects[2].h)
 end)
 
-test('layers without the collision flag contribute no collision rects', function()
+test("layers without the collision flag contribute no collision rects", function()
 	local map = collisionMap({
-		type = 'tilelayer',
+		type = "tilelayer",
 		visible = true,
 		properties = {},
 		width = 2,
 		height = 2,
-		data = tileData({1, 1, 1, 1}),
+		data = tileData({ 1, 1, 1, 1 }),
 	}, {
-		type = 'objectgroup',
+		type = "objectgroup",
 		visible = true,
 		properties = {},
-		objects = {{x = 0, y = 0, width = 64, height = 64}},
+		objects = { { x = 0, y = 0, width = 64, height = 64 } },
 	})
 
 	assertEqual(0, #MapCard.collisionRects(map))
 end)
 
-test('hidden collision layers are ignored', function()
+test("hidden collision layers are ignored", function()
 	local map = collisionMap({
-		type = 'objectgroup',
+		type = "objectgroup",
 		visible = false,
-		properties = {collision = true},
-		objects = {{x = 0, y = 0, width = 64, height = 64}},
+		properties = { collision = true },
+		objects = { { x = 0, y = 0, width = 64, height = 64 } },
 	})
 
 	assertEqual(0, #MapCard.collisionRects(map))
@@ -116,22 +118,22 @@ end)
 
 -- Medal/time display: a card with no record shows neither, a card with a
 -- record shows its medal and a formatted mm:ss time.
-test('a nil record produces no display', function()
+test("a nil record produces no display", function()
 	assertEqual(nil, MapCard.recordDisplayFor(nil))
 end)
 
-test('a record produces its medal and formatted time', function()
-	local display = MapCard.recordDisplayFor({bestScorePct = 90, medal = 'gold', bestTimeSeconds = 95})
-	assertEqual('gold', display.medal)
-	assertEqual('01:35', display.time)
+test("a record produces its medal and formatted time", function()
+	local display = MapCard.recordDisplayFor({ bestScorePct = 90, medal = "gold", bestTimeSeconds = 95 })
+	assertEqual("gold", display.medal)
+	assertEqual("01:35", display.time)
 end)
 
-test('a sub-minute time formats with a zero minutes place', function()
-	local display = MapCard.recordDisplayFor({bestScorePct = 60, medal = 'bronze', bestTimeSeconds = 7})
-	assertEqual('00:07', display.time)
+test("a sub-minute time formats with a zero minutes place", function()
+	local display = MapCard.recordDisplayFor({ bestScorePct = 60, medal = "bronze", bestTimeSeconds = 7 })
+	assertEqual("00:07", display.time)
 end)
 
-test('a fractional time is floored, not rounded', function()
-	local display = MapCard.recordDisplayFor({bestScorePct = 60, medal = 'bronze', bestTimeSeconds = 59.9})
-	assertEqual('00:59', display.time)
+test("a fractional time is floored, not rounded", function()
+	local display = MapCard.recordDisplayFor({ bestScorePct = 60, medal = "bronze", bestTimeSeconds = 59.9 })
+	assertEqual("00:59", display.time)
 end)

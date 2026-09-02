@@ -2,15 +2,15 @@
 -- via TmjWriter, and writes it to res/map/generated/. Kept as a pure,
 -- side-effect-free `generate` core (testable without touching the
 -- filesystem) plus a thin `run` wrapper that does CLI parsing and file I/O.
-local Rng = require('tools.level_generator.rng')
-local TmjWriter = require('tools.level_generator.tmj_writer')
-local Layout = require('tools.level_generator.layout')
-local Plan = require('tools.level_generator.plan')
-local Walkthrough = require('tools.level_generator.walkthrough')
-local RuleSet = require('tools.level_generator.rule_set')
-local Decorate = require('tools.level_generator.decorate')
-local Coop = require('tools.level_generator.coop')
-local Pushables = require('tools.level_generator.pushables')
+local Rng = require("tools.level_generator.rng")
+local TmjWriter = require("tools.level_generator.tmj_writer")
+local Layout = require("tools.level_generator.layout")
+local Plan = require("tools.level_generator.plan")
+local Walkthrough = require("tools.level_generator.walkthrough")
+local RuleSet = require("tools.level_generator.rule_set")
+local Decorate = require("tools.level_generator.decorate")
+local Coop = require("tools.level_generator.coop")
+local Pushables = require("tools.level_generator.pushables")
 
 local Main = {}
 
@@ -23,7 +23,7 @@ local GROUND_ROW = MAP_HEIGHT -- 1-indexed: the bottom row
 local WATER_TILE_GID = 105
 
 local TILESETS = {
-	{firstgid = 1, source = '../../entities/tileset_generic_platformer_tiles.tsj'},
+	{ firstgid = 1, source = "../../entities/tileset_generic_platformer_tiles.tsj" },
 }
 
 local function surfaceY(row)
@@ -31,30 +31,30 @@ local function surfaceY(row)
 end
 
 local function spawnObject(id, x, y)
-	return {id = id, template = '../../entities/spawn.tj', name = 'spawn', x = x, y = y}
+	return { id = id, template = "../../entities/spawn.tj", name = "spawn", x = x, y = y }
 end
 
 local function exitObject(id, x, y, actorCount)
 	return {
 		id = id,
-		template = '../../entities/exit_door.tj',
-		name = 'exit_door',
+		template = "../../entities/exit_door.tj",
+		name = "exit_door",
 		x = x,
 		y = y,
-		properties = {{name = 'actor_count', type = 'int', value = actorCount}},
+		properties = { { name = "actor_count", type = "int", value = actorCount } },
 	}
 end
 
 local function teleportObject(id, x, y, targetId, enabled)
-	local properties = {{name = 'target', type = 'object', value = targetId}}
+	local properties = { { name = "target", type = "object", value = targetId } }
 	if enabled ~= nil then
-		table.insert(properties, {name = 'enabled', type = 'bool', value = enabled})
+		table.insert(properties, { name = "enabled", type = "bool", value = enabled })
 	end
 	return {
 		id = id,
-		template = '../../entities/teleport.tj',
-		name = 'teleport',
-		type = 'teleport',
+		template = "../../entities/teleport.tj",
+		name = "teleport",
+		type = "teleport",
 		x = x,
 		y = y,
 		properties = properties,
@@ -67,57 +67,57 @@ end
 local function pressureSwitchObject(id, x, y, targetId)
 	return {
 		id = id,
-		name = 'pressure_switch',
-		type = 'pressure_switch',
+		name = "pressure_switch",
+		type = "pressure_switch",
 		x = x,
 		y = y,
 		width = TILE,
 		height = TILE,
 		properties = {
-			{name = 'target', type = 'object', value = targetId},
-			{name = 'latching', type = 'bool', value = false},
+			{ name = "target", type = "object", value = targetId },
+			{ name = "latching", type = "bool", value = false },
 		},
 	}
 end
 
 local function pushBoxObject(id, x, y)
-	return {id = id, template = '../../entities/push_box.tj', name = 'push_box', type = 'push_box', x = x, y = y}
+	return { id = id, template = "../../entities/push_box.tj", name = "push_box", type = "push_box", x = x, y = y }
 end
 
 local function killZoneObject(id, hazard)
 	return {
 		id = id,
-		name = hazard.deathType .. '_kill',
-		type = 'kill_zone',
+		name = hazard.deathType .. "_kill",
+		type = "kill_zone",
 		x = hazard.x,
 		y = hazard.y,
 		width = hazard.width,
 		height = hazard.height,
-		properties = {{name = 'deathType', value = hazard.deathType}},
+		properties = { { name = "deathType", value = hazard.deathType } },
 	}
 end
 
 local function keyObject(id, x, y, color)
 	return {
 		id = id,
-		template = '../../entities/key.tj',
-		name = 'key',
-		type = 'key',
+		template = "../../entities/key.tj",
+		name = "key",
+		type = "key",
 		x = x,
 		y = y,
-		properties = {{name = 'color', value = color}},
+		properties = { { name = "color", value = color } },
 	}
 end
 
 local function cageObject(id, x, y, color)
 	return {
 		id = id,
-		template = '../../entities/cage.tj',
-		name = 'cage',
-		type = 'cage',
+		template = "../../entities/cage.tj",
+		name = "cage",
+		type = "cage",
 		x = x,
 		y = y,
-		properties = {{name = 'color', value = color}},
+		properties = { { name = "color", value = color } },
 	}
 end
 
@@ -142,13 +142,13 @@ local function buildHazards(hazards, startId, width, height)
 	for _, hazard in ipairs(hazards) do
 		table.insert(killObjects, {
 			id = nextId,
-			name = hazard.deathType .. '_kill',
-			type = 'kill_zone',
+			name = hazard.deathType .. "_kill",
+			type = "kill_zone",
 			x = hazard.x,
 			y = hazard.y,
 			width = hazard.width,
 			height = hazard.height,
-			properties = {{name = 'deathType', value = hazard.deathType}},
+			properties = { { name = "deathType", value = hazard.deathType } },
 		})
 		nextId = nextId + 1
 
@@ -212,25 +212,25 @@ function Main.buildWalkingSkeletonMap(seed)
 		tileheight = TILE,
 		nextobjectid = 3,
 		properties = {
-			{name = 'name', value = 'Generated ' .. tostring(seed)},
-			{name = 'description', value = 'Procedurally generated level (walking skeleton)'},
-			{name = 'players', type = 'int', value = 1},
+			{ name = "name", value = "Generated " .. tostring(seed) },
+			{ name = "description", value = "Procedurally generated level (walking skeleton)" },
+			{ name = "players", type = "int", value = 1 },
 		},
 		tilesets = TILESETS,
 		layers = {
 			{
 				id = 1,
-				type = 'tilelayer',
-				name = 'ground',
+				type = "tilelayer",
+				name = "ground",
 				width = MAP_WIDTH,
 				height = MAP_HEIGHT,
-				properties = {{name = 'collision', type = 'bool', value = true}},
+				properties = { { name = "collision", type = "bool", value = true } },
 				data = rows,
 			},
 			{
 				id = 2,
-				type = 'objectgroup',
-				name = 'game',
+				type = "objectgroup",
+				name = "game",
 				objects = {
 					spawnObject(1, 2 * TILE, groundSurfaceY),
 					exitObject(2, (MAP_WIDTH - 3) * TILE, groundSurfaceY, 0),
@@ -244,7 +244,7 @@ end
 -- Used by both buildTerrainMap (issue 02) and buildObjectiveMap (issue 03)
 -- so the two don't duplicate tile/ladder assembly.
 local function buildTerrain(seed, opts)
-	local layout = Layout.generate(Rng.new(seed), {size = opts.size})
+	local layout = Layout.generate(Rng.new(seed), { size = opts.size })
 
 	local rows = {}
 	for y = 1, layout.height do
@@ -270,7 +270,7 @@ local function buildTerrain(seed, opts)
 		for y = top + TILE, surfaceY(ladder.yBottom), TILE do
 			table.insert(ladderObjects, {
 				id = rungId,
-				template = '../../entities/ladder.tj',
+				template = "../../entities/ladder.tj",
 				x = x,
 				y = y,
 			})
@@ -283,12 +283,12 @@ end
 
 local function baseMapFields(seed, layout, description, background)
 	local properties = {
-		{name = 'name', value = 'Generated ' .. tostring(seed)},
-		{name = 'description', value = description},
-		{name = 'players', type = 'int', value = 1},
+		{ name = "name", value = "Generated " .. tostring(seed) },
+		{ name = "description", value = description },
+		{ name = "players", type = "int", value = 1 },
 	}
 	if background then
-		table.insert(properties, {name = 'background', value = background})
+		table.insert(properties, { name = "background", value = background })
 	end
 	return {
 		width = layout.width,
@@ -301,11 +301,11 @@ local function baseMapFields(seed, layout, description, background)
 end
 
 local function coinObject(id, x, y)
-	return {id = id, template = '../../entities/coin.tj', name = 'coin', type = 'coin', x = x, y = y}
+	return { id = id, template = "../../entities/coin.tj", name = "coin", type = "coin", x = x, y = y }
 end
 
 local function enemyObject(id, x, y, enemyType)
-	return {id = id, name = enemyType, type = enemyType, x = x, y = y, width = TILE, height = TILE}
+	return { id = id, name = enemyType, type = enemyType, x = x, y = y, width = TILE, height = TILE }
 end
 
 --- Builds a level with real terrain: a ground row plus a chain of platforms
@@ -319,22 +319,22 @@ function Main.buildTerrainMap(seed, opts)
 	local groundZone = layout.zones[1]
 	local topZone = layout.zones[#layout.zones]
 
-	local map = baseMapFields(seed, layout, 'Procedurally generated level')
+	local map = baseMapFields(seed, layout, "Procedurally generated level")
 	map.nextobjectid = nextRungId
 	map.layers = {
 		{
 			id = 1,
-			type = 'tilelayer',
-			name = 'ground',
+			type = "tilelayer",
+			name = "ground",
 			width = layout.width,
 			height = layout.height,
-			properties = {{name = 'collision', type = 'bool', value = true}},
+			properties = { { name = "collision", type = "bool", value = true } },
 			data = rows,
 		},
 		{
 			id = 2,
-			type = 'objectgroup',
-			name = 'game',
+			type = "objectgroup",
+			name = "game",
 			objects = {
 				spawnObject(1, (groundZone.x1 + 1) * TILE, surfaceY(groundZone.y)),
 				exitObject(2, (topZone.x1 - 1) * TILE, surfaceY(topZone.y), 0),
@@ -342,8 +342,8 @@ function Main.buildTerrainMap(seed, opts)
 		},
 		{
 			id = 3,
-			type = 'objectgroup',
-			name = 'ladder',
+			type = "objectgroup",
+			name = "ladder",
 			objects = ladderObjects,
 		},
 	}
@@ -415,7 +415,19 @@ end
 -- width, entered only through a teleport a distant momentary pressure
 -- plate must hold enabled -- see coop.lua's header for why this is
 -- unsolvable solo by construction, not by a post-hoc solver.
-local function extendForVault(layout, rows, waterRows, objects, walkthroughSteps, rng, nextId, mapWidth, vaultObjective, groundZone, topZone)
+local function extendForVault(
+	layout,
+	rows,
+	waterRows,
+	objects,
+	walkthroughSteps,
+	rng,
+	nextId,
+	mapWidth,
+	vaultObjective,
+	groundZone,
+	topZone
+)
 	if not vaultObjective then
 		return mapWidth, nextId
 	end
@@ -449,16 +461,20 @@ local function extendForVault(layout, rows, waterRows, objects, walkthroughSteps
 
 	local plateZone = groundZone
 	local plateX, plateY = positionOnZone(plateZone, rng:nextInt(0, 1000))
-	table.insert(objects, teleportObject(teleportAId, (topZone.x1) * TILE, surfaceY(topZone.y), teleportBId, false))
+	table.insert(objects, teleportObject(teleportAId, topZone.x1 * TILE, surfaceY(topZone.y), teleportBId, false))
 	table.insert(objects, pressureSwitchObject(nextId, plateX, plateY, teleportAId))
 	nextId = nextId + 1
 
-	table.insert(walkthroughSteps, string.format(
-		'Coop required: P1 must stand on the pressure plate (zone %d, ground) to keep the vault teleporter enabled '
-			.. 'while P2 uses it (top zone) to reach the %s key and cage sealed inside the vault -- the plate '
-			.. 'releases the instant P1 steps off, so one player cannot do both.',
-		1, vaultObjective.color
-	))
+	table.insert(
+		walkthroughSteps,
+		string.format(
+			"Coop required: P1 must stand on the pressure plate (zone %d, ground) to keep the vault teleporter enabled "
+				.. "while P2 uses it (top zone) to reach the %s key and cage sealed inside the vault -- the plate "
+				.. "releases the instant P1 steps off, so one player cannot do both.",
+			1,
+			vaultObjective.color
+		)
+	)
 
 	vaultObjective.relocated = true
 
@@ -470,7 +486,17 @@ end
 -- Both extensions occupy different rows (vault near the top, this at
 -- the ground row), so their column ranges can freely overlap; only the
 -- overall map width needs to cover whichever reaches furthest.
-local function extendForBoxBridge(layout, rows, waterRows, objects, killObjects, walkthroughSteps, nextId, mapWidth, pushBridgeObjective)
+local function extendForBoxBridge(
+	layout,
+	rows,
+	waterRows,
+	objects,
+	killObjects,
+	walkthroughSteps,
+	nextId,
+	mapWidth,
+	pushBridgeObjective
+)
 	if not pushBridgeObjective then
 		return mapWidth, nextId
 	end
@@ -499,14 +525,20 @@ local function extendForBoxBridge(layout, rows, waterRows, objects, killObjects,
 	nextId = nextId + 1
 	table.insert(objects, keyObject(nextId, bridge.farObjectiveX, bridge.farObjectiveY, pushBridgeObjective.color))
 	nextId = nextId + 1
-	table.insert(objects, cageObject(nextId, bridge.farObjectiveX + TILE, bridge.farObjectiveY, pushBridgeObjective.color))
+	table.insert(
+		objects,
+		cageObject(nextId, bridge.farObjectiveX + TILE, bridge.farObjectiveY, pushBridgeObjective.color)
+	)
 	nextId = nextId + 1
 
-	table.insert(walkthroughSteps, string.format(
-		'Push the box (right edge of the ground zone) one tile right into the gap to bridge it, then cross to '
-			.. 'reach the %s key and cage on the far side. Falling into the gap before bridging it is a recoverable death, not a dead end.',
-		pushBridgeObjective.color
-	))
+	table.insert(
+		walkthroughSteps,
+		string.format(
+			"Push the box (right edge of the ground zone) one tile right into the gap to bridge it, then cross to "
+				.. "reach the %s key and cage on the far side. Falling into the gap before bridging it is a recoverable death, not a dead end.",
+			pushBridgeObjective.color
+		)
+	)
 
 	pushBridgeObjective.relocated = true
 
@@ -529,54 +561,67 @@ local function addDressing(rng, layout, difficulty, objects, nextId)
 	return background, nextId
 end
 
-local function assembleObjectiveMap(seed, layout, mapWidth, rows, ladderObjects, objects, waypointObjects, killObjects, waterRows, nextId, nextRungId, background)
-	local map = baseMapFields(seed, layout, 'Procedurally generated level', background)
+local function assembleObjectiveMap(
+	seed,
+	layout,
+	mapWidth,
+	rows,
+	ladderObjects,
+	objects,
+	waypointObjects,
+	killObjects,
+	waterRows,
+	nextId,
+	nextRungId,
+	background
+)
+	local map = baseMapFields(seed, layout, "Procedurally generated level", background)
 	map.width = mapWidth
 	map.nextobjectid = math.max(nextId, nextRungId)
 	map.layers = {
 		{
 			id = 1,
-			type = 'tilelayer',
-			name = 'ground',
+			type = "tilelayer",
+			name = "ground",
 			width = mapWidth,
 			height = layout.height,
-			properties = {{name = 'collision', type = 'bool', value = true}},
+			properties = { { name = "collision", type = "bool", value = true } },
 			data = rows,
 		},
 		{
 			id = 2,
-			type = 'objectgroup',
-			name = 'game',
+			type = "objectgroup",
+			name = "game",
 			objects = objects,
 		},
 		{
 			id = 3,
-			type = 'objectgroup',
-			name = 'ladder',
+			type = "objectgroup",
+			name = "ladder",
 			objects = ladderObjects,
 		},
 	}
 	if #waypointObjects > 0 then
 		table.insert(map.layers, {
 			id = 4,
-			type = 'objectgroup',
-			name = 'waypoints',
+			type = "objectgroup",
+			name = "waypoints",
 			objects = waypointObjects,
 		})
 	end
 	if #killObjects > 0 then
 		table.insert(map.layers, {
 			id = 5,
-			type = 'tilelayer',
-			name = 'water',
+			type = "tilelayer",
+			name = "water",
 			width = mapWidth,
 			height = layout.height,
 			data = waterRows,
 		})
 		table.insert(map.layers, {
 			id = 6,
-			type = 'objectgroup',
-			name = 'kill',
+			type = "objectgroup",
+			name = "kill",
 			objects = killObjects,
 		})
 	end
@@ -606,7 +651,7 @@ function Main.buildObjectiveMap(seed, opts)
 	-- --coop required (issue 06) reserves the last plan objective for the
 	-- vault instead of placing it on a normal zone -- see the vault
 	-- construction below.
-	local coopRequired = opts.coop == 'required'
+	local coopRequired = opts.coop == "required"
 	local vaultObjective = coopRequired and plan[#plan] or nil
 	local pushBridgeObjective = selectReservedObjective(plan, vaultObjective)
 
@@ -623,13 +668,48 @@ function Main.buildObjectiveMap(seed, opts)
 	killObjects, waterRows, nextId = buildHazards(hazards, nextId, layout.width, layout.height)
 
 	local mapWidth = layout.width
-	mapWidth, nextId = extendForVault(layout, rows, waterRows, objects, walkthroughSteps, rng, nextId, mapWidth, vaultObjective, groundZone, topZone)
-	mapWidth, nextId = extendForBoxBridge(layout, rows, waterRows, objects, killObjects, walkthroughSteps, nextId, mapWidth, pushBridgeObjective)
+	mapWidth, nextId = extendForVault(
+		layout,
+		rows,
+		waterRows,
+		objects,
+		walkthroughSteps,
+		rng,
+		nextId,
+		mapWidth,
+		vaultObjective,
+		groundZone,
+		topZone
+	)
+	mapWidth, nextId = extendForBoxBridge(
+		layout,
+		rows,
+		waterRows,
+		objects,
+		killObjects,
+		walkthroughSteps,
+		nextId,
+		mapWidth,
+		pushBridgeObjective
+	)
 
 	local background
 	background, nextId = addDressing(rng, layout, opts.difficulty, objects, nextId)
 
-	local map = assembleObjectiveMap(seed, layout, mapWidth, rows, ladderObjects, objects, waypointObjects, killObjects, waterRows, nextId, nextRungId, background)
+	local map = assembleObjectiveMap(
+		seed,
+		layout,
+		mapWidth,
+		rows,
+		ladderObjects,
+		objects,
+		waypointObjects,
+		killObjects,
+		waterRows,
+		nextId,
+		nextRungId,
+		background
+	)
 
 	return map, plan, walkthroughSteps
 end
@@ -652,7 +732,8 @@ function Main.generate(opts)
 			itemSeed = Rng.deriveSeed(baseSeed, i)
 		end
 
-		local map, plan, flourishSteps = Main.buildObjectiveMap(itemSeed, {size = opts.size, difficulty = opts.difficulty, coop = opts.coop})
+		local map, plan, flourishSteps =
+			Main.buildObjectiveMap(itemSeed, { size = opts.size, difficulty = opts.difficulty, coop = opts.coop })
 		local walkthroughPlan = {}
 		for _, objective in ipairs(plan) do
 			if not objective.relocated then
@@ -663,9 +744,9 @@ function Main.generate(opts)
 		local solutionText = Walkthrough.build(walkthroughPlan, flourishSteps)
 		table.insert(results, {
 			seed = itemSeed,
-			filename = string.format('%d.tmj', itemSeed),
+			filename = string.format("%d.tmj", itemSeed),
 			tmj = tmj,
-			solutionFilename = string.format('%d-solution.md', itemSeed),
+			solutionFilename = string.format("%d-solution.md", itemSeed),
 			solutionText = solutionText,
 		})
 	end
@@ -674,42 +755,42 @@ function Main.generate(opts)
 end
 
 local function parseArgs(argv)
-	local opts = {count = 1}
+	local opts = { count = 1 }
 	local i = 1
 	while i <= #argv do
 		local a = argv[i]
-		if a == '--seed' then
+		if a == "--seed" then
 			i = i + 1
 			opts.seed = tonumber(argv[i])
 			if not opts.seed then
-				error('--seed requires a numeric value')
+				error("--seed requires a numeric value")
 			end
-		elseif a == '--count' then
+		elseif a == "--count" then
 			i = i + 1
 			opts.count = tonumber(argv[i])
 			if not opts.count or opts.count < 1 then
-				error('--count requires a positive integer')
+				error("--count requires a positive integer")
 			end
-		elseif a == '--size' then
+		elseif a == "--size" then
 			i = i + 1
 			opts.size = argv[i]
-			if opts.size ~= 'small' and opts.size ~= 'medium' and opts.size ~= 'large' then
-				error('--size must be one of small|medium|large')
+			if opts.size ~= "small" and opts.size ~= "medium" and opts.size ~= "large" then
+				error("--size must be one of small|medium|large")
 			end
-		elseif a == '--difficulty' then
+		elseif a == "--difficulty" then
 			i = i + 1
 			opts.difficulty = tonumber(argv[i])
 			if not opts.difficulty or opts.difficulty < 1 or opts.difficulty > 5 then
-				error('--difficulty must be an integer from 1 to 5')
+				error("--difficulty must be an integer from 1 to 5")
 			end
-		elseif a == '--coop' then
+		elseif a == "--coop" then
 			i = i + 1
 			opts.coop = argv[i]
-			if opts.coop ~= 'required' and opts.coop ~= 'optional' then
-				error('--coop must be one of required|optional')
+			if opts.coop ~= "required" and opts.coop ~= "optional" then
+				error("--coop must be one of required|optional")
 			end
 		else
-			error('Unrecognised argument: ' .. tostring(a))
+			error("Unrecognised argument: " .. tostring(a))
 		end
 		i = i + 1
 	end
@@ -717,7 +798,7 @@ local function parseArgs(argv)
 end
 
 local function writeFile(path, contents)
-	local file, err = io.open(path, 'w')
+	local file, err = io.open(path, "w")
 	if not file then
 		error('Failed to write "' .. path .. '": ' .. tostring(err))
 	end
@@ -729,11 +810,11 @@ end
 -- res/map/generated/, and prints each seed (so unseeded/random runs can be
 -- reproduced later).
 function Main.run(argv, outputDir)
-	outputDir = outputDir or 'res/map/generated'
+	outputDir = outputDir or "res/map/generated"
 
 	local ok, opts = pcall(parseArgs, argv)
 	if not ok then
-		io.stderr:write('Error: ' .. tostring(opts) .. '\n')
+		io.stderr:write("Error: " .. tostring(opts) .. "\n")
 		os.exit(1)
 	end
 
@@ -743,14 +824,14 @@ function Main.run(argv, outputDir)
 
 	local results = Main.generate(opts)
 	for _, result in ipairs(results) do
-		local path = outputDir .. '/' .. result.filename
+		local path = outputDir .. "/" .. result.filename
 		writeFile(path, result.tmj)
-		writeFile(outputDir .. '/' .. result.solutionFilename, result.solutionText)
-		print(string.format('seed=%d -> %s', result.seed, path))
+		writeFile(outputDir .. "/" .. result.solutionFilename, result.solutionText)
+		print(string.format("seed=%d -> %s", result.seed, path))
 	end
 end
 
-if arg and arg[0] and arg[0]:match('main%.lua$') then
+if arg and arg[0] and arg[0]:match("main%.lua$") then
 	-- arg[1..] here excludes arg[0] itself (standard Lua CLI convention).
 	Main.run(arg)
 end

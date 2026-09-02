@@ -16,14 +16,17 @@
 --    slice actually changed, so these tests exercise it through the real
 --    classification + the real (unchanged) Laser:update gate, rather than
 --    re-testing the gate itself.
-local HeadlessBootstrap = require('tests.support.headless_bootstrap')
+local HeadlessBootstrap = require("tests.support.headless_bootstrap")
 
-local DestructibleTile = require('src.entities.destructible_tile')
-local Laser = require('src.entities.laser')
+local DestructibleTile = require("src.entities.destructible_tile")
+local Laser = require("src.entities.laser")
 
 local function makeTile(x, y)
 	return DestructibleTile({
-		x = x, y = y, width = 32, height = 32,
+		x = x,
+		y = y,
+		width = 32,
+		height = 32,
 		properties = {},
 	})
 end
@@ -31,12 +34,19 @@ end
 -- Laser only reaches for map:getPixelSize() (to compute the far endpoint
 -- when nothing stops the beam first) -- a bare stub stands in fine, no
 -- real Map/World-registered tileset needed.
-local fakeMap = {getPixelSize = function() return 1000, 1000 end}
+local fakeMap = {
+	getPixelSize = function()
+		return 1000, 1000
+	end,
+}
 
 local function makeLaser(direction)
 	return Laser({
-		x = 0, y = 32, width = 32, height = 32,
-		properties = {direction = direction, enabled = true},
+		x = 0,
+		y = 32,
+		width = 32,
+		height = 32,
+		properties = { direction = direction, enabled = true },
 	}, fakeMap)
 end
 
@@ -44,12 +54,15 @@ end
 -- Part 1: entity-level construction
 --
 
-test('constructs headless with a real Sprite/Collider/World stack, solid, matching its object rect', function()
+test("constructs headless with a real Sprite/Collider/World stack, solid, matching its object rect", function()
 	HeadlessBootstrap.resetWorld()
 	local tile = makeTile(300, 132)
 
-	assertEqual('destructible_tile', tile.type)
-	assertFalse(tile.collider:isSensor(), 'a destructible tile must be solid so it blocks the beam like any other opaque prop')
+	assertEqual("destructible_tile", tile.type)
+	assertFalse(
+		tile.collider:isSensor(),
+		"a destructible tile must be solid so it blocks the beam like any other opaque prop"
+	)
 	assertEqual(32, tile.rect.width)
 	assertEqual(32, tile.rect.height)
 end)
@@ -58,9 +71,9 @@ end)
 -- Part 2: a real Laser's beam hitting a real DestructibleTile
 --
 
-test('a warming beam does not destroy a destructible tile in its path', function()
+test("a warming beam does not destroy a destructible tile in its path", function()
 	HeadlessBootstrap.resetWorld()
-	local laser = makeLaser('right')
+	local laser = makeLaser("right")
 	-- Same row as the laser's own firing height (laser rect: y=0..32,
 	-- centre y=16 -- see src/entities/laser.lua's firingEdgePoint).
 	local tile = makeTile(300, 32)
@@ -68,12 +81,12 @@ test('a warming beam does not destroy a destructible tile in its path', function
 	laser:update(1 / 60) -- first frame: still warming, nowhere near POWER_DURATION (0.3s)
 
 	assertFalse(laser:isFullyOn())
-	assertTrue(tile.destroy_flag == nil, 'expected a warming beam to leave the tile intact')
+	assertTrue(tile.destroy_flag == nil, "expected a warming beam to leave the tile intact")
 end)
 
-test('a fully-on beam destroys a destructible tile in its path', function()
+test("a fully-on beam destroys a destructible tile in its path", function()
 	HeadlessBootstrap.resetWorld()
-	local laser = makeLaser('right')
+	local laser = makeLaser("right")
 	local tile = makeTile(300, 32)
 
 	-- Step well past POWER_DURATION (0.3s = 18 frames at 1/60) to reach the
@@ -85,9 +98,12 @@ test('a fully-on beam destroys a destructible tile in its path', function()
 		tile:update(1 / 60)
 	end
 
-	assertTrue(laser:isFullyOn(), 'expected the laser to have reached full power')
-	assertTrue(laser.beamHitEntity == tile, 'expected the beam to stop at the tile on contact')
-	assertTrue(tile.destroy_flag == nil, 'expected the tile to stay intact for DESTROY_DELAY of continuous contact before breaking')
+	assertTrue(laser:isFullyOn(), "expected the laser to have reached full power")
+	assertTrue(laser.beamHitEntity == tile, "expected the beam to stop at the tile on contact")
+	assertTrue(
+		tile.destroy_flag == nil,
+		"expected the tile to stay intact for DESTROY_DELAY of continuous contact before breaking"
+	)
 
 	-- The tile only actually destroys once the fully-on beam has kept
 	-- touching it continuously for DESTROY_DELAY (0.5s = 30 frames at 1/60)
@@ -101,12 +117,12 @@ test('a fully-on beam destroys a destructible tile in its path', function()
 		tile:update(1 / 60)
 	end
 
-	assertTrue(tile.destroy_flag, 'expected a fully-on beam held for DESTROY_DELAY to queue the tile for destruction')
+	assertTrue(tile.destroy_flag, "expected a fully-on beam held for DESTROY_DELAY to queue the tile for destruction")
 end)
 
-test('a fully-on beam that stops touching the tile before DESTROY_DELAY elapses never destroys it', function()
+test("a fully-on beam that stops touching the tile before DESTROY_DELAY elapses never destroys it", function()
 	HeadlessBootstrap.resetWorld()
-	local laser = makeLaser('right')
+	local laser = makeLaser("right")
 	local tile = makeTile(300, 32)
 
 	-- Reach fully-on and accumulate some (but not all) of DESTROY_DELAY's
@@ -115,19 +131,22 @@ test('a fully-on beam that stops touching the tile before DESTROY_DELAY elapses 
 		laser:update(1 / 60)
 		tile:update(1 / 60)
 	end
-	assertTrue(laser:isFullyOn(), 'expected the laser to have reached full power')
-	assertTrue(laser.beamHitEntity == tile, 'expected the beam to stop at the tile on contact')
-	assertTrue(tile.beamContactDelay.elapsed > 0, 'expected some contact time to have accumulated before the interruption')
+	assertTrue(laser:isFullyOn(), "expected the laser to have reached full power")
+	assertTrue(laser.beamHitEntity == tile, "expected the beam to stop at the tile on contact")
+	assertTrue(
+		tile.beamContactDelay.elapsed > 0,
+		"expected some contact time to have accumulated before the interruption"
+	)
 
 	-- Power the laser off before DESTROY_DELAY elapses -- contact stops, so
 	-- the component's elapsed timer resets instead of reaching the tile.
-	laser:getComponent(Switchable):switch({state = 'off'})
+	laser:getComponent(Switchable):switch({ state = "off" })
 
 	for _ = 1, 30 do
 		laser:update(1 / 60)
 		tile:update(1 / 60)
 	end
 
-	assertTrue(tile.destroy_flag == nil, 'expected interrupted beam contact to leave the tile intact')
-	assertEqual(0, tile.beamContactDelay.elapsed, 'expected the contact timer to reset once contact stopped')
+	assertTrue(tile.destroy_flag == nil, "expected interrupted beam contact to leave the tile intact")
+	assertEqual(0, tile.beamContactDelay.elapsed, "expected the contact timer to reset once contact stopped")
 end)

@@ -34,7 +34,7 @@ function Pushables.planBoxBridge(layout)
 		newWidth = newWidth,
 		groundRow = groundRow,
 		holeCol = holeCol,
-		farColumns = {first = farFirstCol, last = farLastCol},
+		farColumns = { first = farFirstCol, last = farLastCol },
 		boxSpawnX = (layout.width - 1) * TILE,
 		boxSpawnY = surfaceY(groundRow),
 		farObjectiveX = (farFirstCol + 1 - 1) * TILE,
@@ -44,7 +44,7 @@ function Pushables.planBoxBridge(layout)
 			y = surfaceY(groundRow),
 			width = TILE,
 			height = KILL_ZONE_HEIGHT_TILES * TILE,
-			deathType = 'pit',
+			deathType = "pit",
 		},
 	}
 end
