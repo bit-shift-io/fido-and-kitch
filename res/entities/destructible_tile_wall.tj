@@ -30,6 +30,11 @@
         "type": "bool",
         "name": "loop",
         "value": false
+      },
+      {
+        "type": "bool",
+        "name": "chainBreak",
+        "value": false
       }
     ],
     "type": "destructible_tile",

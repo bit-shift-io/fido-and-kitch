@@ -61,9 +61,9 @@
           "type": "mirror",
           "properties": [
             {
-              "type": "string",
-              "name": "orientation",
-              "value": "down-right"
+              "type": "bool",
+              "name": "flipMirror",
+              "value": true
             }
           ],
           "height": 32,
@@ -101,7 +101,7 @@
           "id": 5,
           "y": 732,
           "width": 32,
-          "name": "laser_wrong",
+          "name": "laser_alt",
           "rotation": 0
         },
         {
@@ -109,9 +109,9 @@
           "type": "mirror",
           "properties": [
             {
-              "type": "string",
-              "name": "orientation",
-              "value": "up-left"
+              "type": "bool",
+              "name": "flipMirror",
+              "value": false
             }
           ],
           "height": 32,
@@ -119,7 +119,7 @@
           "id": 6,
           "y": 732,
           "width": 32,
-          "name": "mirror_wrong",
+          "name": "mirror_alt",
           "rotation": 0
         },
         {
@@ -127,11 +127,11 @@
           "type": "boulder",
           "properties": [],
           "height": 32,
-          "x": 800,
+          "x": 500,
           "id": 7,
-          "y": 700,
+          "y": 300,
           "width": 32,
-          "name": "boulder_beyond",
+          "name": "boulder_alt_target",
           "rotation": 0
         },
         {
@@ -157,9 +157,9 @@
           "type": "mirror",
           "properties": [
             {
-              "type": "string",
-              "name": "orientation",
-              "value": "up-right"
+              "type": "bool",
+              "name": "flipMirror",
+              "value": false
             }
           ],
           "height": 32,
@@ -175,7 +175,7 @@
           "type": "blocker",
           "properties": [],
           "height": 32,
-          "x": 684,
+          "x": 700,
           "id": 10,
           "y": 232,
           "width": 32,
@@ -187,7 +187,7 @@
           "type": "blocker",
           "properties": [],
           "height": 32,
-          "x": 684,
+          "x": 700,
           "id": 11,
           "y": 1632,
           "width": 32,

@@ -55,6 +55,7 @@ local defaultTestFiles = {
 	'tests/integration/laser_powerup_safety_test.lua',
 	'tests/integration/laser_mirror_test.lua',
 	'tests/integration/laser_switch_activation_test.lua',
+	'tests/integration/mirror_no_block_test.lua',
 	'tests/integration/laser_destructible_tile_test.lua',
 	'tests/integration/laser_destructible_chain_test.lua',
 	'tests/integration/laser_safe_position_test.lua',

@@ -1,0 +1,98 @@
+{
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 20,
+          "id": 1,
+          "y": 64,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "mirror",
+          "properties": [],
+          "height": 32,
+          "x": 20,
+          "id": 2,
+          "y": 192,
+          "width": 32,
+          "name": "mirror_in_fall_path",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser_switch",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "down"
+            }
+          ],
+          "height": 32,
+          "x": 20,
+          "id": 3,
+          "y": 256,
+          "width": 32,
+          "name": "laser_switch_in_fall_path",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 4,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 10,
+  "height": 10,
+  "infinite": false
+}

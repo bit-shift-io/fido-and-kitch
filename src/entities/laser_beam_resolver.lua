@@ -91,16 +91,29 @@ end
 -- Casts one straight segment from (x1, y1) in `direction`, recursing into a
 -- new segment when it bounces off a mirror. `bounceCount` is how many
 -- mirror bounces have already happened before this segment (0 for the
--- emitter's own first segment). Appends exactly one entry to `segments`
--- for this segment (from its start to wherever it stops), and inserts
--- directly into the shared `killed`/`destroyed` arrays as it scans.
+-- emitter's own first segment). `pivotEntity` is the mirror this segment's
+-- OWN origin point was pivoted through (nil for the emitter's first
+-- segment) -- see below for why it must be skipped, not just any other hit.
+-- Appends exactly one entry to `segments` for this segment (from its start
+-- to wherever it stops), and inserts directly into the shared
+-- `killed`/`destroyed` arrays as it scans.
 -- Returns {x, y, hitEntity} for this segment's own stop point.
-local function castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, bounceCount, segments, killed, destroyed, activated)
+local function castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, bounceCount, segments, killed, destroyed, activated, pivotEntity)
 	local x2, y2 = farEndpointFn(x1, y1, direction)
 	local hits = querySegmentFn(x1, y1, x2, y2) or {}
 
 	for _, hit in ipairs(hits) do
-		if not hit.sensor then
+		-- A segment bounced off a mirror originates from THAT mirror's own
+		-- centre (see the isMirror branch below), which sits INSIDE its own
+		-- collider -- so the very next raycast, starting from a point its
+		-- own bounding box contains, immediately re-touches that same
+		-- mirror at (near) zero distance. Left unfiltered this burns through
+		-- the whole bounce cap redirecting off the same mirror in place,
+		-- never actually travelling. Skipping just this one entity (not
+		-- every hit) still lets a beam legitimately re-cross a DIFFERENT
+		-- mirror, or even loop back through this same one from outside its
+		-- bounds later in a larger chain.
+		if not (pivotEntity ~= nil and hit.entity == pivotEntity) and not hit.sensor then
 			local entity = hit.entity
 
 			if isFatal(entity) then
@@ -110,22 +123,41 @@ local function castSegment(x1, y1, direction, farEndpointFn, querySegmentFn, bou
 				table.insert(segments, {x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1})
 				return {x = hit.x1, y = hit.y1, hitEntity = entity}
 			elseif isMirror(entity) then
-				table.insert(segments, {x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1})
+				-- Bounce through the mirror's own centre, not the raw
+				-- raycast entry point on its collider's edge. The entry
+				-- point is wherever the incoming segment happens to cross
+				-- the mirror's bounding box -- for a beam travelling
+				-- straight up that's the mirror's TOP edge, half a tile
+				-- above its centre, never its centre itself. Redirecting
+				-- from there would send every subsequent segment travelling
+				-- off the tile-grid line the rest of the beam (and every
+				-- other mirror) is aligned to, so a second bounce could
+				-- miss a correctly-placed mirror entirely. A mirror always
+				-- redirects through its own middle, so pivoting there is
+				-- what keeps the whole chain grid-aligned. Falls back to
+				-- the raw hit point for a fake/test double with no
+				-- getPosition, which the resolver still tolerates.
+				local pivotX, pivotY = hit.x1, hit.y1
+				if entity.getPosition then
+					pivotX, pivotY = entity:getPosition()
+				end
+
+				table.insert(segments, {x1 = x1, y1 = y1, x2 = pivotX, y2 = pivotY})
 
 				local outgoing = entity.redirect and entity:redirect(direction)
 				if outgoing == nil then
 					-- Not one of this mirror's two connected directions:
 					-- opaque, same as any other obstacle.
-					return {x = hit.x1, y = hit.y1, hitEntity = entity}
+					return {x = pivotX, y = pivotY, hitEntity = entity}
 				end
 
 				if bounceCount >= MAX_BOUNCES then
 					-- Bounce cap reached: stop here, treated as absorbed.
-					return {x = hit.x1, y = hit.y1, hitEntity = entity}
+					return {x = pivotX, y = pivotY, hitEntity = entity}
 				end
 
-				return castSegment(hit.x1, hit.y1, outgoing, farEndpointFn, querySegmentFn,
-					bounceCount + 1, segments, killed, destroyed, activated)
+				return castSegment(pivotX, pivotY, outgoing, farEndpointFn, querySegmentFn,
+					bounceCount + 1, segments, killed, destroyed, activated, entity)
 			elseif isLaserSwitch(entity) then
 				table.insert(segments, {x1 = x1, y1 = y1, x2 = hit.x1, y2 = hit.y1})
 

@@ -1,17 +1,22 @@
 -- Two tiers of coverage for src/entities/mirror.lua, mirroring
 -- tests/unit/blocker_test.lua's split:
 --
--- 1. Pure decision-helper tests against Mirror._internal -- the rotation
---    cycle and the redirect (direction-pair) lookup, fast and
---    construction-free.
+-- 1. Pure decision-helper tests against Mirror._internal -- the reflection
+--    table lookup, fast and construction-free.
 -- 2. Entity-level tests that construct a real Mirror -- real Sprite, real
 --    Collider, a real bump World -- via tests/support/headless_bootstrap,
 --    driven through a real Switchable the way a linked switch would.
 --
+-- Double-sided 45-degree mirror model (see mirror.lua's file header): a
+-- `flipMirror` bool picks one of the two diagonals ("/" = false, "\" =
+-- true), and every incoming direction redirects into exactly one outgoing
+-- direction -- there is no "wrong side" to block, unlike the old
+-- 4-orientation design this superseded.
+--
 -- The resolver's own recursion through a mirror (bounce/redirect/cap) is
 -- covered by tests/unit/laser_beam_resolver_test.lua's fake-double tests;
--- this file covers the mirror entity's own rotation/redirect logic and its
--- wiring, not the resolver's use of it.
+-- this file covers the mirror entity's own redirect logic and its wiring,
+-- not the resolver's use of it.
 local HeadlessBootstrap = require('tests.support.headless_bootstrap')
 
 local Mirror = require('src.entities.mirror')
@@ -21,29 +26,28 @@ local M = Mirror._internal
 -- Part 1: pure decision helpers
 --
 
-test('the rotation cycle advances each orientation to the correct next one', function()
-	assertEqual('down-right', M.nextOrientation('up-right'))
-	assertEqual('down-left', M.nextOrientation('down-right'))
-	assertEqual('up-left', M.nextOrientation('down-left'))
-	assertEqual('up-right', M.nextOrientation('up-left'))
+test('the "/" diagonal (flipMirror=false) reflects up<->right and down<->left', function()
+	assertEqual('right', M.redirect(false, 'up'))
+	assertEqual('up', M.redirect(false, 'right'))
+	assertEqual('left', M.redirect(false, 'down'))
+	assertEqual('down', M.redirect(false, 'left'))
 end)
 
-test('redirect exits the other connected direction when entered from either one', function()
-	assertEqual('right', M.redirect('up-right', 'up'))
-	assertEqual('up', M.redirect('up-right', 'right'))
-	assertEqual('right', M.redirect('down-right', 'down'))
-	assertEqual('down', M.redirect('down-right', 'right'))
-	assertEqual('left', M.redirect('down-left', 'down'))
-	assertEqual('down', M.redirect('down-left', 'left'))
-	assertEqual('left', M.redirect('up-left', 'up'))
-	assertEqual('up', M.redirect('up-left', 'left'))
+test('the "\\" diagonal (flipMirror=true) reflects up<->left and down<->right', function()
+	assertEqual('left', M.redirect(true, 'up'))
+	assertEqual('up', M.redirect(true, 'left'))
+	assertEqual('right', M.redirect(true, 'down'))
+	assertEqual('down', M.redirect(true, 'right'))
 end)
 
-test('redirect returns nil for a direction the orientation does not connect', function()
-	assertTrue(M.redirect('up-right', 'down') == nil)
-	assertTrue(M.redirect('up-right', 'left') == nil)
-	assertTrue(M.redirect('down-left', 'up') == nil)
-	assertTrue(M.redirect('down-left', 'right') == nil)
+test('redirect is its own inverse -- reflecting the outgoing direction back returns to the incoming one', function()
+	for _, flipMirror in ipairs({false, true}) do
+		for _, incoming in ipairs({'up', 'down', 'left', 'right'}) do
+			local outgoing = M.redirect(flipMirror, incoming)
+			assertEqual(incoming, M.redirect(flipMirror, outgoing),
+				'expected reflecting back through the outgoing direction to return to the incoming one')
+		end
+	end
 end)
 
 --
@@ -57,7 +61,7 @@ local function makeMirror(properties)
 	-- template art merged in-game (res/entities/mirror.tj); stub mirrors it
 	-- so the sprite has real frames to index into
 	props.image = props.image or 'res/img/entity_switch.png'
-	props.frames = props.frames or 4
+	props.frames = props.frames or 2
 	props.duration = props.duration or 1
 	props.playing = false
 	return Mirror({
@@ -66,28 +70,42 @@ local function makeMirror(properties)
 	}, nil)
 end
 
-test('constructs headless with a real Sprite/Collider/World stack, solid and at its authored orientation', function()
+test('constructs headless with a real Sprite/Collider/World stack, solid and at its authored flipMirror value', function()
 	local mirror = makeMirror()
 
-	assertEqual('up-right', mirror.orientation, 'default orientation with none authored')
-	assertFalse(mirror.collider:isSensor(), 'a mirror must be a solid obstacle, not a sensor')
+	assertFalse(mirror.flipMirror, 'default flipMirror (false, "/") with none authored')
+	assertFalse(mirror.collider:isSensor(), 'a mirror must be solid to the BEAM (raycast classification reads .sensor)')
+	assertTrue(mirror.collider.nonSolidEntityTypes and mirror.collider.nonSolidEntityTypes.player,
+		'solid for the beam is not the same as solid for a player -- a mirror is a small mounted fixture, not a wall, and must never physically block or catch one')
 end)
 
-test('an authored orientation is respected at construction', function()
-	local mirror = makeMirror({orientation = 'down-left'})
+test('an authored flipMirror value is respected at construction', function()
+	local mirror = makeMirror({flipMirror = true})
 
-	assertEqual('down-left', mirror.orientation)
+	assertTrue(mirror.flipMirror)
 end)
 
-test('a mirror redirects a beam via its current orientation', function()
-	local mirror = makeMirror({orientation = 'up-right'})
+test('a mirror redirects a beam via its current flipMirror value, never blocking', function()
+	local mirror = makeMirror({flipMirror = false})
 
 	assertEqual('right', mirror:redirect('up'))
 	assertEqual('up', mirror:redirect('right'))
-	assertTrue(mirror:redirect('down') == nil)
+	assertEqual('left', mirror:redirect('down'))
+	assertEqual('down', mirror:redirect('left'))
 end)
 
--- Switch-controlled rotation: only the 'on' transition rotates, the 'off'
+test('a mirror exposes its collider centre as its bounce pivot point', function()
+	local mirror = makeMirror()
+
+	-- makeMirror's fixture object is {x=128,y=96,width=32,height=32},
+	-- bottom-anchored like every other gid-template entity (object.y is
+	-- the BOTTOM edge) -- so the true centre is (128+16, 96-16).
+	local x, y = mirror:getPosition()
+	assertEqual(144, x)
+	assertEqual(80, y)
+end)
+
+-- Switch-controlled flip: only the 'on' transition flips it, the 'off'
 -- transition is a no-op -- the mirror's onStateChange callback ignores it,
 -- mirroring the same discipline src/entities/blocker.lua uses for its own
 -- Switchable-driven behaviour.
@@ -95,63 +113,60 @@ local function flipSwitch(mirror, on)
 	mirror:getComponent(Switchable):switch({state = on and 'on' or 'off'})
 end
 
-test('an "on" switch activation rotates the mirror 90 degrees clockwise', function()
-	local mirror = makeMirror({orientation = 'up-right'})
+test('an "on" switch activation flips the mirror to the other diagonal', function()
+	local mirror = makeMirror({flipMirror = false})
 
 	flipSwitch(mirror, true)
 
-	assertEqual('down-right', mirror.orientation)
+	assertTrue(mirror.flipMirror)
 end)
 
-test('an "off" switch activation never rotates the mirror', function()
-	local mirror = makeMirror({orientation = 'up-right'})
+test('an "off" switch activation never flips the mirror', function()
+	local mirror = makeMirror({flipMirror = false})
 
 	flipSwitch(mirror, false)
 
-	assertEqual('up-right', mirror.orientation, 'the off transition must be a no-op')
+	assertFalse(mirror.flipMirror, 'the off transition must be a no-op')
 end)
 
-test('repeated "on" activations advance through the full 4-cycle and wrap around', function()
-	local mirror = makeMirror({orientation = 'up-right'})
+test('repeated "on" activations toggle back and forth between the two diagonals', function()
+	local mirror = makeMirror({flipMirror = false})
 
 	flipSwitch(mirror, true)
-	assertEqual('down-right', mirror.orientation)
+	assertTrue(mirror.flipMirror)
 
 	flipSwitch(mirror, true)
-	assertEqual('down-left', mirror.orientation)
+	assertFalse(mirror.flipMirror, 'expected a second "on" activation to flip back')
 
 	flipSwitch(mirror, true)
-	assertEqual('up-left', mirror.orientation)
-
-	flipSwitch(mirror, true)
-	assertEqual('up-right', mirror.orientation, 'expected the cycle to wrap back to the start')
+	assertTrue(mirror.flipMirror)
 end)
 
 -- A lever switch.lua toggles on/off/on/off each press -- linking one to a
--- mirror must rotate it only on every OTHER press (the on-presses), never
--- on the off-presses in between.
-test('alternating on/off activations (a lever toggle) rotate only on the on-presses', function()
-	local mirror = makeMirror({orientation = 'up-right'})
+-- mirror must flip it only on every OTHER press (the on-presses), never on
+-- the off-presses in between.
+test('alternating on/off activations (a lever toggle) flip only on the on-presses', function()
+	local mirror = makeMirror({flipMirror = false})
 
 	flipSwitch(mirror, true) -- press 1: on
-	assertEqual('down-right', mirror.orientation)
+	assertTrue(mirror.flipMirror)
 
 	flipSwitch(mirror, false) -- press 2: off
-	assertEqual('down-right', mirror.orientation, 'the off-press must not rotate the mirror')
+	assertTrue(mirror.flipMirror, 'the off-press must not flip the mirror')
 
 	flipSwitch(mirror, true) -- press 3: on
-	assertEqual('down-left', mirror.orientation)
+	assertFalse(mirror.flipMirror)
 
 	flipSwitch(mirror, false) -- press 4: off
-	assertEqual('down-left', mirror.orientation, 'the off-press must not rotate the mirror')
+	assertFalse(mirror.flipMirror, 'the off-press must not flip the mirror')
 end)
 
-test('a mirror with no switch wired never rotates, across many frames', function()
-	local mirror = makeMirror({orientation = 'up-right'})
+test('a mirror with no switch wired never flips, across many frames', function()
+	local mirror = makeMirror({flipMirror = false})
 
 	for _ = 1, 120 do
 		mirror:update(1 / 60)
 	end
 
-	assertEqual('up-right', mirror.orientation)
+	assertFalse(mirror.flipMirror)
 end)

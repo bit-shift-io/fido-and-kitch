@@ -3,9 +3,9 @@
  "infinite":false,
  "layers":[
         {
-         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         "data":[38, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 0,
+            0, 38, 38, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 0,
+            0, 0, 0, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             42, 42, 42, 0, 0, 0, 42, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -14,15 +14,15 @@
             0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             42, 42, 42, 0, 0, 38, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 38, 38,
+            0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 0, 0, 0, 0, 0, 0, 38, 38, 38, 38,
             42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 42, 42,
-            42, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 38, 14, 14, 14, 14, 14, 14,
-            38, 38, 38, 38, 0, 0, 0, 0, 0, 0, 0, 0, 38, 38, 14, 14, 14, 14, 14, 14,
-            38, 38, 38, 38, 0, 0, 0, 0, 0, 0, 0, 0, 38, 38, 14, 14, 14, 14, 14, 14],
+            42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42, 42, 42, 42, 42, 42, 42,
+            38, 38, 42, 42, 42, 42, 42, 42, 0, 42, 42, 42, 42, 38, 14, 14, 14, 14, 14, 14,
+            38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 14, 14, 14, 14, 14, 14,
+            38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 38, 14, 14, 14, 14, 14, 14],
          "height":20,
          "id":1,
          "name":"ground",
@@ -47,7 +47,7 @@
                 {
                  "id":1,
                  "template":"..\/entities\/exit_door.tj",
-                 "x":544,
+                 "x":512,
                  "y":512
                 }, 
                 {
@@ -72,9 +72,9 @@
                  "id":4,
                  "properties":[
                         {
-                         "name":"orientation",
-                         "type":"string",
-                         "value":"down-right"
+                         "name":"flipMirror",
+                         "type":"bool",
+                         "value":true
                         }],
                  "template":"..\/entities\/mirror.tj",
                  "x":512,
@@ -106,30 +106,60 @@
                 }, 
                 {
                  "id":8,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/destructible_tile_wall.tj",
                  "x":448,
                  "y":512
                 }, 
                 {
                  "id":9,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/destructible_tile_wall.tj",
                  "x":448,
                  "y":480
                 }, 
                 {
                  "id":10,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/destructible_tile_floor.tj",
                  "x":128,
                  "y":192
                 }, 
                 {
                  "id":11,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/destructible_tile_floor.tj",
                  "x":96,
                  "y":192
                 }, 
                 {
                  "id":12,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/destructible_tile_floor.tj",
                  "x":160,
                  "y":192
@@ -162,7 +192,7 @@
                  "id":19,
                  "template":"..\/entities\/mirror.tj",
                  "x":128,
-                 "y":480
+                 "y":512
                 }, 
                 {
                  "id":20,
@@ -178,6 +208,12 @@
                 }, 
                 {
                  "id":21,
+                 "properties":[
+                        {
+                         "name":"flipMirror",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "template":"..\/entities\/mirror.tj",
                  "x":416,
                  "y":96
@@ -193,6 +229,85 @@
                  "template":"..\/entities\/cage.tj",
                  "x":0,
                  "y":416
+                },
+            
+                {
+                 "id":41,
+                 "template":"..\/entities\/push_box.tj",
+                 "x":288,
+                 "y":384
+                }, 
+                {
+                 "id":42,
+                 "template":"..\/entities\/coin.tj",
+                 "x":608,
+                 "y":512
+                }, 
+                {
+                 "id":43,
+                 "properties":[
+                        {
+                         "name":"target",
+                         "type":"object",
+                         "value":21
+                        }],
+                 "template":"..\/entities\/switch.tj",
+                 "x":0,
+                 "y":512
+                }, 
+                {
+                 "id":44,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "template":"..\/entities\/destructible_tile_wall.tj",
+                 "x":448,
+                 "y":448
+                }, 
+                {
+                 "id":45,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "template":"..\/entities\/destructible_tile_wall.tj",
+                 "x":416,
+                 "y":512
+                }, 
+                {
+                 "id":46,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "template":"..\/entities\/destructible_tile_wall.tj",
+                 "x":416,
+                 "y":480
+                }, 
+                {
+                 "id":47,
+                 "properties":[
+                        {
+                         "name":"chainBreak",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "template":"..\/entities\/destructible_tile_wall.tj",
+                 "x":416,
+                 "y":448
+                }, 
+                {
+                 "id":49,
+                 "template":"..\/entities\/coin.tj",
+                 "x":32,
+                 "y":320
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -224,24 +339,6 @@
                  "y":192
                 }, 
                 {
-                 "id":23,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":64,
-                 "y":352
-                }, 
-                {
-                 "id":24,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":64,
-                 "y":384
-                }, 
-                {
-                 "id":25,
-                 "template":"..\/entities\/ladder.tj",
-                 "x":64,
-                 "y":416
-                }, 
-                {
                  "id":26,
                  "template":"..\/entities\/ladder.tj",
                  "x":64,
@@ -264,6 +361,72 @@
                  "template":"..\/entities\/ladder.tj",
                  "x":64,
                  "y":544
+                }, 
+                {
+                 "id":31,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":416
+                }, 
+                {
+                 "id":32,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":544
+                }, 
+                {
+                 "id":33,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":512
+                }, 
+                {
+                 "id":34,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":480
+                }, 
+                {
+                 "id":35,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":224,
+                 "y":448
+                }, 
+                {
+                 "id":36,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":544
+                }, 
+                {
+                 "id":37,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":512
+                }, 
+                {
+                 "id":38,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":480
+                }, 
+                {
+                 "id":39,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":448
+                }, 
+                {
+                 "id":40,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":288,
+                 "y":416
+                }, 
+                {
+                 "id":48,
+                 "template":"..\/entities\/ladder.tj",
+                 "x":352,
+                 "y":544
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -272,7 +435,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":31,
+ "nextobjectid":50,
  "orientation":"orthogonal",
  "properties":[
         {
@@ -336,6 +499,44 @@
                  "imageheight":128,
                  "imagewidth":640,
                  "width":128,
+                 "x":0,
+                 "y":0
+                }],
+         "tilewidth":0
+        }, 
+        {
+         "columns":0,
+         "firstgid":147,
+         "margin":0,
+         "name":"destructible_tile_wall",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":250,
+         "tiles":[
+                {
+                 "id":0,
+                 "image":"..\/img\/pushable_stone_block.png",
+                 "imageheight":250,
+                 "imagewidth":250
+                }],
+         "tilewidth":250
+        }, 
+        {
+         "columns":0,
+         "firstgid":148,
+         "margin":0,
+         "name":"coin",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":0,
+         "tiles":[
+                {
+                 "height":20,
+                 "id":0,
+                 "image":"..\/img\/coins.png",
+                 "imageheight":20,
+                 "imagewidth":160,
+                 "width":20,
                  "x":0,
                  "y":0
                 }],

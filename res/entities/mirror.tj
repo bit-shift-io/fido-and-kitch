@@ -21,14 +21,14 @@
   "object": {
     "properties": [
       {
-        "type": "string",
-        "name": "orientation",
-        "value": "up-right"
+        "type": "bool",
+        "name": "flipMirror",
+        "value": false
       },
       {
         "type": "int",
         "name": "frames",
-        "value": 4
+        "value": 2
       },
       {
         "type": "float",

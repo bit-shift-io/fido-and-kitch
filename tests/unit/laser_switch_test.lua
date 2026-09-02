@@ -60,6 +60,8 @@ test('constructs headless with a real Sprite/Collider/World stack, off, solid, a
 	assertEqual('off', switch.state)
 	assertFalse(switch:isActive())
 	assertFalse(switch.collider:isSensor(), 'a laser_switch must be solid so it absorbs the beam for free')
+	assertTrue(switch.collider.nonSolidEntityTypes and switch.collider.nonSolidEntityTypes.player,
+		'solid for the beam is not the same as solid for a player -- a laser_switch must never physically block one')
 end)
 
 test(':acceptsDirection delegates to the configured direction', function()

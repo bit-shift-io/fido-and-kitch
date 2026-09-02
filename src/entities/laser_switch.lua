@@ -98,6 +98,15 @@ function LaserSwitch:init(object, map)
 		position = position,
 	})
 
+	-- Solid for the BEAM (raycast classification only ever reads .sensor,
+	-- never this) but never a physical obstacle to a player -- like
+	-- src/entities/mirror.lua, this is a small mounted fixture, not a wall,
+	-- so a player must be able to walk or fall straight through/onto it
+	-- rather than getting caught standing on top of it. Mirrors
+	-- src/entities/npc_rabbit.lua's own use of this same
+	-- World.ignoresEntity mechanism (src/physics/bump/world.lua).
+	self.collider.nonSolidEntityTypes = { player = true }
+
 	-- Resolved the same way src/entities/pressure_switch.lua/switch.lua
 	-- resolve their own target -- this entity OWNS a target pointing AT
 	-- something else, it does not own its own Switchable the way

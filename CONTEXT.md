@@ -358,9 +358,9 @@ Templates are the single source of truth for an entity's default + sprite proper
 
 ## Mirror
 
-**Definition** — A Tiled-placed entity with one of 4 diagonal `orientation` values (`up-right`, `up-left`, `down-right`, `down-left`), each naming the two directions it connects. A beam traveling in either of those two directions is redirected into the other; a beam arriving from a direction the mirror doesn't connect is blocked/absorbed, same as hitting a wall. Optionally linked to a switch (lever, pressure, or [[Timer switch]]): each 'on' activation rotates it one step clockwise through `up-right` → `down-right` → `down-left` → `up-left` → `up-right`; the 'off' transition never rotates it.
+**Definition** — A Tiled-placed entity, double-sided at 45°: a `flipMirror` bool picks one of the two physically-realizable diagonals — `false` is "/" (reflects up↔right and down↔left), `true` is "\" (reflects up↔left and down↔right). Because it reflects off either face, every incoming direction redirects into exactly one outgoing direction — there is no direction it blocks or absorbs. Optionally linked to a switch (lever, pressure, or [[Timer switch]]): each 'on' activation flips it to the other diagonal; the 'off' transition never flips it.
 
-**Boundary** — Doesn't move position, and rotation only ever happens in fixed 90° clockwise steps driven by a switch activation — never freely, never counter-clockwise, never mid-activation. Not a general reflector: only the 4 physically-realizable diagonal pairs exist, never a same-direction pass-through or 180° reversal.
+**Boundary** — Doesn't move position, and flipping only ever happens on a switch's 'on' activation — never freely, never mid-activation. Not a general reflector: only the two physically-realizable diagonals exist, never a same-direction pass-through or 180° reversal. Superseded an earlier single-sided, 4-orientation design (`up-right`/`up-left`/`down-right`/`down-left`, each connecting only one adjacent-direction pair and blocking a beam from the other two) — a real mirror reflects off both faces, so a "wrong-facing = wall" case was an unnecessary complication, and two states are simpler to author and rotate (a switch toggles the bool, not a 4-step cycle) than four.
 
 ## Laser switch
 

@@ -318,6 +318,49 @@ test('a beam bounced off one mirror reaches a target the straight beam could nev
 	assertEqual(50, result.segments[2].y2)
 end)
 
+-- The raycast entry point on a mirror's collider is wherever the incoming
+-- segment happens to cross its bounding box -- for a beam travelling
+-- straight up into a mirror, that's the mirror's TOP edge, not its centre.
+-- A real Mirror exposes :getPosition() (its collider's centre); the
+-- resolver must pivot the bounce there instead of at the raw hit point, or
+-- the outgoing segment ends up half a tile off the grid line the rest of
+-- the beam (and any further mirror) is aligned to.
+test('a beam bounces through a mirror\'s own centre, not the raw raycast entry point on its edge', function()
+	local mirror = {
+		type = 'mirror',
+		redirect = function(self, incomingDirection)
+			return 'right'
+		end,
+		getPosition = function(self)
+			-- the mirror's tile centre -- half a tile below the raycast's
+			-- entry point on its top edge (100, 34), matching a 32px tile
+			return 100, 50
+		end,
+	}
+
+	local function fakeQuerySegment(x1, y1, x2, y2)
+		if y1 == START_Y and x1 == START_X and y2 == 0 then
+			-- entry point on the mirror's top edge -- NOT its centre
+			return {
+				{entity = mirror, sensor = false, x1 = 100, y1 = 34},
+			}
+		end
+		-- the bounced segment must originate from the mirror's centre
+		-- (100, 50), not the raw entry point (100, 34)
+		if x1 == 100 and y1 == 50 then
+			return {}
+		end
+		return {'unexpected segment query -- should never be reached'}
+	end
+
+	local result = LaserBeamResolver.resolve(START_X, START_Y, DIRECTION, fakeFarEndpoint, fakeQuerySegment)
+
+	assertEqual(100, result.segments[1].x2, 'expected the first segment to end at the mirror\'s centre, not its edge')
+	assertEqual(50, result.segments[1].y2)
+	assertEqual(100, result.segments[2].x1, 'expected the bounced segment to originate from the mirror\'s centre')
+	assertEqual(50, result.segments[2].y1)
+end)
+
 -- A beam arriving from a direction the mirror does NOT connect: entity:
 -- redirect returns nil, and the mirror is opaque -- blocked, same as any
 -- other obstacle, never reaching whatever might be behind it.
