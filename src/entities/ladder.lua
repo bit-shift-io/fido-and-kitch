@@ -232,6 +232,11 @@ function Ladder:createTopCollider()
 	-- NOT cross: the ground-probe lands a falling player on the slab
 	-- (perch-on-top), while falls that begin already inside the volume --
 	-- under the top plane -- are caught by the no-gravity zone.
+	--
+	-- A pushable prop (e.g. push_box) gets the same feet-position treatment
+	-- as a player: a box shoved along the floor below the slab must cross
+	-- it rather than being walled off, since the level design relies on a
+	-- box being pushed past a ladder and then climbed onto (see laser.tmj).
 	local slab = self.topCollider
 	local function topColFilter(a, b)
 		local other = (a == slab) and b or a
@@ -241,6 +246,13 @@ function Ladder:createTopCollider()
 			if state and state.name == 'LadderState' then
 				return 'cross'
 			end
+			local feet = other.y + other.height
+			if feet > slab.y + LAND_TOL then
+				return 'cross'
+			end
+			return 'slide'
+		end
+		if entity and entity.isPushable then
 			local feet = other.y + other.height
 			if feet > slab.y + LAND_TOL then
 				return 'cross'
