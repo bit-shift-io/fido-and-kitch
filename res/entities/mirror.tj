@@ -26,6 +26,11 @@
         "value": false
       },
       {
+        "type": "bool",
+        "name": "rotateOnBothTriggers",
+        "value": true
+      },
+      {
         "type": "int",
         "name": "frames",
         "value": 2

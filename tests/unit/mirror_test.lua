@@ -121,12 +121,20 @@ test('an "on" switch activation flips the mirror to the other diagonal', functio
 	assertTrue(mirror.flipMirror)
 end)
 
-test('an "off" switch activation never flips the mirror', function()
+test('by default, an "off" switch activation flips the mirror too', function()
 	local mirror = makeMirror({flipMirror = false})
 
 	flipSwitch(mirror, false)
 
-	assertFalse(mirror.flipMirror, 'the off transition must be a no-op')
+	assertTrue(mirror.flipMirror, 'the off transition should flip when rotateOnBothTriggers is unset (default true)')
+end)
+
+test('with rotateOnBothTriggers=false, an "off" switch activation never flips the mirror', function()
+	local mirror = makeMirror({flipMirror = false, rotateOnBothTriggers = false})
+
+	flipSwitch(mirror, false)
+
+	assertFalse(mirror.flipMirror, 'the off transition must be a no-op when rotateOnBothTriggers is false')
 end)
 
 test('repeated "on" activations toggle back and forth between the two diagonals', function()
@@ -142,11 +150,24 @@ test('repeated "on" activations toggle back and forth between the two diagonals'
 	assertTrue(mirror.flipMirror)
 end)
 
--- A lever switch.lua toggles on/off/on/off each press -- linking one to a
--- mirror must flip it only on every OTHER press (the on-presses), never on
--- the off-presses in between.
-test('alternating on/off activations (a lever toggle) flip only on the on-presses', function()
+test('by default, alternating on/off activations (a lever toggle) flip on every press', function()
 	local mirror = makeMirror({flipMirror = false})
+
+	flipSwitch(mirror, true) -- press 1: on
+	assertTrue(mirror.flipMirror)
+
+	flipSwitch(mirror, false) -- press 2: off
+	assertFalse(mirror.flipMirror, 'the off-press should flip too when rotateOnBothTriggers is unset (default true)')
+
+	flipSwitch(mirror, true) -- press 3: on
+	assertTrue(mirror.flipMirror)
+end)
+
+-- A lever switch.lua toggles on/off/on/off each press -- with
+-- rotateOnBothTriggers=false, a mirror must flip only on every OTHER press
+-- (the on-presses), never on the off-presses in between.
+test('alternating on/off activations (a lever toggle) flip only on the on-presses', function()
+	local mirror = makeMirror({flipMirror = false, rotateOnBothTriggers = false})
 
 	flipSwitch(mirror, true) -- press 1: on
 	assertTrue(mirror.flipMirror)

@@ -36,6 +36,7 @@
 -- 2-frame placeholder sheet, one frame per flipMirror state.
 -- Sprite:setFrameNum picks the right static frame directly -- there is no
 -- animation to play, just a flip-driven frame swap.
+local Log = require('src.utils.log')
 local SpriteProps = require('src.entities.sprite_props')
 
 local Mirror = Class{__includes = Entity}
@@ -67,6 +68,7 @@ local FLIP_FRAME = {
 }
 
 local DEFAULT_FLIP_MIRROR = false
+local DEFAULT_ROTATE_ON_BOTH_TRIGGERS = true
 
 -- incomingDirection -> outgoing direction. Always succeeds for a real
 -- flipMirror value (true/false) -- a double-sided mirror has no
@@ -83,6 +85,12 @@ function Mirror:init(object, map)
 	Entity.init(self, object, 'mirror')
 
 	self.flipMirror = (object.properties and object.properties.flipMirror) or DEFAULT_FLIP_MIRROR
+
+	local rotateOnBothTriggers = object.properties and object.properties.rotateOnBothTriggers
+	if rotateOnBothTriggers == nil then
+		rotateOnBothTriggers = DEFAULT_ROTATE_ON_BOTH_TRIGGERS
+	end
+	self.rotateOnBothTriggers = rotateOnBothTriggers
 
 	-- Bottom-anchored, like every other gid-template entity (switch,
 	-- blocker, laser): object.y is the mount's bottom edge.
@@ -115,14 +123,18 @@ function Mirror:init(object, map)
 
 	-- Optional: nothing ever calls :switch() on this unless a lever/
 	-- pressure_switch/timer_switch's own `target` points at this mirror's
-	-- object id, in which case only the 'on' transition flips it.
+	-- object id. By default (rotateOnBothTriggers) it flips on both the
+	-- 'on' and 'off' transition; set rotateOnBothTriggers=false to flip on
+	-- the 'on' edge only (e.g. a laser switch, whose own 'off' edge -- the
+	-- beam moving away -- shouldn't also rotate the mirror).
 	self:addComponent(Switchable{
 		entity = self,
 		enabled = true,
 		onStateChange = function(enabled)
-			if enabled then
+			if enabled or self.rotateOnBothTriggers then
 				self.flipMirror = not self.flipMirror
 				self:updateSpriteFrame()
+				Log.debug('mirror flipped via switch')
 			end
 		end
 	})
