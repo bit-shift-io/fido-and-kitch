@@ -94,7 +94,7 @@
 
 **Definition** — A pushable prop that starts moving the same way a push box does (a grounded player walks into it) but keeps rolling on its own at walk speed after contact ends, until it hits a wall, another pushable, or a player, or falls into a gap (snapping like a box). Pushable again once stopped, if there's room.
 
-**Boundary** — Harmless: it never hurts or crushes players or shoves them along — it just stops. Same 32×32 placeholder quad (grey), same fall/snap model as the push box.
+**Boundary** — Harmless: it never hurts or crushes players or shoves them along — it just stops. Same 32×32 placeholder quad (grey), same fall/snap model as the push box. Destruction on a fully-powered beam hit goes through the same [[Beam contact delay]] as a destructible tile, sharing its component rather than duplicating the timer.
 
 ## Pressure switch
 
@@ -358,9 +358,9 @@ Templates are the single source of truth for an entity's default + sprite proper
 
 ## Mirror
 
-**Definition** — A Tiled-placed entity, double-sided at 45°: a `flipMirror` bool picks one of the two physically-realizable diagonals — `false` is "/" (reflects up↔right and down↔left), `true` is "\" (reflects up↔left and down↔right). Because it reflects off either face, every incoming direction redirects into exactly one outgoing direction — there is no direction it blocks or absorbs. Optionally linked to a switch (lever, pressure, or [[Timer switch]]): each 'on' activation flips it to the other diagonal; the 'off' transition never flips it.
+**Definition** — A Tiled-placed entity, double-sided at 45°: a `flipMirror` bool picks one of the two physically-realizable diagonals — `false` is "/" (reflects up↔right and down↔left), `true` is "\" (reflects up↔left and down↔right). Because it reflects off either face, every incoming direction redirects into exactly one outgoing direction — there is no direction it blocks or absorbs. Optionally linked to a switch (lever, pressure, [[Timer switch]], or [[Laser switch]]): a `rotateOnBothTriggers` bool (default `true`) controls which switch edges flip it — `true` flips on both the 'on' and 'off' transition, `false` flips on the 'on' edge only. A mirror driven by a laser switch typically sets this `false`, since the switch's own 'off' edge (the beam moving away) shouldn't also rotate the mirror.
 
-**Boundary** — Doesn't move position, and flipping only ever happens on a switch's 'on' activation — never freely, never mid-activation. Not a general reflector: only the two physically-realizable diagonals exist, never a same-direction pass-through or 180° reversal. Superseded an earlier single-sided, 4-orientation design (`up-right`/`up-left`/`down-right`/`down-left`, each connecting only one adjacent-direction pair and blocking a beam from the other two) — a real mirror reflects off both faces, so a "wrong-facing = wall" case was an unnecessary complication, and two states are simpler to author and rotate (a switch toggles the bool, not a 4-step cycle) than four.
+**Boundary** — Doesn't move position, and flipping only ever happens on a switch transition — never freely, never mid-activation. Not a general reflector: only the two physically-realizable diagonals exist, never a same-direction pass-through or 180° reversal. Superseded an earlier single-sided, 4-orientation design (`up-right`/`up-left`/`down-right`/`down-left`, each connecting only one adjacent-direction pair and blocking a beam from the other two) — a real mirror reflects off both faces, so a "wrong-facing = wall" case was an unnecessary complication, and two states are simpler to author and rotate (a switch toggles the bool, not a 4-step cycle) than four.
 
 ## Laser switch
 
@@ -376,9 +376,15 @@ Templates are the single source of truth for an entity's default + sprite proper
 
 ## Destructible tile
 
-**Definition** — A Tiled-placed entity (`destructible_tile`) standing in for a section of wall or floor terrain, solid and beam-blocking like any other opaque prop, destroyed instantly by a fully-powered beam hit. Destruction removes its collider and sprite, revealing the map's background art layer beneath (terrain in this project is one big background image plus invisible `collision` rectangles — see [[Tiled map source]]). Resets to intact on level restart, like every other stateful entity.
+**Definition** — A Tiled-placed entity (`destructible_tile`) standing in for a section of wall or floor terrain, solid and beam-blocking like any other opaque prop, destroyed by a fully-powered beam that touches it continuously for a fixed delay (see [[Beam contact delay]]). Destruction removes its collider and sprite, revealing the map's background art layer beneath (terrain in this project is one big background image plus invisible `collision` rectangles — see [[Tiled map source]]). Resets to intact on level restart, like every other stateful entity.
 
 **Boundary** — Authored as an object, not painted into a tile layer — there is no per-tile collision data to hook a "swap this tile" behaviour into. Wall-facing and floor-facing tiles are the same entity type with different art, not separate entity types. See [[Chain-break]] for its optional cascade behaviour.
+
+## Beam contact delay
+
+**Definition** — The fixed delay (0.5s) a fully-powered beam must touch a [[Destructible tile]] or [[Boulder]] continuously before it is destroyed, driven by a shared `BeamContactDelay` component both entity types attach. Interrupting contact before the delay elapses — the laser turning off/cooling, or the beam being redirected away — resets the accumulated contact time to zero and the entity survives. No visual change during the delay window.
+
+**Boundary** — Its own constant, independent of [[Chain-break]]'s `CHAIN_DELAY` even though both start at the same 0.5s value — the two timers mean different things and may diverge later. Does not change beam-blocking: an entity mid-delay still blocks the beam exactly as before, which is why a beam through several layered destructible tiles breaks them one at a time rather than simultaneously.
 
 ## Chain-break
 

@@ -324,18 +324,22 @@ function Laser:update(dt)
 			end
 		end
 
-		-- Boulder destruction follows the same removal path every other
-		-- entity uses (queueDestroy/destroy, see src/entity.lua) rather than
-		-- hand-rolled removal. queueDestroy() is NOT instant/synchronous --
-		-- it flags the entity, and the map's entity-list update loop is what
-		-- actually removes it and calls :destroy() -- so a boulder hit this
-		-- frame is still physically present (still in the bump world) until
-		-- that later pass runs. This is why the beam's own resolved segment
-		-- for THIS frame still stops at the boulder (LaserBeamResolver
-		-- treats it as the stop point); the beam only reaches further on the
-		-- next frame's fresh re-cast, once the boulder is actually gone.
+		-- Boulder/destructible-tile destruction is gated on sustained contact,
+		-- not immediate on first touch: each isDestructible entity carries a
+		-- BeamContactDelay component, and markContact() here just records
+		-- "still touched this frame" -- the component's own update(dt) is
+		-- what accumulates elapsed time and calls queueDestroy() once the
+		-- delay is reached. queueDestroy() is NOT instant/synchronous even
+		-- then -- it flags the entity, and the map's entity-list update loop
+		-- is what actually removes it and calls :destroy() -- so a boulder
+		-- hit this frame is still physically present (still in the bump
+		-- world) until that later pass runs. This is why the beam's own
+		-- resolved segment for THIS frame still stops at the boulder
+		-- (LaserBeamResolver treats it as the stop point); the beam only
+		-- reaches further on the next frame's fresh re-cast, once the
+		-- boulder is actually gone.
 		for _, destroyedEntity in ipairs(result.destroyed) do
-			destroyedEntity:queueDestroy()
+			destroyedEntity.beamContactDelay:markContact()
 		end
 
 		-- A laser_switch decides its own active/inactive state fresh every

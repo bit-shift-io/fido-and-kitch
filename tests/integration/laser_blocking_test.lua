@@ -126,20 +126,22 @@ test('a full-power beam destroys a boulder on contact and reaches past it the fo
 	assertTrue(laser:isFullyOn(), 'expected the laser to reach full power within 40 frames')
 
 	-- This same frame: the beam's segment stopped at the boulder (it was
-	-- still physically present when querySegment ran) and queueDestroy
-	-- flagged it -- entity.lua's contract is that queueDestroy is NOT
-	-- instant, only the map's own entity-list update loop (a later pass
-	-- within map:update, src/map/entity_factory.lua) actually removes/
-	-- destroys it, which may land on this frame or the next depending on
-	-- where the boulder falls relative to the laser in that pass's
-	-- iteration order -- not a contract this test should pin down exactly.
+	-- still physically present when querySegment ran) and markContact() was
+	-- called on its beamContactDelay component -- but the boulder itself is
+	-- NOT yet queued for destruction. entity.lua's contract is that
+	-- queueDestroy is NOT instant; it only happens after the component's
+	-- delay timer (DESTROY_DELAY = 0.5s) elapses.
 	assertTrue(laser.beamHitEntity == boulder, 'expected the beam to stop at the boulder on contact')
 
-	-- A handful more frames is comfortably past whichever pass actually
-	-- removes it; once gone, a fresh re-cast (ADR 0006 -- never a stateful
-	-- traveling projectile) reaches further right, since nothing else
-	-- stands in that row.
-	FrameStepper.step(game, 5)
+	-- The boulder only actually queues its own destruction once a fully-on
+	-- beam has touched it continuously for DESTROY_DELAY (0.5s = 30 frames at
+	-- 1/60, src/entities/boulder.lua's BeamContactDelay wiring) -- step
+	-- comfortably past that, then a further handful of frames since
+	-- queueDestroy() is not instant (src/entity.lua) and the map's own
+	-- entity-list update pass is what actually removes the boulder. Once gone,
+	-- a fresh re-cast (ADR 0006 -- never a stateful traveling projectile)
+	-- reaches further right, since nothing else stands in that row.
+	FrameStepper.step(game, 35)
 
 	assertTrue(Queries.findEntityByName(map, 'boulder_target') == nil,
 		'expected the boulder to have been removed from the map after its destroy was queued')

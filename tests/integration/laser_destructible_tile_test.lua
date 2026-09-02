@@ -43,10 +43,13 @@ test('a full-power beam destroys a destructible tile blocking a corridor and rea
 	assertTrue(laser.beamHitEntity == tile, 'expected the beam to stop at the destructible tile on contact')
 	assertTrue(laser.beamHitEntity ~= wallBehind, 'expected the wall behind to still be unreached while the tile blocks the corridor')
 
-	-- queueDestroy() is not instant (src/entity.lua) -- the map's own
-	-- entity-list update pass is what actually removes the tile; a handful
-	-- more frames is comfortably past whichever pass does it.
-	FrameStepper.step(game, 5)
+	-- The tile only actually queues its own destruction once a fully-on beam
+	-- has touched it continuously for DESTROY_DELAY (0.5s = 30 frames at
+	-- 1/60, src/entities/destructible_tile.lua's BeamContactDelay wiring) --
+	-- step comfortably past that, then a further handful of frames since
+	-- queueDestroy() is not instant (src/entity.lua) and the map's own
+	-- entity-list update pass is what actually removes the tile.
+	FrameStepper.step(game, 35)
 
 	assertTrue(Queries.findEntityByName(map, 'tile_target') == nil,
 		'expected the destructible tile to have been removed from the map after its destroy was queued')

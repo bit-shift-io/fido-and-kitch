@@ -57,32 +57,36 @@ test('a chainBreak tile destroyed by a beam cascades hop-by-hop through the chai
 	end
 	assertTrue(laser:isFullyOn(), 'expected the laser to reach full power within 40 frames')
 
-	-- queueDestroy() is not instant -- the map's own entity-list update pass
-	-- is what actually calls tile_chain_a:destroy(), which is what schedules
-	-- its cascade timer. Step one frame at a time (rather than a fixed
-	-- batch) so the "short of the ~0.1s delay" check right below starts
+	-- tile_chain_a only actually queues its own destruction once the fully-on
+	-- beam has touched it continuously for DESTROY_DELAY (0.5s = 30 frames at
+	-- 1/60, src/entities/destructible_tile.lua's BeamContactDelay wiring);
+	-- queueDestroy() is then not instant -- the map's own entity-list update
+	-- pass is what actually calls tile_chain_a:destroy(), which is what
+	-- schedules its cascade timer. Step one frame at a time (rather than a
+	-- fixed batch) so the "short of the ~0.1s delay" check right below starts
 	-- counting from the exact frame the cascade timer was actually
-	-- registered on, not from some arbitrary later point.
+	-- registered on, not from some arbitrary later point. Cap raised to
+	-- comfortably clear DESTROY_DELAY plus the removal pass.
 	frames = 0
-	while Queries.findEntityByName(map, 'tile_chain_a') ~= nil and frames < 10 do
+	while Queries.findEntityByName(map, 'tile_chain_a') ~= nil and frames < 40 do
 		FrameStepper.step(game, 1)
 		frames = frames + 1
 	end
 	assertTrue(Queries.findEntityByName(map, 'tile_chain_a') == nil,
 		'expected the directly-hit chainBreak tile to have been destroyed')
 
-	-- The delay must be observable: well short of ~0.1s (3 frames =~ 0.05s
-	-- since the destroy above), none of the cascade neighbors have been
-	-- force-destroyed yet.
+	-- The delay must be observable: well short of CHAIN_DELAY (0.5s = 30
+	-- frames; 3 frames =~ 0.05s since the destroy above), none of the cascade
+	-- neighbors have been force-destroyed yet.
 	FrameStepper.step(game, 3)
 	assertTrue(Queries.findEntityByName(map, 'tile_chain_b') ~= nil,
-		'expected the first-hop neighbor to still be intact before the ~0.1s delay elapses')
+		'expected the first-hop neighbor to still be intact before the ~0.5s delay elapses')
 	assertTrue(Queries.findEntityByName(map, 'tile_cross_north') ~= nil,
-		'expected the cross neighbor to still be intact before the ~0.1s delay elapses')
+		'expected the cross neighbor to still be intact before the ~0.5s delay elapses')
 
-	-- Comfortably past the ~0.1s delay (6 frames) plus the map's own removal
+	-- Comfortably past the ~0.5s (30-frame) delay plus the map's own removal
 	-- pass for the neighbors it force-destroys.
-	FrameStepper.step(game, 20)
+	FrameStepper.step(game, 35)
 	assertTrue(Queries.findEntityByName(map, 'tile_chain_b') == nil,
 		'expected the orthogonal chainBreak neighbor to have been force-destroyed by tile_chain_a\'s cascade')
 	assertTrue(Queries.findEntityByName(map, 'tile_cross_north') == nil,
@@ -93,15 +97,15 @@ test('a chainBreak tile destroyed by a beam cascades hop-by-hop through the chai
 	-- tile_chain_b was itself chainBreak-enabled, so being force-destroyed
 	-- schedules its OWN cascade timer for its OWN neighbors -- no special
 	-- recursion code, just the same destroy() override firing again. Give
-	-- that second ~0.1s hop the same comfortable margin.
-	FrameStepper.step(game, 20)
+	-- that second ~0.5s hop the same comfortable margin.
+	FrameStepper.step(game, 35)
 	assertTrue(Queries.findEntityByName(map, 'tile_chain_c_capped') == nil,
 		'expected the second-hop neighbor to have been force-destroyed by tile_chain_b\'s own cascade')
 
 	-- tile_chain_c_capped has no chainBreak of its own, so its destruction
 	-- must never schedule a third hop -- give it the same generous window a
 	-- real third hop would have needed, and confirm nothing past it moved.
-	FrameStepper.step(game, 20)
+	FrameStepper.step(game, 35)
 	assertTrue(Queries.findEntityByName(map, 'tile_beyond_capped') ~= nil,
 		'expected the tile beyond the capped tile to survive, isolated from anything past it')
 	assertTrue(Queries.findEntityByName(map, 'tile_diagonal_untouched') ~= nil,

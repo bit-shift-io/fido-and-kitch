@@ -58,6 +58,7 @@
 -- false and does nothing further.
 local SpriteProps = require('src.entities.sprite_props')
 local TileShatter = require('src.fx.tile_shatter')
+local BeamContactDelay = require('src.components.beam_contact_delay')
 
 -- ~0.3s fixed delay between a chainBreak tile's destruction and its
 -- neighbors being force-destroyed, driven by a dt accumulator (not a frame
@@ -65,6 +66,12 @@ local TileShatter = require('src.fx.tile_shatter')
 -- OPENING_DURATION). Was 0.1s; bumped up because a whole chain resolving
 -- within a couple of frames read as instant rather than a cascade.
 local CHAIN_DELAY = 0.5
+
+-- Delay between a fully-on beam first touching this tile and it actually
+-- destroying, driven by the BeamContactDelay component below -- separate
+-- from CHAIN_DELAY (same value today, but the two may diverge later: one
+-- times "beam to destruction", the other times "destruction to cascade").
+local DESTROY_DELAY = 0.5
 
 -- The tile-grid cell a pixel position falls in, from the map's own tile size
 -- -- not a fixed pixel offset -- so neighbor lookup works regardless of the
@@ -210,6 +217,12 @@ function DestructibleTile:init(object, mapRef)
 	-- floor-mounted destructible tile gets stuck in FallState the instant
 	-- they step onto it (same gotcha as src/entities/drawbridge.lua's deck).
 	self.collider.walkable = true
+
+	-- Drives the delay between a fully-on beam first touching this tile and
+	-- it actually destroying: src/entities/laser.lua calls
+	-- self.beamContactDelay:markContact() every frame a fully-on beam hits
+	-- this tile instead of queueDestroy()-ing it directly.
+	self.beamContactDelay = self:addComponent(BeamContactDelay{delay = DESTROY_DELAY})
 end
 
 -- Base cleanup first (collider/sprite removal, same as every other

@@ -77,12 +77,57 @@ test('a fully-on beam destroys a destructible tile in its path', function()
 	local tile = makeTile(300, 32)
 
 	-- Step well past POWER_DURATION (0.3s = 18 frames at 1/60) to reach the
-	-- held 'on' state.
+	-- held 'on' state. tile:update ticks alongside laser:update, mirroring
+	-- how the real map ticks every entity every frame -- this bare unit
+	-- test has no map to do that for it.
 	for _ = 1, 25 do
 		laser:update(1 / 60)
+		tile:update(1 / 60)
 	end
 
 	assertTrue(laser:isFullyOn(), 'expected the laser to have reached full power')
 	assertTrue(laser.beamHitEntity == tile, 'expected the beam to stop at the tile on contact')
-	assertTrue(tile.destroy_flag, 'expected a fully-on beam to queue the tile for destruction')
+	assertTrue(tile.destroy_flag == nil, 'expected the tile to stay intact for DESTROY_DELAY of continuous contact before breaking')
+
+	-- The tile only actually destroys once the fully-on beam has kept
+	-- touching it continuously for DESTROY_DELAY (0.5s = 30 frames at 1/60)
+	-- via its BeamContactDelay component -- comfortably clear that here.
+	-- Both laser:update (marks contact) and tile:update (accumulates the
+	-- component's elapsed timer) need ticking each frame, mirroring how the
+	-- real map ticks every entity every frame -- this bare unit test has no
+	-- map to do that for it.
+	for _ = 1, 30 do
+		laser:update(1 / 60)
+		tile:update(1 / 60)
+	end
+
+	assertTrue(tile.destroy_flag, 'expected a fully-on beam held for DESTROY_DELAY to queue the tile for destruction')
+end)
+
+test('a fully-on beam that stops touching the tile before DESTROY_DELAY elapses never destroys it', function()
+	HeadlessBootstrap.resetWorld()
+	local laser = makeLaser('right')
+	local tile = makeTile(300, 32)
+
+	-- Reach fully-on and accumulate some (but not all) of DESTROY_DELAY's
+	-- worth of continuous contact.
+	for _ = 1, 25 do
+		laser:update(1 / 60)
+		tile:update(1 / 60)
+	end
+	assertTrue(laser:isFullyOn(), 'expected the laser to have reached full power')
+	assertTrue(laser.beamHitEntity == tile, 'expected the beam to stop at the tile on contact')
+	assertTrue(tile.beamContactDelay.elapsed > 0, 'expected some contact time to have accumulated before the interruption')
+
+	-- Power the laser off before DESTROY_DELAY elapses -- contact stops, so
+	-- the component's elapsed timer resets instead of reaching the tile.
+	laser:getComponent(Switchable):switch({state = 'off'})
+
+	for _ = 1, 30 do
+		laser:update(1 / 60)
+		tile:update(1 / 60)
+	end
+
+	assertTrue(tile.destroy_flag == nil, 'expected interrupted beam contact to leave the tile intact')
+	assertEqual(0, tile.beamContactDelay.elapsed, 'expected the contact timer to reset once contact stopped')
 end)
