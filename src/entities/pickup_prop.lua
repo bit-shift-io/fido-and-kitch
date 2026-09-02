@@ -6,6 +6,8 @@
 -- each of those files requires and returns directly, so map object type
 -- 'coin'/'key' still resolves to src/entities/coin.lua / key.lua exactly
 -- as before (see AGENTS.md: "New map entity = new src/entities/<type>.lua").
+local GroundFaller = require('src.components.ground_faller')
+
 local PickupProp = {}
 
 -- spec fields:
@@ -52,6 +54,15 @@ function PickupProp.define(spec)
 			collider = self.collider,
 			entity = self,
 		})
+
+		-- keeps this pickup resting exactly where it's placed until whatever
+		-- is under it goes away (e.g. a destructible tile beneath it is
+		-- destroyed), at which point it falls straight down like any other
+		-- ground-following body -- see src/components/ground_faller.lua.
+		-- groundProbeOffset uses the object's own authored half-height (its
+		-- visual footprint), not the collider's own physical bottom edge --
+		-- see that component's header for why the two differ for a pickup.
+		self:addComponent(GroundFaller{collider = self.collider, groundProbeOffset = object.height * 0.5})
 
 		self.sound = self:addComponent(Sound{
 			sounds = {

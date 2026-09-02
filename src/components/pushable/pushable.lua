@@ -14,7 +14,7 @@
 -- Vertical motion is left entirely to gravity: this component only ever
 -- writes the horizontal component, so a prop that walks off a ledge falls
 -- straight down (ADR 0002) instead of arcing.
-local GroundSupport = require('src.player.ground_support')
+local GroundFaller = require('src.physics.ground_faller')
 local PushableSupport = require('src.components.pushable.pushable_support')
 
 local Pushable = Class{}
@@ -112,7 +112,7 @@ end
 -- centre is over ground, and the moment the centre crosses onto an
 -- unsupported tile it commits to falling into that tile.
 function Pushable:hasSupportUnderCentre(bounds)
-	return GroundSupport.hasGroundAt(world, self.collider:getX(), bounds.bottom + 4, bounds.bottom + 5)
+	return GroundFaller.hasSupportUnderCentre(world, self.collider:getX(), bounds.bottom)
 end
 
 -- Where an overlapping pressure plate wants this prop seated, or nil if there

@@ -14,6 +14,13 @@
 -- one prop's directory: the behaviour is shared by push_box and boulder, and
 -- the pressure switch reads it too. Directory named after the component with
 -- real filenames kept and no init.lua, per ADR 0003.
+--
+-- isAirborne and bodyTypeFor delegate to src/physics/ground_faller.lua, which
+-- also backs the ground-following pickup behaviour (coin, key) -- both are
+-- the same "falling vs settled" state machine, so it lives in one place
+-- rather than three (push_box, boulder, pickup) each carrying their own copy.
+local GroundFaller = require('src.physics.ground_faller')
+
 local PushableSupport = {}
 
 -- Collision group allocation for pushable props. World.colFilter ignores a
@@ -56,15 +63,8 @@ function PushableSupport.spawnCentre(object)
 	return centreX, object.y + object.height * 0.5
 end
 
--- Below this much vertical velocity a prop counts as resting rather than
--- falling. The physics layer cancels the velocity component pushing into a
--- surface the frame a body lands (Motion.resolveCollisions), so a settled
--- prop reads as exactly zero -- the tolerance only exists to keep float
--- noise from reading as flight.
-local RESTING_VELOCITY_TOLERANCE = 0.001
-
 function PushableSupport.isAirborne(velocityY)
-	return math.abs(velocityY) > RESTING_VELOCITY_TOLERANCE
+	return GroundFaller.isAirborne(velocityY)
 end
 
 -- Whether the prop is in a state that can be shoved at all, independent of
@@ -150,27 +150,11 @@ function PushableSupport.groupIndexFor(state, ownGroupIndex)
 	return ownGroupIndex
 end
 
--- Whether the prop should currently be a static body or a dynamic one.
---
--- A prop at rest is STATIC, so it behaves exactly like the terrain it stands
--- in for. This is correctness, not optimisation: a dynamic body re-resolves
--- gravity every frame, and when a dynamic prop's top is flush with a walking
--- surface lib/bump reports the player's contact against it as a wall
--- (normal (-1,0)) rather than a step. A box filling a one-tile hole would
--- then BLOCK the player instead of carrying them across -- the exact
--- opposite of the mechanic. A static collider with identical geometry is
--- crossed correctly, the same way the drawbridge's static deck is.
---
--- It goes dynamic only while it genuinely needs to move: nothing under its
--- centre (gravity must take it), still settling after a landing (going static
--- mid-settle would freeze it hanging above the surface, since support is
--- probed a few pixels below its feet), or moving under a push or its own momentum.
+-- Whether the prop should currently be a static body or a dynamic one -- see
+-- GroundFaller.bodyTypeFor for the reasoning (identical for any body resting
+-- on the ground, not just a pushable).
 function PushableSupport.bodyTypeFor(state)
-	if not state.supported or state.airborne or state.moving then
-		return 'dynamic'
-	end
-
-	return 'static'
+	return GroundFaller.bodyTypeFor(state)
 end
 
 -- The centre-x of the tile the prop's centre-x currently sits over -- where

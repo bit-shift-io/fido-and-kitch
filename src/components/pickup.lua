@@ -18,7 +18,10 @@ function Pickup:contact(other)
     -- self = the collider, so we had to set another var on the collider called 'pickup'
     -- which refers to the actual pickup 'self' which we pass to the entity that is picking up this item
 	local entity = other.entity
-	if entity.pickup ~= nil then -- utils.instanceOf(entity, Player)
+	-- plain terrain (e.g. the ground a falling pickup lands on) has no
+	-- owning entity at all -- only something that IS an entity can pick
+	-- anything up
+	if entity and entity.pickup ~= nil then -- utils.instanceOf(entity, Player)
 		entity:pickup(self.pickup)
 	end
 end

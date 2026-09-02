@@ -96,6 +96,12 @@
 
 **Boundary** — Harmless: it never hurts or crushes players or shoves them along — it just stops. Same 32×32 placeholder quad (grey), same fall/snap model as the push box. Destruction on a fully-powered beam hit goes through the same [[Beam contact delay]] as a destructible tile, sharing its component rather than duplicating the timer.
 
+## Ground-following pickup
+
+**Definition** — A coin or key that polls ground support under its own centre-x every frame, the same predicate `GroundSupport.hasGroundAt` uses everywhere else, and falls straight down if that support disappears (e.g. its resting [[Destructible tile]] is destroyed), settling once it lands. Shares its fall/settle decision with [[Pushable]] via a common ground-fall support module rather than duplicating the state machine.
+
+**Boundary** — No centre-x snapping (unlike a pushable dropping into a hole): a pickup is stationary when its ground breaks, so there's nothing to realign. Remains collectible by the player throughout the fall. No special handling for hazard tiles — a kill_zone has no solid collider, so it's simply invisible to the ground check; the pickup lands wherever solid ground actually is beneath it, if anywhere.
+
 ## Pressure switch
 
 **Definition** — A weight-activated single-tile plate that turns on while a qualifying weight (a player or a pushable) is substantially on it — its centre-x within a small tolerance of the plate tile's centre — and drives a target entity through the same `target` + `:switch()` mechanism the lever switch uses. Momentary by default (re-drives the target when the last weight leaves); a latching option keeps it on after first activation.
