@@ -96,12 +96,16 @@ function Cage:use(user)
 	self.sprite.timeline:play()
 	self.sound:play('open')
 
-	EventBus.emit('cage_unlocked', {cage = self})
-
-	-- Spawn the NPC on first use
+	-- Spawn the NPC before emitting cage_unlocked: opening the LAST cage
+	-- makes that emit cascade synchronously into all_cages_unlocked ->
+	-- ExitDoor:open() -> exit_door_opened, all before this function returns.
+	-- A bird spawned after that emit would subscribe to exit_door_opened
+	-- (in BirdNPC:init) too late to catch it, and never fly to the door.
 	if self.actor == nil and self.spawnNpcType then
 		self.actor = self.map:loadEntity(self.spawnNpcType, self.spawnLayer, self.spawnNpcProps)
 	end
+
+	EventBus.emit('cage_unlocked', {cage = self})
 
 	if self.actor == nil then
 		return

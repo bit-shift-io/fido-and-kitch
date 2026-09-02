@@ -73,6 +73,15 @@ function GameHarness.startGame(mapPath, opts)
 	end
 	bootGlobals(opts.real)
 
+	-- The real game clears EventBus on InGameState:exit(); starting a new
+	-- game here just discards the old fsm/InGameState without ever calling
+	-- that, so a previous test's handlers (e.g. an orphaned ExitDoor's
+	-- all_cages_unlocked listener) stay subscribed and can fire again on
+	-- this test's events. Clear here so each game starts isolated, same as
+	-- a real state transition would leave it. (Required lazily -- signal.lua
+	-- needs the global `Class` that bootGlobals just set up.)
+	require('src.utils.event_bus').clear()
+
 	-- Create InputManager instance (same as main.lua)
 	inputManager = InputManager()
 
