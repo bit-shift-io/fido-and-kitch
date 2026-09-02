@@ -1,0 +1,242 @@
+{
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 20,
+          "id": 1,
+          "y": 20,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 2,
+          "y": 132,
+          "width": 32,
+          "name": "laser_bounce",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "mirror",
+          "properties": [
+            {
+              "type": "string",
+              "name": "orientation",
+              "value": "down-right"
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 3,
+          "y": 132,
+          "width": 32,
+          "name": "mirror_bounce",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "boulder",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 4,
+          "y": 400,
+          "width": 32,
+          "name": "boulder_bounce_target",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 5,
+          "y": 732,
+          "width": 32,
+          "name": "laser_wrong",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "mirror",
+          "properties": [
+            {
+              "type": "string",
+              "name": "orientation",
+              "value": "up-left"
+            }
+          ],
+          "height": 32,
+          "x": 500,
+          "id": 6,
+          "y": 732,
+          "width": 32,
+          "name": "mirror_wrong",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "boulder",
+          "properties": [],
+          "height": 32,
+          "x": 800,
+          "id": 7,
+          "y": 700,
+          "width": 32,
+          "name": "boulder_beyond",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 8,
+          "y": 1332,
+          "width": 32,
+          "name": "laser_switchable",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "mirror",
+          "properties": [
+            {
+              "type": "string",
+              "name": "orientation",
+              "value": "up-right"
+            }
+          ],
+          "height": 32,
+          "x": 700,
+          "id": 9,
+          "y": 1332,
+          "width": 32,
+          "name": "mirror_switchable",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 684,
+          "id": 10,
+          "y": 232,
+          "width": 32,
+          "name": "blocker_up",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 684,
+          "id": 11,
+          "y": 1632,
+          "width": 32,
+          "name": "blocker_down",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "switch",
+          "properties": [
+            {
+              "type": "object",
+              "name": "target",
+              "value": 9
+            }
+          ],
+          "height": 32,
+          "x": 20,
+          "id": 12,
+          "y": 1500,
+          "width": 32,
+          "name": "mirror_lever",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 13,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 30,
+  "height": 55,
+  "infinite": false
+}

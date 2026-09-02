@@ -1,0 +1,123 @@
+{
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 64,
+          "x": 0,
+          "id": 1,
+          "y": 132,
+          "width": 1000,
+          "name": "row1_floor",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 64,
+          "id": 2,
+          "y": 100,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 3,
+          "y": 32,
+          "width": 32,
+          "name": "laser_tile",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "destructible_tile",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 4,
+          "y": 32,
+          "width": 32,
+          "name": "tile_target",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 500,
+          "id": 5,
+          "y": 32,
+          "width": 32,
+          "name": "wall_behind",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 6,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 40,
+  "height": 10,
+  "infinite": false
+}

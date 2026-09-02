@@ -178,7 +178,14 @@ function Player:update(dt)
     end
 
     local grounded = self.fsm.currentState == self.fsm.states.WalkIdleState and PlayerSensors.queryFullySupported(world, self.collider:getBounds())
-    self.safePosition:update(dt, grounded, self.collider:getX(), self.collider:getY())
+    -- Standing on a destructible_tile never counts as a safe-position
+    -- candidate: that ground can be destroyed later by an unrelated laser
+    -- elsewhere on the map, which would otherwise respawn the player into
+    -- open space. This only narrows what's eligible to become the recorded
+    -- safe position -- the real physics grounded/support checks above are
+    -- untouched.
+    local safeGrounded = grounded and not PlayerSensors.queryOnDestructibleTile(world, self.collider)
+    self.safePosition:update(dt, safeGrounded, self.collider:getX(), self.collider:getY())
 end
 
 function Player:draw()

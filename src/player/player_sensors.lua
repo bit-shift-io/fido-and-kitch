@@ -105,6 +105,29 @@ function PlayerSensors.queryOnNonLadderGround(world, collider)
     return nil
 end
 
+-- Same probe band as queryOnGround (just below the player's feet), but asks
+-- a narrower question: is a destructible_tile entity anywhere in that band,
+-- regardless of walkable/sensor state. Used to gate what's eligible to
+-- become a last-safe-position candidate (src/player/player.lua) -- a
+-- destructible tile can be blown up later by an unrelated laser elsewhere on
+-- the map, so standing on one must never count as "safe" ground, even while
+-- the real physics grounded/support checks (queryOnGround, GroundSupport)
+-- happily treat it as standable today.
+function PlayerSensors.queryOnDestructibleTile(world, collider)
+    local bounds = collider:getBounds()
+    bounds.top = bounds.bottom + PLAYER_PROBE_MARGIN
+    bounds.bottom = bounds.bottom + 5
+
+    local colls = world:queryBounds(bounds)
+    for _, c in ipairs(colls) do
+        local entity = c.entity
+        if entity and entity.type == 'destructible_tile' then
+            return true
+        end
+    end
+    return false
+end
+
 function PlayerSensors.queryFullySupported(world, bounds)
     return GroundSupport.isFullySupported(world, bounds)
 end

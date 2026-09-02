@@ -1,0 +1,315 @@
+{
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 64,
+          "x": 0,
+          "id": 1,
+          "y": 132,
+          "width": 1000,
+          "name": "row1_floor",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 64,
+          "x": 0,
+          "id": 2,
+          "y": 1332,
+          "width": 1000,
+          "name": "row7_floor",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 64,
+          "id": 3,
+          "y": 100,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 4,
+          "y": 132,
+          "width": 32,
+          "name": "laser_pushbox",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "push_box",
+          "properties": [
+            {
+              "type": "bool",
+              "name": "allowPushWhenStoodOn",
+              "value": false
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 5,
+          "y": 100,
+          "width": 32,
+          "name": "box_target",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 6,
+          "y": 332,
+          "width": 32,
+          "name": "laser_blocker_closed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 7,
+          "y": 332,
+          "width": 32,
+          "name": "blocker_closed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 8,
+          "y": 532,
+          "width": 32,
+          "name": "laser_blocker_open",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 9,
+          "y": 532,
+          "width": 32,
+          "name": "blocker_open",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 10,
+          "y": 732,
+          "width": 32,
+          "name": "laser_drawbridge_closed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "drawbridge",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 11,
+          "y": 732,
+          "width": 32,
+          "name": "drawbridge_closed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 12,
+          "y": 932,
+          "width": 32,
+          "name": "laser_drawbridge_open",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "drawbridge",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 13,
+          "y": 932,
+          "width": 32,
+          "name": "drawbridge_open",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 14,
+          "y": 1132,
+          "width": 32,
+          "name": "laser_platform",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "mover_platform",
+          "properties": [],
+          "height": 32,
+          "x": 300,
+          "id": 15,
+          "y": 1132,
+          "width": 64,
+          "name": "platform_target",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 16,
+          "y": 1332,
+          "width": 32,
+          "name": "laser_boulder",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "boulder",
+          "properties": [
+            {
+              "type": "bool",
+              "name": "allowPushWhenStoodOn",
+              "value": false
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 17,
+          "y": 1300,
+          "width": 32,
+          "name": "boulder_target",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 18,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 40,
+  "height": 45,
+  "infinite": false
+}

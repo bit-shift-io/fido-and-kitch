@@ -1,0 +1,55 @@
+{
+  "tileset": {
+    "name": "mirror",
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 128,
+        "image": "../img/entity_switch.png",
+        "id": 0,
+        "imagewidth": 640,
+        "imageheight": 128,
+        "y": 0,
+        "width": 128,
+        "x": 0
+      }
+    ],
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "string",
+        "name": "orientation",
+        "value": "up-right"
+      },
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 4
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      },
+      {
+        "type": "bool",
+        "name": "playing",
+        "value": false
+      }
+    ],
+    "type": "mirror",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "mirror"
+  }
+}

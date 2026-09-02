@@ -12,6 +12,18 @@ local Vector = require('lib.hump.vector')
 
 local NPCBase = Class{__includes = Entity}
 
+-- Class-level marker (not per-instance) a laser beam uses to tell a hostile
+-- NPC apart from the player/props without relying on the fragile default
+-- `entity.type == 'entity'` every NPC shares. Defaults to false here:
+-- friendly companions (npc_bird, npc_rabbit -- behavior='follow', damage=0)
+-- must NOT be treated as beam-fatal targets just for including NPCBase, so
+-- this is overridden to true per-species (npc_spider.lua, npc_robot.lua),
+-- not flipped on here. hump's Class:include deep-copies a class's fields at
+-- the moment a subclass does `Class{__includes = NPCBase}`, so this table-
+-- level assignment (set once, when this module's chunk runs, before any
+-- subclass file requires it) is what those subclasses actually inherit.
+NPCBase.isEnemy = false
+
 -- Spatial probe constants (world px) used by the collision queries below.
 local KILL_ZONE_INSET = 2            -- shrink the hitbox when probing kill zones
 local GROUND_PROBE = {min = 1, max = 3} -- probe band just below the feet

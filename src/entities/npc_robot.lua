@@ -6,6 +6,11 @@ local NPCRegistry = require('src.npc.npc_registry')
 
 local Robot = Class{__includes = NPCBase}
 
+-- Hostile (behavior='patrol', damage=2) -- a laser beam passes through it
+-- and kills it, same as a player. See NPCBase.isEnemy's comment for why
+-- this is set per-species rather than as NPCBase's own default.
+Robot.isEnemy = true
+
 -- Register type at module load time
 NPCRegistry.registerType('npc_robot', Robot)
 

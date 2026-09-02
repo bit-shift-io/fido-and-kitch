@@ -1,0 +1,45 @@
+{
+  "tileset": {
+    "name": "timer_switch",
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "height": 128,
+        "image": "../img/entity_switch.png",
+        "id": 0,
+        "imagewidth": 640,
+        "imageheight": 128,
+        "y": 0,
+        "width": 128,
+        "x": 0
+      }
+    ],
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "float",
+        "name": "onDuration",
+        "value": 1.0
+      },
+      {
+        "type": "float",
+        "name": "offDuration",
+        "value": 1.0
+      },
+      {
+        "type": "object",
+        "name": "target",
+        "value": null
+      }
+    ],
+    "type": "timer_switch",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "timer_switch"
+  }
+}

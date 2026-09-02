@@ -1,0 +1,41 @@
+{
+  "tileset": {
+    "name": "destructible_tile_floor",
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "image": "../img/entity_wood_sign_post.png",
+        "imageheight": 128,
+        "id": 0,
+        "imagewidth": 128
+      }
+    ],
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      }
+    ],
+    "type": "destructible_tile",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "destructible_tile_floor"
+  }
+}

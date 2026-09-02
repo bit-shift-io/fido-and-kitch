@@ -6,6 +6,7 @@ local defaultTestFiles = {
 	'tests/unit/kill_zone_test.lua',
 	'tests/unit/safe_position_test.lua',
 	'tests/unit/ground_support_test.lua',
+	'tests/unit/player_sensors_test.lua',
 	'tests/unit/camera_test.lua',
 	'tests/unit/timeline_reverse_test.lua',
 	'tests/unit/drawbridge_test.lua',
@@ -72,6 +73,14 @@ local defaultTestFiles = {
 	'tests/unit/teleport_trail_test.lua',
 	'tests/unit/teleport_travel_state_test.lua',
 	'tests/unit/npc_config_test.lua',
+	'tests/unit/world_query_segment_test.lua',
+	'tests/unit/timer_switch_test.lua',
+	'tests/unit/laser_beam_resolver_test.lua',
+	'tests/unit/laser_state_test.lua',
+	'tests/unit/mirror_test.lua',
+	'tests/unit/laser_switch_test.lua',
+	'tests/unit/destructible_tile_test.lua',
+	'tests/unit/destructible_tile_chain_test.lua',
 }
 
 local tests = {}

@@ -38,9 +38,9 @@
 
 ## Last safe position
 
-**Definition** — A player's most recent position recorded after being continuously grounded for a stability threshold; where that player respawns on death.
+**Definition** — A player's most recent position recorded after being continuously grounded for a stability threshold; where that player respawns on death. Standing on a [[Destructible tile]] never counts, however long the stability threshold is held — that ground can be destroyed later by an unrelated laser, which would otherwise respawn the player into open space.
 
-**Boundary** — Per player, and only updated on stable ground (not mid-air, not the instant of touching ground). It is not a checkpoint system and is not shared between players.
+**Boundary** — Per player, and only updated on stable ground (not mid-air, not the instant of touching ground). It is not a checkpoint system and is not shared between players. Standing on a boulder is NOT excluded the same way — a pushable prop a player can stand on is already an existing hazard class (shoved out from under them), not one this feature introduces. Being in the path a laser beam might later travel through is also not tracked or excluded — only currently-standing-on-a-destructible-tile is.
 
 ## Fast gameplay regression test
 
@@ -343,6 +343,48 @@ Templates are the single source of truth for an entity's default + sprite proper
 **Definition** — The persisted best-attempt data for one level, keyed by map filename: best [[Level score]] percentage and its medal, and best completion time (tracked independently — a fast, low-scoring run and a slow, perfect run each update their own field). Stored via `src/utils/settings.lua`'s JSON blob.
 
 **Boundary** — Per level, not per player (matches the shared [[Lives pool]]). Time is informational only — it never affects the medal. A level with no completions has no record at all, not a zero-value one.
+
+## Laser emitter
+
+**Definition** — A Tiled-placed entity (`laser`) that fires an instantly-resolved beam in one fixed `direction` (up/down/left/right), determined by its mount (floor, wall, or roof). Continuous by default, or gated on/off by an optional `target` through the same `Switchable` wiring every switch-driven entity uses. Spawns already on or off per its authored state.
+
+**Boundary** — The beam itself is recomputed fresh every frame (see [[Beam power-up]] and ADR 0006) — the laser entity owns only its position, direction, and on/off state, not a traveling projectile. Pulsing on its own timer is not built into the laser; wire a [[Timer switch]] to its `target` instead.
+
+## Beam power-up
+
+**Definition** — The state a laser's beam passes through when switching on: driven by a [[Reversible timeline]] animation whose frames encode both width and color (thin red → full-width white-hot/red additive look), tiled/stretched along the beam's current length, with matching sound. Powering down plays the same animation in reverse (same as a drawbridge/blocker reversing an in-flight animation), with its own sound. Only the beam held at the animation's final frame is fatal to players/enemies, blocks/destroys props, or activates a [[Laser switch]] — mid power-up or mid power-down, it causes no interactions at all.
+
+**Boundary** — A telegraph, not a ramp in danger — there is no partial damage or partial blocking at any point except the fully-held final frame. The animation (and therefore its duration) is a fixed asset shared by every laser, not a per-instance property. Width and color are never computed procedurally — they come entirely from whichever frame is currently showing.
+
+## Mirror
+
+**Definition** — A Tiled-placed entity with one of 4 diagonal `orientation` values (`up-right`, `up-left`, `down-right`, `down-left`), each naming the two directions it connects. A beam traveling in either of those two directions is redirected into the other; a beam arriving from a direction the mirror doesn't connect is blocked/absorbed, same as hitting a wall. Optionally linked to a switch (lever, pressure, or [[Timer switch]]): each 'on' activation rotates it one step clockwise through `up-right` → `down-right` → `down-left` → `up-left` → `up-right`; the 'off' transition never rotates it.
+
+**Boundary** — Doesn't move position, and rotation only ever happens in fixed 90° clockwise steps driven by a switch activation — never freely, never counter-clockwise, never mid-activation. Not a general reflector: only the 4 physically-realizable diagonal pairs exist, never a same-direction pass-through or 180° reversal.
+
+## Laser switch
+
+**Definition** — A Tiled-placed entity (`laser_switch`) activated by a beam hitting it from one specific configured `direction` (mirroring the laser's own mount/direction concept). On a valid hit it drives its `target` via `Switchable`, the same wiring `switch`/`pressure_switch`/`blocker` use, and absorbs the beam. A beam hitting from any other direction is a non-event for the switch.
+
+**Boundary** — Direction-gated, unlike [[Pressure switch]] (weight/presence, no facing) or the lever `switch` (player "use," no facing). Not itself a laser — it only reacts to being hit by one.
+
+## Timer switch
+
+**Definition** — A Tiled-placed entity (`timer_switch`) that cycles on/off automatically on configured `onDuration`/`offDuration` and drives any `target` via `Switchable` — the same wiring every other switch-like entity uses.
+
+**Boundary** — Not laser-specific: it's how a [[Laser emitter]] gets pulsing behaviour (no built-in pulse config on the laser itself), but it can drive any `Switchable` target (a `blocker`, a `mover_platform`, anything already wireable). Autonomous — nothing triggers it; it runs from level load.
+
+## Destructible tile
+
+**Definition** — A Tiled-placed entity (`destructible_tile`) standing in for a section of wall or floor terrain, solid and beam-blocking like any other opaque prop, destroyed instantly by a fully-powered beam hit. Destruction removes its collider and sprite, revealing the map's background art layer beneath (terrain in this project is one big background image plus invisible `collision` rectangles — see [[Tiled map source]]). Resets to intact on level restart, like every other stateful entity.
+
+**Boundary** — Authored as an object, not painted into a tile layer — there is no per-tile collision data to hook a "swap this tile" behaviour into. Wall-facing and floor-facing tiles are the same entity type with different art, not separate entity types. See [[Chain-break]] for its optional cascade behaviour.
+
+## Chain-break
+
+**Definition** — An optional `chainBreak` property on a [[Destructible tile]]. When a chain-break tile is destroyed, after a fixed ~0.1s delay it force-destroys every orthogonally-touching (4-directional) destructible tile, regardless of that neighbor's own `chainBreak` setting. The cascade continues past a neighbor only if that neighbor itself has `chainBreak` enabled.
+
+**Boundary** — Orthogonal adjacency only, never diagonal. A plain (non-chaining) destructible tile can be destroyed by a chain reaction reaching it, but never itself propagates the cascade further.
 
 ## Render order
 

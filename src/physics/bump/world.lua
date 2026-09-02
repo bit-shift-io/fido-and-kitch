@@ -174,4 +174,33 @@ function World:queryOverlap(bounds)
 end
 
 
+function World:querySegment(x1, y1, x2, y2, filter)
+   local items, len = self._world:querySegment(x1, y1, x2, y2, filter)
+
+   for i = 1, len do
+      items[i].entity = items[i].entity
+   end
+
+   return items
+end
+
+
+function World:querySegmentWithCoords(x1, y1, x2, y2, filter)
+   local itemInfo, len = self._world:querySegmentWithCoords(x1, y1, x2, y2, filter)
+
+   for i = 1, len do
+      -- bump's own itemInfo entries are a fresh {item=, ti1=, ti2=, x1=, ...}
+      -- table, not the collider itself -- .entity and .sensor have to be
+      -- copied up from itemInfo[i].item (the collider) explicitly, or
+      -- callers reading hit.sensor/hit.entity (e.g.
+      -- src/entities/laser_beam_resolver.lua) always see nil, which is
+      -- indistinguishable from a solid (non-sensor) hit.
+      itemInfo[i].entity = itemInfo[i].item.entity
+      itemInfo[i].sensor = itemInfo[i].item.sensor
+   end
+
+   return itemInfo
+end
+
+
 return World

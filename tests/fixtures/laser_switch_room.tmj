@@ -1,0 +1,280 @@
+{
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 20,
+          "id": 1,
+          "y": 20,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 2,
+          "y": 132,
+          "width": 32,
+          "name": "laser_ok",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser_switch",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            },
+            {
+              "type": "object",
+              "name": "target",
+              "value": 4
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 3,
+          "y": 132,
+          "width": 32,
+          "name": "switch_ok",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 700,
+          "id": 4,
+          "y": 132,
+          "width": 32,
+          "name": "blocker_ok",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 5,
+          "y": 332,
+          "width": 32,
+          "name": "laser_wrongdir",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser_switch",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "up"
+            },
+            {
+              "type": "object",
+              "name": "target",
+              "value": 7
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 6,
+          "y": 332,
+          "width": 32,
+          "name": "switch_wrongdir",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 700,
+          "id": 7,
+          "y": 332,
+          "width": 32,
+          "name": "blocker_wrongdir",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 8,
+          "y": 532,
+          "width": 32,
+          "name": "laser_missed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser_switch",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            },
+            {
+              "type": "object",
+              "name": "target",
+              "value": 10
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 9,
+          "y": 700,
+          "width": 32,
+          "name": "switch_missed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 700,
+          "id": 10,
+          "y": 700,
+          "width": 32,
+          "name": "blocker_missed",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            }
+          ],
+          "height": 32,
+          "x": 0,
+          "id": 11,
+          "y": 932,
+          "width": 32,
+          "name": "laser_toggle",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "laser_switch",
+          "properties": [
+            {
+              "type": "string",
+              "name": "direction",
+              "value": "right"
+            },
+            {
+              "type": "object",
+              "name": "target",
+              "value": 13
+            }
+          ],
+          "height": 32,
+          "x": 300,
+          "id": 12,
+          "y": 932,
+          "width": 32,
+          "name": "switch_toggle",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 32,
+          "x": 700,
+          "id": 13,
+          "y": 932,
+          "width": 32,
+          "name": "blocker_toggle",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 3,
+  "nextobjectid": 14,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 30,
+  "height": 45,
+  "infinite": false
+}

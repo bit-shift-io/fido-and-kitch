@@ -1,0 +1,41 @@
+{
+  "tileset": {
+    "name": "destructible_tile_wall",
+    "type": "tileset",
+    "tilecount": 1,
+    "tiles": [
+      {
+        "image": "../img/pushable_stone_block.png",
+        "imageheight": 250,
+        "id": 0,
+        "imagewidth": 250
+      }
+    ],
+    "firstgid": 1
+  },
+  "type": "template",
+  "object": {
+    "properties": [
+      {
+        "type": "int",
+        "name": "frames",
+        "value": 1
+      },
+      {
+        "type": "float",
+        "name": "duration",
+        "value": 1
+      },
+      {
+        "type": "bool",
+        "name": "loop",
+        "value": false
+      }
+    ],
+    "type": "destructible_tile",
+    "height": 32,
+    "gid": 1,
+    "width": 32,
+    "name": "destructible_tile_wall"
+  }
+}
