@@ -35,7 +35,7 @@
 -- instance means that when THIS tile is destroyed (by a beam or by being
 -- force-destroyed as somebody else's neighbor), every destructible_tile
 -- orthogonally touching its former tile-grid position is force-destroyed
--- ~0.1s later, regardless of THEIR own chainBreak setting.
+-- ~0.3s later, regardless of THEIR own chainBreak setting.
 --
 -- A destroyed entity cannot run its own delayed timer via its own
 -- update(dt): src/map/entity_factory.lua's layer:update detects
@@ -57,12 +57,14 @@
 -- directly-beamed tile does. A plain neighbor just finds self.chainBreak
 -- false and does nothing further.
 local SpriteProps = require('src.entities.sprite_props')
+local TileShatter = require('src.fx.tile_shatter')
 
--- ~0.1s fixed delay between a chainBreak tile's destruction and its
+-- ~0.3s fixed delay between a chainBreak tile's destruction and its
 -- neighbors being force-destroyed, driven by a dt accumulator (not a frame
 -- count) like every other timer in this codebase (see Blocker's
--- OPENING_DURATION).
-local CHAIN_DELAY = 0.1
+-- OPENING_DURATION). Was 0.1s; bumped up because a whole chain resolving
+-- within a couple of frames read as instant rather than a cascade.
+local CHAIN_DELAY = 0.5
 
 -- The tile-grid cell a pixel position falls in, from the map's own tile size
 -- -- not a fixed pixel offset -- so neighbor lookup works regardless of the
@@ -169,6 +171,10 @@ function DestructibleTile:init(object, mapRef)
 	local topLeftY = object.y - object.height
 	self.rect = Rect{x = object.x, y = topLeftY, width = object.width, height = object.height}
 	local position = self.rect:centre()
+	-- Kept on self (not just the local) so destroy() -- called after the
+	-- collider/sprite are already gone -- still knows where to spawn the
+	-- shatter fx.
+	self.position = position
 
 	-- Captured now, not derived later: once destroyed there is no entity
 	-- left to ask "where was I". mapRef is optional (unit tests construct a
@@ -207,11 +213,17 @@ function DestructibleTile:init(object, mapRef)
 end
 
 -- Base cleanup first (collider/sprite removal, same as every other
--- destroyed entity), THEN, only if this tile is chainBreak-enabled, register
--- a cascade timer with the map's FxManager so its neighbors get
--- force-destroyed ~0.1s later. A plain tile does nothing further here.
+-- destroyed entity), THEN a shatter burst at the tile's last known position
+-- (every destruction, chain or direct -- unlike the cascade timer below,
+-- which is chainBreak-only), THEN, only if this tile is chainBreak-enabled,
+-- register a cascade timer with the map's FxManager so its neighbors get
+-- force-destroyed ~0.3s later.
 function DestructibleTile:destroy()
 	Entity.destroy(self)
+
+	if self.mapRef and self.mapRef.fx and self.position then
+		self.mapRef.fx:burst(TileShatter, {x = self.position.x, y = self.position.y})
+	end
 
 	if self.chainBreak and self.mapRef and self.mapRef.fx and self.gridPosition then
 		self.mapRef.fx:add(ChainBreakTimer.new(self.mapRef, self.gridPosition))

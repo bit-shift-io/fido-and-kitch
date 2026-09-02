@@ -21,6 +21,12 @@
 local HeadlessBootstrap = require('tests.support.headless_bootstrap')
 local FxManager = require('src.fx.manager')
 
+-- destroy() now always spawns a TileShatter burst (see below), which loads
+-- an fx image via AssetManager -- needs a love.filesystem/love.graphics mock
+-- to resolve headless, same as tests/unit/particles_test.lua's own setup.
+local LoveMock = require('tests.support.love_mock')
+love = love or LoveMock.new()
+
 local DestructibleTile = require('src.entities.destructible_tile')
 local internal = DestructibleTile._internal
 
@@ -81,22 +87,22 @@ test('resolveChainNeighbors returns only the entities orthogonally touching the 
 	assertTrue(not found.twoAway, 'expected a tile two cells away to be excluded')
 end)
 
-test('advanceTimer does not report done before ~0.1s of dt has accumulated', function()
+test('advanceTimer does not report done before ~0.5s of dt has accumulated', function()
 	local elapsed = 0
 	local dt = 1 / 60
 	local done
-	for _ = 1, 5 do -- 5/60s =~ 0.083s, comfortably under CHAIN_DELAY
+	for _ = 1, 15 do -- 15/60s = 0.25s, comfortably under CHAIN_DELAY
 		elapsed, done = internal.advanceTimer(elapsed, dt)
 	end
 
 	assertFalse(done, 'expected the timer to still be running short of the delay')
 end)
 
-test('advanceTimer reports done once ~0.1s of dt has accumulated', function()
+test('advanceTimer reports done once ~0.5s of dt has accumulated', function()
 	local elapsed = 0
 	local dt = 1 / 60
 	local done
-	for _ = 1, 8 do -- 8/60s =~ 0.133s, comfortably over CHAIN_DELAY
+	for _ = 1, 35 do -- 35/60s =~ 0.583s, comfortably over CHAIN_DELAY
 		elapsed, done = internal.advanceTimer(elapsed, dt)
 	end
 
@@ -126,7 +132,7 @@ local function makeStubNeighbor(gridX, gridY)
 	return neighbor
 end
 
-test('a destroyed tile without chainBreak never registers a cascade timer', function()
+test('a destroyed tile without chainBreak registers a shatter burst but never a cascade timer', function()
 	HeadlessBootstrap.resetWorld()
 	local stubMap = makeStubMap({})
 	local tile = DestructibleTile({
@@ -136,10 +142,15 @@ test('a destroyed tile without chainBreak never registers a cascade timer', func
 
 	tile:destroy()
 
-	assertEqual(0, #stubMap.fx:getActive())
+	-- Every destroy spawns exactly one fx effect (the shatter burst); a
+	-- plain (non-chainBreak) tile spawns no second one (the cascade timer).
+	local active = stubMap.fx:getActive()
+	assertEqual(1, #active)
+	assertTrue(active[1].emitter ~= nil and #active[1].emitter.particles > 0,
+		'expected the registered effect to be a live TileShatter burst, not the cascade timer')
 end)
 
-test('a destroyed chainBreak tile force-destroys its orthogonal neighbors after ~0.1s, sparing diagonal and far tiles', function()
+test('a destroyed chainBreak tile force-destroys its orthogonal neighbors after ~0.5s, sparing diagonal and far tiles', function()
 	HeadlessBootstrap.resetWorld()
 
 	-- tile itself is a bottom-anchored 32x32 object at object.y=32 -> rect
@@ -156,12 +167,14 @@ test('a destroyed chainBreak tile force-destroys its orthogonal neighbors after 
 	}, stubMap)
 
 	tile:destroy()
-	assertEqual(1, #stubMap.fx:getActive(), 'expected destroy() to register exactly one cascade timer')
+	-- Two effects: the shatter burst (every destroy) plus the cascade timer
+	-- (chainBreak only).
+	assertEqual(2, #stubMap.fx:getActive(), 'expected destroy() to register the shatter burst and exactly one cascade timer')
 
-	stubMap.fx:update(5 / 60) -- ~0.083s, short of the ~0.1s delay
+	stubMap.fx:update(15 / 60) -- 0.25s, short of the ~0.5s delay
 	assertFalse(east.destroyed, 'expected the neighbor to still be intact before the delay elapses')
 
-	stubMap.fx:update(5 / 60) -- total ~0.167s, comfortably past the delay
+	stubMap.fx:update(15 / 60) -- total ~0.5s, comfortably past the delay
 	assertTrue(east.destroyed, 'expected the orthogonal neighbor to be force-destroyed once the delay elapses')
 	assertFalse(diagonal.destroyed, 'expected the diagonal tile to never be affected')
 	assertFalse(twoAway.destroyed, 'expected a tile two cells away to never be affected')

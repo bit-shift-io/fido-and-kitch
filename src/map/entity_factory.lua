@@ -185,8 +185,7 @@ function EntityFactory:_mergeTemplateProps(entityName, object)
 	local cached = templateCache[entityName]
 	if cached == false then return end
 	if cached == nil then
-		local ok, result = pcall(TjTemplate.resolve, 'res/entities/' .. entityName .. '.tj')
-		cached = ok and result or false
+		cached = TjTemplate.tryResolve('res/entities/' .. entityName .. '.tj') or false
 		templateCache[entityName] = cached
 	end
 	if not cached or not cached.object then return end

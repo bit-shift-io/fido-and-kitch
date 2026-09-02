@@ -21,6 +21,11 @@
   "object": {
     "properties": [
       {
+        "type": "object",
+        "name": "target",
+        "value": 0
+      },
+      {
         "type": "int",
         "name": "frames",
         "value": 3

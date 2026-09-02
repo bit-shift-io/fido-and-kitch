@@ -128,4 +128,43 @@ function TjTemplate.resolve(templatePath, deps)
 	return cached
 end
 
+-- Same lookup, but for callers where "no template here" is an expected,
+-- routine outcome (e.g. entity_factory.lua probing every entity type for an
+-- optional res/entities/<type>.tj) rather than an authoring mistake: a
+-- missing file returns nil instead of raising, so nothing needs to run
+-- through pcall/error() just to express "not found" -- error() (via resolve
+-- above) still fires for a template that exists but is malformed, since
+-- that IS worth surfacing loudly. A Lua debugger attached to the process
+-- (e.g. lldebugger via VS Code's launch.json) breaks on every raised error
+-- regardless of an enclosing pcall, so routing the expected-miss case
+-- through error()+pcall made every non-templated entity type look like a
+-- crash under the debugger even though the game handled it fine unattached.
+function TjTemplate.tryResolve(templatePath, deps)
+	local cached = cache[templatePath]
+	if cached then
+		return cached
+	end
+
+	local readFile
+	if deps and deps.readFile then
+		readFile = deps.readFile
+	elseif love and love.filesystem and love.filesystem.read then
+		readFile = love.filesystem.read
+	else
+		readFile = function(path)
+			local file = io.open(path, 'r')
+			if not file then return nil end
+			local contents = file:read('*a')
+			file:close()
+			return contents
+		end
+	end
+
+	if not readFile(templatePath) then
+		return nil
+	end
+
+	return TjTemplate.resolve(templatePath, deps)
+end
+
 return TjTemplate
