@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "push_box",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/pushable_crate_wood.png",
-        "imageheight": 128,
-        "id": 0,
-        "imagewidth": 128
-      }
-    ],
+    "source": "push_box.tsj",
     "firstgid": 1
   },
   "type": "template",

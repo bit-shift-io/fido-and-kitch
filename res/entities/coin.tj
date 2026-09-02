@@ -1,20 +1,6 @@
 {
   "tileset": {
-    "name": "coin",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "height": 20,
-        "image": "../img/coins.png",
-        "id": 0,
-        "imagewidth": 160,
-        "imageheight": 20,
-        "y": 0,
-        "width": 20,
-        "x": 0
-      }
-    ],
+    "source": "coin.tsj",
     "firstgid": 1
   },
   "type": "template",

@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "mover_platform",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_mover_platform.png",
-        "imageheight": 714,
-        "id": 0,
-        "imagewidth": 714
-      }
-    ],
+    "source": "mover_platform.tsj",
     "firstgid": 1
   },
   "type": "template",

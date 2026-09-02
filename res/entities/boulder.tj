@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "boulder",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/pushable_stone_block.png",
-        "imageheight": 250,
-        "id": 0,
-        "imagewidth": 250
-      }
-    ],
+    "source": "boulder.tsj",
     "firstgid": 1
   },
   "type": "template",

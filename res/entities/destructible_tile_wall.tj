@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "destructible_tile_wall",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/pushable_stone_block.png",
-        "imageheight": 250,
-        "id": 0,
-        "imagewidth": 250
-      }
-    ],
+    "source": "destructible_tile_wall.tsj",
     "firstgid": 1
   },
   "type": "template",

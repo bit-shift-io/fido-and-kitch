@@ -1,0 +1,24 @@
+{
+  "name": "cage",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "height": 370,
+      "id": 0,
+      "image": "../img/cage/cage.png",
+      "imageheight": 370,
+      "imagewidth": 760,
+      "width": 380,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "type": "tileset",
+  "tilewidth": 380,
+  "tileheight": 370,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

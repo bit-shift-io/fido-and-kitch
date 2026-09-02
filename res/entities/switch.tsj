@@ -1,0 +1,24 @@
+{
+  "name": "switch",
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "height": 128,
+      "image": "../img/entity_switch.png",
+      "id": 0,
+      "imagewidth": 640,
+      "imageheight": 128,
+      "y": 0,
+      "width": 128,
+      "x": 0
+    }
+  ],
+  "tilewidth": 128,
+  "tileheight": 128,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

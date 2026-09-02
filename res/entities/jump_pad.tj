@@ -1,20 +1,6 @@
 {
   "tileset": {
-    "name": "jump_pad",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "height": 128,
-        "image": "../img/entity_jump_pad.png",
-        "id": 0,
-        "imagewidth": 768,
-        "imageheight": 128,
-        "y": 0,
-        "width": 256,
-        "x": 0
-      }
-    ],
+    "source": "jump_pad.tsj",
     "firstgid": 1
   },
   "type": "template",

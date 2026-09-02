@@ -1,0 +1,20 @@
+{
+  "name": "boulder",
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "image": "../img/pushable_stone_block.png",
+      "imageheight": 250,
+      "id": 0,
+      "imagewidth": 250
+    }
+  ],
+  "tilewidth": 250,
+  "tileheight": 250,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

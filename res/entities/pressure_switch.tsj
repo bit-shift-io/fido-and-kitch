@@ -1,0 +1,24 @@
+{
+  "name": "pressure_switch",
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "height": 337,
+      "image": "../img/entity_pressure_switch.png",
+      "id": 0,
+      "imagewidth": 337,
+      "imageheight": 337,
+      "y": 0,
+      "width": 337,
+      "x": 0
+    }
+  ],
+  "tilewidth": 337,
+  "tileheight": 337,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

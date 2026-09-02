@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "replicator",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_replicator.png",
-        "id": 0,
-        "imagewidth": 32,
-        "imageheight": 32
-      }
-    ],
+    "source": "replicator.tsj",
     "firstgid": 1
   },
   "type": "template",

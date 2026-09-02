@@ -151,12 +151,13 @@ test("activating drives the target through :switch(), the same mechanism pressur
 	local switchedWith = {}
 	-- bypasses map:getObjectById (no real Map here) -- driveTarget only
 	-- reads self.target.entity, so a bare fake stands in fine
-	switch.target =
-		{ entity = {
+	switch.target = {
+		entity = {
 			switch = function(self_, triggeringSwitch)
 				table.insert(switchedWith, triggeringSwitch)
 			end,
-		} }
+		},
+	}
 
 	switch:receiveValidHit()
 	switch:update(1 / 60)

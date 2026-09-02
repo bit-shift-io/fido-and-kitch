@@ -1,0 +1,20 @@
+{
+  "name": "spawn",
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "image": "../img/default.png",
+      "imageheight": 32,
+      "id": 0,
+      "imagewidth": 32
+    }
+  ],
+  "tilewidth": 32,
+  "tileheight": 32,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

@@ -8,7 +8,7 @@ Run from the repo root:
 
     python tools/embed_editor_tilesets.py [dir]
 
-The directory defaults to res/editor. Only .tj files whose tileset references
+The directory defaults to res/entities. Only .tj files whose tileset references
 a matching .tsj (same basename, .tsj extension) are rewritten. A .tsj with no
 pairing .tj (e.g. tileset_generic_platformer_tiles.tsj) is left untouched.
 The script is idempotent: already-embedded templates (no `source`) are skipped.
@@ -17,6 +17,8 @@ import json
 import os
 import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def embed(editor_dir):
@@ -54,7 +56,7 @@ def embed(editor_dir):
 
 
 def main():
-    editor_dir = sys.argv[1] if len(sys.argv) > 1 else 'res/editor'
+    editor_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else REPO_ROOT / 'res/entities'
     if not os.path.isdir(editor_dir):
         print(f'not a directory: {editor_dir}', file=sys.stderr)
         return 1

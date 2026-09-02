@@ -96,7 +96,7 @@ local SPRITE_SPECS = {
 		tj = "res/entities/ladder.tj",
 		type = "ladder",
 		image = "res/img/ladder.png",
-		frames = 4,
+		frames = 1,
 		duration = 1.0,
 		loop = false,
 	},

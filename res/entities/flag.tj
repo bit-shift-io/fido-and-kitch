@@ -1,17 +1,7 @@
 {
   "tileset": {
-    "firstgid": 1,
-    "name": "flag",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_flag.png",
-        "imageheight": 175,
-        "id": 0,
-        "imagewidth": 175
-      }
-    ]
+    "source": "flag.tsj",
+    "firstgid": 1
   },
   "type": "template",
   "object": {

@@ -190,12 +190,13 @@ test("flipping drives the target through :switch(), the same mechanism the lever
 
 	-- bypasses map:getObjectById (no real Map here) -- driveTarget only
 	-- reads self.target.entity, so a bare fake stands in fine
-	switch.target =
-		{ entity = {
+	switch.target = {
+		entity = {
 			switch = function(self_, triggeringSwitch)
 				table.insert(switchedWith, triggeringSwitch)
 			end,
-		} }
+		},
+	}
 
 	-- First transition: off -> on
 	switch:update(0.3)

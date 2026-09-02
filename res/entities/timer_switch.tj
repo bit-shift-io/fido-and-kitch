@@ -1,20 +1,6 @@
 {
   "tileset": {
-    "name": "timer_switch",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "height": 128,
-        "image": "../img/entity_switch.png",
-        "id": 0,
-        "imagewidth": 640,
-        "imageheight": 128,
-        "y": 0,
-        "width": 128,
-        "x": 0
-      }
-    ],
+    "source": "timer_switch.tsj",
     "firstgid": 1
   },
   "type": "template",

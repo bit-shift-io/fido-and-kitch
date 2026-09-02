@@ -1,0 +1,24 @@
+{
+  "name": "blocker",
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "height": 256,
+      "image": "../img/entity_blocker.png",
+      "id": 0,
+      "imagewidth": 6144,
+      "imageheight": 256,
+      "y": 0,
+      "width": 128,
+      "x": 1408
+    }
+  ],
+  "tilewidth": 128,
+  "tileheight": 256,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

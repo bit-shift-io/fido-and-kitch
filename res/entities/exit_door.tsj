@@ -1,0 +1,24 @@
+{
+  "name": "exit_door",
+  "type": "tileset",
+  "tilecount": 1,
+  "tiles": [
+    {
+      "height": 512,
+      "image": "../img/entity_exit_door.png",
+      "id": 0,
+      "imagewidth": 1024,
+      "imageheight": 512,
+      "y": 0,
+      "width": 512,
+      "x": 0
+    }
+  ],
+  "tilewidth": 512,
+  "tileheight": 512,
+  "columns": 0,
+  "margin": 0,
+  "spacing": 0,
+  "version": "1.11",
+  "tiledversion": "1.12.2"
+}

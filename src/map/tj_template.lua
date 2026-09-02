@@ -54,17 +54,21 @@ local function parseTj(templatePath, deps)
 
 	local tilesetRef = nil
 	local tilesetEmbedded = nil
+	local tilesetSourcePath = nil
 	if tj.tileset then
 		if tj.tileset.source then
 			-- External .tsj: hand off to the map's allocator by path.
+			local source = tj.tileset.source
+			if not source:match("^/") then
+				source = templateDir .. source
+			end
 			tilesetRef = {
 				firstgid = tj.tileset.firstgid,
-				path = tj.tileset.source,
+				path = source,
 			}
-			-- Resolve relative to template directory
-			if not tilesetRef.path:match("^/") then
-				tilesetRef.path = templateDir .. tilesetRef.path
-			end
+			-- Keep the resolved path so the tile image can be read from the
+			-- .tsj below, mirroring how the embedded form carries its data.
+			tilesetSourcePath = source
 		else
 			-- Embedded tileset (no source): carry the raw tileset table so the
 			-- map parser can match/register it by identity, mirroring how the
@@ -77,10 +81,27 @@ local function parseTj(templatePath, deps)
 	-- not a duplicated `image` file property (the two used to drift). Expose
 	-- the tile image as `tilesetImage`, normalized to a project-root-relative
 	-- runtime path, so instancing code can fall back to it.
+	--
+	-- Works for both the embedded tileset (data carried in the .tj) and the
+	-- external .tsj (read here to extract tile 1's image), so switching a
+	-- template between the two forms never loses the sprite's art.
 	local tilesetImage = nil
-	if tilesetEmbedded then
-		local tile = tilesetEmbedded.tiles and tilesetEmbedded.tiles[1]
-		local image = tile and tile.image or tilesetEmbedded.image
+	local tilesetData = tilesetEmbedded
+	if not tilesetData and tilesetSourcePath then
+		local contents = readFile(tilesetSourcePath)
+		if contents then
+			local ts = json.decode(contents)
+			-- Tolerate a hand-authored .tsj that omits `type` (the embedded
+			-- form never carried it strictly either); image extraction below
+			-- only needs the tile data.
+			if ts and (ts.type == "tileset" or ts.tiles or ts.image) then
+				tilesetData = ts
+			end
+		end
+	end
+	if tilesetData then
+		local tile = tilesetData.tiles and tilesetData.tiles[1]
+		local image = tile and tile.image or tilesetData.image
 		if type(image) == "string" and image ~= "" then
 			tilesetImage = stiUtils.format_path(templateDir .. image)
 		end

@@ -1,20 +1,6 @@
 {
   "tileset": {
-    "name": "drawbridge",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_drawbridge.png",
-        "id": 0,
-        "imageheight": 64,
-        "imagewidth": 256,
-        "height": 64,
-        "width": 64,
-        "x": 192,
-        "y": 0
-      }
-    ],
+    "source": "drawbridge.tsj",
     "firstgid": 1
   },
   "type": "template",

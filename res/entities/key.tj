@@ -1,17 +1,7 @@
 {
   "tileset": {
-    "firstgid": 1,
-    "name": "key",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_key.png",
-        "imageheight": 256,
-        "id": 0,
-        "imagewidth": 256
-      }
-    ]
+    "source": "key.tsj",
+    "firstgid": 1
   },
   "type": "template",
   "object": {

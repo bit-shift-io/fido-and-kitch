@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "ladder",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/ladder.png",
-        "id": 0,
-        "imagewidth": 128,
-        "imageheight": 128
-      }
-    ],
+    "source": "ladder.tsj",
     "firstgid": 1
   },
   "type": "template",

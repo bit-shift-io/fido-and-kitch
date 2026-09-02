@@ -174,12 +174,13 @@ test("activating drives the target through :switch(), the same mechanism the lev
 	local switchedWith = {}
 	-- bypasses map:getObjectById (no real Map here) -- driveTarget only
 	-- reads self.target.entity, so a bare fake stands in fine
-	switch.target =
-		{ entity = {
+	switch.target = {
+		entity = {
 			switch = function(self_, triggeringSwitch)
 				table.insert(switchedWith, triggeringSwitch)
 			end,
-		} }
+		},
+	}
 
 	spawnWeight(switch.plateCentreX, switch.rect.y + 1)
 	switch:update(1 / 60)

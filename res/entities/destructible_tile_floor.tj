@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "destructible_tile_floor",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_wood_sign_post.png",
-        "imageheight": 128,
-        "id": 0,
-        "imagewidth": 128
-      }
-    ],
+    "source": "destructible_tile_floor.tsj",
     "firstgid": 1
   },
   "type": "template",

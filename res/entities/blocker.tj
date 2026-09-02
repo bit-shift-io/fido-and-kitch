@@ -1,20 +1,6 @@
 {
   "tileset": {
-    "name": "blocker",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "height": 256,
-        "image": "../img/entity_blocker.png",
-        "id": 0,
-        "imagewidth": 6144,
-        "imageheight": 256,
-        "y": 0,
-        "width": 128,
-        "x": 1408
-      }
-    ],
+    "source": "blocker.tsj",
     "firstgid": 1
   },
   "type": "template",

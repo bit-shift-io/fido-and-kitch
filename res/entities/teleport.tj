@@ -1,16 +1,6 @@
 {
   "tileset": {
-    "name": "teleport",
-    "type": "tileset",
-    "tilecount": 1,
-    "tiles": [
-      {
-        "image": "../img/entity_teleporter.png",
-        "imageheight": 512,
-        "id": 0,
-        "imagewidth": 512
-      }
-    ],
+    "source": "teleport.tsj",
     "firstgid": 1
   },
   "type": "template",
