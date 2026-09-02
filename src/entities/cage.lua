@@ -57,11 +57,23 @@ function Cage:init(object, map)
 	}
 	local spawnType = object.properties.spawn_type or object.properties.actor or 'bird'
 	local npcType = spawnTypeMap[spawnType] or spawnType
-	
+
+	-- Resolve target if present (same pattern as switch.lua)
+	self.targetObject = nil
+	if object.properties.target then
+		self.targetObject = map:getObjectById(object.properties.target.id)
+	end
+
+	-- Rabbit cage with target is a misconfiguration: log error and ignore target
+	if npcType == 'npc_rabbit' and self.targetObject then
+		Log.error('Cage spawn_type=rabbit cannot use target property; ignoring target')
+		self.targetObject = nil
+	end
+
 	-- Let entity type defaults define NPC sprite dimensions
 	-- (bird=155x155, rabbit=142x137, etc.)
 	local npcProps = {properties = {}}
-	
+
 	-- Spawn the NPC at the cage's own position (Tiled tile objects are
 	-- bottom-edge anchored). Use the original object so NPCBase.initPosition
 	-- computes the center via Rect.centreOfMapObject; the spawn drop onto the
@@ -71,7 +83,7 @@ function Cage:init(object, map)
 	npcProps.width = object.width
 	npcProps.height = object.height
 	npcProps.gid = object.gid
-	
+
 	self.spawnNpcType = npcType
 	self.spawnLayer = object.layer
 	self.spawnNpcProps = npcProps
@@ -94,6 +106,12 @@ function Cage:use(user)
 	if self.actor == nil then
 		return
 	end
+
+	-- Hand target to flying NPC if resolved
+	if self.spawnNpcType == 'npc_bird' and self.targetObject then
+		self.actor.switchTarget = self.targetObject
+	end
+
 	-- Nudge up 16px so rabbit spawns above cage and falls cleanly onto floor
 	if self.actor.collider then
 		local cx, cy = self.actor.x, self.actor.y

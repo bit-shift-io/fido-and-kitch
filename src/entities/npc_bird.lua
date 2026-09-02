@@ -3,11 +3,19 @@ local Class = require('lib.hump.class')
 local NPCBase = require('src.npc.npc_base')
 local NPCConfig = require('src.npc.npc_config')
 local NPCRegistry = require('src.npc.npc_registry')
+local EventBus = require('src.utils.event_bus')
+local Entity = require('src.entity')
 
 local BirdNPC = Class{__includes = NPCBase}
 
 -- Register type at module load time
 NPCRegistry.registerType('npc_bird', BirdNPC)
+
+-- Flight speed (px/s) used by FlyToTargetState's PathFollow when this bird
+-- flies its cage-to-switch swoop curve. Read generically off the entity
+-- (entity.targetFlightSpeed) by fly_to_target_state.lua, rather than a
+-- global, so future species can supply their own.
+local TARGET_FLIGHT_SPEED = 150
 
 function BirdNPC:init(props)
     props = props or {}
@@ -35,41 +43,56 @@ function BirdNPC:init(props)
 
     NPCBase.init(self, merged)
 
-    -- Start as sensor (flying NPC), gravity handled manually
+    -- Always a sensor: a bird ignores terrain collision entirely (flies
+    -- freely, gravity handled manually) rather than colliding solidly
+    -- outside ladder volumes. This also means a directed flight
+    -- (FlyToTargetState/FlyToDoorState) never freezes mid-arc against
+    -- ordinary terrain the way PathFollow's obstacle-freeze would for a
+    -- solid collider -- see PathFollow:_isBlocked.
     self.collider:setSensor(true)
     self.collider:setGravityScale(0)
+
+    self.targetFlightSpeed = TARGET_FLIGHT_SPEED
+
+    -- Once the exit door opens, every following bird detaches and flies its
+    -- own swoop arc to the door, overriding whatever it's currently doing
+    -- (including a still-in-progress FlyToTargetState) -- see
+    -- fly_to_door_state.lua. Unconditional, unlike the switchTarget check in
+    -- update() below, because it must interrupt an in-progress forced state.
+    self.exitDoorOpenedHandler = EventBus.on('exit_door_opened', utils.bindSelf(BirdNPC.onExitDoorOpened, self))
+end
+
+function BirdNPC:onExitDoorOpened(data)
+    self.forcedState = 'FlyToDoorState'
+    self.forcedStateParams = data.position
 end
 
 function BirdNPC:update(dt)
-    -- Toggle sensor based on ladder overlap: pass through terrain only
-    -- where a ladder exists, collide normally everywhere else.
-    -- Probe ahead in the direction of flight so the ladder is detected
-    -- before the bird reaches the exact edge (touching = zero-area overlap).
-    local bounds = self.collider:getBounds()
-    local vx, vy = self.collider:getLinearVelocity()
-    local probe = {
-        left = bounds.left,
-        right = bounds.right,
-        top = bounds.top,
-        bottom = bounds.bottom,
-    }
-    local PROBE_MARGIN = 4
-    if vx < 0 then probe.left = probe.left - PROBE_MARGIN end
-    if vx > 0 then probe.right = probe.right + PROBE_MARGIN end
-    if vy < 0 then probe.top = probe.top - PROBE_MARGIN end
-    if vy > 0 then probe.bottom = probe.bottom + PROBE_MARGIN end
-
-    local items = world:queryOverlap(probe)
-    local onLadder = false
-    for _, item in ipairs(items) do
-        if item.entity and item.entity.isLadder then
-            onLadder = true
-            break
-        end
+    -- Cage:use spawns the bird (running BirdNPC:init) BEFORE it assigns
+    -- switchTarget onto the actor, so switchTarget is never present yet at
+    -- init time -- it can only be checked lazily here, on the first update
+    -- after the cage hands it over. flownToTarget guards this from firing
+    -- again once the flight has completed (switchTarget itself is left set,
+    -- as a record of where this bird flew).
+    if self.switchTarget and not self.flownToTarget and not self.forcedState then
+        self.forcedState = 'FlyToTargetState'
     end
-    self.collider:setSensor(onLadder)
 
     NPCBase.update(self, dt)
+end
+
+function BirdNPC:destroy()
+    if self.exitDoorOpenedHandler then
+        EventBus.off('exit_door_opened', self.exitDoorOpenedHandler)
+        self.exitDoorOpenedHandler = nil
+    end
+    -- NPCBase does not define its own destroy(); fall back to Entity's base
+    -- implementation directly (mirrors ExitDoor:destroy()'s own pattern).
+    if NPCBase.destroy then
+        NPCBase.destroy(self)
+    else
+        Entity.destroy(self)
+    end
 end
 
 return BirdNPC

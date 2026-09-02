@@ -1,0 +1,209 @@
+{
+  "tilesets": [],
+  "layers": [
+    {
+      "visible": true,
+      "id": 1,
+      "objects": [
+        {
+          "visible": true,
+          "type": "",
+          "properties": [],
+          "height": 32,
+          "x": 0,
+          "id": 1,
+          "y": 160,
+          "width": 320,
+          "name": "floor",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "collision",
+          "value": true
+        }
+      ],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "collision",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 2,
+      "objects": [
+        {
+          "visible": true,
+          "type": "spawn",
+          "properties": [],
+          "height": 32,
+          "x": 64,
+          "id": 2,
+          "y": 128,
+          "width": 32,
+          "name": "spawn",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "switch",
+          "properties": [
+            {
+              "type": "object",
+              "name": "target",
+              "value": 13
+            }
+          ],
+          "height": 32,
+          "x": 200,
+          "id": 10,
+          "y": 128,
+          "width": 32,
+          "name": "target_switch",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "blocker",
+          "properties": [],
+          "height": 64,
+          "x": 240,
+          "id": 13,
+          "y": 192,
+          "width": 32,
+          "name": "target_blocker",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "cage",
+          "properties": [
+            {
+              "type": "object",
+              "name": "target",
+              "value": 10
+            },
+            {
+              "type": "string",
+              "name": "color",
+              "value": "red"
+            },
+            {
+              "type": "string",
+              "name": "spawn_type",
+              "value": "bird"
+            }
+          ],
+          "height": 32,
+          "x": 120,
+          "id": 11,
+          "y": 128,
+          "width": 32,
+          "name": "bird_cage_with_target",
+          "rotation": 0
+        },
+        {
+          "visible": true,
+          "type": "cage",
+          "properties": [
+            {
+              "type": "object",
+              "name": "target",
+              "value": 10
+            },
+            {
+              "type": "string",
+              "name": "color",
+              "value": "blue"
+            },
+            {
+              "type": "string",
+              "name": "spawn_type",
+              "value": "rabbit"
+            }
+          ],
+          "height": 32,
+          "x": 280,
+          "id": 12,
+          "y": 128,
+          "width": 32,
+          "name": "rabbit_cage_with_target",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "game",
+      "draworder": "topdown"
+    },
+    {
+      "visible": true,
+      "id": 3,
+      "objects": [
+        {
+          "visible": true,
+          "polyline": [
+            {
+              "y": 0,
+              "x": 0
+            },
+            {
+              "y": -32,
+              "x": 32
+            },
+            {
+              "y": -32,
+              "x": 64
+            }
+          ],
+          "type": "",
+          "properties": [],
+          "height": 0,
+          "x": 120,
+          "id": 4,
+          "y": 128,
+          "width": 0,
+          "name": "red_bird_path",
+          "rotation": 0
+        }
+      ],
+      "type": "objectgroup",
+      "properties": [],
+      "parallaxy": 1,
+      "opacity": 1,
+      "class": "",
+      "offsetx": 0,
+      "offsety": 0,
+      "parallaxx": 1,
+      "name": "waypoints",
+      "draworder": "topdown"
+    }
+  ],
+  "tiledversion": "1.12.2",
+  "renderorder": "right-down",
+  "nextlayerid": 4,
+  "nextobjectid": 14,
+  "type": "map",
+  "properties": [],
+  "version": "1.11",
+  "orientation": "orthogonal",
+  "class": "",
+  "tilewidth": 32,
+  "tileheight": 32,
+  "width": 10,
+  "height": 6,
+  "infinite": false
+}

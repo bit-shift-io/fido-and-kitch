@@ -105,6 +105,13 @@ function NPCBase:initCoreState(props)
     self.target = nil
     self.lastKnownTargetPos = nil
 
+    -- Forced-state bypass: nil for every NPC by default (no behaviour
+    -- change). A subclass (e.g. BirdNPC flying to a switch) sets these to
+    -- force a specific state ahead of the utility-based selection below;
+    -- clearing forcedState hands control back to the utility system.
+    self.forcedState = nil
+    self.forcedStateParams = nil
+
     -- Facing direction for sprites and patrol
     self.facing = 'right'
 end
@@ -173,6 +180,8 @@ function NPCBase:initStateMachine()
             AttackState = require('src.npc.states.attack_state'),
             FleeState = require('src.npc.states.flee_state'),
             DeadState = require('src.npc.states.dead_state'),
+            FlyToTargetState = require('src.npc.states.fly_to_target_state'),
+            FlyToDoorState = require('src.npc.states.fly_to_door_state'),
         },
         currentState = 'IdleState',
         entity = self,
@@ -221,9 +230,15 @@ local function detectNearestPlayer(npc)
 end
 
 -- Despawn a friendly NPC that has wandered beyond its configured radius
--- from the current target.
+-- from the current target. This is a catch-up rescue for a ground NPC that
+-- got physically stuck behind terrain -- it never applies to a flying NPC
+-- (canFly), which ignores terrain collision entirely and can always close
+-- the gap on its own, visibly, via FollowState's normal acceleration. Note
+-- despawnDistance stays > 0 for flying NPCs regardless (ExitDoor's
+-- despawnNearbyNPCs uses it as a "this is a friendly companion" marker,
+-- unrelated to this rescue mechanism).
 local function checkDespawn(npc)
-    if npc.config.despawnDistance <= 0 or not npc.target or npc:isDead() then
+    if npc.config.canFly or npc.config.despawnDistance <= 0 or not npc.target or npc:isDead() then
         return
     end
     local tx, ty = npc:getTargetPos()
@@ -242,16 +257,35 @@ function NPCBase:update(dt)
     -- Detect nearby players for follow/chase behavior
     detectNearestPlayer(self)
 
-    -- Despawn to target if too far away (friendly NPCs)
-    checkDespawn(self)
+    -- Despawn to target if too far away (friendly NPCs). Skipped while a
+    -- forced state is active (e.g. BirdNPC's FlyToDoorState): that flight
+    -- deliberately carries the entity away from its follow target, and
+    -- without this guard checkDespawn snaps it back to the target's position
+    -- and forces IdleState every time it exceeds despawnDistance, which the
+    -- forced-state bypass below immediately overrides back -- an infinite
+    -- fight between the two systems that never lets the forced flight land.
+    if not self.forcedState then
+        checkDespawn(self)
+    end
 
     -- Calculate utilities and transition state FIRST
     -- Skip if dead - DeadState handles its own transitions
     if not self:isDead() then
-        local utilities = self:calculateUtilities()
-        local bestState = self:selectBestState(utilities)
-        if bestState and bestState ~= self.stateMachine.currentState.name then
-            self.stateMachine:setState(bestState)
+        if self.forcedState then
+            -- Generic forced-state bypass: a subclass (e.g. BirdNPC flying to
+            -- a switch) wants a specific state active regardless of what the
+            -- utility system would pick. Skip the utility calculation
+            -- entirely while a forced state is set, only transitioning when
+            -- it differs from the state we're already in.
+            if self.forcedState ~= self.stateMachine.currentState.name then
+                self.stateMachine:setState(self.forcedState, self.forcedStateParams)
+            end
+        else
+            local utilities = self:calculateUtilities()
+            local bestState = self:selectBestState(utilities)
+            if bestState and bestState ~= self.stateMachine.currentState.name then
+                self.stateMachine:setState(bestState)
+            end
         end
     end
 

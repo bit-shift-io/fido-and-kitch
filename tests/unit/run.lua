@@ -71,7 +71,7 @@ local defaultTestFiles = {
 	'tests/unit/mesh_ribbon_emitter_test.lua',
 	'tests/unit/mesh_ribbon_render_test.lua',
 	'tests/unit/state_machine_trytransition_test.lua',
-	'tests/unit/teleport_trail_test.lua',
+	'tests/unit/swoop_curve_test.lua',
 	'tests/unit/teleport_travel_state_test.lua',
 	'tests/unit/npc_config_test.lua',
 	'tests/unit/world_query_segment_test.lua',

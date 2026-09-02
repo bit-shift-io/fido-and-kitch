@@ -97,9 +97,10 @@ test('growing moves the top edge up, keeping the bottom edge fixed', function()
 	assertEqual(3, lead:tileHeight())
 end)
 test('the one-way top slab is entity-tagged and walkable for NPC probes', function()
-	-- npc_bird's terrain-pass probe keys off item.entity.isLadder on anything
-	-- it overlaps; GroundSupport keys off collider.walkable. The slab must
-	-- carry both so birds treat it as ladder volume and players as ground.
+	-- Player ladder sensors (src/player/player_sensors.lua) key off
+	-- item.entity.isLadder on anything they overlap; GroundSupport keys off
+	-- collider.walkable. The slab must carry both so players can climb it
+	-- and stand on it as ground.
 	local rungs = makeFamilyRungs(2)
 	local lead = makeLead(rungs)
 

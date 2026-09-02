@@ -32,7 +32,7 @@
              "value":"bird"
             },
             {
-             "name":"path",
+             "name":"target",
              "type":"object",
              "value":0
             }],

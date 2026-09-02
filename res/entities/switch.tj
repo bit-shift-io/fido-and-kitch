@@ -39,6 +39,11 @@
         "type": "bool",
         "name": "loop",
         "value": false
+      },
+      {
+        "type": "bool",
+        "name": "startOn",
+        "value": false
       }
     ],
     "type": "switch",

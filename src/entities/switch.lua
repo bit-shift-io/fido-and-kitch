@@ -33,6 +33,14 @@ function Switch:init(object, map)
 	})
 
 	self.target = map:getObjectById(object.properties.target.id)
+
+	-- lets a level designer place a switch already flipped on: appears
+	-- instantly in its 'on' pose, no animation or sound, no target sync
+	-- (the target's own initial state is set independently on itself)
+	if object.properties.startOn then
+		self.state = 'on'
+		self.sprite:snapToEnd()
+	end
 end
 
 function Switch:use(user)

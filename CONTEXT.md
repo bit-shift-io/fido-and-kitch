@@ -286,9 +286,27 @@ Templates are the single source of truth for an entity's default + sprite proper
 
 ## NPC (Non-Player Character)
 
-**Definition** — A visual-only companion entity that follows players. Two types: Bird (flies freely, ignores all collision, raycast+steer navigation) and Rabbit (hops behind player, follows breadcrumb trail for reliable ladder/puzzle navigation). No gameplay interaction — no collision with players/enemies/tiles, no use action, no damage.
+**Definition** — A companion entity that follows players after being released from a cage. Two types: Bird (flies, accelerates toward its target via `FollowState` steering, ignores terrain collision entirely — a permanent sensor collider, gravity handled manually) and Rabbit (ground-walking, hops behind the player via `NpcLocomotion`). Neither has a use action or deals/takes damage.
 
-**Boundary** — Purely cosmetic; never affects gameplay state, physics, or win conditions. Spawned from cages, persists until level exit.
+**Boundary** — Cosmetic companions, not hazards or obstacles themselves — they don't damage players or enemies. A bird flies straight through solid terrain and other colliders, both in ordinary `FollowState` and during a [[Bird flight arc]] — it is never blocked or frozen by what a curve or its follow path crosses. Spawned from cages, persists until level exit or an applicable exit condition (see [[Bird flight arc]] for the bird-specific exit path).
+
+## Bird flight arc
+
+**Definition** — A one-shot, precomputed flight a bird NPC takes between two fixed points — cage-spawn to an optional switch [[Cage target]], or player-side to the exit door once it opens — driven by `Path`/`PathFollow` (the same kinematic travel mechanism [[Jump pad]] uses) along a [[Swoop curve]]. Computed live at the moment the flight starts, never baked into the map (unlike [[Jump pad target]]): the door-flight's start point is wherever the bird currently is, which isn't authorable ahead of time, so both flights use one live-computation code path rather than mixing baked and live.
+
+**Boundary** — Gravity-suspended for the flight's fixed duration, same as a jump pad launch, but unlike a jump pad's `PathFollow` (which carries a solid player collider and freezes if blocked) a bird's own collider is always a sensor — the flight arc is never blocked, frozen, or clipped by terrain it crosses, so its swoop curve needs no clearance tuning around obstacles the way a jump pad's authored path does. Between the two flights, and when a bird has no [[Cage target]] at all, ordinary `FollowState` steering (not a flight arc) governs its movement. Visible as a debug line under `conf.debug`, same as any `Path`. Rabbits never get a flight arc — ground NPCs keep their existing follow/despawn behaviour.
+
+## Cage target
+
+**Definition** — An optional `target` object property on a cage, referencing a switch/usable entity by id (same `map:getObjectById` convention [[Switch]] itself uses for its own `target`). A bird released from a cage with a target flies a [[Bird flight arc]] to it, activates it (`Usable:use`), then resumes following the player.
+
+**Boundary** — Bird-only: a `target` set on a cage whose `spawn_type` is `rabbit` is a map-authoring mistake, logged as an error at map load — the rabbit still spawns and follows normally, ignoring the target. A cage with no `target` behaves exactly as before this feature. Points at the switch entity itself, not a separate waypoint marker.
+
+## Swoop curve
+
+**Definition** — A direction-agnostic procedural curve shape (straight line between two points, plus a perpendicular half-sine bulge and layered sine-wave noise wobble, both fading to zero at each endpoint), deterministic per start/dest pair via a positional seed. Originates in the teleporter's travel FX (`src/fx/teleport_trail.lua`) and lives in the shared `src/utils/swoop_curve.lua`. Used both to drive the teleporter's particle trail and, sampled into a polyline, as the shape of a [[Bird flight arc]].
+
+**Boundary** — Distinct from the jump pad's trajectory (a vertical ballistic parabola assuming roughly-horizontal travel, height proportional to distance) — the swoop curve works at any travel angle and is a stylistic flourish, not a launch simulation. For the teleporter, the curve only ever positions particles/camera-follow (the player itself is hidden and snapped to the destination on arrival, not moved along the curve); for a bird flight arc, the curve is the entity's actual traveled path.
 
 ## Cage Spawn Type
 

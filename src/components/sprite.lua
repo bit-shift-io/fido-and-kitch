@@ -204,6 +204,14 @@ function Sprite:playReverse()
 	self.frameNum = self.timeline:getFrameIndex(#self.frames)
 end
 
+-- jump to the end frame at rest (not playing), ready to play in reverse if
+-- toggled -- for entities that start in their 'on' state at map load, where
+-- no animation should run
+function Sprite:snapToEnd()
+	self.timeline:resetReverse()
+	self.frameNum = self.timeline:getFrameIndex(#self.frames)
+end
+
 -- flip direction from the current frame (no snap)
 function Sprite:reverseFromCurrent()
 	self.timeline:reverseFromCurrent()

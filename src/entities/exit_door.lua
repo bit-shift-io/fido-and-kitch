@@ -96,6 +96,7 @@ function ExitDoor:open()
 	self.sound:play('open')
 	self.sprite.timeline:reset()
 	self.sprite.timeline:play()
+	EventBus.emit('exit_door_opened', {door = self, position = {x = self.sprite.position.x, y = self.sprite.position.y}})
 end
 
 
