@@ -1,4 +1,5 @@
 local TeleportTrail = require('src.fx.teleport_trail')
+local Geom = require('src.utils.geom')
 
 local TeleportTravelState = Class{}
 
@@ -27,10 +28,10 @@ function TeleportTravelState:enter(prevState, params)
     
     if self.camera then
         self.camera:addExtraTarget('teleport_travel', {
-            x = self.curve.startX - 16,
-            y = self.curve.startY - 16,
-            w = 32,
-            h = 32,
+            x = self.curve.startX - Geom.TILE_SIZE / 2,
+            y = self.curve.startY - Geom.TILE_SIZE / 2,
+            w = Geom.TILE_SIZE,
+            h = Geom.TILE_SIZE,
         })
     end
 end

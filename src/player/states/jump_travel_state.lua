@@ -1,3 +1,5 @@
+local Geom = require('src.utils.geom')
+
 local JumpTravelState = Class{}
 
 function JumpTravelState:enter(prevState, params)
@@ -21,10 +23,10 @@ function JumpTravelState:enter(prevState, params)
     if self.camera then
         local pos = self.pathFollow:getPositionV()
         self.camera:addExtraTarget('jump_travel', {
-            x = pos.x - 16,
-            y = pos.y - 16,
-            w = 32,
-            h = 32,
+            x = pos.x - Geom.TILE_SIZE / 2,
+            y = pos.y - Geom.TILE_SIZE / 2,
+            w = Geom.TILE_SIZE,
+            h = Geom.TILE_SIZE,
         })
     end
     
@@ -48,10 +50,10 @@ function JumpTravelState:update(dt)
     if self.camera and self.pathFollow then
         local pos = self.pathFollow:getPositionV()
         self.camera:addExtraTarget('jump_travel', {
-            x = pos.x - 16,
-            y = pos.y - 16,
-            w = 32,
-            h = 32,
+            x = pos.x - Geom.TILE_SIZE / 2,
+            y = pos.y - Geom.TILE_SIZE / 2,
+            w = Geom.TILE_SIZE,
+            h = Geom.TILE_SIZE,
         })
     end
     

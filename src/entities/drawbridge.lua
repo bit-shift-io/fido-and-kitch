@@ -146,10 +146,17 @@ function Drawbridge:init(object)
 
 	self.flipCrossing = (object.properties and object.properties.flipCrossing) or nil
 
-	-- The object rect is the ART box (drawbridge.tj: 64x64); the sprite
-	-- fills it 1:1, centred on it, plus optional author-side
-	-- `spriteOffsetX`/`spriteOffsetY` (px, positive = right/down) that move
-	-- only the art -- the colliders below never follow them.
+	self:buildSprite(object)
+	self:buildDeckAndTrigger(object)
+	self:buildSound()
+	self:buildSwitch()
+end
+
+-- The object rect is the ART box (drawbridge.tj: 64x64); the sprite fills
+-- it 1:1, centred on it, plus optional author-side `spriteOffsetX`/
+-- `spriteOffsetY` (px, positive = right/down) that move only the art --
+-- the colliders below never follow them.
+function Drawbridge:buildSprite(object)
 	local spriteBoxWidth, spriteBoxHeight = spriteBoxDimensions(object.width, object.height)
 	local spriteOffsetX = tonumber(object.properties.spriteOffsetX) or 0
 	local spriteOffsetY = tonumber(object.properties.spriteOffsetY) or 0
@@ -162,16 +169,18 @@ function Drawbridge:init(object)
 	spriteProps.finish = utils.bindSelf(self.onAnimationFinish, self)
 
 	self.sprite = self:addComponent(Sprite(spriteProps))
+end
 
-	-- The gameplay footprint is independent of the art box: the deck,
-	-- trigger, and occupancy geometry derive from the colliderWidth/
-	-- colliderHeight template props (drawbridge.tj: one tile each -- 32x32),
-	-- anchored at the object's own corner (plus optional colliderOffsetX/Y
-	-- author nudges, symmetric to the sprite offsets), so doubling the art
-	-- box to the true 64px frame -- or moving the art in the editor -- never
-	-- drags the colliders the author placed over the gap. Falling back to the
-	-- object's own size means a map that omits the props (or a headless test
-	-- stub) still gets a deck.
+-- The gameplay footprint is independent of the art box: the deck, trigger,
+-- and occupancy geometry derive from the colliderWidth/colliderHeight
+-- template props (drawbridge.tj: one tile each -- 32x32), anchored at the
+-- object's own corner (plus optional colliderOffsetX/Y author nudges,
+-- symmetric to the sprite offsets), so doubling the art box to the true
+-- 64px frame -- or moving the art in the editor -- never drags the
+-- colliders the author placed over the gap. Falling back to the object's
+-- own size means a map that omits the props (or a headless test stub)
+-- still gets a deck.
+function Drawbridge:buildDeckAndTrigger(object)
 	local colliderWidth = tonumber(object.properties.colliderWidth) or self.rect.width
 	local colliderHeight = tonumber(object.properties.colliderHeight) or self.rect.height
 	local colliderOffsetX = tonumber(object.properties.colliderOffsetX) or 0
@@ -228,14 +237,18 @@ function Drawbridge:init(object)
 		sensor = true,
 		position = self.triggerCentre,
 	})
+end
 
+function Drawbridge:buildSound()
 	self.sound = self:addComponent(Sound{
 		sounds = {
 			open = 'res/snd/entity_drawbridge_open.wav',
 			close = 'res/snd/entity_drawbridge_close.wav',
 		}
 	})
+end
 
+function Drawbridge:buildSwitch()
 	-- A linked switch, once flicked ON, holds the bridge open and locks it
 	-- there: with nobody holding it, it won't re-close, regardless of
 	-- occupancy. Turning OFF only releases that lock -- it plays the close

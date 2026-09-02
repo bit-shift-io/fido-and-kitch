@@ -1,6 +1,7 @@
 local GameAPI = {}
 local json = require('lib.dkjson')
 local Helpers = require('src.ipc.handler_helpers')
+local Geom = require('src.utils.geom')
 
 local function getColliderInfo(collider)
 	if not collider then return nil end
@@ -175,8 +176,8 @@ function GameAPI.spawnEntity(entityType, x, y, props)
 		name = entityType,
 		x = x,
 		y = y,
-		width = props.width or 32,
-		height = props.height or 32,
+		width = props.width or Geom.TILE_SIZE,
+		height = props.height or Geom.TILE_SIZE,
 		properties = props,
 		layer = targetLayer
 	}

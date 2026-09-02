@@ -1,6 +1,7 @@
 local MapInfo = require('src.ui.map_info')
 local LevelRecords = require('src.utils.level_records')
 local Format = require('src.utils.format')
+local Geom = require('src.utils.geom')
 
 local MapCard = Class{}
 
@@ -107,8 +108,8 @@ end
 
 local function drawMapThumbnail(mapData)
 	local lg = love.graphics
-	local mapPixelWidth = math.max(1, (mapData.width or 1) * (mapData.tilewidth or 32))
-	local mapPixelHeight = math.max(1, (mapData.height or 1) * (mapData.tileheight or 32))
+	local mapPixelWidth = math.max(1, (mapData.width or 1) * (mapData.tilewidth or Geom.TILE_SIZE))
+	local mapPixelHeight = math.max(1, (mapData.height or 1) * (mapData.tileheight or Geom.TILE_SIZE))
 	local scale = math.min(THUMBNAIL_WIDTH / mapPixelWidth, THUMBNAIL_HEIGHT / mapPixelHeight)
 	local tx = (THUMBNAIL_WIDTH - (mapPixelWidth * scale)) * 0.5
 	local ty = (THUMBNAIL_HEIGHT - (mapPixelHeight * scale)) * 0.5

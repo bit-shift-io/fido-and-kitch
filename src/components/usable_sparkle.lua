@@ -20,6 +20,7 @@
 --   rate      particles emitted per frame while a player is in range
 --   width,height  emission box override (defaults to the entity's collider box)
 local Particles = require('src.emitters.sprite_emitter')
+local Geom = require('src.utils.geom')
 
 local TEXTURES = {
 	'res/img/fx/fx_star_glow.png',
@@ -93,9 +94,9 @@ function UsableSparkle:getBox()
 	end
 	local cx, cy = self:getAnchor()
 	return {
-		left = cx - 16, right = cx + 16,
-		top = cy - 16, bottom = cy + 16,
-		width = 32, height = 32,
+		left = cx - Geom.TILE_SIZE / 2, right = cx + Geom.TILE_SIZE / 2,
+		top = cy - Geom.TILE_SIZE / 2, bottom = cy + Geom.TILE_SIZE / 2,
+		width = Geom.TILE_SIZE, height = Geom.TILE_SIZE,
 	}
 end
 
