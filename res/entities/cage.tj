@@ -25,6 +25,16 @@
              "name":"loop",
              "type":"bool",
              "value":false
+            },
+            {
+             "name":"spawn_type",
+             "type":"string",
+             "value":"bird"
+            },
+            {
+             "name":"path",
+             "type":"object",
+             "value":0
             }],
      "rotation":0,
      "type":"cage",
