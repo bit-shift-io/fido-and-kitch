@@ -32,7 +32,7 @@ end
 -- writing anywhere in the project tree needs a different route: encode the
 -- frame's image data in memory (no filename passed to ImageData:encode)
 -- and write the raw bytes out with plain Lua file I/O instead
--- (DECISIONS.md Key Assumptions / HANDOFF gotcha).
+-- (see DECISIONS.md Key Assumptions).
 function Capture.capture(name)
 	if not context then
 		error(

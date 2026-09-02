@@ -1,7 +1,7 @@
 -- Ladder no-gravity zone: a falling player who overlaps the ladder volume
 -- must be caught automatically (no input, no mount key), hanging in place
 -- with gravity suspended -- instead of falling through the column to the
--- floor (the side-entry fall-through bug, see NOTES.md 2026-08-24).
+-- floor (the side-entry fall-through bug).
 -- Companion invariant: a GROUNDED player walking through the base column is
 -- never auto-caught (catch requires being airborne or pressing up/down).
 local GameHarness = require('tests.support.game_harness')

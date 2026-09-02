@@ -1,27 +1,13 @@
 local MapInfo = require('src.ui.map_info')
 local LevelRecords = require('src.utils.level_records')
+local Format = require('src.utils.format')
 
 local MapCard = Class{}
 
 local THUMBNAIL_WIDTH = 360
 local THUMBNAIL_HEIGHT = 220
 
--- Mirrors src/states/level_complete_state.lua's MEDAL_COLORS/formatTime for
--- visual consistency across the two screens; not worth extracting a shared
--- module for two small pieces at this project's current scale.
-local MEDAL_COLORS = {
-	bronze={0.80, 0.50, 0.20, 1},
-	silver={0.75, 0.75, 0.78, 1},
-	gold={1, 0.86, 0.22, 1},
-}
-
--- Floors seconds (no rounding surprises) and formats as mm:ss.
-local function formatTime(totalSeconds)
-	local seconds = math.floor(totalSeconds or 0)
-	local minutes = math.floor(seconds / 60)
-	local remainingSeconds = seconds % 60
-	return string.format('%02d:%02d', minutes, remainingSeconds)
-end
+local MEDAL_COLORS = Format.MEDAL_COLORS
 
 -- Pure: turns a LevelRecords record (or nil, for a never-completed level)
 -- into the {medal, time} the card draws. No record means no display -- a
@@ -32,7 +18,7 @@ local function recordDisplayFor(record)
 
 	return {
 		medal = record.medal,
-		time = formatTime(record.bestTimeSeconds),
+		time = Format.time(record.bestTimeSeconds),
 	}
 end
 
@@ -254,6 +240,5 @@ MapCard.objectTopY = objectTopY
 MapCard.collisionRects = collisionRects
 MapCard.drawMapThumbnail = drawMapThumbnail
 MapCard.recordDisplayFor = recordDisplayFor
-MapCard.formatTime = formatTime
 
 return MapCard

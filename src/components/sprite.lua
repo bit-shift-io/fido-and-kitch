@@ -2,16 +2,6 @@ local AssetManager = require('src.utils.asset_manager')
 
 local Sprite = Class{}
 
--- Mirrors Sound.silentMode: headless tests have no love.graphics, so
--- AssetManager.getImage already degrades to returning nil rather than
--- loading a real texture. Sprite still needs to construct successfully in
--- that case (an entity's other logic -- state machines, colliders -- may
--- be under test even though nothing will ever draw), just without a real
--- image to measure or a real Quad to cut.
-local function isHeadless()
-	return not (love and love.graphics)
-end
-
 local function setImageFilter(image, filter)
 	if image and image.setFilter then
 		image:setFilter(filter or 'linear', filter or 'linear')

@@ -1,8 +1,8 @@
--- NPC verify-only coverage for the remodeled ladders (NOTES.md 2026-08-24,
--- decision 6): the no-gravity auto-catch lives in the player-only
--- FallState/LadderState FSM, so NPCs must fall THROUGH the ladder volume
--- uncaught and land on whatever terrain is below. No src/npc changes are
--- expected here -- if this test fails the remodel leaked into NPC code.
+-- NPC verify-only coverage for the remodeled ladders: the no-gravity
+-- auto-catch lives in the player-only FallState/LadderState FSM, so NPCs
+-- must fall THROUGH the ladder volume uncaught and land on whatever terrain
+-- is below. No src/npc changes are expected here -- if this test fails the
+-- remodel leaked into NPC code.
 -- Uses the top room: its perched player hugs the slab, leaving the column
 -- interior below empty, so the drop path crosses no other body.
 local GameHarness = require('tests.support.game_harness')

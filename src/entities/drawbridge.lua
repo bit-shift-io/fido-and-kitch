@@ -8,9 +8,7 @@
 -- bridge down: it lowers while held and raises once it's not, reversing an
 -- in-flight animation from the current frame if the hold state flips
 -- mid-transition. No eligibility, no memory of past occupancy: held is
--- recomputed fresh every frame. See .scratch/drawbridge/ for the original
--- design and DECISIONS.md Q3/Q4 for why the old flag-based model could get
--- permanently stuck open.
+-- recomputed fresh every frame (see DECISIONS.md Q3/Q4).
 --
 -- Single file, not the multi-file directory NOTES.md originally called
 -- for: that split existed solely so the pure decision helpers below could
@@ -23,6 +21,7 @@
 
 local Drawbridge = Class{__includes = Entity}
 local SpriteProps = require('src.entities.sprite_props')
+local Geom = require('src.utils.geom')
 
 -- centre-offset (from the bridge tile's own centre) for the arrival-side
 -- trigger sensor, positioned flush against the gap's edge -- not a full
@@ -302,7 +301,6 @@ end
 -- the deck (feet at the tile's top edge, body extending upward) is caught
 -- by the overlap query below, not just something inside the tile's own
 -- physical depth
-local OCCUPANCY_HEIGHT_MARGIN = 32
 
 -- held is evaluated fresh every frame, separately, over the trigger tile
 -- and the deck tile -- an entity that has triggered the bridge but not yet
@@ -315,13 +313,13 @@ function Drawbridge:checkHeld()
 	local triggerBounds = {
 		left = self.triggerCentre.x - self.triggerWidth / 2,
 		right = self.triggerCentre.x + self.triggerWidth / 2,
-		top = self.rect.y - OCCUPANCY_HEIGHT_MARGIN,
+		top = self.rect.y - Geom.OCCUPANCY_HEIGHT_MARGIN,
 		bottom = self.rect.y + self.rect.height,
 	}
 	local deckBounds = {
 		left = self.rect.x,
 		right = self.rect.x + self.rect.width,
-		top = self.rect.y - OCCUPANCY_HEIGHT_MARGIN,
+		top = self.rect.y - Geom.OCCUPANCY_HEIGHT_MARGIN,
 		bottom = self.rect.y + self.rect.height,
 	}
 	local triggerHeld = isHeld(world:queryOverlap(triggerBounds), self)

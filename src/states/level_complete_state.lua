@@ -2,22 +2,11 @@ local BaseState = require('src.states.base_state')
 local Log = require('src.utils.log')
 local LevelScore = require('src.scoring.level_score')
 local LevelRecords = require('src.utils.level_records')
+local Format = require('src.utils.format')
 
 local LevelCompleteState = Class{__includes = BaseState}
 
-local MEDAL_COLORS = {
-    bronze = {0.80, 0.50, 0.20, 1},
-    silver = {0.75, 0.75, 0.78, 1},
-    gold = {1, 0.86, 0.22, 1},
-}
-
--- Floors seconds (no rounding surprises) and formats as mm:ss.
-local function formatTime(totalSeconds)
-    local seconds = math.floor(totalSeconds or 0)
-    local minutes = math.floor(seconds / 60)
-    local remainingSeconds = seconds % 60
-    return string.format('%02d:%02d', minutes, remainingSeconds)
-end
+local MEDAL_COLORS = Format.MEDAL_COLORS
 
 function LevelCompleteState:enter()
     Log.debug('levelcomplete enter')
@@ -108,7 +97,7 @@ function LevelCompleteState:draw()
     lg.setColor(1, 1, 1, 0.9)
     y = y + lineHeight
 
-    lg.printf(string.format('Time: %s', formatTime(self.timeTaken)), 0, y, w, 'center')
+    lg.printf(string.format('Time: %s', Format.time(self.timeTaken)), 0, y, w, 'center')
     y = y + lineHeight
 
     local buttonWidth = 220

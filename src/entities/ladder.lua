@@ -202,8 +202,7 @@ function Ladder:createCollider()
 	return self.collider
 end
 
--- The bare top of the ladder is a standable one-way platform (see NOTES.md
--- 2026-08-24 decision 4): a thin solid slab sitting on the top edge so a
+-- The bare top of the ladder is a standable one-way platform: a thin solid slab sitting on the top edge so a
 -- player who climbs out of the volume -- or walks across from an adjacent
 -- flush ledge -- can stand there with no terrain beneath.
 function Ladder:createTopCollider()

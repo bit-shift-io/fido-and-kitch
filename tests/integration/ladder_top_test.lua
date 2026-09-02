@@ -1,7 +1,7 @@
 -- Bare ladder top: the ladder's top edge is a one-way platform in its own
 -- right -- a player who climbs out of the volume stands ON it even with no
--- terrain beneath (see NOTES.md 2026-08-24 decision 4), and the bare top
--- walks like ground onto an adjacent flush ledge.
+-- terrain beneath, and the bare top walks like ground onto an adjacent
+-- flush ledge.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')

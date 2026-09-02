@@ -1,21 +1,37 @@
 # Codebase Audit Summary
 
 **Audit Target:** `fido-and-kitch` (LÖVE 2D puzzle-platformer)  
-**Date:** 2026-08-30  
+**Date:** 2026-09-02  
 
 ---
 
 ## Executive Summary
 
-Well-organized LÖVE 2D codebase with clean component architecture, strong three-tier test suite, and zero TODO/FIXME tags in first-party code. The strongest areas are sound entity/module boundaries (player, map, states, diorama), a mature test harness with `_internal` white-box seams, and consistent lint-free source. Primary technical debt is duplication and drift: copy-pasted IPC handler helpers, per-NPC defaults tables that duplicate `npc_config.lua`, ~14 hand-rolled entity init blocks, a broken `collider_draw` nil assignment, and a package risk from `makelove.toml`'s shallow globs. A meaningful fraction of the test suite (8 unit/integration test files) is written but never registered in the runners, silently dropping coverage.
+Healthy LÖVE 2D codebase with clean component architecture and a strong three-tier test suite (85 unit + 85 integration + 12 e2e). The prior audit's high-priority items (dead/broken code, stale mover_platform numbers, NPC defaults duplication, IPC handler boilerplate, unregistered test files) have all been resolved. DECISIONS.md and ADRs 0001–0006 now exist, closing the doc drift flagged previously. Remaining debt is primarily polish: 6 stale `.scratch/` cross-references, 6 dangling `NOTES.md 2026-08-24` pointers, minor code duplication (`formatTime`, `isHeadless`), 3 files over 400 lines, and mixed indentation across 18 files.
 
 ## Key Metrics
 
-- **Unused/Orphan Files:** 2 first-party (`tests/integration/debug_switch_drawbridge.lua`, `src/export_png.lua` tooling); 3 unreferenced fixtures; `lib/Slab/` + several `lib/hump/` modules shipped but unused
-- **Dead Functions/Methods:** ~14 fully-dead (zero callers) + ~6 referenced only by tests; 1 broken nil assignment
-- **Commented-Out Code / Debug Logs:** 0 commented-out blocks in `src/`/`tests/`; ~18 level-gated `Log.debug` calls (acceptable); 1 orphaned debug script with raw `print`s
-- **Open TODOs/FIXMEs:** 0 in first-party code; TODOs only in vendored `lib/`; 5 tracked in `TODO.md`
-- **Unregistered Test Files:** 8 (5 unit, 3 integration) never run by default suite
+- **Unused/Orphan Files:** 1 dead module (`src/utils/constants.lua`); 0 orphaned test files (previous orphans resolved)
+- **Dead Functions/Methods:** 1 confirmed (`AssetManager.getTextureCount()` — documented but never called)
+- **Commented-Out Code:** 1 instance (`src/components/pickup.lua:24`)
+- **Open TODOs/FIXMEs:** 0 in first-party code
+- **Stale Cross-References:** 16 (6 `.scratch/`, 4 `HANDOFF`, 6 `NOTES.md 2026-08-24`)
+- **Long Files (400+):** 3 (`tmj.lua` 611, `npc_base.lua` 525, `story.lua` 418)
+- **Long Functions (50+):** 38 (worst: `registerBuiltins` 161 lines, `Tmj.parse` 155)
+
+---
+
+## Resolved Since Last Audit (2026-08-30)
+
+All Phase 1–5 tasks from the previous audit are complete:
+- Dead/broken physics code removed (`collider_draw` nil, `World:draw`, `worldDraw`)
+- Dead `decideLadderMovement`, `exit_door.reset/add`, `input_config.save/serialize`, `tmj.embeddedKeySig` removed
+- `npc_config.lua` dead fields trimmed, per-NPC defaults collapsed into `NPCConfig.Defaults`
+- IPC handler duplication extracted to `src/ipc/handler_helpers.lua`
+- 8 unregistered test files now registered
+- `mover_platform.lua` speed defaults corrected (100→50)
+- DECISIONS.md authored (147 lines, Q1–Q11); ADRs 0001–0006 all exist
+- `pickup.lua:18` typo "annother" fixed
 
 ---
 
@@ -25,97 +41,75 @@ Well-organized LÖVE 2D codebase with clean component architecture, strong three
 
 | File Path | Type | Details | Recommended Action |
 | :--- | :--- | :--- | :--- |
-| `tests/integration/debug_switch_drawbridge.lua` | Orphaned debug script | Full of ad-hoc `print("Bridge:", bridge)` instrumentation; not registered in `run.lua`, required nowhere | Delete (dev scaffolding) |
-| `tests/fixtures/ladder_room.tmj` | Orphaned fixture | No test/map references | Delete or wire to a regression test |
-| `tests/fixtures/ladder_walkin_repro.tmj` | Orphaned fixture | No test/map references | Delete or wire |
-| `tests/fixtures/npc_follow_test.tmj` | Orphaned fixture | `npc/states/follow_state.lua` exists but nothing exercises it with this fixture | Wire to a test or delete |
-| `src/player/player_movement.lua:28` | Dead function | `PlayerMovement.decideLadderMovement` — zero callers, never tested; `LadderState` implements climb inline | Delete |
-| `src/physics/bump/collider.lua:80` | Broken nil assignment | `self.draw = Collider.collider_draw` but `collider_draw` is never defined anywhere → assigns `nil` | Remove the line (or define the fn) |
-| `src/physics/bump/world.lua:16` + `collider.lua:121` | Dead draw path | `World:draw` → `Collider:worldDraw` never called (debug physics via `DebugOverlay` instead) | Delete both |
-| `src/physics/bump/collider.lua:153,158,169` | Dead methods | `setFixedRotation`, `teleport` (no callers); `setY` used only internally | Delete `setFixedRotation`/`teleport` |
-| `src/utils/asset_manager.lua:14,18` | Dead exports | `clear()`, `getTextureCount()` — zero refs (but documented in AGENTS.md) | Delete or keep + keep doc in sync |
-| `src/entities/exit_door.lua:78,82,86` | Dead methods | `reset`, `add`, `subtract` — `reset`/`add` zero callers; `subtract` test-only | Delete `reset`/`add` (or keep `subtract` as test API) |
-| `src/input/input_config.lua:38,75` | Dead chain | `save()` + `serialize()` never called (config never persisted from game) | Delete or add persistence path |
-| `src/npc/npc_config.lua:4-11,22-27` | Dead data | `BehaviorTypes` table + several default fields (`followTarget`, `canPush`, `canBePushed`, `pushForce`, `triggerSwitches`) never read | Trim dead fields |
-| `src/entities/npc_spider.lua:4` | Unused require | `local NPCConfig = require(...)` never used | Remove |
-| `src/components/timeline.lua:98` | Unused local | `local startClock = self.tween.clock` assigned, never read | Remove |
-| `src/map/tmj.lua:171` | Unused local fn | `embeddedKeySig(key)` never called | Delete |
-| `src/utils/tbl.lua:34` | Test-only | `tbl.length` only used by `tests/unit/replicator_test.lua` | Keep as test helper or move |
-| `src/components/timeline.lua:204-212` | Test-only | `setDirection`/`setSpeed`/`getSpeed` used only by `timeline_reverse_test.lua` | Keep as test API |
-| `src/fx/manager.lua:51` | Deliberately unused | `FxManager:draw` — code avoids calling it (would double-draw) | Keep + comment documents this |
-| `lib/Slab/` (whole dir) | Unused vendored payload | Required once at `main.lua:46`, invoked once at `:135`; menu is custom-drawn | Remove or replace with own menu (verify packaging) |
-| `lib/hump/{camera,gamestate,signal,timer,vector-light}.lua` | Unused vendored payload | Only `hump.class` + `hump.vector` are used | Trim vendored deps |
-| `tests/support/capture.lua:20`, `fake_input.lua:55,135`, `queries.lua:57`, `love_mock.lua:23,223` | Dead test helpers | `Capture.clearContext`, `Joystick:setButtonDown`, `WindowControl:toggleFullscreen`, `Queries.inventoryCount`, `data:mapPixel`, `mesh:setVertices/getVertices` — no callers | Delete or document as planned API |
-| `src/entities/boulder.lua`, `layered_prop.lua`, `npc_rabbit.lua`, `npc_bird.lua`, `pressure_switch.lua` | Reachable but only via fixtures/templates/tests | No authored Tiled object in any shipped map | Not orphans — note as untested-by-authored-content |
+| `src/utils/constants.lua` | Dead module | Defines `GameConstants` table; **never required** by any file in src/ or tests/. All constants duplicated into individual files that use them | Delete |
+| `src/utils/asset_manager.lua:18` | Dead export | `getTextureCount()` — zero callers (documented in AGENTS.md but never used) | Delete or keep + accept doc overhead |
 
-### 2. Code Structure & Complexity Smells
+### 2. Stale Cross-References
+
+| File Path | Line | Stale Reference | Recommendation |
+| :--- | :--- | :--- | :--- |
+| `src/entities/drawbridge.lua` | 11 | `.scratch/drawbridge/` | Remove or re-point |
+| `tests/e2e/drawbridge_test.lua` | 6–7 | `HANDOFF.md` + `.scratch/drawbridge/` | Remove or re-point |
+| `tests/unit/teleport_start_disabled_test.lua` | 4 | `.scratch/procedural-level-generation/DECISIONS.md` | Remove or re-point |
+| `tests/support/love_mock.lua` | 4 | `.scratch/integration-testing/` | Remove or re-point |
+| `tests/integration/external_tileset_test.lua` | 4 | `.scratch/external-tilesets/` | Remove or re-point |
+| `tests/integration/ladder_sound_test.lua` | 2 | `.scratch/sound-component/` + `HANDOFF.md` | Remove or re-point |
+| `src/npc/web.lua` | 3 | `HANDOFF gotcha` | Remove or re-point |
+| `tests/support/capture.lua` | 35 | `HANDOFF gotcha` | Remove or re-point |
+| `src/player/player_movement.lua` | 75 | `NOTES.md 2026-08-24` | Update date or remove |
+| `src/entities/ladder.lua` | 206 | `2026-08-24 decision 4` | Update date or remove |
+| `tests/integration/ladder_catch_test.lua` | 4 | `NOTES.md 2026-08-24` | Update date or remove |
+| `tests/integration/ladder_seam_test.lua` | 6 | `NOTES.md 2026-08-24` | Update date or remove |
+| `tests/integration/npc_ladder_test.lua` | 1 | `NOTES.md 2026-08-24` | Update date or remove |
+| `tests/integration/ladder_top_test.lua` | 3 | `NOTES.md 2026-08-24` | Update date or remove |
+
+### 3. Code Duplication
+
+| Pattern | Files | Details | Recommendation |
+| :--- | :--- | :--- | :--- |
+| `formatTime` | `level_complete_state.lua:15`, `map_card.lua:19` | Identical 5-line function copy-pasted | Extract to shared util |
+| `isHeadless()` | `sound.lua:17`, `tint.lua:21`, `sprite.lua:11`, `laser_beam.lua:17` | 4 separate local definitions (3 identical checking `love.graphics`, 1 checking `love.audio`) | Extract to shared util |
+| `OCCUPANCY_HEIGHT_MARGIN = 32` | `pressure_switch.lua:61`, `drawbridge.lua:305` | Same constant defined in two files | Extract to shared constant |
+| IPC handler guard boilerplate | `handlers/{debug,entity,map,player}.lua` | `Helpers.inGameState()` + `if not state` pattern repeated ~6× | Partially addressed (handler_helpers.lua exists), but the guard pattern still duplicated |
+
+### 4. Commented-Out Code
+
+| File Path | Line | Snippet | Recommendation |
+| :--- | :--- | :--- | :--- |
+| `src/components/pickup.lua` | 24 | `-- utils.instanceOf(entity, Player)` | Remove stale commented-out code |
+
+### 5. Code Structure & Complexity
 
 | File Path | Issue | Context / Severity | Suggested Refactor |
 | :--- | :--- | :--- | :--- |
-| `src/ipc/handlers/{debug,entity,map,player}.lua` | Duplication (High) | `inGameState()` helper + `local stepFixed`/`FRAME_DT` loop copy-pasted verbatim across all 4 handlers | Extract a shared `src/ipc/handler_helpers.lua` |
-| `src/entities/npc_{bird,spider,rabbit,robot}.lua` | Duplication (High) | Each hand-rolls a full defaults table (overlapping keys) + the same `merge` loop, duplicating `npc_config.lua`'s `NPCConfig.Defaults` | Collapse per-NPC tables into `NPCConfig`; only `idleImage`/`width`/`height` differ |
-| `src/entities/…` (~14 direct `Entity` subclasses) | Duplication (Medium-High) | Same `Rect.centreOfMapObject` + `SpriteProps.fromObject` + `addComponent(Sprite/Collider)` init boilerplate recurs across cage, flag, exit_door, jump_pad, kill_zone, ladder, mover_platform, pressure_switch, replicator, story, switch, teleport, drawbridge, blocker, layered_prop | Extract a shared solid-static-entity init helper (factory already exists for coin/key/pushbox) |
-| `src/map/init.lua:21` / `tj_template.lua:31` / `tj_tileset.lua:20` / `tmj.lua:463` | Duplication (Medium) | Identical `io.open → read('*a') → close` file-reading fallback in 4 places | Centralize into one `readFile` module |
-| `src/camera.lua` / `src/map/parallax_renderer.lua` | Duplication (Low) | `local function clamp` defined in both | Share from `utils` |
-| `src/map/tmj.lua` | File length 613 | Largest file; mixed parsing + embedded-tile + template concerns | Consider splitting parse helpers |
-| `src/npc/npc_base.lua` | File length 479 | Core NPC logic + states + utility AI | Consider extracting utility-weight AI |
-| `src/entities/story.lua` | File length 418 | Entity + dialog/bubble rendering | Consider splitting render helpers |
-| `src/ipc/command_handlers.lua:30-191` | Function length 121 | `registerBuiltins` — ~20 closures, player-index `if not idx or (idx~=1 and idx~=2)` + action validation repeated ~6× | Extract a small validator helper |
-| `src/entities/drawbridge.lua:134-237` | Function length 104 | `Drawbridge:init` monolithic | Split into sub-init helpers |
-| `src/player/player.lua:43-127` | Function length 85 | `Player:init` | Consider composing subsystems |
-| `src/ui/map_card.lua` | Nesting depth 9 | Deeply nested read/parse helpers | Extract sub-functions |
-| `src/map/entity_factory.lua`, `src/map/init.lua`, `src/map/tmj.lua`, `src/map/tj_tileset.lua` | Nesting depth 7 | Render-order / object-exec substitution loops | Extract inner helpers |
-| `src/export_png.lua` | Nesting depth 8 + tool in `src/` | Dev tool living among game code | Move to `tools/` |
-| `src/ui/grid_overlay.lua:22` / `src/export_png.lua:73` | 9 / 8 params | `GridOverlay.drawGrid(mapW,mapH,tx,ty,sx,sy,screenW,screenH,tile)`; `paintRect(...8)` | Group into options/rect table |
-| `src/map/tmj.lua:360` | 8 params | `Tmj.parseLayer(...)` | Group helpers into a parse-context table |
-| `src/player/player_sensors.lua`, `src/player/ground_support.lua` | Magic numbers | Repeated `4`/`5` inward margins + probe offsets (≈10 sites); `x±2`/`+4`/`+5` probes un-named (codebase already centralizes these into `movement_constants.lua`/`physics_tolerance.lua`) | Name the probe/margin constants |
-| `src/entities/mover_platform.lua:236-238` | Magic numbers + stale | Inline `or 50`/`or 0.5` fallbacks for template defaults | Name constants |
-| `src/entities/jump_pad.lua:56,74` | Magic numbers | `count=16`, `speed=120` inline | Name constants |
-| `src/npc/npc_base.lua:46-54,85` | Magic numbers | `utilityWeights` hardcoded; `RESPAWN_DELAY = 2` inline | Name constants |
-| `src/ipc/handlers/debug.lua:60` | Missing error handling | Screenshot path `/working_dir/filename.png` built without verifying parent/extension | Validate before write |
-| `src/components/variable.lua:25` | Fragile event wiring | `'on_'..value` string-built event name can silently emit to nothing | Check signal exists |
+| `src/map/tmj.lua` (611 lines) | File length | Largest file; mixed parsing + tileset + template concerns | Split parse helpers into sub-modules |
+| `src/npc/npc_base.lua` (525 lines) | File length | Core NPC logic + states + utility AI | Extract utility-weight AI |
+| `src/entities/story.lua` (418 lines) | File length | Entity + dialog/bubble rendering | Split render helpers |
+| `src/ipc/command_handlers.lua:30` | Function 161 lines | `registerBuiltins` — ~20 closures with repeated validation | Extract validator helper |
+| `src/map/tmj.lua:455` | Function 155 lines | `Tmj.parse` | Split into sub-parsers |
+| `src/entities/drawbridge.lua:142` | Function 142 lines | `Drawbridge:init` | Split into sub-init helpers |
+| `src/entities/laser_beam_resolver.lua:101` | 11 params | `castSegment(x1,y1,direction,farEndpointFn,querySegmentFn,bounceCount,segments,killed,destroyed,activated,pivotEntity)` | Use parameter table |
+| `src/ui/grid_overlay.lua:22` | 9 params | `computeGridLines(mapW,mapH,tx,ty,sx,sy,screenW,screenH,tile)` | Use parameter table |
+| 18 files | Mixed indentation | Tabs + spaces mixed at line-start level in `components/`, `diorama.lua`, `game.lua`, `main.lua`, etc. | Pick one style, fix the 18 files |
 
-### 3. Comments & Technical Debt
+### 6. Magic Numbers
 
-| File Path | Type | Snippet / Context | Recommendation |
-| :--- | :--- | :--- | :--- |
-| `src/entities/mover_platform.lua:12,105,115` | Stale comment + code (High) | Comments built on old `100px/s` default; `pauseDistance = (pause or 0) * (speed or 100)` disagrees with `or 50` at line 236 (default is 50). Explicitly flagged as known-stale in `NOTES.md` | Update to 50/0.5 (align fallback with template) |
-| `DECISIONS.md` | Missing doc referenced from **35 files** | `src/main.lua`, pushable, blocker, drawbridge, teleport, tj_template, level_records, tests/support, tools/… all cite `DECISIONS.md Q#` but file doesn't exist | Ship the decision doc or strip/repoint refs |
-| `docs/adr/` | Missing ADRs | Only `0001` exists, but `pushable_support.lua`, `blocker.lua`, `coin_identity_test`, `pressure_switch_test` cite `ADR 0005` | Add ADRs 0002–0005 or correct refs |
-| `NOTES.md 2026-08-24` | Dangling refs | `player_movement.lua:133`, `ladder_catch_test.lua:4`, `ladder_seam_test.lua:6`, `ladder_top_test.lua:3`, `npc_ladder_test.lua:1` cite ladder notes no longer in `NOTES.md` (only 2026-08-29 remains) | Restore notes or re-point |
-| `ARCHITECTURE.md:230-233` | Stale how-to | "Adding a New Player State" describes a `PlayerStates` table; real states are per-file in `src/player/states/` | Update the guide |
-| `AGENTS.md:65` | Stale listing | Lists `src/fx/dust_burst.lua` and `src/fx/spark_trail.lua` (deleted) | Remove the two entries |
-| `AGENTS.md` Layout | Incomplete | Misses `src/npc/`, `src/ipc/handlers/`, `src/emitters/`, `src/player/states/`, `src/utils/level_records.lua` (`ARCHITECTURE.md` lists them) | Add the modules |
-| `tests/integration/run.lua:3` | Stale | References `.scratch/integration-testing/` which doesn't exist | Update comment |
-| `src/components/pickup.lua:18` | Typo | "annother" | Fix typo |
-| `TODO.md` | Current | Low-priority missing-sound-WAVs item matches live comments in `kill_zone.lua`/`pressure_switch.lua` | No action (accurate) |
-
-### 4. Unregistered Test Files (silently dropped coverage)
-
-| File Path | Runners | Notes | Recommendation |
-| :--- | :--- | :--- | :--- |
-| `tests/unit/mesh_ribbon_emitter_test.lua` | not in `unit/run.lua` | Valid test, never runs | Register |
-| `tests/unit/mesh_ribbon_render_test.lua` | not in `unit/run.lua` | Valid test, never runs | Register |
-| `tests/unit/state_machine_trytransition_test.lua` | not in `unit/run.lua` | Valid test, never runs | Register |
-| `tests/unit/teleport_trail_test.lua` | not in `unit/run.lua` | Valid test, never runs | Register |
-| `tests/unit/teleport_travel_state_test.lua` | not in `unit/run.lua` | Valid test, never runs | Register |
-| `tests/integration/ladder_catch_test.lua` | not registered | Overlaps `ladder_catch_slide_test.lua` | Reconcile/delete dup |
-| `tests/integration/level_layer_render_test.lua` | not registered | Never runs | Register |
-| `tests/integration/teleport_clear_test.lua` | not registered | Overlaps `switchable_teleport_test.lua` | Reconcile/delete dup |
+| Pattern | Locations | Recommendation |
+| :--- | :--- | :--- |
+| Bare `32` (tile size) | 25+ locations across entity files, physics, IPC, diorama | Introduce `TILE_SIZE` constant |
+| `1/60` fallback timestep | `timeline.lua:45`, `sprite.lua:248` | Use shared `FRAME_DT` constant |
+| NPC tuning values | `npc_rabbit.lua` (`followDistance=40`, `hopHeight=60`), `npc_bird.lua` (`TARGET_FLIGHT_SPEED=150`), `npc_robot.lua` (`maxSpeed=60`), `npc_spider.lua` (`maxSpeed=90`) | Centralize in `npc_config.lua` |
 
 ---
 
 ## Top Priority Action Plan
 
-1. **[High]** Fix stale/inconsistent `mover_platform.lua` speed math (lines 12, 105, 115): update the `100px/s` comments and align `(speed or 100)` fallback with the `or 50` default. References are now in 3 spots and `NOTES.md` itself flags it.
-2. **[High]** Delete the broken `collider.lua:80` nil assignment (`self.draw = Collider.collider_draw`) and the dead `World:draw`/`Collider:worldDraw`/`setFixedRotation`/`teleport` physics surface — stale dead code with an actual nil bug.
-3. **[High]** Delete orphaned `tests/integration/debug_switch_drawbridge.lua` (raw `print` debug scaffolding, never runs).
-4. **[Medium]** Register the 8 unregistered unit/integration test files (or deliberately delete superseded duplicates) — otherwise their coverage is silently dropped.
-5. **[Medium]** Resolve the missing-doc drift: `DECISIONS.md` (35 refs), `ADR 0005` (3 refs), and `NOTES.md 2026-08-24` (5 refs) all point to docs that no longer exist.
-6. **[Medium]** Extract shared `src/ipc/handler_helpers.lua` for `inGameState()`/`stepFixed(FRAME_DT)` duplicated across 4 handlers.
-7. **[Medium]** Collapse per-NPC defaults tables into `NPCConfig.Defaults` (removes copy-paste + the dead `npc_spider.lua` require).
-8. **[Medium]** Verify `makelove.toml` shallow globs (`./src/*`, `./res/*`, `./lib/*`) before next package build — nested dirs (`src/map/`, `src/entities/`, `lib/hump/`, `res/img/`) may be dropped.
-9. **[Low]** Update stale docs: `AGENTS.md:65` (remove deleted fx files), `AGENTS.md` Layout (add `src/npc/`, `src/ipc/handlers/`, `src/emitters/`, `src/player/states/`), `ARCHITECTURE.md:230` player-state how-to, `run.lua:3` `.scratch/` ref.
-10. **[Low]** Name repeated probe/margin magic numbers in `player_sensors.lua`/`ground_support.lua`; unify the 4 duplicated `readFile` fallbacks; consider trimming unused `lib/Slab/` + `lib/hump/` payload.
+1. **[Medium]** Clean 16 stale cross-references (`.scratch/`, `HANDOFF`, `NOTES.md 2026-08-24`) — quick find-and-replace, no logic changes
+2. **[Medium]** Delete dead `src/utils/constants.lua` module (never required)
+3. **[Medium]** Extract shared `formatTime`, `isHeadless`, `OCCUPANCY_HEIGHT_MARGIN` duplicates
+4. **[Low]** Remove commented-out code in `pickup.lua:24`
+5. **[Low]** Standardize indentation across 18 mixed files
+6. **[Low]** Name magic `32` tile-size literals with a shared constant
+7. **[Low]** Break up 3 largest files (`tmj.lua`, `npc_base.lua`, `story.lua`) and 3 longest functions (`registerBuiltins`, `Tmj.parse`, `Drawbridge:init`)
 
-*Note: prior audit (2026-08-29) issues already resolved since: `particles_test.lua:1` stale comment, diorama `tileSize` fallback, `CONTEXT.md` GameAPI entry, orphaned `src/fx/dust_burst.lua`/`spark_trail.lua` removed.*
+*Note: prior audit (2026-08-30) high/medium items all resolved: dead code cleanup, mover_platform fix, NPC defaults consolidation, IPC handler extraction, test registration, DECISIONS.md authored, ADRs 0001–0006 shipped.*

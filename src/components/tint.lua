@@ -15,12 +15,9 @@
 -- Falls back to the old love.graphics.setColor multiply when no GPU shader
 -- is available (headless tests, ancient GL) -- same colors, just duller.
 local Color = require('src.utils.color')
+local Headless = require('src.utils.headless')
 
 local Tint = Class{}
-
-local function isHeadless()
-	return not (love and love.graphics)
-end
 
 local SHADER_SOURCE = [[
 extern vec3 uTargetHSV;
@@ -47,7 +44,7 @@ function Tint:init(props)
 	self.hsv[1], self.hsv[2], self.hsv[3] = Color.rgbToHsv(self.color[1], self.color[2], self.color[3])
 
 	self.shader = nil
-	if not isHeadless() and love.graphics.newShader then
+	if not Headless.isGraphics() and love.graphics.newShader then
 		local ok, shader = pcall(love.graphics.newShader, SHADER_SOURCE)
 		if ok then
 			self.shader = shader

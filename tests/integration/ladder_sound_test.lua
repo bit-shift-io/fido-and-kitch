@@ -1,8 +1,7 @@
 -- Ladder mount sound, driven through the real Game/Map/World/Player stack.
--- See DECISIONS.md/HANDOFF.md under .scratch/sound-component/: only a mount
--- sound is wired here -- LadderState (src/player/player_states.lua) has no
--- horizontal-slide mechanic to hook a 'slide' sound into, so that half of
--- issue 13 doesn't apply to this codebase as it stands.
+-- Only a mount sound is wired here -- LadderState
+-- (src/player/player_states.lua) has no horizontal-slide mechanic to hook a
+-- 'slide' sound into.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')

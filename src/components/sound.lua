@@ -2,6 +2,7 @@
 -- attaches a table of named WAV sources to an entity; play(name) reuses
 -- stopped sources from a pool or creates a new one with random pitch variation
 local Log = require('src.utils.log')
+local Headless = require('src.utils.headless')
 local MAX_POOL_SIZE = 8
 
 local Sound = Class{}
@@ -14,12 +15,8 @@ function Sound:init(props)
 	self.pool = {}
 end
 
-local function isHeadless()
-	return not (love and love.audio)
-end
-
 function Sound:play(name)
-	if isHeadless() then return end
+	if Headless.isAudio() then return end
 
 	local path = self.sounds[name]
 	if path == nil then

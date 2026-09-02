@@ -72,7 +72,7 @@ end
 -- game has no jump, so airborne always means falling) and overlapping the
 -- volume is caught automatically, with no mount key required. A grounded
 -- player is never caught -- walking through a ladder's base column behaves
--- like normal ground (see NOTES.md 2026-08-24).
+-- like normal ground.
 function PlayerMovement.shouldCatchFall(onGround, ladders)
 	return not onGround and #ladders > 0
 end

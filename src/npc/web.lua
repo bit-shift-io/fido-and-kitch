@@ -1,6 +1,6 @@
 -- Placeholder-quad web overlay drawn over a wrapped player (DECISIONS Q8,
 -- Q11). Runtime-spawned only -- deliberately outside src/entities/ so it can
--- never be matched by the Tiled object-type loader (see HANDOFF gotcha).
+-- never be matched by the Tiled object-type loader.
 --
 -- Plain Lua (no Class/hump dependency, unlike entities) so it stays
 -- requireable headless in tests/unit/, mirroring the PushableSupport /

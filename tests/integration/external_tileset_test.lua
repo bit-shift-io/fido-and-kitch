@@ -1,7 +1,6 @@
 -- Proves the patched STI resolves an external (.tsj-referenced) tileset
 -- through the real Map/STI stack, not just the pure external_tileset
--- module in isolation. See
--- .scratch/external-tilesets/issues/01-single-image-external-tileset.md.
+-- module in isolation.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 

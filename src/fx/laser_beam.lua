@@ -12,17 +12,15 @@
 -- Quad/Image, so this draws a solid-colour rectangle sized/coloured
 -- entirely from that frame rather than a tiled/wrapped texture. Width and
 -- colour both come from the caller's frame -- no lerp, no computation here.
-local LaserBeam = {}
+local Headless = require('src.utils.headless')
 
-local function isHeadless()
-	return not (love and love.graphics)
-end
+local LaserBeam = {}
 
 -- x1,y1 -> x2,y2: the beam's two endpoints. frame: {width, color={r,g,b}},
 -- one entry from laser.lua's POWER_FRAMES, indexed by the current power
 -- timeline position.
 function LaserBeam.draw(x1, y1, x2, y2, frame)
-	if isHeadless() then
+	if Headless.isGraphics() then
 		return
 	end
 	if frame == nil then

@@ -1,8 +1,8 @@
 -- Minimal love.* mock so the real Game/InGameState/Map/Player stack can load
 -- and update headlessly. Scoped to exactly what map loading, entity
--- construction, and the update loop touch (see DECISIONS.md Q1/Q5 under
--- .scratch/integration-testing/) -- if a later mechanic touches a new love
--- call, extend this mock rather than reimplementing more of LÖVE up front.
+-- construction, and the update loop touch (see DECISIONS.md Q1/Q5) -- if a
+-- later mechanic touches a new love call, extend this mock rather than
+-- reimplementing more of LÖVE up front.
 --
 -- Deliberately absent: love.window and love.graphics.isCreated. Map:resize()
 -- treats their absence as "no window", skipping canvas creation entirely --

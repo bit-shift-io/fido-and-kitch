@@ -21,6 +21,7 @@
 -- tests/unit/pressure_switch_test.lua for the entity-level tests this enables.
 
 local SpriteProps = require('src.entities.sprite_props')
+local Geom = require('src.utils.geom')
 
 local PressureSwitch = Class{__includes = Entity}
 
@@ -58,7 +59,6 @@ end
 -- (collider bottom) somewhere in that tile, which is all "on the plate" needs
 -- to mean -- unlike the drawbridge, this plate is exactly one tile wide/tall
 -- so its occupancy zone doesn't need extra headroom.
-local OCCUPANCY_HEIGHT_MARGIN = 32
 
 -- real art: the plate image comes from the plate's template tile
 -- (entity_pressure_switch.png), resolved via SpriteProps like every other
@@ -142,7 +142,7 @@ function PressureSwitch:hasWeight()
 	local bounds = {
 		left = self.rect.x,
 		right = self.rect.x + self.rect.width,
-		top = self.rect.y - OCCUPANCY_HEIGHT_MARGIN,
+		top = self.rect.y - Geom.OCCUPANCY_HEIGHT_MARGIN,
 		bottom = self.rect.y + self.rect.height,
 	}
 

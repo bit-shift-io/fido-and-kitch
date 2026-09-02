@@ -1,7 +1,6 @@
 -- Coverage for the small seam added to src/entities/teleport.lua so a level
 -- can author a teleporter that starts blocked until a switch/pressure-plate
--- turns it on (needed for the procedural generator's coop-dial issue --
--- .scratch/procedural-level-generation/DECISIONS.md). Existing maps never
+-- turns it on. Existing maps never
 -- author `enabled`, so the default (true) must be unchanged -- see
 -- tests/integration/switchable_teleport_test.lua's "starts enabled" case,
 -- which stays green.

@@ -3,7 +3,7 @@
 -- down must descend the DOWN-leading ladder underfoot (intent-carrying
 -- mount), never drag onto the up-leading column just because it is the only
 -- directly-overlapped volume. Also pins the arrival rule: touching down on
--- real ground at the base dismounts -- NOTES.md 2026-08-24.
+-- real ground at the base dismounts.
 local GameHarness = require('tests.support.game_harness')
 local FrameStepper = require('tests.support.frame_stepper')
 local FakeInputModule = require('tests.support.fake_input')

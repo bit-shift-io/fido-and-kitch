@@ -21,7 +21,7 @@ function Pickup:contact(other)
 	-- plain terrain (e.g. the ground a falling pickup lands on) has no
 	-- owning entity at all -- only something that IS an entity can pick
 	-- anything up
-	if entity and entity.pickup ~= nil then -- utils.instanceOf(entity, Player)
+	if entity and entity.pickup ~= nil then
 		entity:pickup(self.pickup)
 	end
 end

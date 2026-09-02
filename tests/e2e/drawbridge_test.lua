@@ -3,8 +3,7 @@
 -- staying blocked -- were previously deferred to a manual
 -- `love . drawphysics with the drawbridge fixture` run, because the headless
 -- harness can neither show nor capture the crossing. These two headed
--- scenarios make that check automated and reviewable (see HANDOFF.md and
--- .scratch/drawbridge/issues/03-open-on-correct-side.md).
+-- scenarios make that check automated and reviewable.
 --
 -- Assertions go entirely through the shared query helpers -- gameplay
 -- state, not the drawbridge component's internals, which the existing
