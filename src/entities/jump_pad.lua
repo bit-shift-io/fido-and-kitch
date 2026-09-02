@@ -41,11 +41,18 @@ function JumpPad:init(object, map)
 		}
 	})
 
-	self.pathObject = map:getObjectById(object.properties.path.id)
+	if map and object.properties and object.properties.path then
+		self.pathObject = map:getObjectById(object.properties.path.id)
+	end
 
 end
 
 function JumpPad:use(user)
+	if not self.pathObject then
+		Log.error('JumpPad has no path configured, ignoring use')
+		return
+	end
+
 	self.sound:play('launch')
 	self.sprite.timeline:playForward()
 
