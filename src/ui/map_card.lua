@@ -47,6 +47,43 @@ local function readTile(data, index)
 	return (b1 + (b2 * 256) + (b3 * 65536) + (b4 * 16777216)) % 268435456
 end
 
+-- Yields (gid) for every tile in a tile layer, oldest-first, regardless of
+-- whether the layer.data is a base64-encoded byte string or a plain integer
+-- array (Tiled's CSV/array export, e.g. res/map/fab2.tmj). decodeFn converts
+-- a string data blob to raw bytes; it is unused for plain-array data.
+local function eachTile(layer, decodeFn)
+	if type(layer.data) == "string" then
+		local decoded = decodeFn(layer.data)
+		if not decoded then
+			return function() end
+		end
+		local i = 0
+		return function()
+			i = i + 1
+			if i > layer.width * layer.height then
+				return nil
+			end
+			return readTile(decoded, i)
+		end
+	elseif type(layer.data) == "table" then
+		-- STI-shaped plain array: global gid list, or row-major rows of gids.
+		local flat = layer.data[1] and type(layer.data[1]) == "table" and layer.data or nil
+		local i = 0
+		return function()
+			i = i + 1
+			if i > layer.width * layer.height then
+				return nil
+			end
+			if flat then
+				local row = flat[math.ceil(i / layer.width)]
+				return (row and row[((i - 1) % layer.width) + 1]) or 0
+			end
+			return layer.data[i] or 0
+		end
+	end
+	return function() end
+end
+
 -- The top-left y for drawing an object's rectangle. Tile objects (dragged
 -- from a tileset/template, have a gid) are bottom-anchored in Tiled: object.y
 -- is the bottom edge, so the rect rises height above it. Plain rectangles
@@ -75,21 +112,19 @@ local function collisionRects(mapData, decodeFn)
 	for _, layer in ipairs(mapData.layers or {}) do
 		local isCollision = layer.properties and layer.properties.collision
 		if layer.visible ~= false and isCollision then
-			if layer.type == "tilelayer" and type(layer.data) == "string" then
-				local decoded = decodeFn(layer.data)
-				if decoded then
-					for y = 1, layer.height do
-						for x = 1, layer.width do
-							local gid = readTile(decoded, ((y - 1) * layer.width) + x)
-							if gid > 0 then
-								table.insert(rects, {
-									x = (x - 1) * mapData.tilewidth,
-									y = (y - 1) * mapData.tileheight,
-									w = mapData.tilewidth,
-									h = mapData.tileheight,
-								})
-							end
-						end
+			if layer.type == "tilelayer" then
+				local i = 0
+				for gid in eachTile(layer, decodeFn) do
+					i = i + 1
+					if gid > 0 then
+						local x = (i - 1) % layer.width
+						local y = math.floor((i - 1) / layer.width)
+						table.insert(rects, {
+							x = x * mapData.tilewidth,
+							y = y * mapData.tileheight,
+							w = mapData.tilewidth,
+							h = mapData.tileheight,
+						})
 					end
 				end
 			elseif layer.type == "objectgroup" then
@@ -136,23 +171,18 @@ local function drawMapThumbnail(mapData)
 			layer.visible ~= false
 			and not isCollision
 			and layer.type == "tilelayer"
-			and type(layer.data) == "string"
 		then
-			local ok, decoded = pcall(love.data.decode, "string", "base64", layer.data)
-			if ok and decoded then
-				for y = 1, layer.height do
-					for x = 1, layer.width do
-						local gid = readTile(decoded, ((y - 1) * layer.width) + x)
-						if gid > 0 then
-							lg.rectangle(
-								"fill",
-								(x - 1) * mapData.tilewidth,
-								(y - 1) * mapData.tileheight,
-								mapData.tilewidth,
-								mapData.tileheight
-							)
-						end
-					end
+			local decodeFn = function(data)
+				local ok, decoded = pcall(love.data.decode, "string", "base64", data)
+				return ok and decoded or nil
+			end
+			local i = 0
+			for gid in eachTile(layer, decodeFn) do
+				i = i + 1
+				if gid > 0 then
+					local x = (i - 1) % layer.width
+					local y = math.floor((i - 1) / layer.width)
+					lg.rectangle("fill", x * mapData.tilewidth, y * mapData.tileheight, mapData.tilewidth, mapData.tileheight)
 				end
 			end
 		end

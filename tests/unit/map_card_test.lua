@@ -64,6 +64,46 @@ test("collision rects are collected from collision-flagged tile layers", functio
 	assertEqual(32, rects[2].h)
 end)
 
+test("collision rects are collected from plain-array (CSV) tile layers", function()
+	local map = collisionMap({
+		type = "tilelayer",
+		visible = true,
+		properties = { collision = true },
+		width = 2,
+		height = 2,
+		data = { 1, 0, 0, 1 },
+	})
+
+	local rects = MapCard.collisionRects(map)
+	assertEqual(2, #rects)
+	assertEqual(0, rects[1].x)
+	assertEqual(0, rects[1].y)
+	assertEqual(32, rects[1].w)
+	assertEqual(32, rects[1].h)
+	assertEqual(32, rects[2].x)
+	assertEqual(32, rects[2].y)
+	assertEqual(32, rects[2].w)
+	assertEqual(32, rects[2].h)
+end)
+
+test("collision rects are collected from row-major plain-array tile layers", function()
+	local map = collisionMap({
+		type = "tilelayer",
+		visible = true,
+		properties = { collision = true },
+		width = 2,
+		height = 2,
+		data = { { 1, 0 }, { 0, 1 } },
+	})
+
+	local rects = MapCard.collisionRects(map)
+	assertEqual(2, #rects)
+	assertEqual(0, rects[1].x)
+	assertEqual(0, rects[1].y)
+	assertEqual(32, rects[2].x)
+	assertEqual(32, rects[2].y)
+end)
+
 test("collision rects are collected from collision-flagged object groups", function()
 	local map = collisionMap({
 		type = "objectgroup",
