@@ -1,63 +1,112 @@
-# Fix audit findings (AUDIT.md 2026-09-02)
+# Dynamic split-screen camera (2026-09-03)
 
-Plan to resolve the issues surfaced in the 2026-09-02 audit. Each task touches
-at most 1–2 files so it can be executed and verified independently. Run
-`./test-unit.sh` / `./test-integration.sh` after each phase; re-verify
-`./test-e2e.sh` after anything touching rendering/physics. Mark items `[x]` as
-they land. Task ordering favours the highest-risk items first.
+Plan generated from `NOTES.md` "Dynamic split-screen camera (2026-09-03)".
+Adds dynamic split-screen for N players (first version 2), merging back to a
+single camera when players are close or in overview. Each task touches at
+most 1–2 files. Run `./test-unit.sh` / `./test-integration.sh` after each
+phase; re-verify `./test-e2e.sh` after anything touching rendering. Mark `[x]`
+as tasks land. Task ordering favours pure/high-risk math first, wiring last.
 
-## Phase 1 — Stale cross-references (Medium, low-risk)
+## Phase 1 — Core split-decision math (pure, no love.*)
 
-Clean 16 dangling references to deleted `.scratch/` planning dirs, `HANDOFF.md`,
-and the superseded `NOTES.md 2026-08-24` date.
+The framing math in `src/camera.lua` is already pure (headless-testable). Add
+the split/merge decision and per-pane framing as pure functions so they're
+unit-testable without a window.
 
-- [x] All stale `.scratch/`, `HANDOFF.md`, and `NOTES.md 2026-08-24` references
-  were already cleaned before this audit. Verified zero remaining matches in
-  `src/` and `tests/`. One straggler in `tests/README.md:137` (`.scratch/drawbridge/`)
-  was fixed → replaced with `DECISIONS.md Q3/Q4`.
+- [ ] `src/camera.lua` — add pure `Camera.shouldPan(worldBounds, opts)` /
+  `Camera.paneViewports(...)` helpers: given the players' union-bounds span and
+  `minViewTiles`, decide whether the comfort zoom is violated (split) and
+  compute a single pane's sub-rect framing. Keep N-generic (list of pane
+  targets). No behaviour change to existing `computeFraming`.
+- [ ] `tests/unit/camera_test.lua` — unit tests for the new split-decision
+  helpers: split threshold at union-bounds span, merge hysteresis (Hi/Lo
+  bounds), and per-pane framing from a subset of targets.
 
-## Phase 2 — Dead code deletion (Medium)
+## Phase 2 — Split layout / pane partitioning (2 players, dominant axis)
 
-- [x] `src/utils/constants.lua` was already deleted before this audit (verified
-  no require references exist). Nothing to do.
-- [x] `src/components/pickup.lua:24` — removed commented-out
-  `-- utils.instanceOf(entity, Player)`.
+- [ ] `src/split_screen.lua` (new) — pure layout module: given N pane centers
+  (or player rects) and the window size, decide the divider axis by dominant
+  separation (further apart horizontally → vertical divider) and return each
+  pane's screen sub-rect `{x, y, w, h}`. 2 players first.
+- [ ] `tests/unit/split_screen_test.lua` (new) — unit tests: vertical vs
+  horizontal axis selection, pane rect partitioning sums to the window, and
+  degenerate 1-player (no split) case.
 
-## Phase 3 — Extract shared utilities (Medium)
+## Phase 3 — View-rect scoping of the draw pipeline
 
-- [x] `formatTime` was already extracted to `src/utils/format.lua` (`Format.time`)
-  by a prior session. Both callers (`level_complete_state.lua`, `map_card.lua`)
-  already use `Format.time()`. Removed dead `MapCard.formatTime = Format.time`
-  export (zero callers).
-- [x] `MEDAL_COLORS` deduplicated: extracted to `Format.MEDAL_COLORS` in
-  `src/utils/format.lua`. Updated `level_complete_state.lua` and `map_card.lua`
-  to use `Format.MEDAL_COLORS` instead of local copies.
-- [x] `isHeadless()` extracted to `src/utils/headless.lua` (`Headless.isGraphics()`,
-  `Headless.isAudio()`). Updated `sound.lua`, `tint.lua`, `sprite.lua`,
-  `laser_beam.lua`. Removed dead local `isHeadless()` in `sprite.lua` (defined
-  but never called).
-- [x] `OCCUPANCY_HEIGHT_MARGIN` was already extracted to `src/utils/geom.lua`
-  (`Geom.OCCUPANCY_HEIGHT_MARGIN`). Both callers already use it. Nothing to do.
+Today `ParallaxRenderer:drawBackground` and `Diorama.drawVoid/drawFrame`
+derive their screen math from full-window `love.graphics.getWidth()/getHeight()`.
+They must instead accept the pane's sub-rect so each pane re-renders its own
+view.
 
-## Phase 4 — Named constants (Low)
+- [ ] `src/map/parallax_renderer.lua` — `drawBackground` takes a pane
+  `{x, y, w, h}` (default to full window when absent, preserving current
+  behaviour) and uses it for its screen-space math/scissor instead of
+  `getWidth()/getHeight()`.
+- [ ] `src/diorama.lua` — `drawVoid`/`drawFrame` accept a pane sub-rect
+  (default full window when absent) and use it for void-rect and screen
+  geometry.
+- [ ] `tests/unit/parallax_test.lua` (or existing `map_parallax_test.lua`),
+  `tests/unit/diorama_test.lua` — add tests for pane-sub-rect-driven math:
+  void strips computed against a sub-rect, parallax scissor bounded to the
+  sub-rect. No regressions to the full-window default path.
 
-- [ ] Introduce `TILE_SIZE = 32` constant for the 25+ bare `32` tile-size literals
-- [ ] `src/player/player_sensors.lua`, `src/player/ground_support.lua` — extract
-  repeated probe/margin literals (`+4`, `-4`, `or 4`, `or 5`) into named constants
-- [ ] `src/components/timeline.lua:45`, `src/components/sprite.lua:248` — replace
-  bare `1/60` fallback with named `FRAME_DT` constant
+## Phase 4 — Extract the per-pane draw pass
 
-## Phase 5 — Minor polish (Low)
+Refactor `InGameState:draw`'s body into a reusable pane draw so the same
+pipeline runs once per pane (void → parallax → tiles → frame → entities →
+bubbles), each scissored to its sub-rect.
 
-- [ ] Remove stale `AGENTS.md:65` list of deleted fx presets (`dust_burst.lua`,
-  `spark_trail.lua`) or update to reflect current `src/fx/` presets
-- [ ] Update AGENTS.md layout section (currently missing `src/npc/`, `src/ipc/`,
-  `src/emitters/`, `src/player/states/`, `src/utils/level_records.lua`)
+- [ ] `src/states/ingame_state.lua` — extract a `drawPane(viewRect, paneRect)`
+  helper that encapsulates the existing draw order translated/scissored to a
+  sub-rect; keep a single-pane path that reproduces today's output exactly
+  (single pane = full window) so nothing changes when not split.
 
-## Phase 6 — Run full test suite
+## Phase 5 — Camera ownership for multiple panes
 
-- [x] Unit tests: 745 passed, 1 failed (pre-existing `ladder.tj frames` mismatch,
-  not caused by these changes)
-- [x] Integration tests: 209 passed, 4 failed (all pre-existing: conf.debug bake,
-  laser mirror bend, destructible tile safe-position)
-- [ ] E2E tests: pending (requires headed LÖVE window)
+- [ ] `src/camera.lua` — support multiple camera instances/panes (one per
+  player pane) plus a shared "merged" camera. Overview (`mode == "overview"`
+  or `"gameover"`) collapses all panes to a single full-map view. Add per-pane
+  extra-target handling (respawning player's pane frames its safe position).
+- [ ] `tests/unit/camera_test.lua` — tests for per-pane cameras, overview
+  collapse to a single full-map pane, and per-pane respawn framing.
+
+## Phase 6 — InGameState wiring (split + merge, animated with hysteresis)
+
+- [ ] `src/camera.lua` — add the split/merge transition state machine with
+  hysteresis (split at span > Hi, merge only when span < Lo) and an animated
+  divider/pan split factor that eases toward its target. Merge returns exactly
+  to today's shared `computeFraming` union-bounds framing.
+- [ ] `src/states/ingame_state.lua` — drive the split decision from
+  `collectPlayerTargets()` each frame: when split, update each pane's camera
+  and draw each pane via `drawPane`; when merged, draw one pane as today.
+  Keep `space`/back overview-only.
+- [ ] `tests/integration/split_screen_test.lua` (new) — integration test
+  driving two players far apart → splits into two panes (two camera views);
+  close together → merges back to one. Assert pane count and camera state.
+
+## Phase 7 — Off-screen player indicator
+
+- [ ] `src/ui/player_indicator.lua` (new) — screen-space edge indicator
+  (arrow/portrait) pointing to a player who is off that pane's view; drawn
+  post-entities, pre-HUD, per pane.
+- [ ] `src/states/ingame_state.lua` — draw the indicator per pane after the
+  pane's entities (and after bubbles), passing the pane rect and the other
+  player's world position.
+
+## Phase 8 — HUD & debug overlays under split
+
+- [ ] `src/states/ingame_state.lua` — keep the shared `GameHud` drawn once in
+  its current on-screen location (not per pane). Debug overlays (physics,
+  sprite outlines, grid) draw per pane using each pane's viewRect, all toggled
+  by the existing single flags.
+
+## Phase 9 — Verify full suite
+
+- [ ] Run `./test-unit.sh` — all logic changes pass; no pre-existing-suite
+  regressions introduced by the split work.
+- [ ] Run `./test-integration.sh` — split/merge integration test passes; real
+  stack (maps through the love.* mock) unaffected when not split.
+- [ ] Run `./test-e2e.sh` — headed render verification: visually confirm a
+  real split renders both panes, the shared HUD stays put, the indicator shows,
+  and overview/game-over collapse to a single pane. (Requires headed LÖVE.)
