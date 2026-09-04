@@ -421,3 +421,21 @@ Templates are the single source of truth for an entity's default + sprite proper
 **Definition** — An optional `renderOrder` number on a drawable entity component (`Sprite`, or any component with `draw()`) or `Map.fx` effect, controlling draw order within the entities+fx pass: higher draws later (on top), negative allowed, unset behaves as `0`. Ties preserve the entity/effect's existing relative draw position.
 
 **Boundary** — Only reorders within the existing entities+fx draw pass; it never moves anything relative to background/tile layers or HUD/debug overlays, which keep their fixed pipeline position. An entity draws as one atomic unit at its lowest render order unless it explicitly gives 2+ of its own `Sprite` components different values, in which case only that entity splits into per-sprite draw units.
+
+## Voronoi split-screen
+
+**Definition** — A dynamic 2-player split-screen camera system that transitions continuously from a unified, dynamically zoomed camera to a dual-canvas Voronoi directional split. Uses a GLSL fragment shader to composite two full-window off-screen canvases (one per player) based on screen-space Euclidean distance to each player's projected screen position, producing an angled dividing line whose angle follows the players' relative world positions. The split decision is driven by the Euclidean distance D between the two players' center points, with a linear interpolation between two thresholds (`d_merged` and `d_split`) providing the split factor [0..1].
+
+**Boundary** — Replaces the previous vertical 50/50 split-screen (which used fixed left/right pane sub-rects with a soft blend-band crossfade). The Voronoi system is purely a rendering concern; the world simulation (physics, entities, collisions) remains a single shared instance. Overview mode bypasses the shader entirely (single full-map canvas). Player indicators are removed — both players are always visible on screen via the shader compositing.
+
+## Split factor
+
+**Definition** — A continuous value [0..1] driving the Voronoi split-screen transition. 0 = fully merged (single camera view), 1 = fully split (two independent per-player cameras composited by the Voronoi shader). Computed as `clamp((D - d_merged) / (d_split - d_merged), 0, 1)` where D is the Euclidean distance between the two players' center points. Eased frame-to-frame via exponential decay (`1 - e^(-decay * dt)`) to prevent abrupt visual pops.
+
+**Boundary** — A camera-state value, not a gameplay value. It controls rendering only; it does not affect physics, entity behavior, or player control. The split factor is updated every frame in `CameraManager:updateSplit` and read by the drawing pipeline to determine whether to draw a single merged view, blend two canvases, or composite via the Voronoi shader.
+
+## Split angle
+
+**Definition** — The angle of the Voronoi dividing line, computed as `atan2(py2 - py1, px2 - py1)` from the two players' world positions. Smoothed frame-to-frame via exponential lerp with a per-frame maximum rotation clamp (~150 deg/s) and a minimum angle threshold (~5 deg) to prevent jitter when players are aligned. Uses shortest-path atan2 interpolation (adjusts by +/- pi to avoid spinning the long way around).
+
+**Boundary** — A camera-state value used only by the Voronoi shader compositing pass. It determines the orientation of the dividing line on screen but does not affect gameplay, physics, or entity behavior. The angle is computed in `CameraManager:updateSplit` and passed to the shader as screen-space UV targets derived from the players' projected positions.

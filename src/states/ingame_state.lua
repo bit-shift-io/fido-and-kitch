@@ -14,6 +14,12 @@ local InGameState = Class({ __includes = BaseState })
 local GAME_OVER_ZOOM_DELAY = 0.6
 local WORLD_GRAVITY_Y = 90.81
 
+-- Voronoi split compositing parameters (only used when conf.voronoi is on).
+local SPLIT_DIVERGENCE_FLOOR = 8 -- pane separation before the line starts growing
+local SPLIT_FULL_DIVERGENCE = 192 -- pane separation where the split is fully grown
+local VORONOI_LINE_THICKNESS = 10.0 -- dividing line width in screen px at full growth
+local VORONOI_LINE_COLOR = { 0.0, 0.0, 0.0 } -- RGB of the dividing line (black)
+
 local function spawnPlayers(self, map, playerCount)
 	local players = {}
 	local spawnPoints = {}
@@ -77,7 +83,7 @@ function InGameState:load(props)
 	_G.map = Map:new(self.currentMap, world, true)
 
 	local mapW, mapH = map:getPixelSize()
-	self.camera = AutoCamera.new({
+	self.camera = AutoCamera.CameraManager.new({
 		screenW = love.graphics.getWidth(),
 		screenH = love.graphics.getHeight(),
 		mapW = mapW,
@@ -86,6 +92,7 @@ function InGameState:load(props)
 		tileH = map.map.tileheight,
 		padding = 16,
 	})
+	self.voronoiCanvases = nil
 	self.gameOverTimer = nil
 	self.levelTimer = 0
 	self.lives = Lives.defaultCount()
@@ -238,6 +245,9 @@ function InGameState:update(dt)
 		end
 	else
 		self:updateDeathFramingTargets()
+		-- The CameraManager always tracks the merged camera + the Voronoi split
+		-- state; conf.voronoi only decides whether draw() uses the split
+		-- compositing path or the single shared camera.
 		self.camera:update(dt, self:collectPlayerTargets())
 	end
 
@@ -252,14 +262,40 @@ function InGameState:update(dt)
 end
 
 function InGameState:draw()
-	local vr = self.camera:getDrawParams()
-	local mapW, mapH = map:getPixelSize()
+	-- Voronoi split-screen path (conf.voronoi on + players far apart): render
+	-- each player's view into a full-window canvas and composite with the
+	-- Voronoi shader. Everything else (incl. the whole game when the toggle is
+	-- off) takes the old single auto-zoom camera path.
+	local splitActive = conf.voronoi
+		and self.camera:isSplit()
+		and #self.players >= 2
+		and self.camera:getSplitDivergence() >= SPLIT_DIVERGENCE_FLOOR
 
-	-- Diorama layering: void strips -> parallax bg (scissored to the world
-	-- rect) -> world tiles -> frame -> entities
-	Diorama.drawVoid(vr, mapW, mapH)
-	map:draw2(vr, self:collectPlayerTargets())
-	Diorama.drawFrame(vr, mapW, mapH)
+	if splitActive then
+		self:drawVoronoiSplit()
+	else
+		self:drawMergedView()
+	end
+
+	self.gameHud:draw()
+end
+
+-- The shared world-draw pipeline (void -> parallax -> tiles -> frame ->
+-- entities -> bubbles) for a single view-rect. Used by drawMergedView and,
+-- when a `paneRect` ({x,y,w,h} window coords) is supplied, once per player by
+-- drawVoronoiSplit — the parallax + diorama render scoped to the pane's
+-- sub-rect (via the pane-aware seams) so each player's pane frames its own
+-- equal half of the screen.
+function InGameState:drawWorldView(vr, paneRect)
+	local mapW, mapH = map:getPixelSize()
+	Diorama.drawVoid(vr, mapW, mapH, paneRect)
+	if paneRect then
+		map:drawBackground(vr, self:collectPlayerTargets(), paneRect)
+		map:drawMainLayers(vr)
+	else
+		map:draw2(vr, self:collectPlayerTargets())
+	end
+	Diorama.drawFrame(vr, mapW, mapH, paneRect)
 	map:drawEntities(vr)
 
 	-- screen-space speech bubbles (follow the entity through pan/zoom, but the
@@ -267,8 +303,19 @@ function InGameState:draw()
 	for _, story in ipairs(map:getEntitiesByType("story")) do
 		story:drawBubbleScreen(vr)
 	end
+end
 
-	-- Debug overlay (hitboxes, ladders, kill zones, safe positions, etc.)
+-- Old / toggle-off path: one shared auto-zoom camera framing all players, then
+-- the debug overlays for that single view.
+function InGameState:drawMergedView()
+	local vr = self.camera:getDrawParams()
+	local mapW, mapH = map:getPixelSize()
+	self:drawWorldView(vr)
+	self:drawDebugOverlays(vr, mapW, mapH)
+end
+
+-- Debug overlays scoped to a single view-rect (physics, sprite outlines, grid).
+function InGameState:drawDebugOverlays(vr, mapW, mapH)
 	if conf.drawphysics and self.debugOverlay then
 		self.debugOverlay.enabled = true
 		local targets = self:collectPlayerTargets()
@@ -293,8 +340,148 @@ function InGameState:draw()
 	else
 		self.gridOverlay.enabled = false
 	end
+end
 
-	self.gameHud:draw()
+-- 0..1 case: how far the split has settled, 0 the moment the dividing line
+-- first appears (both canvases still show the merged view -- no jolt) and 1
+-- when fully split. Drives both the anchor offsets and the line thickness so
+-- the split/join transition is one continuous, aligned glide.
+function InGameState:getSplitGrowthBlend()
+	local div = self.camera:getSplitDivergence()
+	local blend = (div - SPLIT_DIVERGENCE_FLOOR) / SPLIT_FULL_DIVERGENCE
+	if blend < 0 then
+		return 0
+	elseif blend > 1 then
+		return 1
+	end
+	return blend
+end
+
+-- Full-window canvases for the Voronoi compositing pass, recreated on resize.
+function InGameState:getVoronoiCanvases()
+	local lg = love and love.graphics
+	if not lg or not lg.newCanvas then
+		return nil
+	end
+	local w, h = lg.getWidth(), lg.getHeight()
+	if not self.voronoiCanvases then
+		local canvases = { lg.newCanvas(w, h), lg.newCanvas(w, h) }
+		self.voronoiCanvases = canvases
+	end
+	return self.voronoiCanvases
+end
+
+-- The Voronoi compositing shader, loaded lazily (headless-safe: nil without love.graphics).
+function InGameState:getVoronoiShader()
+	local lg = love and love.graphics
+	if not lg or not lg.newShader then
+		return nil
+	end
+	if not self.voronoiShader then
+		local ok, shader = pcall(lg.newShader, "res/shaders/voronoi_split.glsl")
+		if ok and shader then
+			self.voronoiShader = shader
+		else
+			Log.warn("voronoi shader failed to load; using hard-split fallback")
+		end
+	end
+	return self.voronoiShader
+end
+
+-- Screen-space UVs of the two players' focal points for the Voronoi shader.
+-- Computed from the shared merged view so the bisector moves with player separation.
+-- Positional array {u, v} (indices 1,2) per LÖVE 12 Shader:send contract.
+function InGameState:computeVoronoiUVs()
+	local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+	local vr = self.camera:getMergedDrawParams()
+
+	local function uv(player)
+		local b = player.collider:getBounds()
+		local wx = b.left + b.width / 2
+		local wy = b.top + b.height / 2
+		local px = vr.tx + wx * vr.sx
+		local py = vr.ty + wy * vr.sy
+		return { px / w, py / h }
+	end
+
+	return uv(self.players[1]), uv(self.players[2])
+end
+
+-- Voronoi split compositing: render each player's view into a full-window
+-- canvas (player centred in full screen, no anchor offsets), then composite
+-- with the Voronoi shader's dynamic angled bisector between the players.
+function InGameState:drawVoronoiSplit()
+	local lg = love and love.graphics
+	if not lg then
+		return
+	end
+
+	local canvases = self:getVoronoiCanvases()
+	if not canvases then
+		self:drawMergedView()
+		return
+	end
+
+	local sw, sh = lg.getWidth(), lg.getHeight()
+	local zoomBlend = self.camera:getSplitZoomBlend()
+
+	-- Each pane uses full-screen size; no anchor offsets so each player is
+	-- centred in their own full-screen canvas. The Voronoi shader then
+	-- composites them with a dynamic bisector between the two focal points.
+	self.camera:setPaneScreenSize(1, sw, sh)
+	self.camera:setPaneScreenSize(2, sw, sh)
+	local vr1 = self.camera:getPaneDrawParams(1, 0, 0, zoomBlend)
+	local vr2 = self.camera:getPaneDrawParams(2, 0, 0, zoomBlend)
+
+	-- Full-window viewport rect for parallax/diorama scope.
+	local fullRect = { x = 0, y = 0, w = sw, h = sh }
+
+	-- Render CanvasA (P1) and CanvasB (P2) as full-screen views.
+	local prev = lg.getCanvas()
+	lg.setCanvas(canvases[1])
+	lg.clear()
+	lg.origin()
+	self:drawWorldView(vr1, fullRect)
+	lg.setCanvas(canvases[2])
+	lg.clear()
+	lg.origin()
+	self:drawWorldView(vr2, fullRect)
+	lg.setCanvas(prev)
+
+	-- Composite with Voronoi shader using dynamic player UVs.
+	local uv1, uv2 = self:computeVoronoiUVs()
+	local shader = self:getVoronoiShader()
+	local sf = self.camera:getSplitFactor()
+	local lineThickness = VORONOI_LINE_THICKNESS * self:getSplitGrowthBlend()
+
+	lg.push("all")
+	lg.setColor(1, 1, 1, 1)
+
+	if shader then
+		shader:send("CanvasA", canvases[1])
+		shader:send("CanvasB", canvases[2])
+		shader:send("p1_screen", uv1)
+		shader:send("p2_screen", uv2)
+		shader:send("split_factor", sf)
+		shader:send("line_thickness", lineThickness)
+		shader:send("line_color", VORONOI_LINE_COLOR)
+		lg.setShader(shader)
+		lg.draw(canvases[1], 0, 0)
+		lg.setShader()
+	else
+		-- Fallback: hard vertical split at screen centre.
+		lg.draw(canvases[1], 0, 0)
+		if lg.setScissor then
+			lg.setScissor(sw / 2, 0, sw / 2, sh)
+			lg.draw(canvases[2], 0, 0)
+			lg.setScissor()
+		else
+			lg.draw(canvases[2], 0, 0)
+		end
+	end
+
+	lg.pop()
+	lg.setColor(1, 1, 1, 1)
 end
 
 function InGameState:resize(w, h)
@@ -307,6 +494,9 @@ function InGameState:resize(w, h)
 		local mapW, mapH = map:getPixelSize()
 		self.camera:setMapSize(mapW, mapH)
 	end
+
+	-- Drop the Voronoi pane canvases so they recreate at the new size.
+	self.voronoiCanvases = nil
 end
 
 function InGameState:keypressed(k)

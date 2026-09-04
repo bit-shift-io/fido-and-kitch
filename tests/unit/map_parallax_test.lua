@@ -31,6 +31,23 @@ test("camera centre round-trips through computeCameraCenter regardless of zoom",
 	end
 end)
 
+test("pane-local camera centre round-trips with the pane's own size (split-screen scoping)", function()
+	-- A split-screen pane uses pane-LOCAL draw params (screen size = pane w/h,
+	-- tx/ty relative to the pane origin); computeCameraCenter must recover the
+	-- same world centre from those pane-local values so per-pane parallax slides
+	-- against the correct reference.
+	local paneW, paneH = 400, 600
+	local cx, cy = 1234, 567
+
+	for _, scale in ipairs({ 0.5, 1, 2 }) do
+		local tx = paneW / 2 - cx * scale
+		local ty = paneH / 2 - cy * scale
+		local gotCx, gotCy = parallax.computeCameraCenter(tx, ty, scale, scale, paneW, paneH)
+		assertNear(cx, gotCx, 0.001, "pane-local centre x should round-trip at scale " .. scale)
+		assertNear(cy, gotCy, 0.001, "pane-local centre y should round-trip at scale " .. scale)
+	end
+end)
+
 test("proportional slide: p=1 hits -allowance*mapSize/2 at map-left and +allowance*mapSize/2 at map-right", function()
 	local mapW, mapH = 2048, 1536
 	local allowance = 0.2

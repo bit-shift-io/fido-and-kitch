@@ -176,6 +176,29 @@ test("void rects are empty when the world fills the screen", function()
 	assertEqual(0, #rects)
 end)
 
+test("pane-local void strips stay inside the pane sub-rect when the world is inset", function()
+	-- Split-screen: a left half-pane of an 800x600 window (pane w/h = 400x600).
+	-- The pane's world rect is derived from pane-LOCAL camera params, so it
+	-- lives inside (0..400, 0..600); computeVoidRects must produce strips that
+	-- tile exactly pane-minus-world and never leave the pane bounds.
+	local paneW, paneH = 400, 600
+	local wr = { x = 50, y = 100, w = 200, h = 400 }
+	local rects = computeVoidRects(paneW, paneH, wr)
+
+	local total = 0
+	for _, r in ipairs(rects) do
+		assertTrue(r.x >= 0 and r.y >= 0, "strip must not leave the pane origin")
+		assertTrue(r.x + r.w <= paneW and r.y + r.h <= paneH, "strip must not exceed the pane sub-rect")
+		total = total + r.w * r.h
+	end
+	assertNear(paneW * paneH - 200 * 400, total, 0.000001, "strips union to exactly pane minus world rect")
+end)
+
+test("pane-local void strips are empty when the world fills the pane", function()
+	local rects = computeVoidRects(400, 600, { x = 0, y = 0, w = 400, h = 600 })
+	assertEqual(0, #rects, "a world rect filling the pane sub-rect yields no void strips")
+end)
+
 test("corner ornaments land on the four corners of the outset frame line", function()
 	local frame = computeFrame(640, 480, makeConfig())
 

@@ -304,12 +304,33 @@ function LoveMock.new()
 		origin = function() end,
 		rectangle = function() end,
 		line = function() end,
+		setLineWidth = function() end,
 		circle = function() end,
 		polygon = function() end,
 		clear = function() end,
 		getCanvas = function() end,
 		setCanvas = function() end,
+		setScissor = function() end,
+		intersectScissor = function() end,
 		setDefaultFilter = function() end,
+		newShader = function()
+			return {
+				send = function(name, ...)
+					-- Mirror LÖVE's strictness so headless tests catch a
+					-- missing/nil vector component (e.g. sending a keyed
+					-- {x=,y=} table for a vec2 instead of two numbers).
+					local n = select("#", ...)
+					for i = 1, n do
+						local v = select(i, ...)
+						if v == nil then
+							error(("bad argument to 'send' for uniform '%s' (number expected, got nil)"):format(tostring(name)), 2)
+						end
+					end
+				end,
+				sendColor = function() end,
+			}
+		end,
+		setShader = function() end,
 		getWidth = function()
 			return 800
 		end,

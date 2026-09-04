@@ -180,10 +180,26 @@ function Map:resize(w, h)
 end
 
 -- Draws all visible tiles and the parallax background using the camera's
--- current ViewRect (see Camera:getDrawParams / Camera.ViewRect).
-function Map:draw2(viewRect, playerTargets)
+-- current ViewRect (see Camera:getDrawParams / Camera.ViewRect). `paneRect`
+-- (optional) is a split-screen pane sub-rect passed through to the parallax
+-- background so each pane clips/scopes its own view.
+function Map:draw2(viewRect, playerTargets, paneRect)
 	self.viewRect = viewRect
-	self.parallaxRenderer:draw(self, viewRect, playerTargets)
+	self.parallaxRenderer:draw(self, viewRect, playerTargets, paneRect)
+end
+
+-- Split-pane seam: the parallax background alone (pane-local viewRect +
+-- paneRect) and the world tiles alone (absolute viewRect), called separately
+-- by InGameState:drawPane so a split pane can scope the background to its
+-- sub-rect while drawing tiles/entities at absolute window coords.
+function Map:drawBackground(viewRect, playerTargets, paneRect)
+	self.viewRect = viewRect
+	self.parallaxRenderer:drawBackground(self, viewRect, playerTargets, paneRect)
+end
+
+function Map:drawMainLayers(viewRect)
+	self.viewRect = viewRect
+	self.parallaxRenderer:drawMainLayers(self, viewRect)
 end
 
 -- An entity draws as one atomic unit (its own entity:draw() call, preserving

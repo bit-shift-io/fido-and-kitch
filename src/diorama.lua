@@ -241,14 +241,27 @@ end
 -- the screen, not scrolling, not aligned to the world grid), scissored per
 -- strip. Call under no pushed transform (the world rect is in plain screen
 -- coords).
-function Diorama.drawVoid(viewRect, mapW, mapH)
+--
+-- `paneRect` ({x, y, w, h}, window coords) lets a split-screen pane render
+-- its own void against its sub-rect: `viewRect.tx/ty` stay pane-LOCAL (pane
+-- w/h is the screen size, so the void strips are computed inside the sub-rect)
+-- and the pane's window offset is added to each strip before drawing. When
+-- `paneRect` is absent we keep the original full-window behaviour.
+function Diorama.drawVoid(viewRect, mapW, mapH, paneRect)
 	local lg = love and love.graphics
 	if not lg then
 		return
 	end
 
 	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
-	local screenW, screenH = lg.getWidth(), lg.getHeight()
+	local offX, offY = 0, 0
+	local screenW, screenH
+	if paneRect then
+		screenW, screenH = paneRect.w, paneRect.h
+		offX, offY = paneRect.x, paneRect.y
+	else
+		screenW, screenH = lg.getWidth(), lg.getHeight()
+	end
 	local wr = worldScreenRect(tx, ty, sx, sy, mapW, mapH)
 	local rects = computeVoidRects(screenW, screenH, wr)
 	if #rects == 0 then
@@ -265,11 +278,12 @@ function Diorama.drawVoid(viewRect, mapW, mapH)
 	lg.origin()
 	lg.setColor(1, 1, 1, 1)
 	for _, r in ipairs(rects) do
-		lg.setScissor(r.x, r.y, r.w, r.h)
-		local startX = math.floor(r.x / iw) * iw
-		local startY = math.floor(r.y / ih) * ih
-		for y = startY, r.y + r.h - 1, ih do
-			for x = startX, r.x + r.w - 1, iw do
+		local ax, ay = offX + r.x, offY + r.y
+		lg.setScissor(ax, ay, r.w, r.h)
+		local startX = math.floor(ax / iw) * iw
+		local startY = math.floor(ay / ih) * ih
+		for y = startY, ay + r.h - 1, ih do
+			for x = startX, ax + r.w - 1, iw do
 				lg.draw(img, x, y)
 			end
 		end
@@ -290,20 +304,24 @@ end
 -- texture authored at tileSize maps 1:1 and tiles the FULL edge, no partial
 -- leftover. Textures are authored landscape for top/bottom edges and portrait
 -- for left/right edges.
-function Diorama.drawFrame(viewRect, mapW, mapH)
+function Diorama.drawFrame(viewRect, mapW, mapH, paneRect)
 	local lg = love and love.graphics
 	if not lg then
 		return
 	end
 
 	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
+	local offX, offY = 0, 0
+	if paneRect then
+		offX, offY = paneRect.x, paneRect.y
+	end
 	local frame = computeFrame(mapW, mapH, Diorama.config)
 	local config = Diorama.config.frame
 	local tile = config.tileSize or 32
 
 	lg.push()
 	lg.origin()
-	lg.translate(math.floor(tx), math.floor(ty))
+	lg.translate(offX + math.floor(tx), offY + math.floor(ty))
 	lg.scale(sx, sy)
 	lg.setColor(1, 1, 1, 1)
 

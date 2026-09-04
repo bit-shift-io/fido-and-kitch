@@ -74,6 +74,10 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 	local tileW = opts.tileW or DEFAULT_TILE_SIZE
 	local tileH = opts.tileH or tileW
 	local pad = opts.padding or 0
+	-- When false, the view is left centred on the targets even near the map
+	-- edges (used by per-player Voronoi panes so a player is never dragged
+	-- off-centre at the border). Default true clamps the view inside the map.
+	local clampToMap = opts.clampToMap == nil or opts.clampToMap
 
 	local minX, minY, maxX, maxY = unionBounds(targets)
 	if not minX then
@@ -124,17 +128,18 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 
 	-- A view wider than the map is centred, which leaves `padding` of void
 	-- either side (more when the screen aspect is wider than the map's). A
-	-- view narrower than the map is clamped inside it: no map edge is on
-	-- screen, so no padding is owed.
+	-- view narrower than the map is clamped inside it (no map edge is on
+	-- screen, so no padding is owed) unless clampToMap is false (per-player
+	-- Voronoi panes keep their player centred even at the map border).
 	if viewW > mapW then
 		viewX = (mapW - viewW) / 2
-	else
+	elseif clampToMap then
 		viewX = clamp(viewX, 0, mapW - viewW)
 	end
 
 	if viewH > mapH then
 		viewY = (mapH - viewH) / 2
-	else
+	elseif clampToMap then
 		viewY = clamp(viewY, 0, mapH - viewH)
 	end
 
@@ -176,6 +181,7 @@ function Camera.new(opts)
 	self.minViewTiles = opts.minViewTiles or DEFAULT_MIN_VIEW_TILES
 	self.decay = opts.decay or DEFAULT_DECAY
 	self.padding = opts.padding or 0
+	self.clampToMap = opts.clampToMap == nil or opts.clampToMap
 
 	self.mode = "follow"
 	self.extraTargets = {}
@@ -246,6 +252,7 @@ function Camera:computeTargetView(playerTargets)
 		tileW = self.tileW,
 		tileH = self.tileH,
 		padding = self.padding,
+		clampToMap = self.clampToMap,
 	})
 end
 
@@ -271,5 +278,337 @@ function Camera:getDrawParams()
 end
 
 Camera.ViewRect = ViewRect
+
+-- ===========================================================================
+-- CameraManager: the Voronoi split-screen camera.
+--
+-- Owns the shared "merged" camera (which frames all players together, exactly
+-- like the standalone Camera) plus per-player "pane" cameras. When the toggle
+-- (conf.voronoi) is OFF, InGameState calls only updateMerged/getDrawParams and
+-- the manager behaves exactly like the old single auto-zoom camera. When ON,
+-- the manager also decides the split (Euclidean distance between the two
+-- players with hysteresis), tracks the Voronoi line angle, and exposes
+-- per-pane draw params for the two-canvas shader compositing.
+--
+-- Disabled-by-default constants; InGameState decides whether to actually use
+-- the split path based on conf.voronoi.
+-- ===========================================================================
+
+local DEFAULT_D_MERGED_MULT = 2 -- d_merged = 2 * tileW
+local DEFAULT_D_SPLIT_MULT = 4 -- d_split = 4 * tileW
+local SPLIT_DIVERGENCE_FLOOR = 4 -- pane-separation needed before the line grows
+local SPLIT_FULL_DIVERGENCE = 256 -- pane-separation where the split is "fully" grown
+-- split factor / angle easing decay; 1 - e^-6 ~= 0.9975 settles inside ~0.5s
+local SPLIT_DECAY = 12
+local ANGLE_DECAY = 20
+local ANGLE_MIN = 5 * math.pi / 180 -- 5 deg: ignore tiny deltas to avoid jitter
+local ANGLE_MAX_ROT = 150 * math.pi / 180 -- max ~150 deg/s rotation
+local PANE_MIN_VIEW_TILES = 4
+
+local CameraManager = {}
+CameraManager.__index = CameraManager
+
+function CameraManager.new(opts)
+	opts = opts or {}
+	local tileW = opts.tileW or DEFAULT_TILE_SIZE
+	local self = setmetatable({
+		screenW = opts.screenW or 800,
+		screenH = opts.screenH or 600,
+		mapW = opts.mapW or 800,
+		mapH = opts.mapH or 600,
+		tileW = tileW,
+		tileH = opts.tileH or tileW,
+		padding = opts.padding or 0,
+		d_merged = opts.d_merged or (DEFAULT_D_MERGED_MULT * tileW),
+		d_split = opts.d_split or (DEFAULT_D_SPLIT_MULT * tileW),
+		mode = "follow",
+		splitState = false,
+		splitFactor = 0,
+		splitAngle = 0,
+		splitAngleTarget = 0,
+		panes = {},
+		paneExtraTargets = {},
+	}, CameraManager)
+
+	self.merged = Camera.new({
+		screenW = self.screenW,
+		screenH = self.screenH,
+		mapW = self.mapW,
+		mapH = self.mapH,
+		tileW = self.tileW,
+		tileH = self.tileH,
+		padding = self.padding,
+		clampToMap = true,
+	})
+
+	return self
+end
+
+function CameraManager:setScreenSize(w, h)
+	self.screenW = w
+	self.screenH = h
+	if self.merged then
+		self.merged:setScreenSize(w, h)
+	end
+	for _, pane in pairs(self.panes) do
+		pane:setScreenSize(w, h)
+	end
+end
+
+function CameraManager:setMapSize(w, h)
+	self.mapW = w
+	self.mapH = h
+	if self.merged then
+		self.merged:setMapSize(w, h)
+	end
+	for _, pane in pairs(self.panes) do
+		pane:setMapSize(w, h)
+	end
+end
+
+function CameraManager:setMode(mode)
+	self.mode = mode
+	if self.merged then
+		self.merged:setMode(mode)
+	end
+	for _, pane in pairs(self.panes) do
+		pane:setMode(mode)
+	end
+end
+
+function CameraManager:getMode()
+	return self.mode
+end
+
+function CameraManager:isOverview()
+	return self.mode == "overview" or self.mode == "gameover"
+end
+
+function CameraManager:toggleOverview()
+	if self.mode == "gameover" then
+		return
+	end
+	self.mode = (self.mode == "overview") and "follow" or "overview"
+end
+
+-- Delegated extra targets go to the merged camera (keeps the old behaviour for
+-- a dying player's respawn framing in the non-split path).
+function CameraManager:addExtraTarget(key, rect)
+	if self.merged then
+		self.merged:addExtraTarget(key, rect)
+	end
+end
+
+function CameraManager:removeExtraTarget(key)
+	if self.merged then
+		self.merged:removeExtraTarget(key)
+	end
+end
+
+-- Per-pane extra targets frame only that pane's camera.
+function CameraManager:addPaneExtraTarget(index, key, rect)
+	local pane = self:ensurePane(index)
+	pane:addExtraTarget(key, rect)
+end
+
+function CameraManager:ensurePane(index)
+	local pane = self.panes[index]
+	if not pane then
+		pane = Camera.new({
+			screenW = self.screenW,
+			screenH = self.screenH,
+			mapW = self.mapW,
+			mapH = self.mapH,
+			tileW = self.tileW,
+			tileH = self.tileH,
+			padding = self.padding,
+			minViewTiles = PANE_MIN_VIEW_TILES,
+			clampToMap = false,
+		})
+		pane.primed = false
+		self.panes[index] = pane
+	end
+	return pane
+end
+
+function CameraManager:setPaneScreenSize(index, w, h)
+	local pane = self:ensurePane(index)
+	pane:setScreenSize(w, h)
+end
+
+function CameraManager:paneCount()
+	local n = 0
+	for _ in pairs(self.panes) do
+		n = n + 1
+	end
+	return n
+end
+
+-- The main per-frame entry for Voronoi mode: eases the merged camera, recomputes
+-- the split, then eases each per-player pane.
+function CameraManager:update(dt, targets)
+	self:updateMerged(dt, targets)
+	if self.mode == "follow" then
+		self:updateSplit(dt, targets)
+		for i = 1, #targets do
+			self:updatePane(dt, i, targets)
+		end
+	end
+end
+
+function CameraManager:updateMerged(dt, targets)
+	self.merged:update(dt, targets)
+end
+
+-- Euclidean-distance split decision with hysteresis. D = centre-to-centre
+-- distance between the two players. Above d_split we split; below d_merged we
+-- merge; between them the current state holds (dead zone → no flicker).
+function CameraManager:updateSplit(dt, targets)
+	local p1, p2 = targets and targets[1], targets and targets[2]
+	if p1 and p2 then
+		local c1x = p1.x + p1.w / 2
+		local c1y = p1.y + p1.h / 2
+		local c2x = p2.x + p2.w / 2
+		local c2y = p2.y + p2.h / 2
+		local dx, dy = c2x - c1x, c2y - c1y
+		local D = math.sqrt(dx * dx + dy * dy)
+
+		if self.mode == "follow" then
+			if not self.splitState and D > self.d_split then
+				self.splitState = true
+			elseif self.splitState and D < self.d_merged then
+				self.splitState = false
+			end
+
+			local target = self.splitState and 1 or 0
+			local factor = 1 - math.exp(-SPLIT_DECAY * dt)
+			self.splitFactor = self.splitFactor + (target - self.splitFactor) * factor
+
+			-- Angle of the dividing line, following the players' separation.
+			local angTarget = math.atan2(dy, dx)
+			if math.abs(angTarget - self.splitAngleTarget) > ANGLE_MIN then
+				self.splitAngleTarget = angTarget
+			end
+			self:_easeSplitAngle(dt)
+		end
+	end
+end
+
+function CameraManager:_easeSplitAngle(dt)
+	local diff = self.splitAngleTarget - self.splitAngle
+	while diff > math.pi do
+		diff = diff - 2 * math.pi
+	end
+	while diff < -math.pi do
+		diff = diff + 2 * math.pi
+	end
+	local maxRot = ANGLE_MAX_ROT * dt
+	diff = clamp(diff, -maxRot, maxRot)
+	local factor = 1 - math.exp(-ANGLE_DECAY * dt)
+	self.splitAngle = self.splitAngle + diff * factor
+end
+
+-- Ease a single per-player pane camera. The pane is seeded to the merged view
+-- on its first update so the split onset glides from the still-merged view
+-- rather than jumping from the initial full-map state.
+function CameraManager:updatePane(dt, index, targets)
+	local pane = self:ensurePane(index)
+	if not pane.primed then
+		pane.cx, pane.cy, pane.scale = self.merged.cx, self.merged.cy, self.merged.scale
+		pane.primed = true
+	end
+
+	-- Combine this pane's player target with that pane's extra targets. The
+	-- oneshot targets list only holds this player; use computeTargetView on the
+	-- pane which already merges pane.extraTargets.
+	local playerTarget = targets and targets[index]
+	local paneTargets = {}
+	if playerTarget then
+		table.insert(paneTargets, playerTarget)
+	end
+	for _, t in pairs(pane.extraTargets) do
+		table.insert(paneTargets, t)
+	end
+
+	local target = pane:computeTargetView(paneTargets)
+	local factor = 1 - math.exp(-pane.decay * dt)
+	pane.cx = pane.cx + (target.cx - pane.cx) * factor
+	pane.cy = pane.cy + (target.cy - pane.cy) * factor
+	pane.scale = pane.scale + (target.scale - pane.scale) * factor
+end
+
+function CameraManager:getSplitFactor()
+	return self.splitFactor
+end
+
+function CameraManager:isSplit()
+	return self.mode == "follow" and self.splitState
+end
+
+function CameraManager:getSplitAngle()
+	return self.splitAngle
+end
+
+-- How far the panes have actually diverged (pixel separation of their camera
+-- centres). 0 when there aren't two panes yet.
+function CameraManager:getSplitDivergence()
+	local p1, p2 = self.panes[1], self.panes[2]
+	if p1 and p2 then
+		return math.abs(p1.cx - p2.cx)
+	end
+	return 0
+end
+
+-- 0 at split onset (both canvases still show the merged view) → 1 when fully
+-- split. Drives the line thickness and anchor offsets so the split/join reads
+-- as one continuous, aligned glide.
+function CameraManager:getSplitZoomBlend()
+	local div = self:getSplitDivergence()
+	if div < SPLIT_DIVERGENCE_FLOOR then
+		return 0
+	end
+	return clamp((div - SPLIT_DIVERGENCE_FLOOR) / (SPLIT_FULL_DIVERGENCE - SPLIT_DIVERGENCE_FLOOR), 0, 1)
+end
+
+-- Draw params for the shared merged camera (also the fallback single-camera
+-- path when Voronoi is off).
+function CameraManager:getDrawParams()
+	return self:getMergedDrawParams()
+end
+
+function CameraManager:getMergedDrawParams()
+	return self.merged:getDrawParams()
+end
+
+function CameraManager:getMergedCamera()
+	return self.merged
+end
+
+function CameraManager:computeTargetView(targets)
+	return self.merged:computeTargetView(targets)
+end
+
+-- Draw params for a per-player pane. `offsetX/offsetY` are the pane's top-left
+-- in window coords (0 for a full-window canvas). `zoomBlend` (default 1 = the
+-- pane's own close-up zoom) lerps the rendered scale between the merged zoom
+-- (0) and the pane's own zoom (1). The pane's world centre is derived from its
+-- eased camera position, so the pane stays pinned to its player through the
+-- transitions; the pane is seeded to the merged view on its first update, so
+-- rendering at its own zoom still matches the shared view at onset.
+function CameraManager:getPaneDrawParams(index, offsetX, offsetY, zoomBlend)
+	local pane = self:ensurePane(index)
+	local blend = zoomBlend
+	if blend == nil then
+		blend = 1
+	end
+
+	local scale = self.merged.scale + (pane.scale - self.merged.scale) * blend
+	local offX, offY = offsetX or 0, offsetY or 0
+	local tx = pane.screenW / 2 - pane.cx * scale + offX
+	local ty = pane.screenH / 2 - pane.cy * scale + offY
+	return ViewRect.new(tx, ty, scale, scale)
+end
+
+Camera.CameraManager = CameraManager
 
 return Camera

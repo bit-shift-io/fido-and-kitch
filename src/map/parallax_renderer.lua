@@ -22,7 +22,7 @@ local function clamp(v, lo, hi)
 	return v
 end
 
-function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
+function ParallaxRenderer:drawBackground(map, viewRect, playerTargets, paneRect)
 	if not lg then
 		return
 	end
@@ -31,7 +31,21 @@ function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
 	end
 
 	local tx, ty, sx, sy = viewRect.tx, viewRect.ty, viewRect.sx, viewRect.sy
-	local screenW, screenH = lg.getWidth(), lg.getHeight()
+
+	-- `paneRect` ({x, y, w, h}, in window coords) lets each split-screen pane
+	-- render its own parallax against its sub-rect. `viewRect.tx/ty` stay
+	-- pane-LOCAL (pane w/h is the screen size), so the camera-center recovery
+	-- and zoom math above are per-pane; the pane's window offset is added only
+	-- at the final scissor/draw positions. When `paneRect` is absent we keep
+	-- the original full-window behaviour.
+	local offX, offY = 0, 0
+	local screenW, screenH
+	if paneRect then
+		screenW, screenH = paneRect.w, paneRect.h
+		offX, offY = paneRect.x, paneRect.y
+	else
+		screenW, screenH = lg.getWidth(), lg.getHeight()
+	end
 
 	-- Slide reference: the players' average position (union-bounds midpoint),
 	-- which keeps parallax alive even at the zoomed-out view where the camera
@@ -67,8 +81,15 @@ function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
 	-- it": clip them to the projected world rect (floored, matching the
 	-- drawMainLayers translate) so they never bleed into the Diorama void
 	-- strips outside the world. Scissor is set under origin() so its coords
-	-- are plain screen coords; restored before returning.
-	lg.setScissor(math.floor(tx), math.floor(ty), mapDrawW, mapDrawH)
+	-- are plain screen coords; when a paneRect is present the world-rect clip
+	-- is INTERSECTED with the pane's own scissor (set by InGameState:drawPane)
+	-- so parallax can never bleed across the divider. Restored before
+	-- returning.
+	if paneRect then
+		lg.intersectScissor(offX + math.floor(tx), offY + math.floor(ty), mapDrawW, mapDrawH)
+	else
+		lg.setScissor(offX + math.floor(tx), offY + math.floor(ty), mapDrawW, mapDrawH)
+	end
 
 	for _, layer in ipairs(map.backgroundMap.layers) do
 		if layer.visible and layer.type == "imagelayer" and layer.image and layer.opacity > 0 then
@@ -106,7 +127,7 @@ function ParallaxRenderer:drawBackground(map, viewRect, playerTargets)
 			local drawY = centerY - drawH * 0.5
 
 			lg.setColor(1, 1, 1, layer.opacity)
-			lg.draw(layer.image, drawX, drawY, 0, s, s)
+			lg.draw(layer.image, offX + drawX, offY + drawY, 0, s, s)
 			lg.setColor(1, 1, 1, 1)
 		end
 	end
@@ -145,8 +166,8 @@ function ParallaxRenderer:drawMainLayers(map, viewRect)
 	lg.pop()
 end
 
-function ParallaxRenderer:draw(map, viewRect, playerTargets)
-	self:drawBackground(map, viewRect, playerTargets)
+function ParallaxRenderer:draw(map, viewRect, playerTargets, paneRect)
+	self:drawBackground(map, viewRect, playerTargets, paneRect)
 	self:drawMainLayers(map, viewRect)
 end
 

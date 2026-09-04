@@ -108,6 +108,11 @@ function Game:keypressed(k)
 		conf.ultraslow = not conf.ultraslow
 	end
 
+	if k == "f7" then
+		Log.debug("toggle voronoi split-screen")
+		conf.voronoi = not conf.voronoi
+	end
+
 	if k == "f11" then
 		Log.debug("toggle fullscreen")
 		love.window.setFullscreen(not love.window.getFullscreen(), "desktop")

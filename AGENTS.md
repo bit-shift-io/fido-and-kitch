@@ -23,6 +23,7 @@ love . debug drawphysics map=sandbox
 - `debug` — starts lldebugger, sets `conf.debug`
 - `drawphysics` — physics debug drawing
 - `drawgrid` — F4 world-grid overlay enabled at startup
+- `voronoi` — enables the Voronoi split-screen compositing at startup (equivalent to pressing F7 in-game)
 - `profile` — prints a load profile in `InGameState:load`
 - `map=<file>` — skips the menu, loads `res/map/<file>`
 - `F12` — screenshot
@@ -30,6 +31,7 @@ love . debug drawphysics map=sandbox
 - `F2` — particle-system outlines (emitter emit-box + per-particle quads); toggles `conf.draw_particles`
 - `F3` — sprite outlines (each entity's rendered art box); toggles `conf.draw_sprite_outlines`
 - `F4` — world grid (gridline every 32 world units, clamped to map bounds); toggles `conf.draw_grid`
+- `F7` — Voronoi dynamic split-screen compositing (two near/far panes on the two players blended along their bisector; off = single shared auto-zoom camera); toggles `conf.voronoi`
 
 ## Layout
 

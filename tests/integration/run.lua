@@ -45,6 +45,7 @@ local defaultTestFiles = {
 	"tests/integration/switchable_teleport_test.lua",
 	"tests/integration/teleport_clear_test.lua",
 	"tests/integration/key_test.lua",
+	"tests/integration/split_screen_test.lua",
 	"tests/integration/flag_test.lua",
 	"tests/integration/cage_sound_test.lua",
 	"tests/integration/cage_target_test.lua",
