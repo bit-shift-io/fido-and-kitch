@@ -15,8 +15,10 @@ local GAME_OVER_ZOOM_DELAY = 0.6
 local WORLD_GRAVITY_Y = 90.81
 
 -- Voronoi split compositing parameters (only used when conf.voronoi is on).
-local SPLIT_DIVERGENCE_FLOOR = 8 -- pane separation before the line starts growing
-local SPLIT_FULL_DIVERGENCE = 192 -- pane separation where the split is fully grown
+-- SPLIT_DIVERGENCE_FLOOR / SPLIT_FULL_DIVERGENCE are NOT duplicated here --
+-- CameraManager (src/camera.lua) is their sole owner; getSplitZoomBlend
+-- already derives the 0..1 blend from them, and drives both the pane zoom and
+-- (below) the dividing line's thickness from that single shared value.
 local VORONOI_LINE_THICKNESS = 10.0 -- dividing line width in screen px at full growth
 local VORONOI_LINE_COLOR = { 0.0, 0.0, 0.0 } -- RGB of the dividing line (black)
 
@@ -266,10 +268,12 @@ function InGameState:draw()
 	-- each player's view into a full-window canvas and composite with the
 	-- Voronoi shader. Everything else (incl. the whole game when the toggle is
 	-- off) takes the old single auto-zoom camera path.
-	local splitActive = conf.voronoi
-		and self.camera:isSplit()
-		and #self.players >= 2
-		and self.camera:getSplitDivergence() >= SPLIT_DIVERGENCE_FLOOR
+	--
+	-- Derived from CameraManager:isCompositingActive() -- an eased quantity,
+	-- not the raw isSplit() boolean -- so flipping splitState alone on one
+	-- frame can't change which path draws, and the compositing path stays up
+	-- through the whole merge-back until the panes have genuinely converged.
+	local splitActive = conf.voronoi and #self.players >= 2 and self.camera:isCompositingActive()
 
 	if splitActive then
 		self:drawVoronoiSplit()
@@ -342,21 +346,6 @@ function InGameState:drawDebugOverlays(vr, mapW, mapH)
 	end
 end
 
--- 0..1 case: how far the split has settled, 0 the moment the dividing line
--- first appears (both canvases still show the merged view -- no jolt) and 1
--- when fully split. Drives both the anchor offsets and the line thickness so
--- the split/join transition is one continuous, aligned glide.
-function InGameState:getSplitGrowthBlend()
-	local div = self.camera:getSplitDivergence()
-	local blend = (div - SPLIT_DIVERGENCE_FLOOR) / SPLIT_FULL_DIVERGENCE
-	if blend < 0 then
-		return 0
-	elseif blend > 1 then
-		return 1
-	end
-	return blend
-end
-
 -- Full-window canvases for the Voronoi compositing pass, recreated on resize.
 function InGameState:getVoronoiCanvases()
 	local lg = love and love.graphics
@@ -388,27 +377,9 @@ function InGameState:getVoronoiShader()
 	return self.voronoiShader
 end
 
--- Screen-space UVs of the two players' focal points for the Voronoi shader.
--- Computed from the shared merged view so the bisector moves with player separation.
--- Positional array {u, v} (indices 1,2) per LÖVE 12 Shader:send contract.
-function InGameState:computeVoronoiUVs()
-	local w, h = love.graphics.getWidth(), love.graphics.getHeight()
-	local vr = self.camera:getMergedDrawParams()
-
-	local function uv(player)
-		local b = player.collider:getBounds()
-		local wx = b.left + b.width / 2
-		local wy = b.top + b.height / 2
-		local px = vr.tx + wx * vr.sx
-		local py = vr.ty + wy * vr.sy
-		return { px / w, py / h }
-	end
-
-	return uv(self.players[1]), uv(self.players[2])
-end
-
 -- Voronoi split compositing: render each player's view into a full-window
--- canvas (player centred in full screen, no anchor offsets), then composite
+-- canvas (player anchored at the centroid of their own split region, per
+-- CameraManager:getPaneDrawParams -- not the canvas midpoint), then composite
 -- with the Voronoi shader's dynamic angled bisector between the players.
 function InGameState:drawVoronoiSplit()
 	local lg = love and love.graphics
@@ -425,9 +396,12 @@ function InGameState:drawVoronoiSplit()
 	local sw, sh = lg.getWidth(), lg.getHeight()
 	local zoomBlend = self.camera:getSplitZoomBlend()
 
-	-- Each pane uses full-screen size; no anchor offsets so each player is
-	-- centred in their own full-screen canvas. The Voronoi shader then
-	-- composites them with a dynamic bisector between the two focal points.
+	-- Each pane uses full-screen size and no offsetX/offsetY (the pane canvas
+	-- fills the window); the player's on-screen position within that canvas
+	-- is CameraManager's own split-region-centroid anchor, not the canvas
+	-- midpoint, which is what keeps a player off the far side of the dividing
+	-- line. The Voronoi shader then composites the two canvases with a
+	-- dynamic bisector between the two focal points.
 	self.camera:setPaneScreenSize(1, sw, sh)
 	self.camera:setPaneScreenSize(2, sw, sh)
 	local vr1 = self.camera:getPaneDrawParams(1, 0, 0, zoomBlend)
@@ -448,11 +422,17 @@ function InGameState:drawVoronoiSplit()
 	self:drawWorldView(vr2, fullRect)
 	lg.setCanvas(prev)
 
-	-- Composite with Voronoi shader using dynamic player UVs.
-	local uv1, uv2 = self:computeVoronoiUVs()
+	-- Composite with the Voronoi shader using the line CameraManager computed
+	-- this frame (a screen-centred point + unit normal that only rotates).
+	local line = self.camera:getSplitLine()
 	local shader = self:getVoronoiShader()
 	local sf = self.camera:getSplitFactor()
-	local lineThickness = VORONOI_LINE_THICKNESS * self:getSplitGrowthBlend()
+	-- Same divergence-driven blend the pane zoom uses (CameraManager is the
+	-- sole owner of the constants it's built on) -- 0 at split onset (both
+	-- canvases still the merged view, and the line is invisible) to 1 once
+	-- the panes are fully diverged, so the line grows in / shrinks out with
+	-- the transition instead of appearing at full width.
+	local lineThickness = VORONOI_LINE_THICKNESS * self.camera:getSplitZoomBlend()
 
 	lg.push("all")
 	lg.setColor(1, 1, 1, 1)
@@ -460,8 +440,8 @@ function InGameState:drawVoronoiSplit()
 	if shader then
 		shader:send("CanvasA", canvases[1])
 		shader:send("CanvasB", canvases[2])
-		shader:send("p1_screen", uv1)
-		shader:send("p2_screen", uv2)
+		shader:send("line_point", { line.x, line.y })
+		shader:send("line_normal", { line.nx, line.ny })
 		shader:send("split_factor", sf)
 		shader:send("line_thickness", lineThickness)
 		shader:send("line_color", VORONOI_LINE_COLOR)

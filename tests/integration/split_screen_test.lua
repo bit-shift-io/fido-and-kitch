@@ -34,7 +34,7 @@ test("two distant players split into two camera panes; bringing them close merge
 	settle(game)
 	assertFalse(ing.camera:isSplit(), "close players should start merged")
 
-	-- move the players far apart horizontally (> d_split Euclidean threshold)
+	-- move the players far apart horizontally (beyond the capped follow view)
 	setPlayerX(ing, 1, 64)
 	setPlayerX(ing, 2, 560)
 	settle(game)
@@ -49,6 +49,15 @@ test("two distant players split into two camera panes; bringing them close merge
 	settle(game)
 
 	assertFalse(ing.camera:isSplit(), "close players should merge back to one pane")
+	-- isSplit() alone isn't enough: InGameState:draw() actually gates on
+	-- isCompositingActive(), which must also release once the players are
+	-- merged and standing next to each other (not perfectly overlapping) or
+	-- the composited two-pane view never releases back to the single shared
+	-- camera in real play.
+	assertFalse(
+		ing.camera:isCompositingActive(),
+		"the compositing path should release once close players have merged, not stay active forever"
+	)
 end)
 
 test("diagonal player placement produces a split angle", function()
@@ -67,6 +76,77 @@ test("diagonal player placement produces a split angle", function()
 
 	assertTrue(ing.camera:isSplit(), "distant diagonal players should split")
 	assertTrue(math.abs(ing.camera:getSplitAngle()) > 0.01, "diagonal placement should rotate the split angle")
+end)
+
+test("InGameState:draw() keeps taking the composited path through the whole merge-back, never dropping early just because isSplit() has already flipped false", function()
+	-- conf.voronoi gates which path draw() takes at all; it defaults to false
+	-- and is a process-wide global shared with every other integration test
+	-- file in this run, so restore it afterward regardless of outcome.
+	local prevVoronoi = conf.voronoi
+	conf.voronoi = true
+
+	local ok, err = pcall(function()
+		local game = GameHarness.startGame(MAP)
+		local ing = ingame(game)
+		settle(game)
+
+		-- Spy on which draw path InGameState:draw() actually takes each frame --
+		-- this is what catches a regression to gating splitActive on the raw
+		-- isSplit() boolean instead of the eased isCompositingActive() gate; a
+		-- test that only re-derives the same eased quantity and checks it against
+		-- itself would never fail even if draw() stopped consulting it.
+		local pathTaken = nil
+		local realVoronoi = ing.drawVoronoiSplit
+		local realMerged = ing.drawMergedView
+		ing.drawVoronoiSplit = function(self, ...)
+			pathTaken = "voronoi"
+			return realVoronoi(self, ...)
+		end
+		ing.drawMergedView = function(self, ...)
+			pathTaken = "merged"
+			return realMerged(self, ...)
+		end
+
+		setPlayerX(ing, 1, 64)
+		setPlayerX(ing, 2, 560)
+		settle(game)
+		game:draw()
+		assertEqual("voronoi", pathTaken, "precondition: split apart should draw the composited path")
+
+		-- Bring the players together. isSplit() is a raw threshold: it flips to
+		-- false the instant the required framing scale clears the merge-off
+		-- margin, well before the panes themselves (which keep easing toward
+		-- each player's own close-up view every frame, regardless of split
+		-- state) have actually converged back together.
+		setPlayerX(ing, 1, 300)
+		setPlayerX(ing, 2, 320)
+
+		local sawIsSplitFalseWhileStillDiverged = false
+		for i = 1, 120 do
+			FrameStepper.step(game, 1)
+			game:draw()
+			if not ing.camera:isSplit() and ing.camera:getSplitZoomBlend() > 0.01 then
+				sawIsSplitFalseWhileStillDiverged = true
+				assertEqual(
+					"voronoi",
+					pathTaken,
+					"draw() dropped to the merged path at frame "
+						.. i
+						.. " while the panes are still apart, even though isSplit() has already flipped false"
+				)
+			end
+		end
+
+		assertTrue(
+			sawIsSplitFalseWhileStillDiverged,
+			"precondition: isSplit() should flip false before the panes have fully converged, or this test isn't exercising the gap it's meant to"
+		)
+	end)
+
+	conf.voronoi = prevVoronoi
+	if not ok then
+		error(err, 0)
+	end
 end)
 
 test("overview collapses a split view back to a single merged pane", function()
