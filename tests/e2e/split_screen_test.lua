@@ -426,3 +426,40 @@ test("overview mode draws a single merged full-map view without the shader", fun
 	Capture.capture("overview")
 	assertTrue(true, "overview render completed")
 end)
+
+test("pressing the overview key actually zooms out to the full map, not just the follow cap", function()
+	-- Regression test: CameraManager:toggleOverview -- what the spacebar
+	-- keybinding actually calls (see InGameState:keypressed) -- used to
+	-- assign self.mode directly instead of routing through self:setMode, so
+	-- it never propagated to self.merged, the Camera instance whose *own*
+	-- .mode decides whether to return the full-map view. self.merged stayed
+	-- in "follow" mode forever: invisible before the follow zoom cap existed,
+	-- but a real regression once it did -- pressing the overview key no
+	-- longer reached the full map, only the (much tighter) follow cap. The
+	-- test above calls camera:setMode("overview") directly, which was never
+	-- broken; this one goes through the same method the key press does.
+	love.window.setMode(800, 600)
+	local game = GameHarness.startGame(MAP, { real = true })
+	local ing = ingame(game)
+	settle(game)
+
+	-- Spread the players out so the follow camera is pinned at its zoom cap,
+	-- not merely zoomed in tighter than it -- otherwise a scale that happens
+	-- to already be close to the full-map one could pass by coincidence.
+	setPlayerX(ing, 1, 32)
+	setPlayerX(ing, 2, 608)
+	settle(game)
+
+	local CameraModule = require("src.camera")
+	-- padding=16 matches InGameState's own CameraManager.new call.
+	local full = CameraModule.fullMapView(20 * 32, 20 * 32, 800, 600, 16)
+	local capScale = math.max(800 / (CameraModule.MAX_VIEW_TILES * 32), 600 / (CameraModule.MAX_VIEW_TILES * 32))
+	assertNear(capScale, ing.camera.merged.scale, 0.01, "precondition: follow mode should be pinned at the zoom cap")
+
+	ing.camera:toggleOverview()
+	settle(game)
+
+	assertTrue(ing.camera:isOverview(), "overview mode active")
+	assertNear(full.scale, ing.camera.merged.scale, 0.01, "the overview key should reach the full-map scale")
+	Capture.capture("overview_key_full_map")
+end)

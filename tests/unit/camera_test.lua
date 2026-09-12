@@ -954,6 +954,40 @@ test("overview and game-over modes ignore the follow zoom cap on a map wider tha
 	)
 end)
 
+test("CameraManager:toggleOverview reaches the full-map scale, not just the follow-mode cap", function()
+	-- Regression test: CameraManager:toggleOverview used to assign
+	-- self.mode directly instead of routing through self:setMode, so it
+	-- never propagated to self.merged (the Camera instance that actually
+	-- decides, from its *own* .mode, whether to return the full-map view --
+	-- see Camera:computeTargetView). self.merged stayed in "follow" mode
+	-- forever, which was invisible before the follow zoom cap existed (an
+	-- uncapped follow view reaches the full-map scale on its own once players
+	-- spread out) but meant overview could no longer zoom out past the cap at
+	-- all once it did.
+	local cm = manager()
+	local full = Camera.fullMapView(MAP_W, MAP_H, SCREEN_W, SCREEN_H)
+	-- Players far enough apart to pin the follow camera at the zoom cap
+	-- (rather than zoomed in tighter than it), so this reaches the cap's
+	-- exact scale and not just "some scale smaller than the full map".
+	local far = { playerRect(200, 300), playerRect(1000, 300) }
+	local capScale = math.max(SCREEN_W / (Camera.MAX_VIEW_TILES * TILE), SCREEN_H / (Camera.MAX_VIEW_TILES * TILE))
+
+	settleSplit(cm, far)
+	assertNear(capScale, cm.merged.scale, 0.0001, "precondition: follow mode should be pinned at the zoom cap")
+
+	cm:toggleOverview()
+	for _ = 1, 60 do
+		cm:update(1 / 60, far)
+	end
+	assertNear(full.scale, cm.merged.scale, 0.0001, "overview should reach the full-map scale, not stay at the follow cap")
+
+	cm:toggleOverview()
+	for _ = 1, 60 do
+		cm:update(1 / 60, far)
+	end
+	assertNear(capScale, cm.merged.scale, 0.0001, "toggling back should return to the follow-mode cap")
+end)
+
 test("a map narrower than the cap still frames flush with the existing padding behaviour", function()
 	local smallMapW = 10 * TILE -- narrower than the 20-tile cap
 	local smallMapH = 10 * TILE

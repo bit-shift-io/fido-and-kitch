@@ -467,7 +467,15 @@ function CameraManager:toggleOverview()
 	if self.mode == "gameover" then
 		return
 	end
-	self.mode = (self.mode == "overview") and "follow" or "overview"
+	-- Routed through setMode, not a direct self.mode assignment: self.merged
+	-- (the Camera instance that actually computes the merged view) makes its
+	-- own "show the full map" decision from its *own* .mode, set independently
+	-- in Camera:computeTargetView. A direct assignment here left self.merged
+	-- permanently in "follow" mode, which was invisible before the follow
+	-- zoom cap existed (an uncapped follow view reaches the full-map scale on
+	-- its own once players spread out) but became a real bug once it didn't:
+	-- overview stopped being able to zoom out past the cap at all.
+	self:setMode((self.mode == "overview") and "follow" or "overview")
 end
 
 -- Delegated extra targets go to the merged camera (keeps the old behaviour for
