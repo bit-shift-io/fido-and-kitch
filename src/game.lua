@@ -71,49 +71,49 @@ function Game:textinput(t)
 end
 
 function Game:keypressed(k)
-	if k == "f12" then
+	if k == "0" then
 		Log.debug("screenshot")
 		love.filesystem.setIdentity("screenshot_example")
 		local cwd = love.filesystem.getWorkingDirectory() .. "/" .. os.time() .. ".png"
 		love.graphics.captureScreenshot(cwd)
 	end
 
-	if k == "f1" then
+	if k == "1" then
 		Log.debug("toggle debug")
 		conf.drawphysics = not conf.drawphysics
 	end
 
-	if k == "f2" then
+	if k == "2" then
 		Log.debug("toggle particle outlines")
 		conf.draw_particles = not conf.draw_particles
 	end
 
-	if k == "f3" then
+	if k == "3" then
 		Log.debug("toggle sprite outlines")
 		conf.draw_sprite_outlines = not conf.draw_sprite_outlines
 	end
 
-	if k == "f4" then
+	if k == "4" then
 		Log.debug("toggle grid overlay")
 		conf.draw_grid = not conf.draw_grid
 	end
 
-	if k == "f5" then
+	if k == "5" then
 		Log.debug("toggle slow motion")
 		conf.slowmo = not conf.slowmo
 	end
 
-	if k == "f6" then
+	if k == "6" then
 		Log.debug("toggle ultra slow motion")
 		conf.ultraslow = not conf.ultraslow
 	end
 
-	if k == "f7" then
+	if k == "`" then
 		Log.debug("toggle voronoi split-screen")
 		conf.voronoi = not conf.voronoi
 	end
 
-	if k == "f11" then
+	if k == "9" then
 		Log.debug("toggle fullscreen")
 		love.window.setFullscreen(not love.window.getFullscreen(), "desktop")
 	end
