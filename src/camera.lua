@@ -361,7 +361,10 @@ local SPLIT_DECAY = 12
 -- threshold to call them converged.
 local SPLIT_TRANSITION_RELEASE_EPSILON = 0.01
 local ANGLE_DECAY = 20
-local ANGLE_MIN = 5 * math.pi / 180 -- 5 deg: ignore tiny deltas to avoid jitter
+-- Below this player separation (world pixels), the raw separation angle is
+-- degenerate -- atan2 of a near-zero vector -- rather than a genuine change in
+-- direction, so the target holds instead of chasing it.
+local ANGLE_DEGENERATE_SEPARATION = 4
 local ANGLE_MAX_ROT = 150 * math.pi / 180 -- max ~150 deg/s rotation
 local PANE_MIN_VIEW_TILES = 4
 -- Pane anchor easing: how fast a pane's on-screen anchor point (the centroid
@@ -577,9 +580,16 @@ function CameraManager:updateSplit(dt, targets)
 		local c2x = p2.x + p2.w / 2
 		local c2y = p2.y + p2.h / 2
 		local dx, dy = c2x - c1x, c2y - c1y
-		local angTarget = nearestEquivalentAngle(math.atan2(dy, dx), self.splitAngle)
-		if math.abs(angTarget - self.splitAngleTarget) > ANGLE_MIN then
-			self.splitAngleTarget = angTarget
+		-- Below this separation, atan2(dy, dx) is numerically unstable (a few
+		-- world pixels of jitter swing it wildly) rather than meaningfully
+		-- different, so hold the previous target instead of chasing noise.
+		-- This gates on separation, not on how much the raw angle moved since
+		-- last frame -- gating on the angle delta (the previous approach)
+		-- holds the target through any change smaller than the threshold and
+		-- then jumps once the accumulated change finally clears it, which
+		-- turns ordinary continuous rotation into a visible staircase.
+		if dx * dx + dy * dy > ANGLE_DEGENERATE_SEPARATION * ANGLE_DEGENERATE_SEPARATION then
+			self.splitAngleTarget = nearestEquivalentAngle(math.atan2(dy, dx), self.splitAngle)
 		end
 
 		if self:isCompositingActive() then
@@ -594,8 +604,7 @@ function CameraManager:updateSplit(dt, targets)
 			-- to split again the line is already at its new orientation. Easing
 			-- through that flip would rotate the divider 180 degrees for a
 			-- change that is really just the two halves trading places.
-			self.splitAngleTarget = angTarget
-			self.splitAngle = angTarget
+			self.splitAngle = self.splitAngleTarget
 		end
 
 		-- Crossover trigger (see the SPLIT_*_SEPARATION_MARGIN comment above):

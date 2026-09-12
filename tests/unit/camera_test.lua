@@ -1023,6 +1023,85 @@ test("rotating players a full turn produces a continuously rotating normal with 
 	end
 end)
 
+test("players rotating at constant angular speed produce a uniform per-frame rotation, not a staircase", function()
+	-- Regression test: the raw separation angle used to only update the
+	-- easing target when it had moved more than a 5deg threshold since the
+	-- last *target* update ("ignore tiny deltas to avoid jitter"). Ordinary
+	-- continuous movement changes the raw angle by a small fraction of a
+	-- degree per frame, so the target held still for many frames and then
+	-- jumped once the accumulated change finally cleared the threshold -- a
+	-- visible staircase, even though the underlying motion was perfectly
+	-- smooth. Gating on separation distance instead (see
+	-- ANGLE_DEGENERATE_SEPARATION) fixes this: the target updates every
+	-- frame, and only genuinely near-zero separation holds it.
+	--
+	-- Both players circle a shared centre at constant angular speed (as in
+	-- "rotating players a full turn" above), which is the one motion whose
+	-- true separation angle changes at a genuinely constant rate -- so any
+	-- unevenness in the *output* is the trigger's own doing, not a artifact
+	-- of the geometry.
+	-- A bigger map than manager()'s: circling at radius=900 needs room for
+	-- both players to stay on it at every angle.
+	local cm = Camera.CameraManager.new({
+		screenW = SCREEN_W,
+		screenH = SCREEN_H,
+		mapW = TILE * 200,
+		mapH = TILE * 200,
+		tileW = TILE,
+		padding = 0,
+	})
+	-- Circling at a fixed radius keeps the two players' world separation
+	-- exactly constant (|p2-p1| = 2*radius regardless of angle), so a radius
+	-- comfortably past the split threshold keeps splitState true for the
+	-- entire warmup and measurement -- no merged/split transition to cross,
+	-- which is its own (legitimate, one-frame) transient: the angle switches
+	-- from snapped to eased right at that boundary, and measuring across it
+	-- would flag that handoff rather than the staircase this test targets.
+	local radius, cxWorld, cyWorld = 900, 3200, 3200
+	local stepAngle = (math.pi / 2) / 180 -- the constant per-frame rotation rate
+	local warmupFrames = 120 -- run the *same* constant rate first, so the
+	-- eased angle is already tracking it at a steady lag before measuring --
+	-- otherwise the transient from a cold start (target suddenly switching
+	-- from static to ramping) shows up as spuriously uneven early steps.
+	local measureFrames = 180
+
+	local function playersAt(theta)
+		return {
+			playerRect(cxWorld - radius * math.cos(theta), cyWorld - radius * math.sin(theta)),
+			playerRect(cxWorld + radius * math.cos(theta), cyWorld + radius * math.sin(theta)),
+		}
+	end
+
+	for i = -warmupFrames + 1, 0 do
+		cm:update(1 / 60, playersAt(i * stepAngle))
+	end
+	assertTrue(cm:isSplit(), "precondition: this radius should be well past the split threshold")
+
+	local prevAngle, minStep, maxStep = cm:getSplitAngle(), math.huge, 0
+	for i = 1, measureFrames do
+		cm:update(1 / 60, playersAt(i * stepAngle))
+		assertTrue(cm:isSplit(), "precondition: should stay split for the whole measurement window")
+		local angle = cm:getSplitAngle()
+		local step = math.abs(angle - prevAngle)
+		minStep = math.min(minStep, step)
+		maxStep = math.max(maxStep, step)
+		prevAngle = angle
+	end
+
+	-- A staircase alternates near-zero steps (while the target holds) with
+	-- occasional large ones (when it jumps); smooth, continuous motion at a
+	-- constant angular rate keeps every step close to the same size.
+	assertTrue(minStep > 0, "every frame of continuous rotation should move the line at least a little")
+	assertTrue(
+		maxStep < minStep * 3,
+		string.format(
+			"per-frame rotation should stay uniform under constant angular motion, not alternate between holds and jumps (min %.4f deg, max %.4f deg)",
+			math.deg(minStep),
+			math.deg(maxStep)
+		)
+	)
+end)
+
 test("aligned players (separation under the jitter threshold) hold the previous angle rather than snapping", function()
 	local cm = manager()
 	-- Establish a clear diagonal angle first.
