@@ -1571,6 +1571,60 @@ test("isCompositingActive eventually releases when players merge back close toge
 	)
 end)
 
+test("isCompositingActive still releases after merging back together if the players keep walking", function()
+	-- A wide map, not the shared MAP_W/MAP_H fixture: the players below walk
+	-- several thousand world px over the course of this test, and clamping
+	-- against a map edge partway through would perturb the pane/merged
+	-- cameras in a way that could mask (or fake) convergence unrelated to
+	-- what's actually being tested here.
+	local wideMapW = TILE * 4000
+	local cm = Camera.CameraManager.new({
+		screenW = SCREEN_W,
+		screenH = SCREEN_H,
+		mapW = wideMapW,
+		mapH = MAP_H,
+		tileW = TILE,
+		padding = 0,
+	})
+	cm:setPaneScreenSize(1, SCREEN_W, SCREEN_H)
+	cm:setPaneScreenSize(2, SCREEN_W, SCREEN_H)
+
+	local startX = wideMapW / 2
+	local far = { playerRect(startX - 350, 300), playerRect(startX + 350, 300) }
+	for _ = 1, 90 do
+		cm:update(1 / 60, far)
+	end
+	assertTrue(cm:isSplit(), "precondition: fully split")
+
+	-- Walk the pair back together (adjacent, not overlapping) and then keep
+	-- walking side by side at a steady speed indefinitely, the way a player
+	-- holding a direction key after the merge would. The divider must not
+	-- linger just because the players are still in motion -- only the actual,
+	-- unconverged split state should hold it open.
+	local x = startX
+	local speed = 150 -- world px/s, a realistic walk speed
+	local sawSplitRelease = false
+	local releasedWhileMoving = nil
+	for i = 1, 600 do
+		local dt = 1 / 60
+		x = x + speed * dt
+		cm:update(dt, { playerRect(x, 300), playerRect(x + 20, 300) })
+		if not cm:isSplit() then
+			sawSplitRelease = true
+		end
+		if sawSplitRelease and not releasedWhileMoving and not cm:isCompositingActive() then
+			releasedWhileMoving = i
+		end
+	end
+
+	assertTrue(sawSplitRelease, "precondition: walking together should merge the split")
+	assertTrue(
+		releasedWhileMoving ~= nil,
+		"compositing should release once the panes have converged, even while the players keep walking, "
+			.. "not stay stuck open for as long as they remain in motion"
+	)
+end)
+
 test("entering overview or game-over mid-split releases the compositing path immediately, even with a high split factor", function()
 	local cm = manager()
 	local far = { playerRect(200, 300), playerRect(900, 300) }

@@ -727,10 +727,10 @@ function CameraManager:updatePane(dt, index, targets)
 		pane.cx, pane.cy = self:paneMergedViewCentre(index)
 		pane.scale = self.merged.scale
 		pane.primed = true
+		pane.mergeTrackerValid = false
 		return
 	end
 
-	local target
 	if self.splitState then
 		-- Combine this pane's player target with that pane's extra targets.
 		-- The oneshot targets list only holds this player; use
@@ -744,16 +744,48 @@ function CameraManager:updatePane(dt, index, targets)
 		for _, t in pairs(pane.extraTargets) do
 			table.insert(paneTargets, t)
 		end
-		target = pane:computeTargetView(paneTargets)
-	else
-		local mx, my = self:paneMergedViewCentre(index)
-		target = { cx = mx, cy = my, scale = self.merged.scale }
+		local target = pane:computeTargetView(paneTargets)
+
+		-- Invalidated every frame the pane is following its own player, so the
+		-- merge branch below never applies a feed-forward step computed
+		-- against a stale target from before this split.
+		pane.mergeTrackerValid = false
+
+		local factor = 1 - math.exp(-pane.decay * dt)
+		pane.cx = pane.cx + (target.cx - pane.cx) * factor
+		pane.cy = pane.cy + (target.cy - pane.cy) * factor
+		pane.scale = pane.scale + (target.scale - pane.scale) * factor
+		return
 	end
 
+	-- Merged: ease toward the shared view, same as the split branch above,
+	-- but also carry the merged view's own frame-to-frame motion across
+	-- (feed-forward) rather than relying on the exponential ease alone to
+	-- chase it. paneMergedViewCentre moves every frame the players keep
+	-- walking (it derives from the merged camera, itself still easing toward
+	-- them), and an exponential ease chasing a continuously moving target
+	-- settles at a permanent non-zero lag proportional to that target's
+	-- speed -- exactly the residual getSplitDivergence measures. Without the
+	-- feed-forward, that lag holds isCompositingActive() (and so the
+	-- dividing line) on for as long as the players keep moving, releasing
+	-- only once they stop and the target itself stops moving. Adding the
+	-- target's own per-frame delta directly cancels that steady-state lag,
+	-- leaving only the ease to close out whatever residual gap the split
+	-- itself left behind -- which does genuinely decay to zero.
+	local mx, my = self:paneMergedViewCentre(index)
+	local scale = self.merged.scale
+	if pane.mergeTrackerValid then
+		pane.cx = pane.cx + (mx - pane.prevMergedCx)
+		pane.cy = pane.cy + (my - pane.prevMergedCy)
+		pane.scale = pane.scale + (scale - pane.prevMergedScale)
+	end
+	pane.prevMergedCx, pane.prevMergedCy, pane.prevMergedScale = mx, my, scale
+	pane.mergeTrackerValid = true
+
 	local factor = 1 - math.exp(-pane.decay * dt)
-	pane.cx = pane.cx + (target.cx - pane.cx) * factor
-	pane.cy = pane.cy + (target.cy - pane.cy) * factor
-	pane.scale = pane.scale + (target.scale - pane.scale) * factor
+	pane.cx = pane.cx + (mx - pane.cx) * factor
+	pane.cy = pane.cy + (my - pane.cy) * factor
+	pane.scale = pane.scale + (scale - pane.scale) * factor
 end
 
 function CameraManager:getSplitFactor()
