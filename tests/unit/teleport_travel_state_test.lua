@@ -1,6 +1,7 @@
 -- Unit tests for TeleportTravelState
 require("tests.support.headless_bootstrap")
 local PlayerStates = require("src.player.player_states")
+local TeleportTrail = require("src.fx.teleport_trail")
 
 test("TeleportTravelState exists in PlayerStates", function()
 	assertTrue(PlayerStates.TeleportTravelState ~= nil, "TeleportTravelState should exist")
@@ -13,6 +14,7 @@ test("TeleportTravelState:enter hides player and sets up travel", function()
 			setType = function() end,
 			setGravityScale = function() end,
 			setLinearVelocity = function() end,
+			setSensor = function() end,
 			getX = function()
 				return 100
 			end,
@@ -43,6 +45,7 @@ test("TeleportTravelState:update advances travel and completes", function()
 			setGravityScale = function() end,
 			setLinearVelocity = function() end,
 			setPosition = function() end,
+			setSensor = function() end,
 			getX = function()
 				return 100
 			end,
@@ -58,7 +61,7 @@ test("TeleportTravelState:update advances travel and completes", function()
 	}
 	state.entity = mockPlayer
 	state:enter(nil, {
-		curve = { startX = 100, startY = 200, destX = 500, destY = 200 },
+		curve = TeleportTrail.generateCurve({ x = 100, y = 200 }, { x = 500, y = 200 }),
 		duration = 1.0,
 		destX = 500,
 		destY = 200,
@@ -72,6 +75,45 @@ test("TeleportTravelState:update advances travel and completes", function()
 	assertTrue(true, "update should complete without error")
 end)
 
+test("TeleportTravelState:update moves the player collider along the curve", function()
+	local state = PlayerStates.TeleportTravelState
+	local lastPosition = nil
+	local mockPlayer = {
+		collider = {
+			setType = function() end,
+			setGravityScale = function() end,
+			setLinearVelocity = function() end,
+			setPosition = function(_, x, y)
+				lastPosition = { x = x, y = y }
+			end,
+			setSensor = function() end,
+			getX = function()
+				return 100
+			end,
+			getY = function()
+				return 200
+			end,
+		},
+		visible = true,
+		setAnimation = function() end,
+		fsm = {
+			setState = function() end,
+		},
+	}
+	state.entity = mockPlayer
+	state:enter(nil, {
+		curve = TeleportTrail.generateCurve({ x = 100, y = 200 }, { x = 500, y = 200 }),
+		duration = 1.0,
+		destX = 500,
+		destY = 200,
+	})
+
+	state:update(0.5)
+
+	assertTrue(lastPosition ~= nil, "collider position should be updated mid-travel")
+	assertTrue(lastPosition.x > 100 and lastPosition.x < 500, "collider should have moved along the curve, not stayed frozen at the start")
+end)
+
 test("TeleportTravelState:exit shows player and restores physics", function()
 	local state = PlayerStates.TeleportTravelState
 	local mockPlayer = {
@@ -83,6 +125,9 @@ test("TeleportTravelState:exit shows player and restores physics", function()
 				self.gravityScale = g
 			end,
 			setLinearVelocity = function() end,
+			setSensor = function(self, s)
+				self.sensor = s
+			end,
 		},
 		visible = false,
 		setAnimation = function() end,
@@ -98,4 +143,35 @@ test("TeleportTravelState:exit shows player and restores physics", function()
 	assertTrue(mockPlayer.visible, "player should be visible after travel")
 	assertEqual("dynamic", mockPlayer.collider.type, "collider should be dynamic")
 	assertEqual(1, mockPlayer.collider.gravityScale, "gravity should be enabled")
+	assertFalse(mockPlayer.collider.sensor, "collider should be solid again after travel")
+end)
+
+test("TeleportTravelState:enter makes the collider a sensor so it doesn't physically collide while travelling", function()
+	local state = PlayerStates.TeleportTravelState
+	local mockPlayer = {
+		collider = {
+			setType = function() end,
+			setGravityScale = function() end,
+			setLinearVelocity = function() end,
+			setSensor = function(self, s)
+				self.sensor = s
+			end,
+			getX = function()
+				return 100
+			end,
+			getY = function()
+				return 200
+			end,
+		},
+		visible = true,
+		setAnimation = function() end,
+	}
+	state.entity = mockPlayer
+	state:enter(nil, {
+		curve = { startX = 100, startY = 200, destX = 500, destY = 200 },
+		duration = 1.0,
+		destX = 500,
+		destY = 200,
+	})
+	assertTrue(mockPlayer.collider.sensor, "collider should be a sensor during travel so it doesn't block pushables/other physics along its path")
 end)
