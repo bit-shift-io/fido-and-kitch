@@ -30,7 +30,7 @@ local DEFAULT_DECAY = 12
 -- spread. Overview, level-start, and game-over all use Camera.fullMapView
 -- directly (or via computeTargetView's early-return branch), which never
 -- passes maxViewTiles to computeFraming, so they stay uncapped.
-local MAX_VIEW_TILES = 20
+local MAX_VIEW_TILES = 40
 
 -- Shared constants for modules that mirror camera framing semantics
 -- (parallax_renderer, etc.) so the values never silently diverge.
