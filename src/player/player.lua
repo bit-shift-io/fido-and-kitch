@@ -185,7 +185,7 @@ end
 function Player:update(dt)
 	Entity.update(self, dt)
 
-	if not self:isDead() then
+	if not self:isDead() and not self:isTeleporting() then
 		local killZone = PlayerSensors.queryKillZone(world, self.collider)
 		if killZone then
 			killZone.sound:play(killZone.deathType)
@@ -223,6 +223,10 @@ end
 
 function Player:isDead()
 	return self.fsm.currentState == self.fsm.states.DeadState
+end
+
+function Player:isTeleporting()
+	return self.fsm.currentState == self.fsm.states.TeleportTravelState
 end
 
 function Player:die(deathType)
