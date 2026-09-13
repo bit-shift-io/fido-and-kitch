@@ -2,7 +2,7 @@ local conf = {}
 conf.args = args
 conf.ipc_port = 8081
 conf.ipc_enabled = false
-conf.voronoi = false -- Voronoi dynamic split-screen camera (toggled in-game with F7)
+conf.voronoi = true -- Voronoi dynamic split-screen camera (toggled in-game with `)
 
 function love.conf(t)
 	t.graphics = t.graphics or {} -- LÖVE 12 graphics startup options

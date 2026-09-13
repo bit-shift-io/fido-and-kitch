@@ -79,8 +79,8 @@ test("diagonal player placement produces a split angle", function()
 end)
 
 test("InGameState:draw() keeps taking the composited path through the whole merge-back, never dropping early just because isSplit() has already flipped false", function()
-	-- conf.voronoi gates which path draw() takes at all; it defaults to false
-	-- and is a process-wide global shared with every other integration test
+	-- conf.voronoi gates which path draw() takes at all; it's a process-wide
+	-- global shared with every other integration test
 	-- file in this run, so restore it afterward regardless of outcome.
 	local prevVoronoi = conf.voronoi
 	conf.voronoi = true
