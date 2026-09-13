@@ -2,9 +2,15 @@
 
 ## Auto-zoom camera
 
-**Definition** — The single shared camera that automatically frames all framing targets: zooming in when players are close (never below a 6×6-tile view), out as they spread (up to the follow zoom cap), with smooth frame-rate-independent easing on pan and zoom, always clamped to map bounds.
+**Definition** — The single shared camera that automatically frames all framing targets: zooming in when players are close (never below a 6×6-tile view), out as they spread (up to the follow zoom cap), with smooth frame-rate-independent easing on pan and zoom, clamped to map bounds plus the diorama buffer.
 
 **Boundary** — One camera for one shared screen; it is not split-screen, not per-player, and does not render parallax (it only exposes the centre/zoom parallax will need). HUD and menus live outside its transform.
+
+## Diorama buffer
+
+**Definition** — The world-px slack, `Diorama.computeCameraBuffer(tileW)` = `frame.outset + frame.tileSize + tileW`, that the auto-zoom camera keeps reachable past every map edge: enough for the decorative diorama frame to render in full, plus one map tile of void beyond it. Used both as `Camera.fullMapView`'s padding (spacebar overview, level start, game-over) and as the follow-mode pan clamp's edge slack, at every zoom level.
+
+**Boundary** — A camera/diorama sizing value only; it does not change the diorama's own draw geometry, `Camera.MAX_VIEW_TILES` (the follow zoom-out cap), or the Voronoi per-player pane cameras (already unclamped via `clampToMap=false`).
 
 ## Follow zoom cap
 

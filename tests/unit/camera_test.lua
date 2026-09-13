@@ -855,6 +855,41 @@ test("padding does not force a zoom-out for targets well inside the map", functi
 	assertTrue(view.y + view.h <= MAP_H + 0.001)
 end)
 
+test("follow mode pan clamp allows overscroll into the diorama buffer at the left/top edge", function()
+	local PAD = 16
+	local player = playerRect(0, 0)
+	local view = Camera.computeFraming({ player }, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({ padding = PAD }))
+
+	assertNear(-PAD, view.x, 0.001, "view should clamp at exactly pad past the left edge")
+	assertNear(-PAD, view.y, 0.001, "view should clamp at exactly pad past the top edge")
+end)
+
+test("follow mode pan clamp allows overscroll into the diorama buffer at the right/bottom edge", function()
+	local PAD = 16
+	local player = playerRect(MAP_W - 20, MAP_H - 30)
+	local view = Camera.computeFraming({ player }, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({ padding = PAD }))
+
+	assertNear(MAP_W + PAD, view.x + view.w, 0.001, "view should clamp at exactly pad past the right edge")
+	assertNear(MAP_H + PAD, view.y + view.h, 0.001, "view should clamp at exactly pad past the bottom edge")
+end)
+
+test("follow mode pan clamp never overscrolls further than the buffer even when the target is far outside the map", function()
+	local PAD = 16
+	local player = playerRect(-500, -500)
+	local view = Camera.computeFraming({ player }, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({ padding = PAD }))
+
+	assertNear(-PAD, view.x, 0.001, "view should not overscroll past -pad")
+	assertNear(-PAD, view.y, 0.001, "view should not overscroll past -pad")
+end)
+
+test("padding=0 pan clamp collapses back to flush map bounds at the edge (no regression)", function()
+	local player = playerRect(0, 0)
+	local view = Camera.computeFraming({ player }, MAP_W, MAP_H, SCREEN_W, SCREEN_H, opts({ padding = 0 }))
+
+	assertNear(0, view.x, 0.001, "with no padding, the clamp bound is unchanged: flush with the map edge")
+	assertNear(0, view.y, 0.001, "with no padding, the clamp bound is unchanged: flush with the map edge")
+end)
+
 test("overview mode with padding targets the padded full-map view", function()
 	local PAD = 16
 	local camera =

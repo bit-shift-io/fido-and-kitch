@@ -309,3 +309,16 @@ test("corner ornament offset moves the corner diagonally away from the map corne
 	assertEqual(648, frame.cornerOrnaments.topRight.x, "an offset-free corner keeps its default position")
 	assertEqual(-8, frame.cornerOrnaments.topRight.y)
 end)
+
+test("computeCameraBuffer derives the camera's edge slack from frame geometry plus one map tile", function()
+	assertEqual(78, Diorama.computeCameraBuffer(32), "default config: outset 14 + tileSize 32 + tileW 32")
+end)
+
+test("computeCameraBuffer reads from Diorama.config rather than hardcoding", function()
+	local original = Diorama.config.frame.outset
+	Diorama.config.frame.outset = 20
+	local result = Diorama.computeCameraBuffer(16)
+	Diorama.config.frame.outset = original
+
+	assertEqual(68, result, "overridden outset (20) + tileSize 32 + tileW 16")
+end)

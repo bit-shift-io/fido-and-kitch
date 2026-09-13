@@ -152,13 +152,13 @@ function Camera.computeFraming(targets, mapW, mapH, screenW, screenH, opts)
 	if viewW > mapW then
 		viewX = (mapW - viewW) / 2
 	elseif clampToMap then
-		viewX = clamp(viewX, 0, mapW - viewW)
+		viewX = clamp(viewX, -pad, mapW - viewW + pad)
 	end
 
 	if viewH > mapH then
 		viewY = (mapH - viewH) / 2
 	elseif clampToMap then
-		viewY = clamp(viewY, 0, mapH - viewH)
+		viewY = clamp(viewY, -pad, mapH - viewH + pad)
 	end
 
 	return {

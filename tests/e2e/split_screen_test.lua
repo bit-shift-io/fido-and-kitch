@@ -451,8 +451,10 @@ test("pressing the overview key actually zooms out to the full map, not just the
 	settle(game)
 
 	local CameraModule = require("src.camera")
-	-- padding=16 matches InGameState's own CameraManager.new call.
-	local full = CameraModule.fullMapView(20 * 32, 20 * 32, 800, 600, 16)
+	local Diorama = require("src.diorama")
+	-- padding matches InGameState's own CameraManager.new call: the diorama
+	-- buffer derived from frame geometry, not a hardcoded value.
+	local full = CameraModule.fullMapView(20 * 32, 20 * 32, 800, 600, Diorama.computeCameraBuffer(32))
 	local capScale = math.max(800 / (CameraModule.MAX_VIEW_TILES * 32), 600 / (CameraModule.MAX_VIEW_TILES * 32))
 	assertNear(capScale, ing.camera.merged.scale, 0.01, "precondition: follow mode should be pinned at the zoom cap")
 

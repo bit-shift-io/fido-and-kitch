@@ -93,6 +93,16 @@ Diorama.config = {
 	},
 }
 
+-- The world-px slack the auto-zoom camera keeps reachable past every map
+-- edge: enough for the frame to render in full (`outset` + `tileSize`),
+-- plus one map tile of void beyond it. Shared by Camera.fullMapView's
+-- padding and the follow-mode pan clamp so the two never diverge -- see
+-- docs/memory/camera-zoom-range-drives-parallax.md before changing this.
+function Diorama.computeCameraBuffer(tileW)
+	local f = Diorama.config.frame
+	return f.outset + f.tileSize + tileW
+end
+
 -- The projected world rect in screen coordinates. Must match how the world is
 -- actually drawn: ParallaxRenderer:drawMainLayers translates by
 -- floor(tx), floor(ty) then scales, so the rect origin is FLOORED (a hairline

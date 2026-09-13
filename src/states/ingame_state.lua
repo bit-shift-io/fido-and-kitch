@@ -92,7 +92,7 @@ function InGameState:load(props)
 		mapH = mapH,
 		tileW = map.map.tilewidth,
 		tileH = map.map.tileheight,
-		padding = 16,
+		padding = Diorama.computeCameraBuffer(map.map.tilewidth),
 	})
 	self.voronoiCanvases = nil
 	self.gameOverTimer = nil
