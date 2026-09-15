@@ -83,6 +83,7 @@ local defaultTestFiles = {
 	"tests/unit/destructible_tile_test.lua",
 	"tests/unit/destructible_tile_chain_test.lua",
 	"tests/unit/beam_contact_delay_test.lua",
+	"tests/unit/laser_beam_fx_test.lua",
 }
 
 local tests = {}

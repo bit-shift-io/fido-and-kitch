@@ -6,7 +6,7 @@ A list of tasks that need to be done. Generate docs before starting each task.
 ## High Priority
 - mirror 45 degree asset
 
-- laser beam powerup/down tiling texture/animation
+- laser beam powerup/down tiling texture/animation — done (scrolling-UV quad, see src/fx/laser_beam.lua); art seam still needs the texture's left/right edges to match in res/img/fx/fx_laser_beam.png
 
 - cage asset/cleanup
 

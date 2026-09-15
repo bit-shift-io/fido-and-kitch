@@ -30,20 +30,21 @@
 -- state but 'off', for rendering -- ADR 0006: the beam is an instant
 -- raycast, recomputed fresh every frame, regardless of power state).
 --
--- No real sprite-sheet art exists for the beam (see res/img/entity_laser_
--- beam.png -- deliberately NOT created, per this slice's Gotchas: nothing
--- in this codebase can author real binary image data, and
--- src/entities/pressure_switch.lua already establishes the precedent of a
--- placeholder drawn straight from data rather than a loaded image). Instead
--- POWER_FRAMES below is a small authored Lua table of {width, color} --
+-- The beam's art is res/img/fx/fx_laser_beam.png, a horizontally-tiling
+-- energy strip, drawn as one scrolling-UV quad spanning the beam's current
+-- length by src/fx/laser_beam.lua -- the beam samples the texture wrapped,
+-- so the same pattern repeats along the beam and slides continuously as the
+-- texture animates (no discrete copies, so nothing can pop in or out at a
+-- tile boundary) -- this entity advances the scroll phase every update.
+-- POWER_FRAMES below stays a small authored Lua table of {width, color} --
 -- driven by a bare Timeline (not a full Sprite/animation component, since
--- there is no image to cut into quads) via Timeline:getFrameIndex -- and
--- src/fx/laser_beam.lua draws a solid-colour stretched rectangle sized from
--- whichever frame the timeline currently indexes into. This satisfies "no
--- separate width/color computation" (the acceptance criterion is about not
--- procedurally lerping, not about requiring a real texture): the renderer
--- never computes a width or a colour itself, it only reads frame.width/
--- frame.color.
+-- the texture scrolls rather than switching frames) via
+-- Timeline:getFrameIndex -- and src/fx/laser_beam.lua draws the texture
+-- squished onto whichever frame's width the timeline currently indexes into.
+-- This satisfies "no separate width/color computation" (the acceptance
+-- criterion is about not procedurally lerping, not about requiring a real
+-- texture): the renderer never computes a width or a colour itself, it only
+-- reads frame.width/frame.color.
 local LaserBeamResolver = require("src.entities.laser_beam_resolver")
 local LaserBeam = require("src.fx.laser_beam")
 local SpriteProps = require("src.entities.sprite_props")
@@ -209,6 +210,11 @@ function Laser:init(object, map)
 	-- Laser:draw and src/fx/laser_beam.lua's drawSegments.
 	self.beamSegments = {}
 
+	-- Elapsed time feeding the beam texture's scroll (src/fx/laser_beam.lua
+	-- SCROLL_SPEED): accumulated every update so the pattern slides along
+	-- the beam even though the rendering itself is stateless.
+	self.beamScrollPhase = 0
+
 	-- Power state always starts 'off' regardless of spawnEnabled -- a
 	-- laser authored enabled=true begins warming on its very first
 	-- update rather than snapping straight to a held 'on' frame, so
@@ -276,6 +282,7 @@ end
 function Laser:update(dt)
 	Entity.update(self, dt)
 
+	self.beamScrollPhase = self.beamScrollPhase + dt
 	self.powerTimeline:update(dt)
 	self:updatePowerState()
 
@@ -361,7 +368,7 @@ function Laser:draw()
 		return
 	end
 
-	LaserBeam.drawSegments(self.beamSegments, self:currentPowerFrame())
+	LaserBeam.drawSegments(self.beamSegments, self:currentPowerFrame(), self.beamScrollPhase)
 end
 
 -- White-box seam for tests/unit/laser_state_test.lua and a future
