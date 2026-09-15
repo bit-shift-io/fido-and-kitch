@@ -130,3 +130,226 @@ test("degenerate inputs to the sampler yield zero", function()
 	assertEqual(0, LaserBeam.sampledTexel(50, 3, 0, 546))
 	assertEqual(0, LaserBeam.sampledTexel(50, 3, 2, 0))
 end)
+
+-- The drain-front continuation contract behind the OLD beam's UV window:
+-- a draining old beam is drawn as the head-anchored trailing suffix whose
+-- first segment is PARTIAL, sliced at the moving drain front. Anchoring a
+-- partial suffix's UV window at the mirror (offset = mirror distance only)
+-- makes every drawn texel read as if the lit portion started at the mirror
+-- -- an error equal to the drained distance that grows frame to frame (the
+-- apparent scroll speedup) and re-anchors when the front crosses a segment
+-- joint (the jump). Anchoring the window at the DRAIN FRONT (mirror ABOVE
+-- the drained length) keeps each drawn segment's accumulated baseWorld
+-- equal to its true absolute world distance from the emitter, so the
+-- scroll stays at exactly SCROLL_SPEED -- no speedup, no re-anchor.
+-- Replicated here by emulating drawSegments' accumulation loop: for a
+-- fixed absolute world point, the sampled texel must be identical to the
+-- un-drained reference no matter how far the drain front has advanced.
+test("old-beam drain anchors its UV at the drain front, never the mirror", function()
+	local sx = scaleX()
+	local u0 = 55.5 -- arbitrary fixed scroll phase (single frame)
+	local mirrorDist = 260 -- world px emitter->mirror
+	-- Old path beyond the mirror: mirror -> horizontal 60 -> vertical 40 (total 100).
+	local oldReflected = {
+		{ x1 = 260, y1 = 0, x2 = 320, y2 = 0 },
+		{ x1 = 320, y1 = 0, x2 = 320, y2 = 40 },
+	}
+	local oldTotal = 100
+
+	-- Emulate drawSegments' core: iterate segments, accumulate baseWorld
+	-- (seeded with the anchor), and sample the point at the accumulated
+	-- baseWorld + local distance if it lies on that segment.
+	local function sampleDrawn(lit, anchor, worldX)
+		local baseWorld = anchor
+		for _, seg in ipairs(lit) do
+			local len = math.sqrt((seg.x2 - seg.x1)^2 + (seg.y2 - seg.y1)^2)
+			local localX = worldX - baseWorld -- local distance from this segment's start
+			if localX >= 0 and localX <= len then
+				return LaserBeam.sampledTexel(localX, u0 + baseWorld / sx, sx, 546)
+			end
+			baseWorld = baseWorld + len
+		end
+		return nil
+	end
+
+	-- The fixed world point: 90px past the mirror (near the old head).
+	local pointX = mirrorDist + 90
+	-- Reference texel: the point as a plain emitter-anchored chain.
+	local reference = LaserBeam.sampledTexel(pointX, u0, sx, 546)
+
+	-- Any drain extent still containing the point (>= its distance from the
+	-- head) must sample the same texel -- with the drain-front anchor.
+	for _, extent in ipairs({ 100, 40, 12 }) do
+		local drained = oldTotal - extent
+		local lit = LaserBeam.suffixToLength(oldReflected, extent)
+		local sample = sampleDrawn(lit, mirrorDist + drained, pointX)
+		assertTrue(sample ~= nil, "suffix must contain the fixed point at extent=" .. extent)
+		assertNear(reference, sample, 1e-6,
+			("drain-front anchor must preserve the texel at extent=%d"):format(extent))
+	end
+end)
+
+-- The merge-continuity contract behind drawSegments' baseOffset: an
+-- emitter->mirror->collision beam drawn as TWO calls -- base chain plus a
+-- reflected part carrying the mirror's world length -- must sample texels
+-- identically to the same geometry drawn as ONE chain. If the reflected
+-- part's window restarted at 0 at the mirror, every texel on it (the head
+-- included) would shift by the mirror distance when the parts merge --
+-- the visible stutter at the collision point.
+test("a reflected part with a base offset samples like the merged single chain", function()
+	local sx = scaleX()
+	local u0 = 123.4 -- arbitrary scroll phase
+	local mirrorDist = 260 -- world px emitter->mirror
+	-- Reflected part drawn separately: local distance d carries base base offset.
+	local d = 88
+	local splitSample = LaserBeam.sampledTexel(mirrorDist + d, u0, sx, 546) -- global = mirror + d... local version below
+	-- In drawSegments the reflected first segment's baseWorld = mirrorDist:
+	local localWithOffset = LaserBeam.sampledTexel(d, u0 + mirrorDist / sx, sx, 546)
+	local globalMerged = LaserBeam.sampledTexel(mirrorDist + d, u0, sx, 546)
+	assertNear(globalMerged, localWithOffset, 1e-6, "offset reflected part must match the merged chain")
+	assertNear(globalMerged, splitSample, 1e-6)
+	-- And, as the regression that motivated baseOffset: WITHOUT the offset
+	-- the reflected part samples a DIFFERENT texel than the merged chain
+	-- whenever the mirror distance isn't an exact multiple of a texture copy.
+	local localNoOffset = LaserBeam.sampledTexel(d, u0, sx, 546)
+	assertTrue(math.abs(localNoOffset - globalMerged) > 1, "no-offset reflected sampling must differ (the bug being fixed)")
+end)
+
+-- clipSegmentsToLength truncates a path to a given visible length
+-- along the polyline from the emitter. A partial final segment is
+-- clipped so the returned polyline's total world length <= the
+-- requested length. Used by Laser:draw so the visible beam extent
+-- can animate at SCROLL_SPEED without changing resolved geometry.
+test("clipSegmentsToLength truncates the last segment exactly at the length", function()
+	local segs = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 }, { x1 = 100, y1 = 0, x2 = 100, y2 = 50 } }
+	local clipped = LaserBeam.clipSegmentsToLength(segs, 120)
+	assertEqual(2, #clipped, "first full segment kept")
+	-- second segment is partially drawn: 20 px along its 50 px length
+	local last = clipped[2]
+	assertNear(20, math.sqrt((last.x2 - last.x1)^2 + (last.y2 - last.y1)^2), 1e-6,
+		"partial second segment must be 20px long")
+end)
+
+test("clipSegmentsToLength with length longer than the path returns all segments", function()
+	local segs = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local clipped = LaserBeam.clipSegmentsToLength(segs, 999)
+	assertEqual(1, #clipped)
+	assertEqual(segs[1].x2, clipped[1].x2)
+end)
+
+test("clipSegmentsToLength with zero length returns an empty array", function()
+	local segs = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local clipped = LaserBeam.clipSegmentsToLength(segs, 0)
+	assertEqual(0, #clipped)
+end)
+
+test("clipSegmentsToLength with a single short beam returns just that segment", function()
+	local segs = { { x1 = 0, y1 = 0, x2 = 30, y2 = 0 } }
+	local clipped = LaserBeam.clipSegmentsToLength(segs, 30)
+	assertEqual(1, #clipped)
+	assertEqual(30, math.sqrt((clipped[1].x2 - clipped[1].x1)^2 + (clipped[1].y2 - clipped[1].y1)^2))
+end)
+
+-- Beam extent grows toward the full resolved path length at
+-- SCROLL_SPEED and clamps at it (holds at full once reached).
+test("beam extent grows toward full path length and clamps", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local extent = 0
+	-- 100px at 64px/s: after 1s -> 64, still growing; after 2s -> 128, clamps to 100.
+	extent = math.min(100, extent + LaserBeam.SCROLL_SPEED * 1)
+	assertEqual(64, extent)
+	extent = math.min(100, extent + LaserBeam.SCROLL_SPEED * 1)
+	assertEqual(100, extent, "must clamp at full path length")
+end)
+
+-- commonPrefixLength returns the shared length from the emitter.
+test("commonPrefixLength matches identical paths", function()
+	local a = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 }, { x1 = 100, y1 = 0, x2 = 100, y2 = 50 } }
+	local b = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 }, { x1 = 100, y1 = 0, x2 = 100, y2 = 50 } }
+	assertEqual(150, LaserBeam.commonPrefixLength(a, b))
+end)
+
+test("commonPrefixLength stops at first differing segment", function()
+	local a = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 }, { x1 = 100, y1 = 0, x2 = 100, y2 = 50 } }
+	local b = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 }, { x1 = 100, y1 = 0, x2 = 150, y2 = 0 } }
+	-- first segment identical (100px), second differs -> common prefix = 100px
+	assertEqual(100, LaserBeam.commonPrefixLength(a, b))
+end)
+
+test("commonPrefixLength with empty path returns 0", function()
+	assertEqual(0, LaserBeam.commonPrefixLength({}, { { x1 = 0, y1 = 0, x2 = 10, y2 = 0 } }))
+end)
+
+-- suffixBeyond returns the tail beyond a given prefix length.
+test("suffixBeyond returns full path when prefixLen is 0", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local suffix = LaserBeam.suffixBeyond(path, 0)
+	assertEqual(1, #suffix)
+	assertEqual(100, math.sqrt((suffix[1].x2 - suffix[1].x1)^2 + (suffix[1].y2 - suffix[1].y1)^2))
+end)
+
+test("suffixBeyond returns partial segment when prefixLen cuts inside a segment", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local suffix = LaserBeam.suffixBeyond(path, 40)
+	assertEqual(1, #suffix)
+	assertNear(60, math.sqrt((suffix[1].x2 - suffix[1].x1)^2 + (suffix[1].y2 - suffix[1].y1)^2), 1e-6)
+	assertNear(40, suffix[1].x1, 1e-6, "suffix must start at the cut point")
+end)
+
+test("suffixBeyond returns empty when prefixLen exceeds path length", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 50, y2 = 0 } }
+	local suffix = LaserBeam.suffixBeyond(path, 100)
+	assertEqual(0, #suffix)
+end)
+
+-- suffixToLength returns the trailing portion of a path anchored at its
+-- far end (the head) -- the drain direction a laser beam uses when it is
+-- no longer fed: the tail (mirror/emitter end) dies first, the head stays
+-- put until the very end.
+test("suffixToLength returns the whole path when length equals the path", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local lit = LaserBeam.suffixToLength(path, 100)
+	assertEqual(1, #lit)
+	assertNear(100, math.sqrt((lit[1].x2 - lit[1].x1)^2 + (lit[1].y2 - lit[1].y1)^2), 1e-6)
+end)
+
+test("suffixToLength drains from the tail, keeping the head anchored", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 100, y2 = 0 } }
+	local lit = LaserBeam.suffixToLength(path, 40)
+	assertEqual(1, #lit)
+	-- head stays at the far end (x2=100)...
+	assertNear(100, lit[1].x2, 1e-6, "old head must stay at the far end while draining")
+	-- ...and the visible portion is the trailing 40px (start cuts in at 60).
+	assertNear(60, lit[1].x1, 1e-6, "the tail drain front must sit 40px before the head")
+	assertNear(40, math.sqrt((lit[1].x2 - lit[1].x1)^2 + (lit[1].y2 - lit[1].y1)^2), 1e-6)
+end)
+
+test("suffixToLength cuts a partial first segment when the drain crosses a joint", function()
+	local path = {
+		{ x1 = 0, y1 = 0, x2 = 100, y2 = 0 },
+		{ x1 = 100, y1 = 0, x2 = 100, y2 = 50 },
+	}
+	-- full length 150; lit length 75 -> the drain front sits 75px before the
+	-- head, i.e. 25px along the second segment (partial cut + full remainder).
+	local lit = LaserBeam.suffixToLength(path, 75)
+	local litLen = 0
+	for _, seg in ipairs(lit) do
+		litLen = litLen + math.sqrt((seg.x2 - seg.x1)^2 + (seg.y2 - seg.y1)^2)
+	end
+	assertEqual(2, #lit)
+	assertNear(75, lit[1].x1, 1e-6)
+	assertNear(0, lit[1].y1, 1e-6)
+	assertNear(100, lit[1].x2, 1e-6)
+	assertNear(100, lit[2].x1, 1e-6)
+	assertNear(50, lit[2].y2, 1e-6, "head must stay at the path's final endpoint")
+	assertNear(75, litLen, 1e-6)
+end)
+
+test("suffixToLength with zero length returns empty", function()
+	local path = { { x1 = 0, y1 = 0, x2 = 50, y2 = 0 } }
+	assertEqual(0, #LaserBeam.suffixToLength(path, 0))
+end)
+
+test("suffixToLength with nil segments returns empty", function()
+	assertEqual(0, #LaserBeam.suffixToLength(nil, 10))
+end)

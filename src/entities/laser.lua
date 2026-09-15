@@ -45,6 +45,18 @@
 -- criterion is about not procedurally lerping, not about requiring a real
 -- texture): the renderer never computes a width or a colour itself, it only
 -- reads frame.width/frame.color.
+--
+-- Visual head/tail animation (slice 05): the beam's visible extent is a
+-- single scalar `beamExtent` (world px along the resolved polyline from
+-- the emitter). The head grows at `LaserBeam.SCROLL_SPEED` px/s toward the
+-- full resolved length; when the resolved path changes (mirror flip) the
+-- previous path is retained as `beamPathState` and drains from its TAIL
+-- (the mirror end, which stops getting laser energy) toward its HEAD (the
+-- old far end), which stays put until the last moment, at 0 length then
+-- destroyed. The new reflected beam grows head-first from the mirror at
+-- the same speed. While the path is stable, the beam holds at full
+-- length. Power-off triggers the same tail-drain on the current visible
+-- beam, even after the instant raycast stops.
 local LaserBeamResolver = require("src.entities.laser_beam_resolver")
 local LaserBeam = require("src.fx.laser_beam")
 local SpriteProps = require("src.entities.sprite_props")
@@ -117,6 +129,22 @@ end
 
 local function isFullyOn(state)
 	return state == "on"
+end
+
+-- World px of a single segment. Pure math so it stays unit-testable.
+local function segmentLength(seg)
+	local dx, dy = seg.x2 - seg.x1, seg.y2 - seg.y1
+	return math.sqrt(dx * dx + dy * dy)
+end
+
+-- Total world px of a path (ordered segments). Pure math so it stays
+-- unit-testable.
+local function pathLength(segments)
+	local total = 0
+	for _, seg in ipairs(segments) do
+		total = total + segmentLength(seg)
+	end
+	return total
 end
 
 -- The point on the emitter's own rect the beam departs from -- one edge per
@@ -210,9 +238,33 @@ function Laser:init(object, map)
 	-- Laser:draw and src/fx/laser_beam.lua's drawSegments.
 	self.beamSegments = {}
 
-	-- Elapsed time feeding the beam texture's scroll (src/fx/laser_beam.lua
-	-- SCROLL_SPEED): accumulated every update so the pattern slides along
-	-- the beam even though the rendering itself is stateless.
+	-- Visual length animation: three-part model.
+	--   * baseExtent: distance from emitter along the shared prefix (emitter
+	--     to mirror). Grows at SCROLL_SPEED until it reaches the mirror
+	--     distance, then holds.
+	--   * oldReflectedExtent: length of the old reflected beam (beyond the
+	--     mirror) that retracts toward 0 at SCROLL_SPEED.
+	--   * newReflectedExtent: length of the new reflected beam (beyond the
+	--     mirror) that grows from 0 at SCROLL_SPEED toward its full length.
+	-- When the path is stable (no mirror flip), we treat the whole beam as
+	-- a single extent growing from the emitter (baseExtent = total length,
+	-- reflected extents = 0).
+	self.baseExtent = 0
+	self.oldReflectedExtent = 0
+	self.newReflectedExtent = 0
+	self.baseSegments = nil        -- shared prefix segments (emitter -> mirror)
+	self.oldReflectedSegments = nil
+	self.newReflectedSegments = nil
+	-- World length from the emitter to the mirror (the shared prefix),
+	-- captured for the duration of a split (drain+growth). It is FIXED
+	-- geometry from the mirror flip -- while the old beam drains, the
+	-- mirror's position along the beam never changes -- so it must be
+	-- stored, never recomputed from baseSegments: baseSegments is
+	-- REPLACED by the full merged path when the new beam reaches its
+	-- collision, and deriving the mirror offset from it would jump the
+	-- still-draining old beam's UV window by the new reflected length.
+	self.splitMirrorDist = 0
+	self.prevPathHash = nil
 	self.beamScrollPhase = 0
 
 	-- Power state always starts 'off' regardless of spawnEnabled -- a
@@ -279,6 +331,132 @@ function Laser:currentPowerFrame()
 	return POWER_FRAMES[self.powerTimeline:getFrameIndex(#POWER_FRAMES)]
 end
 
+-- Advances the visual length animation by `dt`.
+-- When the resolved path changes (mirror flip), the old reflected
+-- beam (beyond the mirror) drains from its tail -- the mirror end,
+-- which no longer receives laser energy -- toward its old head, which
+-- stays put until 0 length, then is destroyed. The new reflected beam
+-- grows from the mirror outward at SCROLL_SPEED until its full resolved
+-- length. The incident segment (emitter -> mirror) stays at the mirror
+-- distance. While the path is stable, the beam simply grows from the
+-- emitter to full length (baseExtent) and holds.
+-- Simple path hash for change detection.
+function Laser.pathHash(segments)
+	local parts = {}
+	for _, seg in ipairs(segments) do
+		parts[#parts + 1] = string.format("%.6f,%.6f,%.6f,%.6f", seg.x1, seg.y1, seg.x2, seg.y2)
+	end
+	return table.concat(parts, "|")
+end
+
+function Laser:reconstructOldPath()
+	if self.baseSegments and self.oldReflectedSegments then
+		local out = {}
+		for _, seg in ipairs(self.baseSegments) do table.insert(out, seg) end
+		for _, seg in ipairs(self.oldReflectedSegments) do table.insert(out, seg) end
+		return out
+	end
+	return self.beamSegments
+end
+
+function Laser:reconstructNewPath()
+	if self.baseSegments and self.newReflectedSegments then
+		local out = {}
+		for _, seg in ipairs(self.baseSegments) do table.insert(out, seg) end
+		for _, seg in ipairs(self.newReflectedSegments) do table.insert(out, seg) end
+		return out
+	end
+	return self.beamSegments
+end
+
+function Laser:advanceBeamAnimation(dt, resolvedSegments)
+	local prevHash = self.prevPathHash
+	local curHash = Laser.pathHash(resolvedSegments)
+	local changed = (prevHash ~= nil and prevHash ~= curHash)
+
+	if changed then
+		-- Path changed (mirror flip). Compute the shared prefix length
+		-- (distance from emitter to mirror) and fix it for the whole
+		-- split: the mirror point along the beam is constant geometry,
+		-- and baseSegments may be replaced mid-drain by the merged path
+		-- (see draw()), so the mirror offset must not be re-derived from
+		-- it later.
+		local oldPath = self.baseSegments and self.baseSegments or self.beamSegments
+		local commonPrefixLen = LaserBeam.commonPrefixLength(oldPath, resolvedSegments)
+		self.splitMirrorDist = commonPrefixLen
+
+		-- Split both paths into shared prefix (base) and reflected suffixes.
+		self.baseSegments = LaserBeam.clipSegmentsToLength(oldPath, commonPrefixLen)
+		self.oldReflectedSegments = LaserBeam.suffixBeyond(oldPath, commonPrefixLen)
+		self.newReflectedSegments = LaserBeam.suffixBeyond(resolvedSegments, commonPrefixLen)
+
+		-- The incident part stays at the mirror distance (clamp baseExtent).
+		local baseLen = pathLength(self.baseSegments)
+		if self.baseExtent > baseLen then
+			self.baseExtent = baseLen
+		end
+
+		-- Old reflected part: its current visible length is whatever was
+		-- visible beyond the mirror. If we don't have it, assume full old
+		-- reflected length.
+		local oldReflectedTotal = pathLength(self.oldReflectedSegments)
+		if self.oldReflectedExtent == 0 then
+			self.oldReflectedExtent = oldReflectedTotal
+		end
+
+		-- New reflected part starts at the mirror (length 0) and will grow.
+		self.newReflectedExtent = 0
+		self.prevPathHash = curHash
+	else
+		-- Path is stable. Ensure baseSegments is set so the beam is drawn
+		-- even before any path change occurs (e.g. on the first frame).
+		if not self.baseSegments then
+			self.baseSegments = resolvedSegments
+			self.prevPathHash = curHash
+		end
+	end
+
+	-- Update the resolved segments for drawing and collision.
+	self.beamSegments = resolvedSegments
+
+	-- Advance each part at SCROLL_SPEED.
+	-- Base (emitter -> mirror): grow toward mirror distance, then hold.
+	local baseLen = pathLength(self.baseSegments or resolvedSegments)
+	if self.baseExtent < baseLen then
+		self.baseExtent = math.min(baseLen, self.baseExtent + LaserBeam.SCROLL_SPEED * dt)
+	end
+
+	-- Old reflected: retract toward 0.
+	if self.oldReflectedExtent > 0 then
+		self.oldReflectedExtent = math.max(0, self.oldReflectedExtent - LaserBeam.SCROLL_SPEED * dt)
+		if self.oldReflectedExtent <= 0 then
+			self.oldReflectedSegments = nil
+		end
+	end
+
+	-- New reflected: grow toward its full length.
+	if self.newReflectedSegments then
+		local newReflectedTotal = pathLength(self.newReflectedSegments)
+		if self.newReflectedExtent < newReflectedTotal then
+			self.newReflectedExtent = math.min(newReflectedTotal, self.newReflectedExtent + LaserBeam.SCROLL_SPEED * dt)
+		end
+		-- Once fully grown, merge into base and clear reflected.
+		-- After setting baseSegments to the full resolved path, recompute
+		-- baseExtent to match so the visible head doesn't jump back to the
+		-- mirror distance on the next frame.  baseLen (computed above from
+		-- the OLD baseSegments) equals only the mirror prefix; using it
+		-- as-is would set baseExtent to the prefix length while draw()
+		-- draws the full merged path, visibly shrinking the beam for one
+		-- frame before it re-grows.
+		if self.newReflectedExtent >= newReflectedTotal then
+			self.baseSegments = resolvedSegments
+			self.baseExtent = pathLength(resolvedSegments)
+			self.newReflectedSegments = nil
+			self.newReflectedExtent = 0
+		end
+	end
+end
+
 function Laser:update(dt)
 	Entity.update(self, dt)
 
@@ -288,6 +466,8 @@ function Laser:update(dt)
 
 	if self.powerState == "off" then
 		self.beamHitEntity = nil
+		-- Retract everything toward the emitter at SCROLL_SPEED.
+		self:advanceBeamAnimation(dt, {})
 		return
 	end
 
@@ -316,7 +496,18 @@ function Laser:update(dt)
 	self.beamStart.x, self.beamStart.y = startX, startY
 	self.beamEnd.x, self.beamEnd.y = result.x, result.y
 	self.beamHitEntity = result.hitEntity
-	self.beamSegments = result.segments
+
+	-- Visual length animation: the beam's visible front travels at the
+	-- same speed as the texture scroll. When the resolved path changes
+	-- (a mirror flip), the tail of the old beam -- the mirror end, which
+	-- stops getting laser energy -- drains toward its old head at
+	-- SCROLL_SPEED, the head staying put until the last moment, then is
+	-- destroyed, while the head of the new beam grows from the mirror at
+	-- SCROLL_SPEED until it reaches its full resolved length. The
+	-- instant raycast above stays unchanged (ADR 0006: fresh every
+	-- frame, no stateful travelling projectile) -- the animation is
+	-- purely visual.
+	self:advanceBeamAnimation(dt, result.segments)
 
 	-- Kill zones normally kill via an overlap query for isKillZone; a
 	-- raycast beam has no such overlap to query, so the resolved hit's
@@ -364,15 +555,87 @@ end
 function Laser:draw()
 	Entity.draw(self)
 
-	if self.powerState == "off" then
+	-- During 'off' with nothing drawn, nothing to draw.
+	if self.powerState == "off" and self.baseExtent <= 0 and
+	   self.oldReflectedExtent <= 0 and self.newReflectedExtent <= 0 then
 		return
 	end
 
-	LaserBeam.drawSegments(self.beamSegments, self:currentPowerFrame(), self.beamScrollPhase)
+	local frame = self:currentPowerFrame()
+	local phase = self.beamScrollPhase
+
+	-- Base segment (emitter -> mirror): draw up to baseExtent. The base
+	-- starts the beam's UV ribbon at 0.
+	if self.baseSegments and self.baseExtent > 0 then
+		local clipped = LaserBeam.clipSegmentsToLength(self.baseSegments, self.baseExtent)
+		if #clipped > 0 then
+			LaserBeam.drawSegments(clipped, frame, phase)
+		end
+	end
+
+	-- The new reflected part starts at the mirror (a fixed world point in
+	-- the base chain), so its UV window continues from the top of the base
+	-- -- the mirror's world length along the beam. Without this offset the
+	-- reflected section's phase is wrong relative to the base the whole
+	-- time it draws, and worse: the moment it merges into a single base
+	-- chain (the new beam reaching its collision point), every texel on the
+	-- reflected section -- including the head -- shifts by the mirror
+	-- distance in one frame. That was the stutter/extra-texture at the head
+	-- when the new beam lands.
+	--
+	-- The mirror offset is splitMirrorDist, the mirror's fixed world length
+	-- captured when the split began -- NEVER re-derived from
+	-- pathLength(baseSegments). At the merge baseSegments is swapped for
+	-- the full merged path (mirror + new reflection), and deriving the
+	-- offset from it would shift the still-draining old beam's window by
+	-- the new reflected length in one frame: the old-beam skip when the
+	-- new beam hits its collision. splitMirrorDist is geometry, not state:
+	-- the mirror point along the beam does not move while the old beam
+	-- drains, so it is stored once at the flip.
+	local mirrorOffset = self.splitMirrorDist
+
+	-- Old reflected segment (beyond the mirror in OLD direction): the old
+	-- beam is no longer fed past the mirror, so it drains from its TAIL
+	-- (the mirror end) toward its HEAD (the old far end), which stays put
+	-- until the last moment. Drawn as the head-anchored trailing suffix of
+	-- the old path (suffixToLength), never a front truncation -- clipping
+	-- from the mirror would pull the old head backward, which a laser never
+	-- does.
+	--
+	-- The UV window here must NOT start at the mirror: the drawn suffix's
+	-- first segment is partial, sliced at the drain front, and that front
+	-- advances every frame. Anchoring the window at the mirror makes the
+	-- whole lit portion read texels as if it started at the mirror --
+	-- an offset error equal to the drained distance -- which grows at the
+	-- drain speed (the texture appears to scroll faster) and, because
+	-- drawSegments re-accumulates the partial first segment's actual
+	-- length, audibly/visibly re-anchors when the front crosses a segment
+	-- joint (the jump). Anchoring at the drain front -- mirror distance
+	-- plus the drained length -- keeps every texel mapped to its true
+	-- world position along the beam, so the scroll runs at exactly the
+	-- normal SCROLL_SPEED with no re-anchor anywhere. This also gives
+	-- power-off the same true mapping: there the whole old beam drains as
+	-- one "old" polyline starting at the emitter, and with an empty base
+	-- this resolves to just the drained distance from the emitter.
+	if self.oldReflectedSegments and self.oldReflectedExtent > 0 then
+		local oldTotal = pathLength(self.oldReflectedSegments)
+		local drained = oldTotal - self.oldReflectedExtent
+		local oldOffset = mirrorOffset + drained
+		local lit = LaserBeam.suffixToLength(self.oldReflectedSegments, self.oldReflectedExtent)
+		if #lit > 0 then
+			LaserBeam.drawSegments(lit, frame, phase, oldOffset)
+		end
+	end
+
+	-- New reflected segment (beyond mirror in new direction): draw up to newReflectedExtent.
+	if self.newReflectedSegments and self.newReflectedExtent > 0 then
+		local clipped = LaserBeam.clipSegmentsToLength(self.newReflectedSegments, self.newReflectedExtent)
+		if #clipped > 0 then
+			LaserBeam.drawSegments(clipped, frame, phase, mirrorOffset)
+		end
+	end
 end
 
--- White-box seam for tests/unit/laser_state_test.lua and a future
--- laser_test.lua; not for use by production code.
 Laser._internal = {
 	firingEdgePoint = firingEdgePoint,
 	farEndpoint = farEndpoint,
@@ -381,6 +644,9 @@ Laser._internal = {
 	isFullyOn = isFullyOn,
 	powerFrames = POWER_FRAMES,
 	powerDuration = POWER_DURATION,
+	segmentLength = segmentLength,
+	pathLength = pathLength,
+	pathHash = Laser.pathHash,
 }
 
 return Laser

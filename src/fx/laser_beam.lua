@@ -190,16 +190,130 @@ end
 -- the emitter outward. Each segment is already additive-blended and reset
 -- independently by LaserBeam.draw above, so overlapping joints just look
 -- like more of the same beam.
-function LaserBeam.drawSegments(segments, frame, phase)
+--
+-- `baseOffset` is the cumulative world px before this polyline along the
+-- FULL beam (default 0). laser.lua draws the incident (emitter->mirror)
+-- part and each reflected part separately while an extent is animating, but
+-- they are one texture ribbon: the reflected parts must carry the incident
+-- part's world length so their phase continues across the mirror. Without
+-- the offset, a reflected part restarts its u window at the mirror, and
+-- when it merges into a single chain the whole reflected section -- up to
+-- and including its head -- shifts phase by the incident length in a single
+-- frame, a visible stutter/extra-texture at the head.
+function LaserBeam.drawSegments(segments, frame, phase, baseOffset)
 	if segments == nil then
 		return
 	end
-	local baseWorld = 0
+	local baseWorld = baseOffset or 0
 	for _, segment in ipairs(segments) do
 		LaserBeam.draw(segment.x1, segment.y1, segment.x2, segment.y2, frame, phase, baseWorld)
 		local dx, dy = segment.x2 - segment.x1, segment.y2 - segment.y1
 		baseWorld = baseWorld + math.sqrt(dx * dx + dy * dy)
 	end
+end
+
+-- Clip an ordered segment polyline to the first `length` world px from
+-- the emitter start. Returns a new segment array (possibly with a
+-- partial final segment) whose total world length is <= length.
+-- Used by Laser:draw so the visible beam length can animate at
+-- SCROLL_SPEED without changing the resolved geometry (ADR 0006).
+function LaserBeam.clipSegmentsToLength(segments, length)
+	if length <= 0 then
+		return {}
+	end
+	local out = {}
+	local remaining = length
+	for _, seg in ipairs(segments) do
+		if remaining <= 0 then
+			break
+		end
+		local dx, dy = seg.x2 - seg.x1, seg.y2 - seg.y1
+		local segLen = math.sqrt(dx * dx + dy * dy)
+		if segLen <= 0 then
+			table.insert(out, seg)
+		elseif segLen <= remaining then
+			table.insert(out, seg)
+			remaining = remaining - segLen
+		else
+			local t = remaining / segLen
+			table.insert(out, { x1 = seg.x1, y1 = seg.y1, x2 = seg.x1 + dx * t, y2 = seg.y1 + dy * t })
+			remaining = 0
+		end
+	end
+	return out
+end
+
+-- Returns the world length of the common prefix (shared from emitter)
+-- between two ordered segment polylines. Segments match if their
+-- endpoints are within `eps` (default 1e-3). Used to find the mirror
+-- point when the path changes.
+function LaserBeam.commonPrefixLength(segsA, segsB, eps)
+	eps = eps or 1e-3
+	local len = 0
+	local i, j = 1, 1
+	while i <= #segsA and j <= #segsB do
+		local a, b = segsA[i], segsB[j]
+		if math.abs(a.x1 - b.x1) <= eps and math.abs(a.y1 - b.y1) <= eps
+		   and math.abs(a.x2 - b.x2) <= eps and math.abs(a.y2 - b.y2) <= eps then
+			local segLen = math.sqrt((a.x2 - a.x1)^2 + (a.y2 - a.y1)^2)
+			len = len + segLen
+			i, j = i + 1, j + 1
+		else
+			break
+		end
+	end
+	return len
+end
+
+-- Returns the suffix of segments beyond a given prefix length.
+-- `prefixLen` is the world px along the polyline from the emitter.
+-- The returned segments start at that point (partial first segment if
+-- needed) and continue to the end.
+function LaserBeam.suffixBeyond(segments, prefixLen)
+	if prefixLen <= 0 then
+		return segments
+	end
+	local out = {}
+	local remaining = prefixLen
+	for _, seg in ipairs(segments) do
+		if remaining <= 0 then
+			table.insert(out, seg)
+		else
+			local dx, dy = seg.x2 - seg.x1, seg.y2 - seg.y1
+			local segLen = math.sqrt(dx * dx + dy * dy)
+			if segLen <= remaining then
+				remaining = remaining - segLen
+			else
+				local t = remaining / segLen
+				table.insert(out, { x1 = seg.x1 + dx * t, y1 = seg.y1 + dy * t, x2 = seg.x2, y2 = seg.y2 })
+				remaining = 0
+			end
+		end
+	end
+	return out
+end
+
+-- Returns the LAST `length` world px of an ordered polyline, anchored at
+-- its FAR END (the head): the drawn portion always ends at the path's
+-- final endpoint and starts partway along a segment when needed. Used by
+-- Laser:draw so an old beam (no longer fed) drains from its tail -- the
+-- mirror/emitter end, which stops receiving energy -- toward its head,
+-- which stays in place while the visible length shrinks. This is the
+-- head-anchored counterpart to clipSegmentsToLength, which anchors at
+-- the start; using the clip on a draining beam would visibly pull the
+-- old head backward toward the tail, which a laser never does.
+function LaserBeam.suffixToLength(segments, length)
+	if not segments or length <= 0 then
+		return {}
+	end
+	-- Mirror pathLength: measure the whole polyline, then cut the prefix
+	-- that leaves the trailing `length` px anchored at the head.
+	local total = 0
+	for _, seg in ipairs(segments) do
+		local dx, dy = seg.x2 - seg.x1, seg.y2 - seg.y1
+		total = total + math.sqrt(dx * dx + dy * dy)
+	end
+	return LaserBeam.suffixBeyond(segments, total - length)
 end
 
 return LaserBeam
